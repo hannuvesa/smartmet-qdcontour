@@ -1839,6 +1839,49 @@ void do_draw_shapes(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "draw imagemap" command
+ */
+// ----------------------------------------------------------------------
+
+void do_draw_imagemap(istream & theInput)
+{
+  // The relevant field name and filenames
+  
+  string fieldname, filename;
+  theInput >> fieldname >> filename;
+
+  auto_ptr<NFmiArea> area;
+  
+  if(globals.projection.empty())
+	throw runtime_error("No projection has been specified for rendering shapes");
+  else
+	area.reset(NFmiAreaFactory::Create(globals.projection).release());
+  
+  // Generate map from all shapes in the list
+  
+  string outfile = filename + ".map";
+  ofstream out(outfile.c_str());
+  if(!out)
+	throw runtime_error("Failed to open "+outfile+" for writing");
+
+  if(globals.verbose)
+	cout << "Writing " << outfile << endl;
+
+  list<ShapeSpec>::const_iterator iter;
+  list<ShapeSpec>::const_iterator begin = globals.shapespecs.begin();
+  list<ShapeSpec>::const_iterator end   = globals.shapespecs.end();
+  
+  for(iter=begin; iter!=end; ++iter)
+	{
+	  NFmiGeoShape geo(iter->filename(),kFmiGeoShapeEsri);
+	  geo.ProjectXY(*area);
+	  geo.WriteImageMap(out,fieldname);
+	}
+  out.close();
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -1959,47 +2002,7 @@ int domain(int argc, const char *argv[])
 			  input >> command;
 
 			  if(command == "shapes")				do_draw_shapes(input);
-
-			  // --------------------------------------------------
-			  // Generate imagemap data
-			  // --------------------------------------------------
-
-			  else if(command == "imagemap")
-				{
-				  // The relevant field name and filenames
-
-				  string fieldname, filename;
-				  input >> fieldname >> filename;
-
-
-				  auto_ptr<NFmiArea> theArea;
-
-				  if(globals.projection.empty())
-					throw runtime_error("No projection has been specified for rendering shapes");
-				  else
-					theArea.reset(NFmiAreaFactory::Create(globals.projection).release());
-
-				  // Generate map from all shapes in the list
-
-				  list<ShapeSpec>::const_iterator iter;
-				  list<ShapeSpec>::const_iterator begin = globals.shapespecs.begin();
-				  list<ShapeSpec>::const_iterator end   = globals.shapespecs.end();
-
-				  string outfile = filename + ".map";
-				  ofstream out(outfile.c_str());
-				  if(!out)
-					throw runtime_error("Failed to open "+outfile+" for writing");
-				  if(globals.verbose)
-					cout << "Writing " << outfile << endl;
-
-				  for(iter=begin; iter!=end; ++iter)
-					{
-					  NFmiGeoShape geo(iter->filename(),kFmiGeoShapeEsri);
-					  geo.ProjectXY(*theArea);
-					  geo.WriteImageMap(out,fieldname);
-					}
-				  out.close();
-				}
+			  else if(command == "imagemap")		do_draw_imagemap(input);
 
 			  // --------------------------------------------------
 			  // Draw contours
