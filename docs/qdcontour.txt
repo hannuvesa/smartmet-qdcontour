@@ -278,7 +278,6 @@ using the command
 \code
 erase [color]
 draw shapes [filename]
-clear corners
 clear sizes
 clear shapes
 \endcode

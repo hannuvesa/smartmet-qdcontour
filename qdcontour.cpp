@@ -150,20 +150,6 @@ int domain(int argc, const char *argv[])
   int theTimeStampImageY = 0;
   string theTimeStampImage = "none";
   
-  // Alueen määritelmä
-  
-  NFmiPoint theBottomLeft	= NFmiPoint(kFloatMissing,kFloatMissing);
-  NFmiPoint theTopRight		= NFmiPoint(kFloatMissing,kFloatMissing);
-  NFmiPoint theCenter		= NFmiPoint(kFloatMissing,kFloatMissing);
-
-  double theCentralLongitude	= 25.0;
-  double theCentralLatitude	= 90.0;
-  double theTrueLatitude		= 60.0;
-  
-  int theWidth		= -1;
-  int theHeight		= -1;
-  float theScale	= -1;
-  
   // Projection määritelmä
 
   string theProjection;
@@ -412,72 +398,6 @@ int domain(int argc, const char *argv[])
 		  else if(command == "projection")
 			{
 			  input >> theProjection;
-			}
-
-		  else if(command == "bottomleft")
-			{
-			  cerr << "Warning: 'bottomleft' command is deprecated, use 'projection' instead" << endl;
-			  double lon,lat;
-			  input >> lon >> lat;
-			  theBottomLeft.Set(lon,lat);
-			  theCenter.Set(kFloatMissing, kFloatMissing);
-			  theScale = -1.0;
-			}
-		  
-		  else if(command == "topright")
-			{
-			  cerr << "Warning: 'topright' command is deprecated, use 'projection' instead" << endl;
-			  double lon,lat;
-			  input >> lon >> lat;
-			  theTopRight.Set(lon,lat);
-			  theCenter.Set(kFloatMissing, kFloatMissing);
-			  theScale = -1.0;
-			}
-		  
-		  else if(command == "center")
-			{
-			  cerr << "Warning: 'center' command is deprecated, use 'projection' instead" << endl;
-			  double lon,lat;
-			  input >> lon >> lat;
-			  theCenter.Set(lon,lat);
-			  theBottomLeft.Set(kFloatMissing, kFloatMissing);
-			  theTopRight.Set(kFloatMissing, kFloatMissing);
-			}
-
-		  else if(command == "scale")
-			{
-			  cerr << "Warning: 'scale' command is deprecated, use 'projection' instead" << endl;
-			  input >> theScale;
-			  theBottomLeft.Set(kFloatMissing, kFloatMissing);
-			  theTopRight.Set(kFloatMissing, kFloatMissing);
-			}
-
-		  else if(command == "stereographic")
-			{
-			  cerr << "Warning: 'stereographic' command is deprecated, use 'projection' instead" << endl;
-			  input >> theCentralLongitude
-					>> theCentralLatitude
-					>> theTrueLatitude;
-			}
-		  
-		  else if(command == "size")
-			{
-			  cerr << "Warning: 'size' command is deprecated, use 'projection' instead" << endl;
-			  input >> theWidth >> theHeight;
-			  theBackground = "";
-			}
-		  
-		  else if(command == "width")
-			{
-			  cerr << "Warning: 'width' command is deprecated, use 'projection' instead" << endl;
-
-			  input >> theWidth;
-			}
-		  
-		  else if(command == "height")
-			{
-			  cerr << "Warning: 'height' command is deprecated, use 'projection' instead" << endl;
-			  input >> theHeight;
 			}
 		  
 		  else if(command == "erase")
@@ -861,11 +781,6 @@ int domain(int argc, const char *argv[])
 				  for(piter=theSpecs.begin(); piter!=theSpecs.end(); ++piter)
 					piter->clearLabels();
 				}
-			  else if(command=="corners")
-				{
-				  theBottomLeft = NFmiPoint(kFloatMissing,kFloatMissing);
-				  theTopRight = NFmiPoint(kFloatMissing,kFloatMissing);
-				}
 			  else
 				throw runtime_error("Unknown clear target: " + command);
 			}
@@ -1126,19 +1041,7 @@ int domain(int argc, const char *argv[])
 				  auto_ptr<NFmiArea> theArea;
 
 				  if(theProjection.empty())
-					{
-					  NFmiStereographicArea tmp
-						= ProjectionFactory::createStereographic(theCentralLongitude,
-																 theCentralLatitude,
-																 theTrueLatitude,
-																 theCenter,
-																 theScale,
-																 theBottomLeft,
-																 theTopRight,
-																 theWidth,
-																 theHeight);
-					  theArea.reset(new NFmiStereographicArea(tmp));
-					}
+					throw runtime_error("No projection has been specified for rendering shapes");
 				  else
 					theArea.reset(NFmiAreaFactory::Create(theProjection).release());
 				  
@@ -1233,19 +1136,7 @@ int domain(int argc, const char *argv[])
 				  auto_ptr<NFmiArea> theArea;
 
 				  if(theProjection.empty())
-					{
-					  NFmiStereographicArea tmp
-						= ProjectionFactory::createStereographic(theCentralLongitude,
-																 theCentralLatitude,
-																 theTrueLatitude,
-																 theCenter,
-																 theScale,
-																 theBottomLeft,
-																 theTopRight,
-																 theWidth,
-																 theHeight);
-					  theArea.reset(new NFmiStereographicArea(tmp));
-					}
+					throw runtime_error("No projection has been specified for rendering shapes");
 				  else
 					theArea.reset(NFmiAreaFactory::Create(theProjection).release());
 				  
@@ -1294,34 +1185,17 @@ int domain(int argc, const char *argv[])
 				  if(theQueryStreams.empty())
 					throw runtime_error("No query data has been read!");
 				  
-				  // Check map image width & height
-				  
-				  if(theBackground != "")
-					{
-					  theWidth = theBackgroundImage.Width();
-					  theHeight = theBackgroundImage.Height();
-
-					  cout << "Contouring for background " << theBackground << endl;
-					}
-
 				  auto_ptr<NFmiArea> theArea;
 
 				  if(theProjection.empty())
-					{
-					  NFmiStereographicArea tmp
-						= ProjectionFactory::createStereographic(theCentralLongitude,
-																 theCentralLatitude,
-																 theTrueLatitude,
-																 theCenter,
-																 theScale,
-																 theBottomLeft,
-																 theTopRight,
-																 theWidth,
-																 theHeight);
-					  theArea.reset(new NFmiStereographicArea(tmp));
-					}
+					throw runtime_error("No projection has been specified for rendering shapes");
 				  else
 					theArea.reset(NFmiAreaFactory::Create(theProjection).release());
+
+				  // This message intentionally ignores globals.verbose
+				  
+				  if(theBackground != "")
+					cout << "Contouring for background " << theBackground << endl;
 				  
 
 				  if(globals.verbose)
