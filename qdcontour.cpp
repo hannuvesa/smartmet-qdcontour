@@ -1216,12 +1216,6 @@ int domain(int argc, const char *argv[])
 
   string theShapeFileName = "";
 
-  // Related variables
-
-  NFmiImage theMaskImage;
-  NFmiImage theCombineImage;
-
-
   // Process all command files
   // ~~~~~~~~~~~~~~~~~~~~~~~~~
 
