@@ -579,7 +579,12 @@ the given coordinates.
 
 The second form places an arrow at each grid location, with the
 given steps. Using <em>dx</em>=1 and <em>dy</em>=1 an arrow would
-be placed at every grid point.
+be placed at every grid point. Note that fractional steps are allowed,
+for example
+\code
+windarrows 0.5 0.5
+\endcode
+would effectively double the grid resolution.
 
 Wind arrows are drawn after all contours have been rendered.
 
@@ -599,6 +604,10 @@ can place labels at the grid points themselves using the
 <em>labels</em> command. The <em>dx</em> and <em>dy</em> arguments
 specify the step size in the grid, usually one labels every grid point
 using a step size of 1.
+
+Note that the steps <em>dx</em> and <em>dy</em> can be fractional.
+For example, using a step 0.5 would effectively double the grid
+resolution.
 
 Often the coordinate from which the label value is taken is not
 convenient for placing the label itself. One can adjust the location

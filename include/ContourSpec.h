@@ -103,8 +103,8 @@ public:
   const std::string & labelMissing(void) const;
   float labelOffsetX(void) const;
   float labelOffsetY(void) const;
-  int labelDX(void) const;
-  int labelDY(void) const;
+  float labelDX(void) const;
+  float labelDY(void) const;
   
   std::string labelCaption(void) const;
   float labelCaptionDX(void) const;
@@ -124,8 +124,8 @@ public:
   void labelMissing(const std::string & theValue);
   void labelOffsetX(float theValue);
   void labelOffsetY(float theValue);
-  void labelDX(int theValue);
-  void labelDY(int theValue);
+  void labelDX(float theValue);
+  void labelDY(float theValue);
   
   void labelCaption(const std::string & theValue);
   void labelCaptionDX(float theValue);
@@ -187,8 +187,8 @@ private:
   std::string itsLabelMissing;
   float itsLabelOffsetX;
   float itsLabelOffsetY;
-  int itsLabelDX;
-  int itsLabelDY;
+  float itsLabelDX;
+  float itsLabelDY;
   
   std::string itsLabelCaption;
   float itsLabelCaptionDX;

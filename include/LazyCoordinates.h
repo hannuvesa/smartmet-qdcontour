@@ -37,6 +37,7 @@ public:
 
   LazyCoordinates(const NFmiArea & theArea);
   const element_type & operator()(size_type i, size_type j) const;
+  const element_type & operator()(int i, int j, const element_type & theDefault) const;
   const data_type & operator*() const;
   data_type & operator*();
 
@@ -65,6 +66,28 @@ LazyCoordinates::operator()(size_type i, size_type j) const
 {
   init();
   return itsData[i][j];
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Data accessor
+ */
+// ----------------------------------------------------------------------
+
+inline
+const LazyCoordinates::element_type &
+LazyCoordinates::operator()(int i, int j, const element_type & theDefault) const
+{
+  init();
+  if(i>=0 &&
+	 j>=0 &&
+	 static_cast<size_type>(i) < itsData.NX() &&
+	 static_cast<size_type>(j) < itsData.NY())
+	{
+	  return itsData[i][j];
+	}
+  static element_type dummy = theDefault;
+  return dummy;
 }
 
 // ----------------------------------------------------------------------

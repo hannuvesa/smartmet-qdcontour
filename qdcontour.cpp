@@ -33,9 +33,10 @@
 #include "newbase/NFmiDataModifierClasses.h"
 #include "newbase/NFmiEnumConverter.h"		// FmiParameterName<-->string
 #include "newbase/NFmiFileSystem.h"			// FileExists()
+#include "newbase/NFmiInterpolation.h"		// Interpolation functions
 #include "newbase/NFmiLatLonArea.h"			// Geographic projection
 #include "newbase/NFmiSettings.h"			// Configuration
-#include "newbase/NFmiSmoother.h"		// for smoothing data
+#include "newbase/NFmiSmoother.h"			// for smoothing data
 #include "newbase/NFmiStereographicArea.h"	// Stereographic projection
 #include "newbase/NFmiStringTools.h"
 #include "newbase/NFmiPreProcessor.h"
@@ -43,6 +44,7 @@
 #include "boost/shared_ptr.hpp"
 
 #include <fstream>
+#include <iomanip>
 #include <list>
 #include <memory>
 #include <sstream>
@@ -2171,10 +2173,13 @@ void do_labelxy(istream & theInput)
 
 void do_labels(istream & theInput)
 {
-  int dx,dy;
+  float dx,dy;
   theInput >> dx >> dy;
 
   check_errors(theInput,"labels");
+
+  if(dx < 0 || dy < 0)
+	throw runtime_error("labels arguments must be nonnegative");
 
   if(!globals.specs.empty())
 	{
@@ -2554,14 +2559,40 @@ void add_label_grid_values(ContourSpec & theSpec,
 						   const NFmiArea & theArea,
 						   const LazyCoordinates & thePoints)
 {
-  const int dx = theSpec.labelDX();
-  const int dy = theSpec.labelDY();
+  const float dx = theSpec.labelDX();
+  const float dy = theSpec.labelDY();
 
   if(dx>0 && dy>0)
 	{
-	  for(unsigned int j=0; j<thePoints.NY(); j+=dy)
-		for(unsigned int i=0; i<thePoints.NX(); i+=dx)
-		  theSpec.add(theArea.WorldXYToLatLon(thePoints(i,j)));
+	  // Fast code for lattice coordinates
+	  if(dx == static_cast<int>(dx) && dy == static_cast<int>(dy) )
+		{
+		  const int dj = static_cast<int>(dy);
+		  const int di = static_cast<int>(dx);
+		  for(unsigned int j=0; j<thePoints.NY(); j+=dj)
+			for(unsigned int i=0; i<thePoints.NX(); i+=di)
+			  theSpec.add(theArea.WorldXYToLatLon(thePoints(i,j)));
+		}
+	  else
+		{
+		  for(float y=0; y<=thePoints.NY()-1; y+=dy)
+			{
+			  const int j = static_cast<int>(floor(y));
+			  const float dj = y-j;
+			  for(float x=0; x<=thePoints.NX()-1; x+=dx)
+				{
+				  const int i = static_cast<int>(floor(x));
+				  const float di = x-i;
+				  const NFmiPoint bad(kFloatMissing,kFloatMissing);
+				  const NFmiPoint xy = NFmiInterpolation::BiLinear(di, dj,
+																   thePoints(i,j+1,bad),
+																   thePoints(i+1,j+1,bad),
+																   thePoints(i,j,bad),
+																   thePoints(i+1,j,bad));
+				  theSpec.add(theArea.WorldXYToLatLon(xy));
+				}
+			}
+		}
 	}
 }
 
@@ -2588,29 +2619,14 @@ void add_label_point_values(ContourSpec & theSpec,
 		  NFmiPoint latlon = it->first;
 		  NFmiPoint ij = globals.queryinfo->LatLonToGrid(latlon);
 		  
-		  float value;
-		  
-		  if(fabs(ij.X()-FmiRound(ij.X()))<0.00001 &&
-			 fabs(ij.Y()-FmiRound(ij.Y()))<0.00001)
-			{
-			  value = theValues[FmiRound(ij.X())][FmiRound(ij.Y())];
-			}
-		  else
-			{
-			  int i = static_cast<int>(ij.X()); // rounds down
-			  int j = static_cast<int>(ij.Y());
-			  float v00 = theValues.At(i,j,kFloatMissing);
-			  float v10 = theValues.At(i+1,j,kFloatMissing);
-			  float v01 = theValues.At(i,j+1,kFloatMissing);
-			  float v11 = theValues.At(i+1,j+1,kFloatMissing);
-			  if(!globals.queryinfo->BiLinearInterpolation(ij.X(),
-														   ij.Y(),
-														   value,
-														   v00,v10,
-														   v01,v11))
-				value = kFloatMissing;
-
-			}
+		  int i = static_cast<int>(ij.X()); // rounds down
+		  int j = static_cast<int>(ij.Y());
+		  float value = NFmiInterpolation::BiLinear(ij.X()-floor(ij.X()),
+													ij.Y()-floor(ij.Y()),
+													theValues.At(i,j+1,kFloatMissing),
+													theValues.At(i+1,j+1,kFloatMissing),
+													theValues.At(i,j,kFloatMissing),
+													theValues.At(i+1,j,kFloatMissing));
 		  theSpec.addLabelValue(value);
 		}
 	}
@@ -2854,7 +2870,6 @@ void draw_wind_arrows(NFmiImage & theImage,
 			speed = globals.queryinfo->InterpolatedValue(*iter);
 		  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
 
-
 		  // Direction calculations
 
 		  const float pi = 3.141592658979323;
@@ -2906,12 +2921,23 @@ void draw_wind_arrows(NFmiImage & theImage,
 		  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
 
 		  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(theArea);
-		  for(unsigned int j=0; j<worldpts->NY(); j+=globals.windarrowdy)
-			for(unsigned int i=0; i<worldpts->NX(); i+=globals.windarrowdx)
+		  for(float y=0; y<=worldpts->NY()-1; y+=globals.windarrowdy)
+			for(float x=0; x<=worldpts->NX()-1; x+=globals.windarrowdx)
 			  {
 				// The start point
 
-				NFmiPoint latlon = theArea.WorldXYToLatLon((*worldpts)[i][j]);
+				const int i = static_cast<int>(floor(x));
+				const int j = static_cast<int>(floor(y));
+
+				NFmiPoint bad(kFloatMissing,kFloatMissing);
+				NFmiPoint xy = NFmiInterpolation::BiLinear(x-i,
+														   y-j,
+														   worldpts->At(i,j+1,bad),
+														   worldpts->At(i+1,j+1,bad),
+														   worldpts->At(i,j,bad),
+														   worldpts->At(i+1,j,bad));
+
+				NFmiPoint latlon = theArea.WorldXYToLatLon(xy);
 				NFmiPoint xy0 = theArea.ToXY(latlon);
 
 				// Skip rendering if the start point is masked
@@ -2920,28 +2946,40 @@ void draw_wind_arrows(NFmiImage & theImage,
 							globals.maskimage))
 				  continue;
 
-				float dir = theValues[i][j];
+				double dir = NFmiInterpolation::ModBiLinear(x-i,
+															y-j,
+															theValues.At(i,j+1,kFloatMissing),
+															theValues.At(i+1,j+1,kFloatMissing),
+															theValues.At(i,j,kFloatMissing),
+															theValues.At(i+1,j,kFloatMissing),
+															360);
+
 				if(dir==kFloatMissing)	// ignore missing
 				  continue;
 
-				float speed = speedvalues[i][j];
+				double speed = NFmiInterpolation::BiLinear(x-i,
+														   y-j,
+														   speedvalues.At(i,j+1,kFloatMissing),
+														   speedvalues.At(i+1,j+1,kFloatMissing),
+														   speedvalues.At(i,j,kFloatMissing),
+														   speedvalues.At(i+1,j,kFloatMissing));
 
 				// Direction calculations
 
-				const float pi = 3.141592658979323;
-				const float length = 0.1;	// degrees
+				const double pi = 3.141592658979323;
+				const double length = 0.1;	// degrees
 
-				float x0 = latlon.X();
-				float y0 = latlon.Y();
+				double x0 = latlon.X();
+				double y0 = latlon.Y();
 
-				float x1 = x0+sin(dir*pi/180)*length;
-				float y1 = y0+cos(dir*pi/180)*length;
+				double x1 = x0+sin(dir*pi/180)*length;
+				double y1 = y0+cos(dir*pi/180)*length;
 
 				NFmiPoint xy1 = theArea.ToXY(NFmiPoint(x1,y1));
 
 				// Calculate the actual angle
 
-				float alpha = atan2(xy1.X()-xy0.X(),
+				double alpha = atan2(xy1.X()-xy0.X(),
 									xy1.Y()-xy0.Y());
 
 				// Create a new path

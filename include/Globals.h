@@ -112,8 +112,8 @@ struct Globals
   float windarrowscaleB;			// default:
   float windarrowscaleC;			// 0*log10(0+1)+1 = 1
 
-  int windarrowdx;					// wind arrow grid spacing
-  int windarrowdy;
+  float windarrowdx;					// wind arrow grid spacing
+  float windarrowdy;
 
   std::list<NFmiPoint> arrowpoints;	// Active wind arrows
 

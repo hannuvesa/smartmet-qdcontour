@@ -728,7 +728,7 @@ float ContourSpec::labelOffsetY(void) const
  */
 // ----------------------------------------------------------------------
 
-int ContourSpec::labelDX(void) const
+float ContourSpec::labelDX(void) const
 {
   return itsLabelDX;
 }
@@ -741,7 +741,7 @@ int ContourSpec::labelDX(void) const
  */
 // ----------------------------------------------------------------------
 
-int ContourSpec::labelDY(void) const
+float ContourSpec::labelDY(void) const
 {
   return itsLabelDY;
 }
@@ -949,7 +949,7 @@ void ContourSpec::labelOffsetY(float theValue)
  */
 // ----------------------------------------------------------------------
 
-void ContourSpec::labelDX(int theValue)
+void ContourSpec::labelDX(float theValue)
 {
   itsLabelDX = theValue;
 }
@@ -962,7 +962,7 @@ void ContourSpec::labelDX(int theValue)
  */
 // ----------------------------------------------------------------------
 
-void ContourSpec::labelDY(int theValue)
+void ContourSpec::labelDY(float theValue)
 {
   itsLabelDY = theValue;
 }
