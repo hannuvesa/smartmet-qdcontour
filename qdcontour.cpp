@@ -840,6 +840,7 @@ int main(int argc, const char *argv[])
   vector<NFmiStreamQueryData *> theQueryStreams;
   int theQueryDataLevel = 1;
   string theQueryStreamNames = "";
+  vector<string> theFullQueryFileNames;
   
   // These will hold the querydata for the active parameter
   
@@ -969,6 +970,7 @@ int main(int argc, const char *argv[])
 						{
 						  NFmiStreamQueryData * tmp = new NFmiStreamQueryData();
 						  string filename = FileComplete(*iter,datapath);
+						  theFullQueryFileNames.push_back(filename);
 						  if(!tmp->ReadLatestData(filename))
 							exit(1);
 						  theQueryStreams.push_back(tmp);
@@ -2319,12 +2321,11 @@ int main(int argc, const char *argv[])
 					  
 					  if(theTimeStampFlag)
 						{
-						  for(qi=0; qi<theQueryStreams.size(); qi++)
+						  for(qi=0; qi<theFullQueryFileNames.size(); qi++)
 							{
-							  theQueryInfo = theQueryStreams[qi]->QueryInfoIter();
-							  NFmiTime futctime = theQueryInfo->OriginTime(); 
-							  NFmiTime tfor = NFmiMetTime(futctime,1).CorrectLocalTime();
-							  filename += "_" + tfor.ToStr(kDDHHMM);
+							  time_t secs = FileModificationTime(theFullQueryFileNames[qi]);
+							  NFmiTime tlocal(secs);
+							  filename += "_" + tlocal.ToStr(kDDHHMM);
 							}
 						}
 					  
