@@ -775,9 +775,7 @@ int main(int argc, char *argv[])
 					  for(iter=qnames.begin(); iter!=qnames.end(); ++iter)
 						{
 						  NFmiStreamQueryData * tmp = new NFmiStreamQueryData();
-						  string filename = *iter;
-						  if(!FileExists(filename) && !DirectoryExists(filename))
-							filename = datapath + '/' + filename;
+						  string filename = FileComplete(*iter,datapath);
 						  if(!tmp->ReadLatestData(filename))
 							exit(1);
 						  theQueryStreams.push_back(tmp);
