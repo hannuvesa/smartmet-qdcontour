@@ -84,6 +84,8 @@ private:
 						int theParam,
 						float theContour);
 
+  void removeEmpties(ParamCoordinates & theCandidates);
+
 }; // class LabelLocator
 
 #endif // LABELLOCATOR_H

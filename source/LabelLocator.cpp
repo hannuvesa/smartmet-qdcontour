@@ -347,28 +347,44 @@ void LabelLocator::chooseLabels()
 
   while(!candidates.empty())
 	{
-	  ParamCoordinates::iterator pit = candidates.begin();
+	  const int param = candidates.begin()->first;
+	  ContourCoordinates & contours = candidates.begin()->second;
 
-	  for(ContourCoordinates::iterator cit = pit->second.begin();
-		  cit != pit->second.end();
+	  for(ContourCoordinates::iterator cit = contours.begin();
+		  cit != contours.end();
 		  ++cit)
 		{
+		  // removeCandidates may have cleared some contour from
+		  // possible coordinates
 
-		  const int param = pit->first;
+		  if(cit->second.empty())
+			continue;
+
+		  // find the best label coordinate
+
 		  const float value = cit->first;
 
 		  Coordinates::const_iterator best = chooseOne(cit->second,param,value);
 		  if(best == cit->second.end())
 			throw runtime_error("Internal error in LabelLocator::chooseLabels()");
 
+		  // add the best label coordinate
+
 		  ContourCoordinates & contours = choices[param];
 		  Coordinates & coords = contours[value];
 
 		  coords.push_back(*best);
 
+		  // and erase all candidates too close to the accepted coordinate
+
 		  removeCandidates(candidates,*best,param,value);
 
 		}
+
+	  // Now we erase any possible empty containers left behind
+
+	  removeEmpties(candidates);
+
 	}
 
   swap(itsCurrentCoordinates,choices);
@@ -480,6 +496,10 @@ LabelLocator::chooseClosestToBorder(const Coordinates & theCandidates,
 /*!
  * \brief Remove candidates too close to the chosen point
  *
+ * Note that the code erases only candidate coordinates and may
+ * leave empty containers behind. This is necessary so that
+ * any top level iterators will not become invalidated.
+ *
  * \param theCandidates The candidates to clean up
  * \param thePoint The chosen point
  * \param theParam The chosen parameter
@@ -526,6 +546,33 @@ void LabelLocator::removeCandidates(ParamCoordinates & theCandidates,
 				++it;
 
 			}
+		  ++cit;
+		}
+	  ++pit;
+	}
+	  
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Remove any empty subcontainers from the candidates
+ *
+ * The details of the algorithm are important. Note how empty elements
+ * are deleted so that the current iterator will not be invalidated.
+ *
+ */
+// ----------------------------------------------------------------------
+
+void LabelLocator::removeEmpties(ParamCoordinates & theCandidates)
+{
+  for(ParamCoordinates::iterator pit = theCandidates.begin();
+	  pit != theCandidates.end();
+	  )
+	{
+	  for(ContourCoordinates::iterator cit = pit->second.begin();
+		  cit != pit->second.end();
+		  )
+		{
 		  if(cit->second.empty())
 			pit->second.erase(cit++);
 		  else
@@ -536,7 +583,6 @@ void LabelLocator::removeCandidates(ParamCoordinates & theCandidates,
 	  else
 		++pit;
 	}
-	  
 }
 
 // ======================================================================
