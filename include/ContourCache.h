@@ -44,14 +44,19 @@
 
 #include <map>
 #include <string>
+
+namespace Imagine
+{
+  class NFmiPath;
+}
+
 class LazyQueryData;
-class NFmiPath;
 
 class ContourCache
 {
 private:
 
-  typedef std::map<std::string, NFmiPath> storage_type;
+  typedef std::map<std::string, Imagine::NFmiPath> storage_type;
   storage_type itsData;
 
 public:
@@ -73,11 +78,11 @@ public:
 				float theHiLimit,
 				const LazyQueryData & theData) const;
 
-  const NFmiPath & find(float theLoLimit,
-						float theHiLimit,
-						const LazyQueryData & theData) const;
+  const Imagine::NFmiPath & find(float theLoLimit,
+								 float theHiLimit,
+								 const LazyQueryData & theData) const;
 
-  void insert(const NFmiPath & thePath,
+  void insert(const Imagine::NFmiPath & thePath,
 			  float theLoLimit,
 			  float theHiLimit,
 			  const LazyQueryData & theData);

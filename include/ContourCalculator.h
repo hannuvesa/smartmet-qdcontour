@@ -23,9 +23,13 @@
 
 template <typename T> class NFmiDataMatrix;
 
-class NFmiPath;
 class ContourCalculatorPimple;
 class LazyQueryData;
+
+namespace Imagine
+{
+  class NFmiPath;
+}
 
 class ContourCalculator
 {
@@ -33,14 +37,14 @@ public:
   ~ContourCalculator();
   ContourCalculator();
 
-  NFmiPath contour(const NFmiDataMatrix<float> & theValues,
-				   const LazyQueryData & theData,
-				   float theLoLimit, float theHiLimit,
-				   bool theLoIsExact, bool theHiIsExact,
-				   float theDataLoLimit, float theDataHiLimit,
-				   int theContourDepth,
-				   NFmiContourTree::NFmiContourInterpolation theInterpolation,
-				   bool theContourTrianglesOn);
+  Imagine::NFmiPath contour(const NFmiDataMatrix<float> & theValues,
+							const LazyQueryData & theData,
+							float theLoLimit, float theHiLimit,
+							bool theLoIsExact, bool theHiIsExact,
+							float theDataLoLimit, float theDataHiLimit,
+							int theContourDepth,
+							Imagine::NFmiContourTree::NFmiContourInterpolation theInterpolation,
+							bool theContourTrianglesOn);
 
   void clearCache();
   void cache(bool);

@@ -44,6 +44,7 @@
 #endif
 
 using namespace std;
+using namespace Imagine;
 
 // ----------------------------------------------------------------------
 // Usage

@@ -33,9 +33,9 @@ namespace GramTools
    */
   // ----------------------------------------------------------------------
 
-  NFmiPath metarrow(float theSpeed)
+  Imagine::NFmiPath metarrow(float theSpeed)
   {
-	NFmiPath path;
+	Imagine::NFmiPath path;
 
 	// Handle bad cases
 	if(theSpeed<0 || theSpeed==kFloatMissing)

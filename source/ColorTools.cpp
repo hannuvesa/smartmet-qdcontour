@@ -49,7 +49,7 @@ namespace
    */
   // ----------------------------------------------------------------------
 
-  NFmiColorTools::Color parse_hex_color(const std::string & theColor)
+  Imagine::NFmiColorTools::Color parse_hex_color(const std::string & theColor)
   {
 	int a,r,g,b;
 	if(theColor.length()==6)
@@ -67,9 +67,9 @@ namespace
 		b = hex2int(theColor.substr(6,2));
 	  }
 	if(r>=0 && g>=0 && b>=0 && a>=0)
-	  return NFmiColorTools::MakeColor(r,g,b,a);
+	  return Imagine::NFmiColorTools::MakeColor(r,g,b,a);
 
-	return NFmiColorTools::MissingColor;
+	return Imagine::NFmiColorTools::MissingColor;
   }
 
   // ----------------------------------------------------------------------
@@ -83,7 +83,7 @@ namespace
    */
   // ----------------------------------------------------------------------
 
-  NFmiColorTools::Color parse_dec_color(const string & theColor)
+  Imagine::NFmiColorTools::Color parse_dec_color(const string & theColor)
   {
 	vector<int> tmp;
 	int value=-1;
@@ -103,17 +103,17 @@ namespace
 			value = -1;
 		  }
 		else
-		  return NFmiColorTools::MissingColor;
+		  return Imagine::NFmiColorTools::MissingColor;
 	  }
 	if(value>=0)
 	  tmp.push_back(value);
 	  
 	if(tmp.size()==3)
-	  return NFmiColorTools::MakeColor(tmp[0],tmp[1],tmp[2],0);
+	  return Imagine::NFmiColorTools::MakeColor(tmp[0],tmp[1],tmp[2],0);
 	else if(tmp.size()==4)
-	  return NFmiColorTools::MakeColor(tmp[0],tmp[1],tmp[2],tmp[3]);
+	  return Imagine::NFmiColorTools::MakeColor(tmp[0],tmp[1],tmp[2],tmp[3]);
 	else
-	  return NFmiColorTools::MissingColor;
+	  return Imagine::NFmiColorTools::MissingColor;
     }
 
   // ----------------------------------------------------------------------
@@ -127,11 +127,11 @@ namespace
    */
   // ----------------------------------------------------------------------
 
-  NFmiColorTools::Color parse_named_color(const string & theColor)
+  Imagine::NFmiColorTools::Color parse_named_color(const string & theColor)
   {
 	unsigned int pos = theColor.find(",");
 	if(pos == string::npos)
-	  return NFmiColorTools::ColorValue(theColor);
+	  return Imagine::NFmiColorTools::ColorValue(theColor);
 
 	int value = -1;
 	for(unsigned int i=pos+1; i<theColor.length(); i++)
@@ -145,13 +145,13 @@ namespace
 			  value = value*10+ch-'0';
 		  }
 		else
-		  return NFmiColorTools::MissingColor;
+		  return Imagine::NFmiColorTools::MissingColor;
 	  }
 	if(value<0)
-	  return NFmiColorTools::MissingColor;
+	  return Imagine::NFmiColorTools::MissingColor;
 
-	NFmiColorTools::Color tmp = NFmiColorTools::ColorValue(theColor.substr(0,pos));
-	return NFmiColorTools::ReplaceAlpha(tmp,value);
+	Imagine::NFmiColorTools::Color tmp = Imagine::NFmiColorTools::ColorValue(theColor.substr(0,pos));
+	return Imagine::NFmiColorTools::ReplaceAlpha(tmp,value);
   }
 
 
@@ -171,11 +171,11 @@ namespace ColorTools
    */
   // ----------------------------------------------------------------------
 
-  NFmiColorTools::Color parsecolor(const string & theColor)
+  Imagine::NFmiColorTools::Color parsecolor(const string & theColor)
   {
 
 	if(theColor.empty())
-	  return NFmiColorTools::MissingColor;
+	  return Imagine::NFmiColorTools::MissingColor;
 
 	// Handle hex format number AARRGGBB or RRGGBB
 
@@ -204,10 +204,10 @@ namespace ColorTools
    */
   // ----------------------------------------------------------------------
 
-  NFmiColorTools::Color checkcolor(const std::string & theColor)
+  Imagine::NFmiColorTools::Color checkcolor(const std::string & theColor)
   {
-	NFmiColorTools::Color c = parsecolor(theColor);
-	if(c != NFmiColorTools::MissingColor)
+	Imagine::NFmiColorTools::Color c = parsecolor(theColor);
+	if(c != Imagine::NFmiColorTools::MissingColor)
 	  return c;
 
 	throw runtime_error("Unrecognized color " + theColor);
@@ -224,9 +224,9 @@ namespace ColorTools
    */
   // ----------------------------------------------------------------------
 
-  NFmiColorTools::NFmiBlendRule parserule(const std::string & theRule)
+  Imagine::NFmiColorTools::NFmiBlendRule parserule(const std::string & theRule)
   {
-	return NFmiColorTools::BlendValue(theRule);
+	return Imagine::NFmiColorTools::BlendValue(theRule);
   }
 
   // ----------------------------------------------------------------------
@@ -240,10 +240,10 @@ namespace ColorTools
    */
   // ----------------------------------------------------------------------
 
-  NFmiColorTools::NFmiBlendRule checkrule(const std::string & theRule)
+  Imagine::NFmiColorTools::NFmiBlendRule checkrule(const std::string & theRule)
   {
-	NFmiColorTools::NFmiBlendRule rule = parserule(theRule);
-	if(rule != NFmiColorTools::kFmiColorRuleMissing)
+	Imagine::NFmiColorTools::NFmiBlendRule rule = parserule(theRule);
+	if(rule != Imagine::NFmiColorTools::kFmiColorRuleMissing)
 	  return rule;
 	throw runtime_error("Unknown blending rule "+theRule);
   }

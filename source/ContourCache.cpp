@@ -114,9 +114,9 @@ bool ContourCache::contains(float theLoLimit,
  */
 // ----------------------------------------------------------------------
 
-const NFmiPath & ContourCache::find(float theLoLimit,
-									float theHiLimit,
-									const LazyQueryData & theData) const
+const Imagine::NFmiPath & ContourCache::find(float theLoLimit,
+											 float theHiLimit,
+											 const LazyQueryData & theData) const
 {
   string key = cache_key(theLoLimit, theHiLimit, theData);
   storage_type::const_iterator it = itsData.find(key);
@@ -138,7 +138,7 @@ const NFmiPath & ContourCache::find(float theLoLimit,
  */
 // ----------------------------------------------------------------------
 
-void ContourCache::insert(const NFmiPath & thePath,
+void ContourCache::insert(const Imagine::NFmiPath & thePath,
 						  float theLoLimit,
 						  float theHiLimit,
 						  const LazyQueryData & theData)

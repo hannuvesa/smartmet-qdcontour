@@ -19,7 +19,7 @@
 namespace GramTools
 {
 
-  NFmiPath metarrow(float theSpeed);
+  Imagine::NFmiPath metarrow(float theSpeed);
 
 } // namespace GramTools
 

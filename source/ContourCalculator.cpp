@@ -101,14 +101,14 @@ bool ContourCalculator::wasCached() const
  */
 // ----------------------------------------------------------------------
 
-NFmiPath ContourCalculator::contour(const NFmiDataMatrix<float> & theValues,
-									const LazyQueryData & theData,
-									float theLoLimit, float theHiLimit,
-									bool theLoIsExact, bool theHiIsExact,
-									float theDataLoLimit, float theDataHiLimit,
-									int theContourDepth,
-									NFmiContourTree::NFmiContourInterpolation theInterpolation,
-									bool theContourTrianglesOn)
+Imagine::NFmiPath ContourCalculator::contour(const NFmiDataMatrix<float> & theValues,
+											 const LazyQueryData & theData,
+											 float theLoLimit, float theHiLimit,
+											 bool theLoIsExact, bool theHiIsExact,
+											 float theDataLoLimit, float theDataHiLimit,
+											 int theContourDepth,
+											 Imagine::NFmiContourTree::NFmiContourInterpolation theInterpolation,
+											 bool theContourTrianglesOn)
 {
   if(itsPimple->isCacheOn &&
 	 itsPimple->itsCache.contains(theLoLimit, theHiLimit, theData))
@@ -117,7 +117,7 @@ NFmiPath ContourCalculator::contour(const NFmiDataMatrix<float> & theValues,
 	  return itsPimple->itsCache.find(theLoLimit, theHiLimit, theData);
 	}
 
-  NFmiContourTree tree(theLoLimit, theHiLimit, theLoIsExact, theHiIsExact);
+  Imagine::NFmiContourTree tree(theLoLimit, theHiLimit, theLoIsExact, theHiIsExact);
   tree.SubTriangleMode(theContourTrianglesOn);
 
   if(theDataLoLimit != kFloatMissing)
@@ -128,7 +128,7 @@ NFmiPath ContourCalculator::contour(const NFmiDataMatrix<float> & theValues,
 
   tree.Contour(theValues, theInterpolation, theContourDepth);
 
-  NFmiPath path = tree.Path();
+  Imagine::NFmiPath path = tree.Path();
   path.InvGrid(theData.Grid());
 
   if(itsPimple->isCacheOn)

@@ -15,8 +15,8 @@
 // ----------------------------------------------------------------------
 
 ShapeSpec::ShapeSpec(const std::string & theShapeFile,
-					 NFmiColorTools::Color theFill,
-					 NFmiColorTools::Color theStroke,
+					 Imagine::NFmiColorTools::Color theFill,
+					 Imagine::NFmiColorTools::Color theStroke,
 					 const std::string & theFillRule,
 					 const std::string & theStrokeRule)
   : itsShapeFileName(theShapeFile)
@@ -77,7 +77,7 @@ const std::string & ShapeSpec::strokerule(void) const
  */
 // ----------------------------------------------------------------------
 
-NFmiColorTools::Color ShapeSpec::fillcolor(void) const
+Imagine::NFmiColorTools::Color ShapeSpec::fillcolor(void) const
 {
   return itsFillColor;
 }
@@ -90,7 +90,7 @@ NFmiColorTools::Color ShapeSpec::fillcolor(void) const
  */
 // ----------------------------------------------------------------------
 
-NFmiColorTools::Color ShapeSpec::strokecolor(void) const
+Imagine::NFmiColorTools::Color ShapeSpec::strokecolor(void) const
 {
   return itsStrokeColor;
 }
@@ -129,7 +129,7 @@ void ShapeSpec::strokerule(const std::string & theRule)
  */
 // ----------------------------------------------------------------------
 
-void ShapeSpec::fillcolor(NFmiColorTools::Color theColor)
+void ShapeSpec::fillcolor(Imagine::NFmiColorTools::Color theColor)
 {
   itsFillColor = theColor;
 }
@@ -142,7 +142,7 @@ void ShapeSpec::fillcolor(NFmiColorTools::Color theColor)
  */
 // ----------------------------------------------------------------------
 
-void ShapeSpec::strokecolor(NFmiColorTools::Color theColor)
+void ShapeSpec::strokecolor(Imagine::NFmiColorTools::Color theColor)
 {
   itsStrokeColor = theColor;
 }

@@ -27,8 +27,8 @@ public:
 #endif
 
   ShapeSpec(const std::string & theShapeFile,
-			NFmiColorTools::Color theFill = NFmiColorTools::MakeColor(0,0,0,127),
-			NFmiColorTools::Color theStroke = NFmiColorTools::MakeColor(0,0,0,127),
+			Imagine::NFmiColorTools::Color theFill = Imagine::NFmiColorTools::MakeColor(0,0,0,127),
+			Imagine::NFmiColorTools::Color theStroke = Imagine::NFmiColorTools::MakeColor(0,0,0,127),
 			const std::string & theFillRule = "Copy",
 			const std::string & theStrokeRule = "Copy");
   
@@ -37,13 +37,13 @@ public:
   const std::string & filename(void) const;
   const std::string & fillrule(void) const;
   const std::string & strokerule(void) const;
-  NFmiColorTools::Color fillcolor(void) const;
-  NFmiColorTools::Color strokecolor(void) const;
+  Imagine::NFmiColorTools::Color fillcolor(void) const;
+  Imagine::NFmiColorTools::Color strokecolor(void) const;
   
   void fillrule(const std::string & theRule);
   void strokerule(const std::string & theRule);
-  void fillcolor(NFmiColorTools::Color theColor);
-  void strokecolor(NFmiColorTools::Color theColor);
+  void fillcolor(Imagine::NFmiColorTools::Color theColor);
+  void strokecolor(Imagine::NFmiColorTools::Color theColor);
   
   void marker(const std::string & theMarker,
 			  const std::string & theRule,
@@ -60,8 +60,8 @@ private:
   std::string	itsShapeFileName;
   std::string	itsFillRule;
   std::string	itsStrokeRule;
-  NFmiColorTools::Color	itsFillColor;
-  NFmiColorTools::Color	itsStrokeColor;
+  Imagine::NFmiColorTools::Color	itsFillColor;
+  Imagine::NFmiColorTools::Color	itsStrokeColor;
   std::string	itsMarker;
   std::string	itsMarkerRule;
   float		itsMarkerAlpha;
