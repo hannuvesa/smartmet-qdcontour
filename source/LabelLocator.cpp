@@ -175,11 +175,18 @@ void LabelLocator::clear()
 
 void LabelLocator::boundingBox(int theX1, int theY1, int theX2, int theY2)
 {
-  if(!empty())
-	throw runtime_error("LabelLocator: Cannot change bounding box once coordinates have been added");
-
   if(theX2 <= theX1 || theY2 <= theY1)
 	throw runtime_error("Empty bounding box not allowed in LabelLocator");
+
+  if(!empty())
+	{
+	  if(!itHasBBox ||
+		 itsBBoxX1 != theX1 ||
+		 itsBBoxY1 != theY1 ||
+		 itsBBoxX2 != theX2 ||
+		 itsBBoxY2 != theY2)
+		throw runtime_error("LabelLocator: Cannot change bounding box once coordinates have been added");
+	}
 
   itHasBBox = true;
   itsBBoxX1 = theX1;
@@ -198,7 +205,7 @@ void LabelLocator::boundingBox(int theX1, int theY1, int theX2, int theY2)
 
 void LabelLocator::minDistanceToSameValue(float theDistance)
 {
-  if(!empty())
+  if(!empty() && itsMinDistanceToSameValue != theDistance)
 	throw runtime_error("LabelLocator: Cannot change minimum distances once coordinates have been added");
 
   itsMinDistanceToSameValue = theDistance;
@@ -214,7 +221,7 @@ void LabelLocator::minDistanceToSameValue(float theDistance)
 
 void LabelLocator::minDistanceToDifferentValue(float theDistance)
 {
-  if(!empty())
+  if(!empty() && itsMinDistanceToDifferentValue != theDistance)
 	throw runtime_error("LabelLocator: Cannot change minimum distances once coordinates have been added");
 
   itsMinDistanceToDifferentValue = theDistance;
@@ -230,7 +237,7 @@ void LabelLocator::minDistanceToDifferentValue(float theDistance)
 
 void LabelLocator::minDistanceToDifferentParameter(float theDistance)
 {
-  if(!empty())
+  if(!empty() && itsMinDistanceToDifferentParameter != theDistance)
 	throw runtime_error("LabelLocator: Cannot change minimum distances once coordinates have been added");
 
   itsMinDistanceToDifferentParameter = theDistance;
