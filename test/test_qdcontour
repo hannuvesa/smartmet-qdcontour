@@ -100,6 +100,12 @@ DoTest("speedparam",
        "speedparam.conf",
        "speedparam_200210150900_141500.png");
 
+# Test labels
+
+DoTest("labels at points",
+       "labels_points.conf",
+       "labels_points_200210140900_140900.png");
+
 print "Done\n";
 
 # ----------------------------------------------------------------------
