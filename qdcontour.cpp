@@ -7,6 +7,7 @@
 
 // internal
 #include "ContourSpec.h"
+#include "MetaFunctions.h"
 #include "ShapeSpec.h"
 #include "StringTools.h"
 // imagine
@@ -49,47 +50,6 @@ void Usage(void)
   cout << "Commands in configuration files:" << endl << endl;
 }
 
-// ----------------------------------------------------------------------
-// Return true if the given name is a recognized meta function
-// ----------------------------------------------------------------------
-
-bool is_meta_parameter(const string & name)
-{
-  if(name == "MetaElevationAngle")
-	return true;
-  else
-	return false;
-}
-
-// ----------------------------------------------------------------------
-// Return meta function values
-// ----------------------------------------------------------------------
-
-void meta_values(const string & name,
-				 NFmiFastQueryInfo * theQI,
-				 NFmiDataMatrix<float> & vals)
-{
-  if(name == "MetaElevationAngle")
-	{
-	  NFmiDataMatrix<NFmiPoint> pts;
-	  theQI->Locations(pts);
-	  vals.Resize(pts.NX(),pts.NY(),kFloatMissing);
-
-	  for(unsigned int j=0; j<pts.NY(); j++)
-		for(unsigned int i=0; i<pts.NX(); i++)
-		  {
-			NFmiLocation loc(pts[i][j]);
-			NFmiMetTime t(theQI->ValidTime());
-			double angle = loc.ElevationAngle(t);
-			vals[i][j] = static_cast<float>(angle);
-		  }
-	}
-  else
-	{
-	  cerr << "Error: Unrecognized parameter name " << name << endl;
-	  exit(1);
-	}
-}
 
 // ----------------------------------------------------------------------
 // Convert textual description of color to internal color value.
@@ -1999,7 +1959,7 @@ int main(int argc, const char *argv[])
 						  
 						  if(param==kFmiBadParameter)
 							{
-							  if(!is_meta_parameter(name))
+							  if(!MetaFunctions::isMeta(name))
 								{
 								  cerr << "Error: Unknown parameter " << name << endl;
 								  return 1;
@@ -2053,7 +2013,8 @@ int main(int argc, const char *argv[])
 						  if(!ismeta)
 							theQueryInfo->Values(vals);
 						  else
-							meta_values(piter->param(), theQueryInfo, vals);
+							vals = MetaFunctions::values(piter->param(),
+														 theQueryInfo);
 						  
 						  // Replace values if so requested
 						  
@@ -2081,7 +2042,7 @@ int main(int argc, const char *argv[])
 								  if(!ismeta)
 									theQueryInfo->Values(tmpvals);
 								  else
-									meta_values(piter->param(), theQueryInfo, tmpvals);
+									tmpvals = MetaFunctions::values(piter->param(), theQueryInfo);
 								  if(piter->replace())
 									tmpvals.Replace(piter->replaceSourceValue(),
 													piter->replaceTargetValue());
@@ -2116,7 +2077,7 @@ int main(int argc, const char *argv[])
 								  if(!ismeta)
 									theQueryInfo->Values(tmpvals);
 								  else
-									meta_values(piter->param(), theQueryInfo, tmpvals);
+									tmpvals = MetaFunctions::values(piter->param(), theQueryInfo);
 								  if(piter->replace())
 									tmpvals.Replace(piter->replaceSourceValue(),
 													piter->replaceTargetValue());
