@@ -2310,30 +2310,15 @@ void filter_values(NFmiDataMatrix<float> & theValues,
 	}
   else if(globals.filter=="linear")
 	{
-	  NFmiTime utc = globals.queryinfo->ValidTime();
-#ifdef DEPRECATED
-	  NFmiTime tnow = TimeTools::ConvertZone(utc,globals.timestampzone);
-#else
-	  NFmiTime tnow = utc;
-#endif
+	  NFmiTime tnow = globals.queryinfo->ValidTime();
 	  bool isexact = theTime.IsEqual(tnow);
 	  
 	  if(!isexact)
 		{
 		  NFmiDataMatrix<float> tmpvals;
-		  NFmiTime t2utc = globals.queryinfo->ValidTime();
-#ifdef DEPRECATED
-		  NFmiTime t2 = TimeTools::ConvertZone(t2utc,globals.timestampzone);
-#else
-		  NFmiTime t2 = t2utc;
-#endif
+		  NFmiTime t2 = globals.queryinfo->ValidTime();
 		  globals.queryinfo->PreviousTime();
-		  NFmiTime t1utc = globals.queryinfo->ValidTime();
-#ifdef DEPRECATED
-		  NFmiTime t1 = TimeTools::ConvertZone(t1utc,globals.timestampzone);
-#else
-		  NFmiTime t1 = t1utc;
-#endif
+		  NFmiTime t1 = globals.queryinfo->ValidTime();
 		  if(!MetaFunctions::isMeta(theSpec.param()))
 			globals.queryinfo->Values(tmpvals);
 		  else
@@ -2363,12 +2348,8 @@ void filter_values(NFmiDataMatrix<float> & theValues,
 	  for(;;)
 		{
 		  globals.queryinfo->PreviousTime();
-		  NFmiTime utc = globals.queryinfo->ValidTime();
-#ifdef DEPRECATED
-		  NFmiTime tnow = TimeTools::ConvertZone(utc,globals.timestampzone);
-#else
-		  NFmiTime tnow = utc;
-#endif
+		  NFmiTime tnow = globals.queryinfo->ValidTime();
+
 		  if(tnow.IsLessThan(tprev))
 			break;
 		  
@@ -3535,7 +3516,7 @@ void do_draw_contours(istream & theInput)
   // Also, this means the contours are independent of
   // the image size.
 
-  NFmiTime utctime, time1, time2;
+  NFmiTime time1, time2;
 
   NFmiDataMatrix<float> vals;
 
@@ -3555,19 +3536,10 @@ void do_draw_contours(istream & theInput)
 
 	  // Establish time limits
 	  globals.queryinfo->LastTime();
-	  utctime = globals.queryinfo->ValidTime();
-#ifdef DEPRECATED
-	  NFmiTime t2 = TimeTools::ConvertZone(utctime,globals.timestampzone);
-#else
-	  NFmiTime t2 = utctime;
-#endif
+	  NFmiTime t2 = globals.queryinfo->ValidTime();
+
 	  globals.queryinfo->FirstTime();
-	  utctime = globals.queryinfo->ValidTime();
-#ifdef DEPRECATED
-	  NFmiTime t1 = TimeTools::ConvertZone(utctime,globals.timestampzone);
-#else
-	  NFmiTime t1 = utctime;
-#endif
+	  NFmiTime t1 = globals.queryinfo->ValidTime();
 
 	  if(qi==0)
 		{
@@ -3632,21 +3604,11 @@ void do_draw_contours(istream & theInput)
 		  globals.queryinfo->ResetTime();
 		  while(globals.queryinfo->NextTime())
 			{
-			  NFmiTime utc = globals.queryinfo->ValidTime();
-#ifdef DEPRECATED
-			  NFmiTime loc = TimeTools::ConvertZone(utc,globals.timestampzone);
-#else
-			  NFmiTime loc = utc;
-#endif
+			  NFmiTime loc = globals.queryinfo->ValidTime();
 			  if(!loc.IsLessThan(t))
 				break;
 			}
-		  NFmiTime utc = globals.queryinfo->ValidTime();
-#ifdef DEPRECATED
-		  NFmiTime tnow = TimeTools::ConvertZone(utc,globals.timestampzone);
-#else
-		  NFmiTime tnow = utc;
-#endif
+		  NFmiTime tnow = globals.queryinfo->ValidTime();
 
 		  // we wanted
 
