@@ -30,7 +30,9 @@
   <li>\ref multipledatas_section</li>
   <li>\ref filename_section</li>
   <li>\ref contour_section</li>
+  <li>\ref contourlabel_section</li>
   <li>\ref symbol_section</li>
+  <li>\ref pressure_section</li>
   <li>\ref arrow_section</li>
   <li>\ref label_section</li>
   <li>\ref masking_section</li>
@@ -446,6 +448,8 @@ There is no similar <em>patternfills</em> equivalent as before, as
 interpolation between the start and end patterns would rarely make
 sense.
 
+\subsection contourlabel_section Labeling the contours
+
 To label certain contours one may use the commands
 
 \code
@@ -477,6 +481,20 @@ The syntax for the command is
 
 \code
 contoursymbol [startvalue] [endvalue] [imagefile] [blendrule] [blendfactor]
+\endcode
+
+\section pressure_section Drawing high and low pressure symbols
+
+\code
+highpressure [image] [blendrule] [blendfactor]
+lowpressure [image] [blendrule] [blendfactor]
+
+lowpressuremaximum [value]		# default 1020
+highpressureminimum [value]		# default 980
+
+highpressuremindist [value]		# default = 100
+lowpressuremindist [value]		# default = 100
+pressuremindist [value]			# default = 50
 \endcode
 
 \subsection arrow_section Drawing arrows from querydata
