@@ -22,6 +22,21 @@ namespace
 {
   // ----------------------------------------------------------------------
   /*!
+   * \brief Convert cloudiness value in range 0-100 to value 0-8
+   */
+  // ----------------------------------------------------------------------
+
+  inline
+  float eights(float theCloudiness)
+  {
+	if(theCloudiness == kFloatMissing)
+	  return kFloatMissing;
+	else
+	  return FmiRound(theCloudiness/100*8);
+  }
+
+  // ----------------------------------------------------------------------
+  /*!
    * \brief Return ElevationAngle matrix from given query info
    *
    * \param theQI The query info
@@ -110,6 +125,49 @@ namespace
 	return troad;
   }
 
+  // ----------------------------------------------------------------------
+  /*!
+   * \brief Return N matrix from given query info
+   *
+   * \param theQI The query info
+   * \return The values in a matrix
+   */
+  // ----------------------------------------------------------------------
+
+  NFmiDataMatrix<float> n_cloudiness(LazyQueryData * theQI)
+  {
+	NFmiDataMatrix<float> n;
+	theQI->Param(kFmiTotalCloudCover);
+	theQI->Values(n);
+
+	for(unsigned int j=0; j<n.NY(); j++)
+	  for(unsigned int i=0; i<n.NX(); i++)
+		n[i][j] = eights(n[i][j]);
+	return n;
+  }
+
+  // ----------------------------------------------------------------------
+  /*!
+   * \brief Return NN matrix from given query info
+   *
+   * \param theQI The query info
+   * \return The values in a matrix
+   */
+  // ----------------------------------------------------------------------
+
+  NFmiDataMatrix<float> nn_cloudiness(LazyQueryData * theQI)
+  {
+	NFmiDataMatrix<float> nn;
+	theQI->Param(kFmiMiddleAndLowCloudCover);
+	theQI->Values(nn);
+
+	for(unsigned int j=0; j<nn.NY(); j++)
+	  for(unsigned int i=0; i<nn.NX(); i++)
+		nn[i][j] = eights(nn[i][j]);
+
+	return nn;
+  }
+
 } // namespace anonymous
 
 
@@ -153,6 +211,10 @@ namespace MetaFunctions
 	  return 10001;
 	if(theFunction == "MetaDewDifference")
 	  return 10002;
+	if(theFunction == "MetaN")
+	  return 10003;
+	if(theFunction == "MetaNN")
+	  return 10004;
 	return 0;
   }
 
@@ -178,6 +240,10 @@ namespace MetaFunctions
 	  return wind_chill_values(theQI);
 	if(theFunction == "MetaDewDifference")
 	  return dew_difference_values(theQI);
+	if(theFunction == "MetaN")
+	  return n_cloudiness(theQI);
+	if(theFunction == "MetaNN")
+	  return nn_cloudiness(theQI);
 
 	throw runtime_error("Unrecognized meta function " + theFunction);
 
