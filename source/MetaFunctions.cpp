@@ -10,6 +10,7 @@
 #include "NFmiMetTime.h"
 #include "NFmiPoint.h"
 #include <iostream>
+#include <stdexcept>
 
 using namespace std;
 
@@ -68,6 +69,9 @@ namespace MetaFunctions
   /*!
    * \brief Return the function values for the given meta function
    *
+   * An exception is thrown if the name is not recognized. One should
+   * always test with isMeta first.
+   *
    * \param theFunction The function name
    * \param theQI The query info
    * \return A matrix of function values
@@ -80,8 +84,8 @@ namespace MetaFunctions
 	if(theFunction == "MetaElevationAngle")
 	  return elevation_angle_values(theQI);
 
-	cerr << "Error: Unrecognized meta function " << theFunction << endl;
-	exit(1);
+	throw runtime_error("Unrecognized meta function " + theFunction);
+
   }
 
 } // namespace MetaFunctions

@@ -32,6 +32,7 @@
 #include "NFmiPreProcessor.h"
 // system
 #include <fstream>
+#include <stdexcept>
 #include <string>
 #include <list>
 #ifdef OLDGCC
@@ -229,17 +230,17 @@ int domain(int argc, const char *argv[])
   // ~~~~~~~~~~~~~~~~~~~~~~~~~
   
   NFmiCmdLine cmdline(argc,argv,"vf");
+
+  if(cmdline.NumberofParameters() == 0)
+	{
+	  Usage();
+	  return 1;
+	}
   
   // Check for parsing errors
   
   if(cmdline.Status().IsError())
-    {
-      cerr << "Error: Invalid command line:" << endl
-		   << cmdline.Status().ErrorLog().CharPtr() << endl;
-      Usage();
-      return 1;
-	  
-    }
+	throw runtime_error(cmdline.Status().ErrorLog().CharPtr());
   
   // Read -v option
   
@@ -252,12 +253,6 @@ int domain(int argc, const char *argv[])
     force = true;
   
   // Read command filenames
-  
-  if(cmdline.NumberofParameters() == 0)
-    {
-      cerr << "Error: Expecting atleast one command file argument\n\n";
-      return 1;
-    }
   
   for(int i=1; i<=cmdline.NumberofParameters(); i++)
 	theFiles.push_back(cmdline.Parameter(i));
@@ -279,10 +274,8 @@ int domain(int argc, const char *argv[])
 	  NFmiPreProcessor processor(strip_pound);
 	  processor.SetIncluding("include", "", "");
 	  if(!processor.ReadAndStripFile(cmdfilename))
-		{
-		  cerr << "Error: Could not parse " << cmdfilename << endl;
-		  return 1;
-		}
+		throw runtime_error("Could not parse "+cmdfilename);
+
 	  // Extract the assignments
 	  string text = processor.GetString();
 
@@ -432,30 +425,21 @@ int domain(int argc, const char *argv[])
 			{
 			  input >> theErase;
 			  if(ColorTools::parsecolor(theErase)==NFmiColorTools::MissingColor)
-				{
-				  cerr << "Error: Invalid color " << theErase << endl;
-				  exit(1);
-				}
+				throw runtime_error("Invalid color "+theErase);
 			}
 		  
 		  else if(command == "legenderase")
 			{
 			  input >> theLegendErase;
 			  if(ColorTools::parsecolor(theLegendErase)==NFmiColorTools::MissingColor)
-				{
-				  cerr << "Error: Invalid color " << theLegendErase << endl;
-				  exit(1);
-				}
+				throw runtime_error("Invalid color "+theLegendErase);
 			}
 		  
 		  else if(command == "fillrule")
 			{
 			  input >> theFillRule;
 			  if(NFmiColorTools::BlendValue(theFillRule)==NFmiColorTools::kFmiColorRuleMissing)
-				{
-				  cerr << "Error: Unknown blending rule " << theFillRule << endl;
-				  exit(1);
-				}
+				throw runtime_error("Unknown blending rule " + theFillRule);
 			  if(!theShapeSpecs.empty())
 				theShapeSpecs.back().fillrule(theFillRule);
 			}
@@ -463,10 +447,7 @@ int domain(int argc, const char *argv[])
 			{
 			  input >> theStrokeRule;
 			  if(NFmiColorTools::BlendValue(theStrokeRule)==NFmiColorTools::kFmiColorRuleMissing)
-				{
-				  cerr << "Error: Unknown blending rule " << theStrokeRule << endl;
-				  exit(1);
-				}
+				throw runtime_error("Unknown blending rule " + theStrokeRule);
 			  if(!theShapeSpecs.empty())
 				theShapeSpecs.back().strokerule(theStrokeRule);
 			}
@@ -487,29 +468,18 @@ int domain(int argc, const char *argv[])
 			{
 			  input >> theArrowFillColor >> theArrowFillRule;
 			  if(ColorTools::parsecolor(theArrowFillColor)==NFmiColorTools::MissingColor)
-				{
-				  cerr << "Error: Invalid color " << theArrowFillColor << endl;
-				  exit(1);
-				}
+				throw runtime_error("Invalid color " + theArrowFillColor);
+			  
 			  if(NFmiColorTools::BlendValue(theArrowFillRule)==NFmiColorTools::kFmiColorRuleMissing)
-				{
-				  cerr << "Error: Unknown blending rule " << theArrowFillRule << endl;
-				  exit(1);
-				}
+				throw runtime_error("Unknown blending rule "+theArrowFillRule);
 			}
 		  else if(command == "arrowstroke")
 			{
 			  input >> theArrowStrokeColor >> theArrowStrokeRule;
 			  if(ColorTools::parsecolor(theArrowStrokeColor)==NFmiColorTools::MissingColor)
-				{
-				  cerr << "Error: Invalid color " << theArrowStrokeColor << endl;
-				  exit(1);
-				}
+				throw runtime_error("Invalid color " + theArrowStrokeColor);
 			  if(NFmiColorTools::BlendValue(theArrowStrokeRule)==NFmiColorTools::kFmiColorRuleMissing)
-				{
-				  cerr << "Error: Unknown blending rule " << theArrowStrokeRule << endl;
-				  exit(1);
-				}
+				throw runtime_error("Unknown blending rule "+ theArrowStrokeRule);
 			}
 		  
 		  else if(command == "arrowpath")
@@ -559,10 +529,7 @@ int domain(int argc, const char *argv[])
 				  input >> theCombineX >> theCombineY;
 				  input >> theCombineRule >> theCombineFactor;
 				  if(NFmiColorTools::BlendValue(theCombineRule)==NFmiColorTools::kFmiColorRuleMissing)
-					{
-					  cerr << "Error: Unknown blending rule " << theCombineRule << endl;
-					  exit(1);
-					}
+					throw runtime_error("Unknown blending rule " + theCombineRule);
 				  theCombineImage.Read(FileComplete(theCombine,mapspath));
 				}
 			  else
@@ -574,20 +541,14 @@ int domain(int argc, const char *argv[])
 			  input >> theForegroundRule;
 			  
 			  if(NFmiColorTools::BlendValue(theForegroundRule)==NFmiColorTools::kFmiColorRuleMissing)
-				{
-				  cerr << "Error: Unknown blending rule " << theForegroundRule << endl;
-				  exit(1);
-				}
+				throw runtime_error("Unknown blending rule "+theForegroundRule);
 			}
 		  
 		  else if(command == "savepath")
 			{
 			  input >> theSavePath;
 			  if(!DirectoryExists(theSavePath))
-				{
-				  cerr << "savepath " << theSavePath << " does not exist!" << endl;
-				  return 1;
-				}
+				throw runtime_error("savepath "+theSavePath+" does not exist");
 			}
 		  
 		  else if(command == "prefix")
@@ -707,10 +668,7 @@ int domain(int argc, const char *argv[])
 				  input >> marker >> markerrule >> markeralpha;
 				  
 				  if(NFmiColorTools::BlendValue(markerrule)==NFmiColorTools::kFmiColorRuleMissing)
-					{
-					  cerr << "Error: Unknown blending rule " << markerrule << endl;
-					  exit(1);
-					}
+					throw runtime_error("Unknown blending rule "+markerrule);
 				  ShapeSpec spec(theShapeFileName);
 				  spec.marker(marker,markerrule,markeralpha);
 				  theShapeSpecs.push_back(spec);
@@ -723,15 +681,10 @@ int domain(int argc, const char *argv[])
 				  NFmiColorTools::Color fill = ColorTools::parsecolor(fillcolor);
 				  NFmiColorTools::Color stroke = ColorTools::parsecolor(strokecolor);
 				  if(fill == NFmiColorTools::MissingColor)
-					{
-					  cerr << "Error: fillcolor " << fillcolor << " unrecognized" << endl;
-					  exit(1);
-					}
+					throw runtime_error("Unknown color "+fillcolor);
 				  if(stroke == NFmiColorTools::MissingColor)
-					{
-					  cerr << "Error: strokecolor " << strokecolor << " unrecognized" << endl;
-					  exit(1);
-					}
+					throw runtime_error("Unknown color "+strokecolor);
+
 				  theShapeSpecs.push_back(ShapeSpec(theShapeFileName,
 													fill,stroke,
 													theFillRule,theStrokeRule));
@@ -865,10 +818,7 @@ int domain(int argc, const char *argv[])
 				  theTopRight = NFmiPoint(kFloatMissing,kFloatMissing);
 				}
 			  else
-				{
-				  cerr << "Error: Unknown clear target: " << command << endl;
-				  exit(1);
-				}
+				throw runtime_error("Unknown clear target: " + command);
 			}
 		  
 		  else if(command == "labelmarker")
@@ -1019,10 +969,7 @@ int domain(int argc, const char *argv[])
 			  input >> datafilename;
 			  ifstream datafile(datafilename.c_str());
 			  if(!datafile)
-				{
-				  cerr << "Error: No data file named " << datafilename << endl;
-				  exit(1);
-				}
+				throw runtime_error("No data file named " + datafilename);
 			  string datacommand;
 			  while( datafile >> datacommand)
 				{
@@ -1036,10 +983,7 @@ int domain(int argc, const char *argv[])
 						theSpecs.back().add(NFmiPoint(lon,lat));
 					}
 				  else
-					{
-					  cerr << "Error: Unknown datacommand " << datacommand << endl;
-					  exit(1);
-					}
+					throw runtime_error("Unknown datacommand " + datacommand);
 				}
 			  datafile.close();
 			}
@@ -1137,16 +1081,10 @@ int domain(int argc, const char *argv[])
 					{
 
 					  if(theCenter.X()==kFloatMissing || theCenter.Y()==kFloatMissing)
-						{
-						  cerr << "Error: Area corner coordinates not given" << endl;
-						  return 1;
-						}
+						throw runtime_error("Area corner coordinates not given");
 					  
 					  if(theScale<0 || theWidth<0 || theHeight<0)
-						{
-						  cerr << "Error: scale, width and height must be given along with center coordinates" << endl;
-						  return 1;
-						}
+						throw runtime_error("scale, width and height must be given along with center coordinates");
 
 					  NFmiStereographicArea area(theCenter,theCenter,
 												 theCentralLongitude,
@@ -1208,11 +1146,7 @@ int domain(int argc, const char *argv[])
 					  theHeight = static_cast<int>((tr.Y()-bl.Y())/(tr.X()-bl.X())*theWidth);
 					}
 				  else if(theWidth<=0 && theHeight<=0)
-					{
-					  cerr << "Error: Image width & height unspecified"
-						   << endl;
-					  exit(1);
-					}
+					throw runtime_error("Image width & height unspecified");
 				  
 				  // The actual area we wanted
 				  
@@ -1279,10 +1213,7 @@ int domain(int argc, const char *argv[])
 				  else if(theFormat=="gif")
 					theImage.WriteGif(outfile);
 				  else
-					{
-					  cerr << "Error: Image format " << theFormat << " is not supported" << endl;
-					  return 1;
-					}
+					throw runtime_error("Image format " + theFormat + " is not supported");
 				}
 			  
 			  // --------------------------------------------------
@@ -1300,13 +1231,7 @@ int domain(int argc, const char *argv[])
 					 theBottomLeft.Y()==kFloatMissing ||
 					 theTopRight.X()==kFloatMissing ||
 					 theTopRight.Y()==kFloatMissing)
-					{
-					  cerr << "Error: Area corner coordinates not given"
-						   << endl;
-					  return 1;
-
-
-					}
+					throw runtime_error("Area corner coordinates not given");
 				  
 				  // Initialize XY-coordinates
 				  
@@ -1334,11 +1259,7 @@ int domain(int argc, const char *argv[])
 					  theHeight = static_cast<int>((tr.Y()-bl.Y())/(tr.X()-bl.X())*theWidth);
 					}
 				  else if(theWidth<=0 && theHeight<=0)
-					{
-					  cerr << "Error: Image width & height unspecified"
-						   << endl;
-					  exit(1);
-					}
+					throw runtime_error("Image width & height unspecified");
 				  
 				  // The actual area we wanted
 				  
@@ -1359,13 +1280,7 @@ int domain(int argc, const char *argv[])
 				  string outfile = filename + ".map";
 				  ofstream out(outfile.c_str());
 				  if(!out)
-					{
-					  cerr << "Error: Failed to open "
-						   << outfile
-						   << " for writing"
-						   << endl;
-					  exit(1);
-					}
+					throw runtime_error("Failed to open "+outfile+" for writing");
 				  if(verbose)
 					cout << "Writing " << outfile << endl;
 				  
@@ -1399,10 +1314,7 @@ int domain(int argc, const char *argv[])
 				  //   13. Save the image
 				  
 				  if(theQueryStreams.empty())
-					{
-					  cerr << "Error: No query data has been read!\n";
-					  return 1;
-					}
+					throw runtime_error("No query data has been read!");
 				  
 				  // Check map image width & height
 				  
@@ -1420,16 +1332,10 @@ int domain(int argc, const char *argv[])
 
 					  // Duplicate code as in "draw shapes"
 					  if(theCenter.X()==kFloatMissing || theCenter.Y()==kFloatMissing)
-						{
-						  cerr << "Error: Area corner coordinates not given" << endl;
-						  return 1;
-						}
+						throw runtime_error("Area corner coordinates not given");
 					  
 					  if(theScale<0 || theWidth<0 || theHeight<0)
-						{
-						  cerr << "Error: scale, width and height must be given along with center coordinates" << endl;
-						  return 1;
-						}
+						throw runtime_error("scale, width and height must be given along with center coordinates");
 
 					  NFmiStereographicArea area(theCenter,theCenter,
 												 theCentralLongitude,
@@ -1474,11 +1380,7 @@ int domain(int argc, const char *argv[])
 					  theHeight = static_cast<int>((tr.Y()-bl.Y())/(tr.X()-bl.X())*theWidth);
 					}
 				  else if(theWidth<=0 && theHeight<=0)
-					{
-					  cerr << "Error: Image width & height unspecified"
-						   << endl;
-					  exit(1);
-					}
+					throw runtime_error("Image width & height unspecified");
 				  
 				  // The actual area we wanted
 				  
@@ -1742,10 +1644,7 @@ int domain(int argc, const char *argv[])
 						  if(param==kFmiBadParameter)
 							{
 							  if(!MetaFunctions::isMeta(name))
-								{
-								  cerr << "Error: Unknown parameter " << name << endl;
-								  return 1;
-								}
+								throw runtime_error("Unknown parameter "+name);
 							  ismeta = true;
 							  ok = true;
 							  // We always assume the first querydata is ok
@@ -1768,10 +1667,7 @@ int domain(int argc, const char *argv[])
 							}
 						  
 						  if(!ok)
-							{
-							  cerr << "Error: The parameter is not usable: " << name << endl;
-							  exit(1);
-							}
+							throw runtime_error("The parameter is not usable: " + name);
 						  
 						  if(verbose)
 							{
@@ -1785,10 +1681,7 @@ int domain(int argc, const char *argv[])
 						  NFmiContourTree::NFmiContourInterpolation interp
 							= NFmiContourTree::ContourInterpolationValue(interpname);
 						  if(interp==NFmiContourTree::kFmiContourMissingInterpolation)
-							{
-							  cerr << "Error: Unknown contour interpolation method " << interpname << endl;
-							  exit(1);
-							}
+							throw runtime_error("Unknown contour interpolation method " + interpname);
 						  
 						  // Get the values. 
 						  
@@ -2128,10 +2021,7 @@ int domain(int argc, const char *argv[])
 						  
 						  FmiParameterName param = FmiParameterName(NFmiEnumConverter().ToEnum(theDirectionParameter));
 						  if(param==kFmiBadParameter)
-							{
-							  cerr << "Error: Unknown parameter " << theDirectionParameter << endl;
-							  return 1;
-							}
+							throw runtime_error("Unknown parameter "+theDirectionParameter);
 						  
 						  // Find the proper queryinfo to be used
 						  // Note that qi will be used later on for
@@ -2147,10 +2037,7 @@ int domain(int argc, const char *argv[])
 							}
 						  
 						  if(!ok)
-							{
-							  cerr << "Error: The parameter is not usable: " << theDirectionParameter << endl;
-							  exit(1);
-							}
+							throw runtime_error("Parameter is not usable: " + theDirectionParameter);
 
 						  // Read the arrow definition
 						  
@@ -2159,10 +2046,7 @@ int domain(int argc, const char *argv[])
 							{
 							  ifstream arrow(theArrowFile.c_str());
 							  if(!arrow)
-								{
-								  cerr << "Error: Could not open " << theArrowFile << endl;
-								  exit(1);
-								}
+								throw runtime_error("Could not open " + theArrowFile);
 							  // Read in the entire file
 							  string pathstring = StringTools::readfile(arrow);
 							  arrow.close();
@@ -2614,24 +2498,15 @@ int domain(int argc, const char *argv[])
 					  else if(theFormat=="gif")
 						theImage.WriteGif(filename);
 					  else
-						{
-						  cerr << "Error: Image format " << theFormat << " is not supported" << endl;
-						  return 1;
-						}
+						throw runtime_error("Image format "+theFormat+" is not supported");
 					}
 				}
 			  
 			  else
-				{
-				  cerr << "Error: draw " << command << " not implemented\n";
-				  return 1;
-				}
+				throw runtime_error("draw " + command + " not implemented");
 			}
 		  else
-			{
-			  cerr << "Error: Unknown command " << command << endl;
-			  return 1;
-			}
+			throw runtime_error("Unknown command " + command);
 		}
     }
   return 0;
@@ -2647,9 +2522,9 @@ int main(int argc, const char* argv[])
 	{
 	  return domain(argc, argv);
 	}
-  catch(const std::runtime_error & e)
+  catch(const runtime_error & e)
 	{
-	  cerr << "Error: Unexpected exception" << endl
+	  cerr << "Error: qdcontour failed due to" << endl
 		   << "--> " << e.what() << endl;
 	  return 1;
 	}
