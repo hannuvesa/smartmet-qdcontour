@@ -2882,65 +2882,8 @@ void do_draw_contours(istream & theInput)
 	  // Finally, draw a time stamp on the image if so
 	  // requested
 
-	  string thestamp = "";
+	  const string thestamp = globals.getImageStampText(t);
 
-	  {
-		int obsyy = t.GetYear();
-		int obsmm = t.GetMonth();
-		int obsdd = t.GetDay();
-		int obshh = t.GetHour();
-		int obsmi = t.GetMin();
-
-		// Interpretation: The age of the forecast is the age
-		// of the oldest forecast
-
-		NFmiTime tfor;
-		for(qi=0; qi<globals.querystreams.size(); qi++)
-		  {
-			globals.queryinfo = globals.querystreams[qi];
-			NFmiTime futctime = globals.queryinfo->OriginTime();
-			NFmiTime tlocal = TimeTools::ConvertZone(futctime,globals.timestampzone);
-			if(qi==0 || tlocal.IsLessThan(tfor))
-			  tfor = tlocal;
-		  }
-
-		int foryy = tfor.GetYear();
-		int formm = tfor.GetMonth();
-		int fordd = tfor.GetDay();
-		int forhh = tfor.GetHour();
-		int formi = tfor.GetMin();
-
-		char buffer[100];
-
-		if(globals.timestampimage == "obs")
-		  {
-			// hh:mi dd.mm.yyyy
-			sprintf(buffer,"%02d:%02d %02d.%02d.%04d",
-					obshh,obsmi,obsdd,obsmm,obsyy);
-			thestamp = buffer;
-		  }
-		else if(globals.timestampimage == "for")
-		  {
-			// hh:mi dd.mm.yyyy
-			sprintf(buffer,"%02d:%02d %02d.%02d.%04d",
-					forhh,formi,fordd,formm,foryy);
-			thestamp = buffer;
-		  }
-		else if(globals.timestampimage == "forobs")
-		  {
-			// hh:mi dd.mm.yyyy +hh
-			long diff = t.DifferenceInMinutes(tfor);
-			if(diff%60==0 && globals.timestep%60==0)
-			  sprintf(buffer,"%02d.%02d.%04d %02d:%02d %s%ldh",
-					  fordd,formm,foryy,forhh,formi,
-					  (diff<0 ? "" : "+"), diff/60);
-			else
-			  sprintf(buffer,"%02d.%02d.%04d %02d:%02d %s%ldm",
-					  fordd,formm,foryy,forhh,formi,
-					  (diff<0 ? "" : "+"), diff);
-			thestamp = buffer;
-		  }
-	  }
 
 	  if(!thestamp.empty())
 		{

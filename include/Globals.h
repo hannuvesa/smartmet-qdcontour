@@ -21,6 +21,7 @@
 #include <vector>
 
 class LazyQueryData;
+class NFmiTime;
 
 using Imagine::NFmiImage;
 
@@ -32,6 +33,7 @@ struct Globals
   void clear_querystreams();
   void setImageModes(NFmiImage & theImage) const;
   std::auto_ptr<NFmiArea> createArea() const;
+  const std::string getImageStampText(const NFmiTime & theTime) const;
 
   // Command line options
 

@@ -7,9 +7,11 @@
 
 #include "Globals.h"
 #include "LazyQueryData.h"
+#include "TimeTools.h"
 
 #include "newbase/NFmiAreaFactory.h"
 #include "newbase/NFmiSettings.h"
+#include "newbase/NFmiTime.h"
 
 #include <string>
 
@@ -158,6 +160,73 @@ std::auto_ptr<NFmiArea> Globals::createArea() const
 	throw runtime_error("A projection specification is required");
 
   return NFmiAreaFactory::Create(projection);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return the time stamp string to be rendered in the image
+ */
+// ----------------------------------------------------------------------
+
+const std::string Globals::getImageStampText(const NFmiTime & theTime) const
+{
+  const int obsyy = theTime.GetYear();
+  const int obsmm = theTime.GetMonth();
+  const int obsdd = theTime.GetDay();
+  const int obshh = theTime.GetHour();
+  const int obsmi = theTime.GetMin();
+
+  // Interpretation: The age of the forecast is the age
+  // of the oldest forecast
+  
+  NFmiTime tfor;
+  
+  for(unsigned int qi=0; qi<querystreams.size(); qi++)
+	{
+	  NFmiTime futctime = querystreams[qi]->OriginTime();
+	  NFmiTime tlocal = TimeTools::ConvertZone(futctime,timestampzone);
+	  if(qi==0 || tlocal.IsLessThan(tfor))
+		tfor = tlocal;
+	}
+
+  const int foryy = tfor.GetYear();
+  const int formm = tfor.GetMonth();
+  const int fordd = tfor.GetDay();
+  const int forhh = tfor.GetHour();
+  const int formi = tfor.GetMin();
+
+  char buffer[100];
+
+  string stamp;
+  if(timestampimage == "obs")
+	{
+	  // hh:mi dd.mm.yyyy
+	  sprintf(buffer,"%02d:%02d %02d.%02d.%04d",
+			  obshh,obsmi,obsdd,obsmm,obsyy);
+	  stamp = buffer;
+	}
+  else if(timestampimage == "for")
+	{
+	  // hh:mi dd.mm.yyyy
+	  sprintf(buffer,"%02d:%02d %02d.%02d.%04d",
+			  forhh,formi,fordd,formm,foryy);
+	  stamp = buffer;
+	}
+  else if(timestampimage == "forobs")
+	{
+	  // hh:mi dd.mm.yyyy +hh
+	  const long diff = theTime.DifferenceInMinutes(tfor);
+	  if(diff%60==0 && timestep%60==0)
+		sprintf(buffer,"%02d.%02d.%04d %02d:%02d %s%ldh",
+				fordd,formm,foryy,forhh,formi,
+				(diff<0 ? "" : "+"), diff/60);
+	  else
+		sprintf(buffer,"%02d.%02d.%04d %02d:%02d %s%ldm",
+				fordd,formm,foryy,forhh,formi,
+				(diff<0 ? "" : "+"), diff);
+	  stamp = buffer;
+	}
+  return stamp;
 }
 
 // ======================================================================
