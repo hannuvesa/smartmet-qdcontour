@@ -2927,7 +2927,7 @@ void do_draw_contours(istream & theInput)
 			{
 			  time_t secs = NFmiFileSystem::FileModificationTime(globals.queryfilenames[qi]);
 			  NFmiTime tlocal(secs);
-			  filename += "_" + tlocal.ToStr(kDDHHMM);
+			  filename += "_" + tlocal.ToStr(kYYYYMMDDHHMM);
 			}
 		}
 
