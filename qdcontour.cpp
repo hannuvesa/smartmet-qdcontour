@@ -3007,26 +3007,6 @@ int main(int argc, const char *argv[])
 									}
 								}
 							  
-							  // Draw grid
-							  
-							  if(piter->LabelDX()!=0 && piter->LabelDY()!=0)
-								{
-								  for(unsigned int j=0; j<pts[qi].NY(); j+=piter->LabelDY())
-									for(unsigned int i=0; i<pts[qi].NX(); i+=piter->LabelDX())
-									  {
-										// Skip rendering if the start point is masked
-									  
-										if(IsMasked(pts[qi][i][j],theMask,theMaskImage))
-										  continue;
-
-										theImage.Composite(marker,
-														   markerrule,
-														   kFmiAlignCenter,
-														   FmiRound(pts[qi][i][j].X()),
-														   FmiRound(pts[qi][i][j].Y()),
-														   markeralpha);
-									  }
-								}
 							}
 						  
 						  // Label markers now drawn, only label texts remain
