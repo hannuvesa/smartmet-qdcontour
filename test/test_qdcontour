@@ -34,6 +34,26 @@ DoTest("shape rendering, all combined",
        "shape_combined.conf",
        "shape_combined.png");
 
+# Automatic size calculation
+
+DoTest("automatic width calculation",
+       "automatic_width.conf",
+       "automatic_width.png");
+
+DoTest("automatic height calculation",
+       "automatic_height.conf",
+       "automatic_height.png");
+
+# Center and scale
+
+DoTest("center",
+       "center.conf",
+       "center.png");
+
+DoTest("scale",
+       "scale.conf",
+       "scale.png");
+
 # A trivial test
 
 DoTest("trivial contour",
