@@ -158,7 +158,9 @@ bool LazyQueryData::IsOutdated() const
 
   // And finally the actual case of a changed datafile
 
-  string filename = NFmiFileSystem::NewestFile(filename);
+  string filename = NFmiFileSystem::NewestFile(itsInputName);
+  filename = itsInputName + '/' + filename;
+
   return (filename != itsDataFile);
 
 }
