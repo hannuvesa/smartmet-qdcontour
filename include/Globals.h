@@ -43,7 +43,8 @@ struct Globals
   std::string fillrule;				// normal filling rule
   std::string strokerule;			// normal stroking rule
 
-  std::string directionparam;		// direction parameter
+  std::string directionparam;		// direction parameter for arrows
+  std::string speedparam;			// speed parameter for arrows
 
   std::string queryfilelist;		// querydata files in use
   std::vector<std::string> queryfilenames;	// querydata files in use

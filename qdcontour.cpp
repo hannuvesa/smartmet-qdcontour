@@ -580,6 +580,23 @@ void do_directionparam(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "speedparam" command
+ */
+// ----------------------------------------------------------------------
+
+void do_speedparam(istream & theInput)
+{
+  theInput >> globals.speedparam;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'speedparam' command failed");
+
+  if(NFmiEnumConverter().ToEnum(globals.speedparam) == kFmiBadParameter)
+	throw runtime_error("Unrecognized speedparam '"+globals.speedparam+"'");
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -629,7 +646,6 @@ int domain(int argc, const char *argv[])
   string theCombineRule = "Over";
   float theCombineFactor = 1.0;
 
-  string theSpeedParameter = "WindSpeedMS";
 
   float theArrowScale = 1.0;
 
@@ -706,9 +722,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "fillrule")			do_fillrule(input);
 		  else if(command == "strokerule")			do_strokerule(input);
 		  else if(command == "directionparam")		do_directionparam(input);
-
-		  else if(command == "speedparam")
-		    input >> theSpeedParameter;
+		  else if(command == "speedparam")			do_speedparam(input);
 
 		  else if(command == "arrowscale")
 			input >> theArrowScale;
@@ -2121,7 +2135,7 @@ int domain(int argc, const char *argv[])
 
 							  float speed = -1;
 
-							  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(theSpeedParameter))))
+							  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
 								speed = globals.queryinfo->InterpolatedValue(*iter);
 							  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
 
@@ -2172,7 +2186,7 @@ int domain(int argc, const char *argv[])
 							{
 
 							  NFmiDataMatrix<float> speedvalues(vals.NX(),vals.NY(),-1);
-							  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(theSpeedParameter))))
+							  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
 								globals.queryinfo->Values(speedvalues);
 							  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
 
