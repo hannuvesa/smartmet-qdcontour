@@ -117,7 +117,7 @@ struct Globals
   std::vector<std::string> queryfilenames;	// querydata files in use
 
   LazyQueryData * queryinfo;		// active data, does not own pointer
-  int querydatalevel;				// level index
+  int querydatalevel;				// level value (-1 for first)
   int timesteps;					// how many images to draw?
   int timestep;						// timestep, 0 = all valid
   int timeinterval;					// inclusive time interval
