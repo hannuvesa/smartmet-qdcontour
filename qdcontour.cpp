@@ -5,6 +5,12 @@
  */
 // ======================================================================
 
+#ifdef __GNUC__
+ #if __GNUC__ < 3
+  #define PERKELEEN_296
+ #endif
+#endif
+
 #include "Globals.h"
 #include "ColorTools.h"
 #include "ContourSpec.h"
@@ -314,7 +320,11 @@ void write_image(const NFmiImage & theImage,
 
 void do_comment(istream & theInput)
 {
+#ifdef PERKELEEN_296
+  theInput.ignore(1000000,'\n');
+#else
   theInput.ignore(numeric_limits<std::streamsize>::max(),'\n');
+#endif
 }
 
 // ----------------------------------------------------------------------
@@ -1720,7 +1730,11 @@ void do_labelfile(istream & theInput)
   while( datafile >> datacommand)
 	{
 	  if(datacommand == "#" || datacommand == "//")
+#ifdef PERKELEEN_296
+		datafile.ignore(1000000,'\n');
+#else
 		datafile.ignore(numeric_limits<std::streamsize>::max(),'\n');
+#endif
 	  else if(datacommand == "label")
 		{
 		  float lon,lat;
