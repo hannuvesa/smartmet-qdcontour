@@ -1709,6 +1709,43 @@ void do_labelfile(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "clear" command
+ */
+// ----------------------------------------------------------------------
+
+void do_clear(istream & theInput)
+{
+  string command;
+
+  theInput >> command;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'clear' command failed");
+
+  if(command=="contours")
+	globals.specs.clear();
+  else if(command=="shapes")
+	globals.shapespecs.clear();
+  else if(command=="cache")
+	globals.calculator.clearCache();
+  else if(command=="arrows")
+	{
+	  globals.arrowpoints.clear();
+	  globals.windarrowdx = 0;
+	  globals.windarrowdy = 0;
+	}
+  else if(command=="labels")
+	{
+	  list<ContourSpec>::iterator it;
+	  for(it=globals.specs.begin(); it!=globals.specs.end(); ++it)
+		it->clearLabels();
+	}
+  else
+	throw runtime_error("Unknown clear target: " + command);
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -1822,31 +1859,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "labelxy")				do_labelxy(input);
 		  else if(command == "labels")				do_labels(input);
 		  else if(command == "labelfile")			do_labelfile(input);
-
-		  else if(command == "clear")
-			{
-			  input >> command;
-			  if(command=="contours")
-				globals.specs.clear();
-			  else if(command=="shapes")
-				globals.shapespecs.clear();
-			  else if(command=="cache")
-				globals.calculator.clearCache();
-			  else if(command=="arrows")
-				{
-				  globals.arrowpoints.clear();
-				  globals.windarrowdx = 0;
-				  globals.windarrowdy = 0;
-				}
-			  else if(command=="labels")
-				{
-				  list<ContourSpec>::iterator piter;
-				  for(piter=globals.specs.begin(); piter!=globals.specs.end(); ++piter)
-					piter->clearLabels();
-				}
-			  else
-				throw runtime_error("Unknown clear target: " + command);
-			}
+		  else if(command == "clear")				do_clear(input);
 
 
 		  else if(command == "draw")
