@@ -42,6 +42,7 @@ struct Globals
 
   LazyQueryData * queryinfo;		// active data, does not own pointer
   int querydatalevel;				// level index
+  int timestepskip;					// initial time to skip in minutes
 
   // Active storage
 

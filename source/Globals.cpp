@@ -33,6 +33,7 @@ Globals::Globals()
   , queryfilenames()
   , queryinfo(0)
   , querydatalevel(1)
+  , timestepskip(0)
   , calculator()
   , querystreams()
 {

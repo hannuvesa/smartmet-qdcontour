@@ -325,6 +325,28 @@ void do_filter(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "timestepskip" command
+ */
+// ----------------------------------------------------------------------
+
+void do_timestepskip(istream & theInput)
+{
+  theInput >> globals.timestepskip;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'timestepskip' command failed");
+  
+  if(globals.timestepskip < 0)
+	throw runtime_error("timestepskip cannot be negative");
+
+  const int ludicruous = 30*24*60;	// 1 month
+  if(globals.timestepskip > ludicruous)
+	throw runtime_error("timestepskip "+NFmiStringTools::Convert(globals.timestepskip)+" is ridiculously large");
+
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -361,7 +383,6 @@ int domain(int argc, const char *argv[])
   int theTimeStampFlag	= 1;
   string theTimeStampZone = "local";
   int theSmootherFactor = 1;
-  int theTimeStepSkip	= 0;	// skipattava minuuttimäärä
   int theTimeStep	= 0;		// aika-askel
   int theTimeInterval   = 0;	// inklusiivinen aikamäärä
   int theTimeSteps	= 24;		// max kuvien lukumäärä
@@ -470,7 +491,7 @@ int domain(int argc, const char *argv[])
 			do_filter(input);
 
 		  else if(command == "timestepskip")
-			input >> theTimeStepSkip;
+			do_timestepskip(input);
 
 		  else if(command == "timestep")
 			{
@@ -1378,7 +1399,7 @@ int domain(int argc, const char *argv[])
 									  (theTimeStep>0 ? theTimeStep : 1) :
 									  1);
 
-				  tmptime.ChangeByMinutes(theTimeStepSkip);
+				  tmptime.ChangeByMinutes(globals.timestepskip);
 				  if(theTimeStepRoundingFlag)
 					tmptime.PreviousMetTime();
 				  NFmiTime t = tmptime;
