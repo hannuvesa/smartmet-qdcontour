@@ -158,6 +158,35 @@ void parse_command_line(int argc, const char * argv[])
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Read the given configuration script
+ *
+ * \param theName The file to read
+ * \return The contents of the file, preprocessed
+ */
+// ----------------------------------------------------------------------
+
+const string read_script(const string & theName)
+{
+  const bool strip_pound = false;
+  NFmiPreProcessor processor(strip_pound);
+
+  processor.SetDefine("#define");
+  processor.SetIncluding("include", "", "");
+
+  if(!processor.ReadAndStripFile(theName))
+	{
+	  if(!NFmiFileSystem::FileExists(theName))
+		throw runtime_error("Script file '"+theName+"' does not exist");
+	  throw runtime_error("Preprocessor failed to parse '"+theName+"'");
+		  
+	}
+
+  return processor.GetString();
+
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -294,16 +323,8 @@ int domain(int argc, const char *argv[])
 		cout << "Processing file: " << cmdfilename << endl;
 	  
       // Open command file for reading
-
-	  const bool strip_pound = false;
-	  NFmiPreProcessor processor(strip_pound);
-	  processor.SetDefine("#define");
-	  processor.SetIncluding("include", "", "");
-	  if(!processor.ReadAndStripFile(cmdfilename))
-		throw runtime_error("Could not parse "+cmdfilename);
-
-	  // Extract the assignments
-	  string text = processor.GetString();
+	  
+	  string text = read_script(cmdfilename);
 
 	  // Insert querydata command if option -q was used
 
