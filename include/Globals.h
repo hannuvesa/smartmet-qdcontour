@@ -49,6 +49,7 @@ struct Globals
   std::string intent;				// image rendering intent
   int pngquality;					// png quality, -1 = default
   int jpegquality;					// jpeg quality, -1 = default
+  bool savealpha;					// save alpha channel?
 
   std::string projection;			// projection definition
   std::string filter;				// filtering mode

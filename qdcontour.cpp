@@ -946,6 +946,20 @@ void do_jpegquality(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "savealpha" command
+ */
+// ----------------------------------------------------------------------
+
+void do_savealpha(istream & theInput)
+{
+  theInput >> globals.savealpha;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'savealpha' command failed");
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -973,7 +987,6 @@ int domain(int argc, const char *argv[])
   int theSmootherFactor = 1;
 
 
-  bool   theSaveAlphaFlag = true;
   bool   theWantPaletteFlag = false;
   bool   theForcePaletteFlag = false;
 
@@ -1055,9 +1068,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "intent")				do_intent(input);
 		  else if(command == "pngquality")			do_pngquality(input);
 		  else if(command == "jpegquality")			do_jpegquality(input);
-
-		  else if(command == "savealpha")
-			input >> theSaveAlphaFlag;
+		  else if(command == "savealpha")			do_savealpha(input);
 
 		  else if(command == "wantpalette")
 			input >> theWantPaletteFlag;
@@ -1514,7 +1525,7 @@ int domain(int argc, const char *argv[])
 				  // Initialize the background
 
 				  NFmiImage theImage(imgwidth, imgheight);
-				  theImage.SaveAlpha(theSaveAlphaFlag);
+				  theImage.SaveAlpha(globals.savealpha);
 				  theImage.WantPalette(theWantPaletteFlag);
 				  theImage.ForcePalette(theForcePaletteFlag);
 				  if(globals.gamma>0) theImage.Gamma(globals.gamma);
@@ -1870,7 +1881,7 @@ int domain(int argc, const char *argv[])
 					  int imgheight = static_cast<int>(theArea->Height()+0.5);
 
 					  NFmiImage theImage(imgwidth,imgheight);
-					  theImage.SaveAlpha(theSaveAlphaFlag);
+					  theImage.SaveAlpha(globals.savealpha);
 					  theImage.WantPalette(theWantPaletteFlag);
 					  theImage.ForcePalette(theForcePaletteFlag);
 					  if(globals.gamma>0) theImage.Gamma(globals.gamma);
