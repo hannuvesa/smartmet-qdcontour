@@ -3737,7 +3737,7 @@ void do_draw_contours(istream & theInput)
   bool labeldxdydone = false;
   for(;;)
 	{
-	  if(globals.isOutdated())
+	  if(!globals.force && globals.isOutdated())
 		{
 		  if(globals.verbose)
 			cout << "Aborting since querydata has been updated" << endl;
