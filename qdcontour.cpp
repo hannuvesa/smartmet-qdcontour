@@ -970,13 +970,19 @@ int main(int argc, char *argv[])
 		  else if(command == "background")
 			{
 			  input >> theBackground;
-			  theBackgroundImage.Read(theBackground);
+			  if(theBackground != "none")
+				theBackgroundImage.Read(theBackground);
+			  else
+				theBackground = "";
 			}
 		  
 		  else if(command == "foreground")
 			{
 			  input >> theForeground;
-			  theForegroundImage.Read(theForeground);
+			  if(theForeground != "none")
+				theForegroundImage.Read(theForeground);
+			  else
+				theForeground = "";
 			}
 		  
 		  else if(command == "foregroundrule")
