@@ -41,9 +41,12 @@ struct Globals
   std::string datapath;				// default searchpath for data
   std::string mapspath;				// default searchpath for maps
 
+  std::string savepath;				// image output path
+
   std::string projection;			// projection definition
   std::string filter;				// filtering mode
 
+  std::string foregroundrule;		// foreground blending rule
   std::string background;			// background image name
   std::string foreground;			// foreground image name
   std::string mask;					// mask image name

@@ -807,6 +807,39 @@ void do_combine(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "foregroundrule" command
+ */
+// ----------------------------------------------------------------------
+
+void do_foregroundrule(istream & theInput)
+{
+  theInput >> globals.foregroundrule;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'foregroundrule' command failed");
+
+  ColorTools::checkrule(globals.foregroundrule);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "savepath" command
+ */
+// ----------------------------------------------------------------------
+
+void do_savepath(istream & theInput)
+{
+  theInput >> globals.savepath;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'savepath' command failed");
+
+  if(!NFmiFileSystem::DirectoryExists(globals.savepath))
+	throw runtime_error("savepath "+globals.savepath+" does not exist");
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -833,7 +866,7 @@ int domain(int argc, const char *argv[])
   float theSmootherRadius = 1.0;
   int theSmootherFactor = 1;
 
-  string theSavePath	= ".";
+
   string thePrefix	= "";
   string theSuffix	= "";
   string theFormat	= "png";
@@ -841,7 +874,6 @@ int domain(int argc, const char *argv[])
   bool   theWantPaletteFlag = false;
   bool   theForcePaletteFlag = false;
 
-  string theForegroundRule = "Over";
 
 
 
@@ -915,20 +947,9 @@ int domain(int argc, const char *argv[])
 		  else if(command == "foreground")			do_foreground(input);
 		  else if(command == "mask")				do_mask(input);
 		  else if(command == "combine")				do_combine(input);
+		  else if(command == "foregroundrule")		do_foregroundrule(input);
+		  else if(command == "savepath")			do_savepath(input);
 
-
-		  else if(command == "foregroundrule")
-			{
-			  input >> theForegroundRule;
-			  ColorTools::checkrule(theForegroundRule);
-			}
-
-		  else if(command == "savepath")
-			{
-			  input >> theSavePath;
-			  if(!NFmiFileSystem::DirectoryExists(theSavePath))
-				throw runtime_error("savepath "+theSavePath+" does not exist");
-			}
 
 		  else if(command == "prefix")
 			input >> thePrefix;
@@ -1729,7 +1750,7 @@ int domain(int argc, const char *argv[])
 						cout << "Time is " << datatimestr.CharPtr() << endl;
 
 					  string filename =
-						theSavePath
+						globals.savepath
 						+ "/"
 						+ thePrefix
 						+ datatimestr.CharPtr();
@@ -2183,7 +2204,7 @@ int domain(int argc, const char *argv[])
 
 					  if(!globals.foreground.empty())
 						{
-						  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(theForegroundRule);
+						  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(globals.foregroundrule);
 
 						  theImage.Composite(globals.foregroundimage,rule,kFmiAlignNorthWest,0,0,1);
 
