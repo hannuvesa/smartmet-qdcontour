@@ -328,16 +328,7 @@ void write_image(const NFmiImage & theImage,
   if(globals.verbose)
 	cout << "Writing '" << theName << "'" << endl;
 
-  if(theFormat == "png")
-	theImage.WritePng(theName);
-  else if(theFormat == "jpg")
-	theImage.WriteJpeg(theName);
-  else if(theFormat == "jpeg")
-	theImage.WriteJpeg(theName);
-  else if(theFormat == "gif")
-	theImage.WriteGif(theName);
-  else
-	throw runtime_error("Unknown image format '"+theFormat+"'");
+  theImage.Write(theName,theFormat);
 }
 
 // ----------------------------------------------------------------------
