@@ -1176,6 +1176,29 @@ void do_smootherfactor(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \bried Handle "param" command
+ */
+// ----------------------------------------------------------------------
+
+void do_param(istream & theInput)
+{
+  string param;
+
+  theInput >> param;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'param' command failed");
+
+  globals.specs.push_back(ContourSpec(param,
+									  globals.contourinterpolation,
+									  globals.smoother,
+									  globals.contourdepth,
+									  globals.smootherradius,
+									  globals.smootherfactor));
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -1191,7 +1214,6 @@ int domain(int argc, const char *argv[])
 
   // Komentotiedostosta luettavat optiot
 
-  string theParam = "";
   string theShapeFileName = "";
 
   // Related variables
@@ -1278,17 +1300,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "smoother")			do_smoother(input);
 		  else if(command == "smootherradius")		do_smootherradius(input);
 		  else if(command == "smootherfactor")		do_smootherfactor(input);
-
-		  else if(command == "param")
-			{
-			  input >> theParam;
-			  globals.specs.push_back(ContourSpec(theParam,
-												  globals.contourinterpolation,
-												  globals.smoother,
-												  globals.contourdepth,
-												  globals.smootherradius,
-												  globals.smootherfactor));
-			}
+		  else if(command == "param")				do_param(input);
 
 		  else if(command == "shape")
 			{
