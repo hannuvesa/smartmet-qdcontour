@@ -84,6 +84,7 @@ public:
 
   NFmiPoint LatLonToGrid(const NFmiPoint & theLatLonPoint);
   const NFmiGrid * Grid(void) const;
+  const NFmiArea * Area(void) const;
 
   // These require the data values
 
