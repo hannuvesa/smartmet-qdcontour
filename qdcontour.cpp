@@ -32,9 +32,13 @@
 //
 // ======================================================================
 
-#include <fstream>
-#include <string>
-#include <list>
+#include "NFmiColorTools.h"
+#include "NFmiSmoother.h"		// for smoothing data
+#include "NFmiContourTree.h"	// for contouring
+#include "NFmiImage.h"			// for rendering
+#include "NFmiGeoShape.h"		// for esri data
+#include "NFmiText.h"			// for labels
+#include "NFmiFontHershey.h"	// for Hershey fonts
 
 #include "NFmiCmdLine.h"			// command line options
 #include "NFmiDataModifierClasses.h"
@@ -44,14 +48,16 @@
 #include "NFmiSettings.h"			// Configuration
 #include "NFmiStereographicArea.h"	// Stereographic projection
 #include "NFmiStreamQueryData.h"
+#include "NFmiPreProcessor.h"
 
-#include "NFmiColorTools.h"
-#include "NFmiSmoother.h"		// for smoothing data
-#include "NFmiContourTree.h"	// for contouring
-#include "NFmiImage.h"			// for rendering
-#include "NFmiGeoShape.h"		// for esri data
-#include "NFmiText.h"			// for labels
-#include "NFmiFontHershey.h"	// for Hershey fonts
+#include <fstream>
+#include <string>
+#include <list>
+#ifdef OLDGCC
+  #include <strstream>
+#else
+  #include <sstream>
+#endif
 
 // ----------------------------------------------------------------------
 // Usage
@@ -715,17 +721,27 @@ int main(int argc, char *argv[])
 		cout << "Processing file: " << cmdfilename << endl;
 	  
       // Open command file for reading
-      
-      ifstream infile(cmdfilename.c_str());
-      if(!infile)
+
+	  const bool strip_pound = true;
+	  NFmiPreProcessor processor(strip_pound);
+	  processor.SetIncluding("include", "", "");
+	  if(!processor.ReadAndStripFile(cmdfilename))
 		{
-		  cerr << "Error: No command file named " << cmdfilename << endl;
+		  cerr << "Error: Could not parse " << cmdfilename << endl;
 		  return 1;
 		}
+	  // Extract the assignments
+	  string text = processor.GetString();
+
+#ifdef OLDGCC
+	  istrstream input(text.c_str());
+#else
+	  istringstream input(text);
+#endif
 	  
       // Process the commands
       string command;
-      while( infile >> command)
+      while( input >> command)
 		{
 		  // Handle comments
 		  
@@ -735,13 +751,13 @@ int main(int argc, char *argv[])
 			  // skip to end of line, but numeric_limits does not exist
 			  // in g++ v2.95
 			  
-			  infile.ignore(1000000,'\n');
+			  input.ignore(1000000,'\n');
 			}
 		  
 		  else if(command == "querydata")
 			{
 			  string newnames;
-			  infile >> newnames;
+			  input >> newnames;
 			  
 			  if(theQueryStreamNames != newnames)
 				{
@@ -785,79 +801,79 @@ int main(int argc, char *argv[])
 			}
 		  
 		  else if(command == "filter")
-			infile >> theFilter;
+			input >> theFilter;
 		  
 		  else if(command == "timestepskip")
-			infile >> theTimeStepSkip;
+			input >> theTimeStepSkip;
 		  
 		  else if(command == "timestep")
 			{
-			  infile >> theTimeStep;
+			  input >> theTimeStep;
 			  theTimeInterval = theTimeStep;
 			}
 		  
 		  else if(command == "timeinterval")
-			infile >> theTimeInterval;
+			input >> theTimeInterval;
 		  
 		  else if(command == "timesteps")
-			infile >> theTimeSteps;
+			input >> theTimeSteps;
 		  
 		  else if(command == "timestamp")
-			infile >> theTimeStampFlag;
+			input >> theTimeStampFlag;
 		  
 		  else if(command == "timesteprounding")
-			infile >> theTimeStepRoundingFlag;
+			input >> theTimeStepRoundingFlag;
 		  
 		  else if(command == "timestampimage")
-			infile >> theTimeStampImage;
+			input >> theTimeStampImage;
 		  
 		  else if(command == "timestampimagexy")
-			infile >> theTimeStampImageX >> theTimeStampImageY;
+			input >> theTimeStampImageX >> theTimeStampImageY;
 		  
 		  else if(command == "bottomleft")
 			{
 			  float lon,lat;
-			  infile >> lon >> lat;
+			  input >> lon >> lat;
 			  theBottomLeft.Set(lon,lat);
 			}
 		  
 		  else if(command == "topright")
 			{
 			  float lon,lat;
-			  infile >> lon >> lat;
+			  input >> lon >> lat;
 			  theTopRight.Set(lon,lat);
 			}
 		  
 		  else if(command == "center")
 			{
 			  float lon,lat;
-			  infile >> lon >> lat;
+			  input >> lon >> lat;
 			  theCenter.Set(lon,lat);
 			}
 
 		  else if(command == "stereographic")
-			infile >> theCentralLongitude
+			input >> theCentralLongitude
 				   >> theCentralLatitude
 				   >> theTrueLatitude;
 		  
 		  else if(command == "size")
 			{
-			  infile >> theWidth >> theHeight;
+			  input >> theWidth >> theHeight;
 			  theBackground = "";
 			}
 		  
 		  else if(command == "width")
-			infile >> theWidth;
+			input >> theWidth;
 		  
 		  else if(command == "height")
-			infile >> theHeight;
+			input >> theHeight;
 		  
 		  else if(command == "scale")
-			infile >> theScale;
+			input >> theScale;
 
 		  else if(command == "erase")
 			{
-			  infile >> theErase;
+			  input >> theErase;
 			  if(ToColor(theErase)==NFmiColorTools::MissingColor)
 				{
 				  cerr << "Error: Invalid color " << theErase << endl;
@@ -867,7 +883,7 @@ int main(int argc, char *argv[])
 		  
 		  else if(command == "legenderase")
 			{
-			  infile >> theLegendErase;
+			  input >> theLegendErase;
 			  if(ToColor(theLegendErase)==NFmiColorTools::MissingColor)
 				{
 				  cerr << "Error: Invalid color " << theLegendErase << endl;
@@ -877,7 +893,7 @@ int main(int argc, char *argv[])
 		  
 		  else if(command == "fillrule")
 			{
-			  infile >> theFillRule;
+			  input >> theFillRule;
 			  if(NFmiColorTools::BlendValue(theFillRule)==NFmiColorTools::kFmiColorRuleMissing)
 				{
 				  cerr << "Error: Unknown blending rule " << theFillRule << endl;
@@ -888,7 +904,7 @@ int main(int argc, char *argv[])
 			}
 		  else if(command == "strokerule")
 			{
-			  infile >> theStrokeRule;
+			  input >> theStrokeRule;
 			  if(NFmiColorTools::BlendValue(theStrokeRule)==NFmiColorTools::kFmiColorRuleMissing)
 				{
 				  cerr << "Error: Unknown blending rule " << theStrokeRule << endl;
@@ -899,11 +915,11 @@ int main(int argc, char *argv[])
 			}
 		  
 		  else if(command == "arrowscale")
-			infile >> theArrowScale;
+			input >> theArrowScale;
 		  
 		  else if(command == "arrowfill")
 			{
-			  infile >> theArrowFillColor >> theArrowFillRule;
+			  input >> theArrowFillColor >> theArrowFillRule;
 			  if(ToColor(theArrowFillColor)==NFmiColorTools::MissingColor)
 				{
 				  cerr << "Error: Invalid color " << theArrowFillColor << endl;
@@ -917,7 +933,7 @@ int main(int argc, char *argv[])
 			}
 		  else if(command == "arrowstroke")
 			{
-			  infile >> theArrowStrokeColor >> theArrowStrokeRule;
+			  input >> theArrowStrokeColor >> theArrowStrokeRule;
 			  if(ToColor(theArrowStrokeColor)==NFmiColorTools::MissingColor)
 				{
 				  cerr << "Error: Invalid color " << theArrowStrokeColor << endl;
@@ -931,33 +947,33 @@ int main(int argc, char *argv[])
 			}
 		  
 		  else if(command == "arrowpath")
-			infile >> theArrowFile;
+			input >> theArrowFile;
 		  
 		  else if(command == "windarrow")
 			{
 			  float lon,lat;
-			  infile >> lon >> lat;
+			  input >> lon >> lat;
 			  theArrowPoints.push_back(NFmiPoint(lon,lat));
 			}
 		  
 		  else if(command == "windarrows")
-			infile >> theWindArrowDX >> theWindArrowDY;
+			input >> theWindArrowDX >> theWindArrowDY;
 		  
 		  else if(command == "background")
 			{
-			  infile >> theBackground;
+			  input >> theBackground;
 			  theBackgroundImage.Read(theBackground);
 			}
 		  
 		  else if(command == "foreground")
 			{
-			  infile >> theForeground;
+			  input >> theForeground;
 			  theForegroundImage.Read(theForeground);
 			}
 		  
 		  else if(command == "foregroundrule")
 			{
-			  infile >> theForegroundRule;
+			  input >> theForegroundRule;
 			  
 			  if(NFmiColorTools::BlendValue(theForegroundRule)==NFmiColorTools::kFmiColorRuleMissing)
 				{
@@ -967,103 +983,103 @@ int main(int argc, char *argv[])
 			}
 		  
 		  else if(command == "savepath")
-			infile >> theSavePath;
+			input >> theSavePath;
 		  
 		  else if(command == "prefix")
-			infile >> thePrefix;
+			input >> thePrefix;
 		  
 		  else if(command == "suffix")
-			infile >> theSuffix;
+			input >> theSuffix;
 		  
 		  else if(command == "format")
-			infile >> theFormat;
+			input >> theFormat;
 		  
 		  else if(command == "gamma")
-			infile >> theGamma;
+			input >> theGamma;
 		  
 		  else if(command == "intent")
-			infile >> theIntent;
+			input >> theIntent;
 		  
 		  else if(command == "pngquality")
-			infile >> thePngQuality;
+			input >> thePngQuality;
 		  
 		  else if(command == "jpegquality")
-			infile >> theJpegQuality;
+			input >> theJpegQuality;
 		  
 		  else if(command == "savealpha")
-			infile >> theSaveAlphaFlag;
+			input >> theSaveAlphaFlag;
 		  
 		  else if(command == "wantpalette")
-			infile >> theWantPaletteFlag;
+			input >> theWantPaletteFlag;
 		  
 		  else if(command == "forcepalette")
-			infile >> theForcePaletteFlag;
+			input >> theForcePaletteFlag;
 		  
 		  else if(command == "alphalimit")
-			infile >> theAlphaLimit;
+			input >> theAlphaLimit;
 		  
 		  else if(command == "hilimit")
 			{
 			  float limit;
-			  infile >> limit;
+			  input >> limit;
 			  if(!theSpecs.empty())
 				theSpecs.back().ExactHiLimit(limit);
 			}
 		  else if(command == "datalolimit")
 			{
 			  float limit;
-			  infile >> limit;
+			  input >> limit;
 			  if(!theSpecs.empty())
 				theSpecs.back().DataLoLimit(limit);
 			}
 		  else if(command == "datahilimit")
 			{
 			  float limit;
-			  infile >> limit;
+			  input >> limit;
 			  if(!theSpecs.empty());
 			  theSpecs.back().DataHiLimit(limit);
 			}
 		  else if(command == "datareplace")
 			{
 			  float src,dst;
-			  infile >> src >> dst;
+			  input >> src >> dst;
 			  if(!theSpecs.empty())
 				theSpecs.back().Replace(src,dst);
 			}
 		  else if(command == "contourdepth")
 			{
-			  infile >> theContourDepth;
+			  input >> theContourDepth;
 			  if(!theSpecs.empty())
 				theSpecs.back().ContourDepth(theContourDepth);
 			}
 		  
 		  else if(command == "contourinterpolation")
 			{
-			  infile >> theContourInterpolation;
+			  input >> theContourInterpolation;
 			  if(!theSpecs.empty())
 				theSpecs.back().ContourInterpolation(theContourInterpolation);
 			}
 		  else if(command == "smoother")
 			{
-			  infile >> theSmoother;
+			  input >> theSmoother;
 			  if(!theSpecs.empty())
 				theSpecs.back().Smoother(theSmoother);
 			}
 		  else if(command == "smootherradius")
 			{
-			  infile >> theSmootherRadius;
+			  input >> theSmootherRadius;
 			  if(!theSpecs.empty())
 				theSpecs.back().SmootherRadius(theSmootherRadius);
 			}
 		  else if(command == "smootherfactor")
 			{
-			  infile >> theSmootherFactor;
+			  input >> theSmootherFactor;
 			  if(!theSpecs.empty())
 				theSpecs.back().SmootherFactor(theSmootherFactor);
 			}
 		  else if(command == "param")
 			{
-			  infile >> theParam;
+			  input >> theParam;
 			  theSpecs.push_back(ContourSpec(theParam,
 											 theContourInterpolation,
 											 theSmoother,
@@ -1074,16 +1090,16 @@ int main(int argc, char *argv[])
 		  
 		  else if(command == "shape")
 			{
-			  infile >> theShapeFileName;
+			  input >> theShapeFileName;
 			  string arg1;
 			  
-			  infile >> arg1;
+			  input >> arg1;
 			  
 			  if(arg1=="mark")
 				{
 				  string marker, markerrule;
 				  float markeralpha;
-				  infile >> marker >> markerrule >> markeralpha;
+				  input >> marker >> markerrule >> markeralpha;
 				  
 				  if(NFmiColorTools::BlendValue(markerrule)==NFmiColorTools::kFmiColorRuleMissing)
 					{
@@ -1098,7 +1114,7 @@ int main(int argc, char *argv[])
 				{
 				  string fillcolor = arg1;
 				  string strokecolor;
-				  infile >> strokecolor;
+				  input >> strokecolor;
 				  NFmiColorTools::Color fill = ToColor(fillcolor);
 				  NFmiColorTools::Color stroke = ToColor(strokecolor);
 				  if(fill == NFmiColorTools::MissingColor)
@@ -1120,7 +1136,7 @@ int main(int argc, char *argv[])
 		  else if(command == "contourfill")
 			{
 			  string slo,shi,scolor;
-			  infile >> slo >> shi >> scolor;
+			  input >> slo >> shi >> scolor;
 			  
 			  float lo,hi;
 			  if(slo == "-")
@@ -1142,7 +1158,7 @@ int main(int argc, char *argv[])
 			{
 			  string slo,shi,spattern,srule;
 			  float alpha;
-			  infile >> slo >> shi >> spattern >> srule >> alpha;
+			  input >> slo >> shi >> spattern >> srule >> alpha;
 			  
 			  float lo,hi;
 			  if(slo == "-")
@@ -1161,7 +1177,7 @@ int main(int argc, char *argv[])
 		  else if(command == "contourline")
 			{
 			  string svalue,scolor;
-			  infile >> svalue >> scolor;
+			  input >> svalue >> scolor;
 			  
 			  float value;
 			  if(svalue == "-")
@@ -1178,7 +1194,7 @@ int main(int argc, char *argv[])
 			{
 			  float lo,hi,step;
 			  string scolor1,scolor2;
-			  infile >> lo >> hi >> step >> scolor1 >> scolor2;
+			  input >> lo >> hi >> step >> scolor1 >> scolor2;
 			  
 			  int color1 = ToColor(scolor1);
 			  int color2 = ToColor(scolor2);
@@ -1209,7 +1225,7 @@ int main(int argc, char *argv[])
 			{
 			  float lo,hi,step;
 			  string scolor1,scolor2;
-			  infile >> lo >> hi >> step >> scolor1 >> scolor2;
+			  input >> lo >> hi >> step >> scolor1 >> scolor2;
 			  
 			  int color1 = ToColor(scolor1);
 			  int color2 = ToColor(scolor2);
@@ -1237,7 +1253,7 @@ int main(int argc, char *argv[])
 	      
 		  else if(command == "clear")
 			{
-			  infile >> command;
+			  input >> command;
 			  if(command=="contours")
 				theSpecs.clear();
 			  else if(command=="shapes")
@@ -1271,7 +1287,7 @@ int main(int argc, char *argv[])
 			  string filename, rule;
 			  float alpha;
 			  
-			  infile >> filename >> rule >> alpha;
+			  input >> filename >> rule >> alpha;
 			  
 			  if(!theSpecs.empty())
 				{
@@ -1284,7 +1300,7 @@ int main(int argc, char *argv[])
 		  else if(command == "labelfont")
 			{
 			  string font;
-			  infile >> font;
+			  input >> font;
 			  if(!theSpecs.empty())
 				theSpecs.back().LabelFont(font);
 			}
@@ -1292,7 +1308,7 @@ int main(int argc, char *argv[])
 		  else if(command == "labelsize")
 			{
 			  float size;
-			  infile >> size;
+			  input >> size;
 			  if(!theSpecs.empty())
 				theSpecs.back().LabelSize(size);
 			}
@@ -1300,7 +1316,7 @@ int main(int argc, char *argv[])
 		  else if(command == "labelstroke")
 			{
 			  string color,rule;
-			  infile >> color >> rule;
+			  input >> color >> rule;
 			  if(!theSpecs.empty())
 				{
 				  theSpecs.back().LabelStrokeColor(ToColor(color));
@@ -1311,7 +1327,7 @@ int main(int argc, char *argv[])
 		  else if(command == "labelfill")
 			{
 			  string color,rule;
-			  infile >> color >> rule;
+			  input >> color >> rule;
 			  if(!theSpecs.empty())
 				{
 				  theSpecs.back().LabelFillColor(ToColor(color));
@@ -1322,7 +1338,7 @@ int main(int argc, char *argv[])
 		  else if(command == "labelalign")
 			{
 			  string align;
-			  infile >> align;
+			  input >> align;
 			  if(!theSpecs.empty())
 				theSpecs.back().LabelAlignment(align);
 			}
@@ -1330,7 +1346,7 @@ int main(int argc, char *argv[])
 		  else if(command == "labelformat")
 			{
 			  string format;
-			  infile >> format;
+			  input >> format;
 			  if(format == "-") format = "";
 			  if(!theSpecs.empty())
 				theSpecs.back().LabelFormat(format);
@@ -1339,7 +1355,7 @@ int main(int argc, char *argv[])
 		  else if(command == "labelangle")
 			{
 			  float angle;
-			  infile >> angle;
+			  input >> angle;
 			  if(!theSpecs.empty())
 				theSpecs.back().LabelAngle(angle);
 			}
@@ -1347,7 +1363,7 @@ int main(int argc, char *argv[])
 		  else if(command == "labeloffset")
 			{
 			  float dx,dy;
-			  infile >> dx >> dy;
+			  input >> dx >> dy;
 			  if(!theSpecs.empty())
 				{
 				  theSpecs.back().LabelOffsetX(dx);
@@ -1359,7 +1375,7 @@ int main(int argc, char *argv[])
 			{
 			  string name,align;
 			  float dx,dy;
-			  infile >> name >> dx >> dy >> align;
+			  input >> name >> dx >> dy >> align;
 			  if(!theSpecs.empty())
 				{
 				  theSpecs.back().LabelCaption(name);
@@ -1372,7 +1388,7 @@ int main(int argc, char *argv[])
 		  else if(command == "label")
 			{
 			  float lon,lat;
-			  infile >> lon >> lat;
+			  input >> lon >> lat;
 			  if(!theSpecs.empty())
 				theSpecs.back().Add(NFmiPoint(lon,lat));
 			}
@@ -1380,9 +1396,9 @@ int main(int argc, char *argv[])
 		  else if(command == "labelxy")
 			{
 			  float lon,lat;
-			  infile >> lon >> lat;
+			  input >> lon >> lat;
 			  int dx, dy;
-			  infile >> dx >> dy;
+			  input >> dx >> dy;
 			  if(!theSpecs.empty())
 				theSpecs.back().Add(NFmiPoint(lon,lat),NFmiPoint(dx,dy));
 			}
@@ -1390,7 +1406,7 @@ int main(int argc, char *argv[])
 		  else if(command == "labels")
 			{
 			  int dx,dy;
-			  infile >> dx >> dy;
+			  input >> dx >> dy;
 			  if(!theSpecs.empty())
 				{
 				  theSpecs.back().LabelDX(dx);
@@ -1401,7 +1417,7 @@ int main(int argc, char *argv[])
 		  else if(command == "labelfile")
 			{
 			  string datafilename;
-			  infile >> datafilename;
+			  input >> datafilename;
 			  ifstream datafile(datafilename.c_str());
 			  if(!datafile)
 				{
@@ -1433,7 +1449,7 @@ int main(int argc, char *argv[])
 			{
 			  // Draw what?
 			  
-			  infile >> command;
+			  input >> command;
 			  
 			  // --------------------------------------------------
 			  // Draw legend
@@ -1444,7 +1460,7 @@ int main(int argc, char *argv[])
 				  string legendname;
 				  int width, height;
 				  float lolimit, hilimit;
-				  infile >> legendname >> lolimit >> hilimit >> width >> height;
+				  input >> legendname >> lolimit >> hilimit >> width >> height;
 				  
 				  if(!theSpecs.empty())
 					{
@@ -1513,7 +1529,7 @@ int main(int argc, char *argv[])
 				  // The output filename
 				  
 				  string filename;
-				  infile >> filename;
+				  input >> filename;
 				  
 				  if(theBottomLeft.X()==kFloatMissing ||
 					 theBottomLeft.Y()==kFloatMissing ||
@@ -1662,7 +1678,7 @@ int main(int argc, char *argv[])
 				  // The relevant field name and filenames
 				  
 				  string fieldname, filename;
-				  infile >> fieldname >> filename;
+				  input >> fieldname >> filename;
 				  
 				  if(theBottomLeft.X()==kFloatMissing ||
 					 theBottomLeft.Y()==kFloatMissing ||
@@ -2948,7 +2964,6 @@ int main(int argc, char *argv[])
 			  return 1;
 			}
 		}
-      infile.close();
     }
 }
 
