@@ -627,10 +627,8 @@ The available alignments are
 One can modify the appearance of the label itself using the following
 commands
 \code
-labelfont [fontname]                  (default TimesRoman)
-labelsize [size]                      (default 12 pixels)
-labelstroke [color] [blendingrule]    (default none, Copy)
-labelfill [color] [blendingrule]      (default none, Copy)
+labelfont [fontspec]                  (default misc/6x13B.pcf.gz:6x13)
+labelcolor [color]		      (default black)	
 labelalign [alignment]                (default Center)
 labelformat [format]                  (default is "%.1f", - implies no output)
 labelangle [angle]                    (default 0)
@@ -874,7 +872,7 @@ One can place a timestamp in the image itself using
 the commands
 \code
 timestampimage [none|obs|for|forobs]
-timestampimage [x] [y]
+timestampimagexy [x] [y]
 \endcode
 The first command specifies what kind of a text is placed in the
 image, the second the coordinates of the text. If the coordinates
@@ -1470,6 +1468,8 @@ querydatalevel [level]
 contourdepth [depth]
 draw imagemap [fieldname] [filename]
 labelfile [filename]
+labelstroke
+labelfill
 hilimit [value]
 \endcode
 
