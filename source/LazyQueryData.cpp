@@ -117,9 +117,10 @@ void LazyQueryData::Read(const std::string & theDataFile)
 
   if(NFmiFileSystem::DirectoryExists(filename))
 	{
-	  filename = NFmiFileSystem::NewestFile(filename);
-	  if(filename.empty())
+	  string newest = NFmiFileSystem::NewestFile(filename);
+	  if(newest.empty())
 		throw runtime_error("Directory "+filename+" is missing or empty");
+	  filename += '/' + newest;
 	}
 
   NFmiQueryData * qdata = new NFmiQueryData;
