@@ -49,6 +49,7 @@ struct Globals
   int timesteprounding;				// rounding flag
   int timestampflag;				// put timestamp into image name?
   std::string timestampzone;		// timezone for the timestamp
+  std::string timestampimage;		// image timestamping mode
 
   // Active storage
 

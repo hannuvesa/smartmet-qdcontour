@@ -40,6 +40,7 @@ Globals::Globals()
   , timesteprounding(1)
   , timestampflag(1)
   , timestampzone("local")
+  , timestampimage("none")
   , calculator()
   , querystreams()
 {

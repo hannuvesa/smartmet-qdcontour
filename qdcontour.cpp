@@ -459,6 +459,30 @@ void do_timesteprounding(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "timestampimage" command
+ */
+// ----------------------------------------------------------------------
+
+void do_timestampimage(istream & theInput)
+{
+  theInput >> globals.timestampimage;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'timestampimage' command failed");
+
+  if(globals.timestampimage != "none" &&
+	 globals.timestampimage != "obs" &&
+	 globals.timestampimage != "for" &&
+	 globals.timestampimage != "forobs")
+	{
+	  throw runtime_error("Unrecognized timestampimage mode '"+globals.timestampimage+"'");
+	}
+
+
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -495,7 +519,6 @@ int domain(int argc, const char *argv[])
 
   int theTimeStampImageX = 0;
   int theTimeStampImageY = 0;
-  string theTimeStampImage = "none";
 
   // Projection määritelmä
 
@@ -595,9 +618,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "timestamp")			do_timestamp(input);
 		  else if(command == "timestampzone")		do_timestampzone(input);
 		  else if(command == "timesteprounding")	do_timesteprounding(input);
-
-		  else if(command == "timestampimage")
-			input >> theTimeStampImage;
+		  else if(command == "timestampimage")		do_timestampimage(input);
 
 		  else if(command == "timestampimagexy")
 			input >> theTimeStampImageX >> theTimeStampImageY;
@@ -2450,21 +2471,21 @@ int domain(int argc, const char *argv[])
 
 						char buffer[100];
 
-						if(theTimeStampImage == "obs")
+						if(globals.timestampimage == "obs")
 						  {
 							// hh:mi dd.mm.yyyy
 							sprintf(buffer,"%02d:%02d %02d.%02d.%04d",
 									obshh,obsmi,obsdd,obsmm,obsyy);
 							thestamp = buffer;
 						  }
-						else if(theTimeStampImage == "for")
+						else if(globals.timestampimage == "for")
 						  {
 							// hh:mi dd.mm.yyyy
 							sprintf(buffer,"%02d:%02d %02d.%02d.%04d",
 									forhh,formi,fordd,formm,foryy);
 							thestamp = buffer;
 						  }
-						else if(theTimeStampImage == "forobs")
+						else if(globals.timestampimage == "forobs")
 						  {
 							// hh:mi dd.mm.yyyy +hh
 							long diff = t.DifferenceInMinutes(tfor);
