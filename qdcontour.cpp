@@ -2222,6 +2222,61 @@ void draw_wind_arrows(NFmiImage & theImage,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Draw contour strokes
+ */
+// ----------------------------------------------------------------------
+
+void draw_contour_strokes(NFmiImage & theImage,
+						  const NFmiArea & theArea,
+						  const ContourSpec & theSpec,
+						  NFmiContourTree::NFmiContourInterpolation theInterpolation,
+						  float theMinimum,
+						  float theMaximum)
+{
+  list<ContourValue>::const_iterator it;
+  list<ContourValue>::const_iterator begin;
+  list<ContourValue>::const_iterator end;
+  
+  begin = theSpec.contourValues().begin();
+  end   = theSpec.contourValues().end();
+  
+  for(it=begin ; it!=end; ++it)
+	{
+	  // Skip to next contour if this one is outside
+	  // the value range.
+	  
+	  if(theMinimum!=kFloatMissing &&
+		 theMaximum!=kFloatMissing)
+		{
+		  if(it->value()!=kFloatMissing &&
+			 theMaximum<it->value())
+			continue;
+		  if(it->value()!=kFloatMissing &&
+			 theMinimum>it->value())
+			continue;
+		}
+	  
+	  NFmiPath path =
+		globals.calculator.contour(*globals.queryinfo,
+								   it->value(),
+								   kFloatMissing,
+								   true, false,
+								   theSpec.dataLoLimit(),
+								   theSpec.dataHiLimit(),
+								   theSpec.contourDepth(),
+								   theInterpolation,
+								   globals.contourtriangles);
+	  
+	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
+	  path.Project(&theArea);
+	  path.SimplifyLines(10);
+	  path.Stroke(theImage,it->color(),rule);
+	  
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Draw the foreground onto the image
  */
 // ----------------------------------------------------------------------
@@ -2238,6 +2293,8 @@ void draw_foreground(NFmiImage & theImage)
 					 kFmiAlignNorthWest,
 					 0,0,1);
 }
+
+
 
 // ----------------------------------------------------------------------
 /*!
@@ -2652,20 +2709,20 @@ void do_draw_contours(istream & theInput)
 
 		  // Find the minimum and maximum
 
-		  float valmin = kFloatMissing;
-		  float valmax = kFloatMissing;
+		  float min_value = kFloatMissing;
+		  float max_value = kFloatMissing;
 		  for(unsigned int j=0; j<vals.NY(); j++)
 			for(unsigned int i=0; i<vals.NX(); i++)
 			  if(vals[i][j]!=kFloatMissing)
 				{
-				  if(valmin==kFloatMissing || vals[i][j]<valmin)
-					valmin = vals[i][j];
-				  if(valmax==kFloatMissing || vals[i][j]>valmax)
-					valmax = vals[i][j];
+				  if(min_value==kFloatMissing || vals[i][j]<min_value)
+					min_value = vals[i][j];
+				  if(max_value==kFloatMissing || vals[i][j]>max_value)
+					max_value = vals[i][j];
 				}
 
 		  if(globals.verbose)
-			cout << "Data range for " << name << " is " << valmin << "," << valmax << endl;
+			cout << "Data range for " << name << " is " << min_value << "," << max_value << endl;
 
 		  // Setup the contourer with the values
 
@@ -2742,7 +2799,7 @@ void do_draw_contours(istream & theInput)
 			  // are missing too. That is, when we are
 			  // contouring missing values.
 
-			  if(valmin==kFloatMissing || valmax==kFloatMissing)
+			  if(min_value==kFloatMissing || max_value==kFloatMissing)
 				{
 				  if(citer->lolimit()!=kFloatMissing &&
 					 citer->hilimit()!=kFloatMissing)
@@ -2751,10 +2808,10 @@ void do_draw_contours(istream & theInput)
 			  else
 				{
 				  if(citer->lolimit()!=kFloatMissing &&
-					 valmax<citer->lolimit())
+					 max_value<citer->lolimit())
 					continue;
 				  if(citer->hilimit()!=kFloatMissing &&
-					 valmin>citer->hilimit())
+					 min_value>citer->hilimit())
 					continue;
 				}
 
@@ -2803,7 +2860,7 @@ void do_draw_contours(istream & theInput)
 			  // are missing too. That is, when we are
 			  // contouring missing values.
 
-			  if(valmin==kFloatMissing || valmax==kFloatMissing)
+			  if(min_value==kFloatMissing || max_value==kFloatMissing)
 				{
 				  if(patiter->lolimit()!=kFloatMissing &&
 					 patiter->hilimit()!=kFloatMissing)
@@ -2812,10 +2869,10 @@ void do_draw_contours(istream & theInput)
 			  else
 				{
 				  if(patiter->lolimit()!=kFloatMissing &&
-					 valmax<patiter->lolimit())
+					 max_value<patiter->lolimit())
 					continue;
 				  if(patiter->hilimit()!=kFloatMissing &&
-					 valmin>patiter->hilimit())
+					 min_value>patiter->hilimit())
 					continue;
 				}
 
@@ -2850,45 +2907,8 @@ void do_draw_contours(istream & theInput)
 
 		  // Stroke the contours
 
-		  list<ContourValue>::const_iterator liter;
-		  list<ContourValue>::const_iterator lbegin;
-		  list<ContourValue>::const_iterator lend;
+		  draw_contour_strokes(image,*area,*piter,interp,min_value,max_value);
 
-		  lbegin = piter->contourValues().begin();
-		  lend   = piter->contourValues().end();
-
-		  for(liter=lbegin ; liter!=lend; ++liter)
-			{
-			  // Skip to next contour if this one is outside
-			  // the value range.
-
-			  if(valmin!=kFloatMissing && valmax!=kFloatMissing)
-				{
-				  if(liter->value()!=kFloatMissing &&
-					 valmax<liter->value())
-					continue;
-				  if(liter->value()!=kFloatMissing &&
-					 valmin>liter->value())
-					continue;
-				}
-
-			  NFmiPath path =
-				globals.calculator.contour(*globals.queryinfo,
-										   liter->value(),
-										   kFloatMissing,
-										   true, false,
-										   piter->dataLoLimit(),
-										   piter->dataHiLimit(),
-										   piter->contourDepth(),
-										   interp,
-										   globals.contourtriangles);
-
-			  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(liter->rule());
-			  path.Project(area.get());
-			  path.SimplifyLines(10);
-			  path.Stroke(image,liter->color(),rule);
-
-			}
 		}
 
 	  // Bang the foreground
