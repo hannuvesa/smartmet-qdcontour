@@ -72,6 +72,10 @@ DoTest("windarrowscale",
        "windarrowscale.conf",
        "windarrowscale_200210140900_140900.png");
 
+DoTest("directionparam",
+       "directionparam.conf",
+       "directionparam_200210150900_141500.png");
+
 print "Done\n";
 
 # ----------------------------------------------------------------------
