@@ -1095,20 +1095,18 @@ int domain(int argc, const char *argv[])
 														   theHeight);
 
 				  if(verbose)
-					{
-					  cout << "Area corner are"
-						   << endl
-						   << "bottomleft\t= " 
-						   << theBottomLeft.X()
-						   << ','
+					cout << "Area corners are"
+						 << endl
+						 << "bottomleft\t= " 
+						 << theBottomLeft.X()
+						 << ','
 						   << theBottomLeft.Y()
-						   << endl
-						   << "topright\t= "
-						   << theTopRight.X()
-						   << ','
-						   << theTopRight.Y()
-						   << endl;
-					}
+						 << endl
+						 << "topright\t= "
+						 << theTopRight.X()
+						 << ','
+						 << theTopRight.Y()
+						 << endl;
 
 				  
 				  // Initialize the background
@@ -1254,6 +1252,20 @@ int domain(int argc, const char *argv[])
 														   theTopRight,
 														   theWidth,
 														   theHeight);
+
+				  if(verbose)
+					cout << "Area corners are"
+						 << endl
+						 << "bottomleft\t= " 
+						 << theBottomLeft.X()
+						 << ','
+						   << theBottomLeft.Y()
+						 << endl
+						 << "topright\t= "
+						 << theTopRight.X()
+						 << ','
+						 << theTopRight.Y()
+						 << endl;
 
 				  // Establish querydata timelimits and initialize
 				  // the XY-coordinates simultaneously.
