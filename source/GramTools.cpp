@@ -100,8 +100,6 @@ namespace GramTools
 		  y += flag_interval;
 		}
 
-	path.Scale(-1);
-	
 	return path;
   }
 
