@@ -868,6 +868,28 @@ void do_suffix(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "format" command
+ */
+// ----------------------------------------------------------------------
+
+void do_format(istream & theInput)
+{
+  theInput >> globals.format;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'format' command failed");
+
+  if(globals.format != "png" &&
+	 globals.format != "jpg" &&
+	 globals.format != "jpeg" &&
+	 globals.format != "gif")
+	{
+	  throw runtime_error("Image format +'"+globals.format+"' is not supported");
+	}
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -894,7 +916,7 @@ int domain(int argc, const char *argv[])
   float theSmootherRadius = 1.0;
   int theSmootherFactor = 1;
 
-  string theFormat	= "png";
+
   bool   theSaveAlphaFlag = true;
   bool   theWantPaletteFlag = false;
   bool   theForcePaletteFlag = false;
@@ -976,9 +998,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "savepath")			do_savepath(input);
 		  else if(command == "prefix")				do_prefix(input);
 		  else if(command == "suffix")				do_suffix(input);
-
-		  else if(command == "format")
-			input >> theFormat;
+		  else if(command == "format")				do_format(input);
 
 		  else if(command == "gamma")
 			input >> theGamma;
@@ -1492,17 +1512,15 @@ int domain(int argc, const char *argv[])
 						}
 					}
 
-				  string outfile = filename + "." + theFormat;
+				  string outfile = filename + "." + globals.format;
 				  if(globals.verbose)
 					cout << "Writing " << outfile << endl;
-				  if(theFormat=="png")
+				  if(globals.format=="png")
 					theImage.WritePng(outfile);
-				  else if(theFormat=="jpg" || theFormat=="jpeg")
+				  else if(globals.format=="jpg" || globals.format=="jpeg")
 					theImage.WriteJpeg(outfile);
-				  else if(theFormat=="gif")
+				  else if(globals.format=="gif")
 					theImage.WriteGif(outfile);
-				  else
-					throw runtime_error("Image format " + theFormat + " is not supported");
 				}
 
 			  // --------------------------------------------------
@@ -1788,7 +1806,7 @@ int domain(int argc, const char *argv[])
 					  filename +=
 						globals.suffix
 						+ "."
-						+ theFormat;
+						+ globals.format;
 
 					  // In force-mode we always write, but otherwise
 					  // we first check if the output image already
@@ -2714,14 +2732,12 @@ int domain(int argc, const char *argv[])
 
 					  if(globals.verbose)
 						cout << "Writing " << filename << endl;
-					  if(theFormat=="png")
+					  if(globals.format=="png")
 						theImage.WritePng(filename);
-					  else if(theFormat=="jpg" || theFormat=="jpeg")
+					  else if(globals.format=="jpg" || globals.format=="jpeg")
 						theImage.WriteJpeg(filename);
-					  else if(theFormat=="gif")
+					  else if(globals.format=="gif")
 						theImage.WriteGif(filename);
-					  else
-						throw runtime_error("Image format "+theFormat+" is not supported");
 					}
 				}
 
