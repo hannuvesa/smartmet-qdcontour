@@ -44,6 +44,12 @@ public:
 							Imagine::NFmiContourTree::NFmiContourInterpolation theInterpolation,
 							bool theContourTrianglesOn);
 
+  Imagine::NFmiPath contour(const LazyQueryData & theData,
+							float theValue,
+							float theDataLoLimit, float theDataHiLimit,
+							Imagine::NFmiContourTree::NFmiContourInterpolation theInterpolation,
+							bool theContourTrianglesOn);
+
   void data(const NFmiDataMatrix<float> & theData);
   void clearCache();
   void cache(bool);

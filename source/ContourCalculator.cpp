@@ -28,13 +28,15 @@ class ContourCalculatorPimple
 {
 public:
   ContourCalculatorPimple()
-	: itsCache()
+	: itsAreaCache()
+	, itsLineCache()
 	, isCacheOn(false)
 	, itWasCached(false)
 	, itsData(0)
   { }
 
-  ContourCache itsCache;
+  ContourCache itsAreaCache;
+  ContourCache itsLineCache;
   bool isCacheOn;
   bool itWasCached;
   const NFmiDataMatrix<float> * itsData;			// does not own!
@@ -71,7 +73,8 @@ ContourCalculator::ContourCalculator()
 
 void ContourCalculator::clearCache()
 {
-  itsPimple->itsCache.clear();
+  itsPimple->itsAreaCache.clear();
+  itsPimple->itsLineCache.clear();
 }
 
 // ----------------------------------------------------------------------
@@ -131,10 +134,10 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 	throw std::runtime_error("ContourCalculator:: No data set before calling contour");
 
   if(itsPimple->isCacheOn &&
-	 itsPimple->itsCache.contains(theLoLimit, theHiLimit, theData))
+	 itsPimple->itsAreaCache.contains(theLoLimit, theHiLimit, theData))
 	{
 	  itsPimple->itWasCached = true;
-	  return itsPimple->itsCache.find(theLoLimit, theHiLimit, theData);
+	  return itsPimple->itsAreaCache.find(theLoLimit, theHiLimit, theData);
 	}
 
   Imagine::NFmiContourTree tree(theLoLimit, theHiLimit, theLoIsExact, theHiIsExact);
@@ -152,7 +155,53 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
   path.InvGrid(theData.Grid());
 
   if(itsPimple->isCacheOn)
-	itsPimple->itsCache.insert(path, theLoLimit, theHiLimit, theData);
+	itsPimple->itsAreaCache.insert(path, theLoLimit, theHiLimit, theData);
+
+  itsPimple->itWasCached = false;
+  return path;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return the desired contour line
+ *
+ * \return The path object
+ */
+// ----------------------------------------------------------------------
+
+Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
+											 float theValue,
+											 float theDataLoLimit, float theDataHiLimit,
+											 Imagine::NFmiContourTree::NFmiContourInterpolation theInterpolation,
+											 bool theContourTrianglesOn)
+{
+  if(itsPimple->itsData == 0)
+	throw std::runtime_error("ContourCalculator:: No data set before calling contour");
+
+  if(itsPimple->isCacheOn &&
+	 itsPimple->itsLineCache.contains(theValue, kFloatMissing, theData))
+	{
+	  itsPimple->itWasCached = true;
+	  return itsPimple->itsLineCache.find(theValue, kFloatMissing, theData);
+	}
+
+  Imagine::NFmiContourTree tree(theValue, kFloatMissing, true, false);
+  tree.LinesOnly(true);
+  tree.SubTriangleMode(theContourTrianglesOn);
+
+  if(theDataLoLimit != kFloatMissing)
+	tree.DataLoLimit(theDataLoLimit);
+
+  if(theDataHiLimit != kFloatMissing)
+	tree.DataHiLimit(theDataHiLimit);
+
+  tree.Contour(*(itsPimple->itsData), *(itsPimple->itsHelper), theInterpolation);
+
+  Imagine::NFmiPath path = tree.Path();
+  path.InvGrid(theData.Grid());
+
+  if(itsPimple->isCacheOn)
+	itsPimple->itsLineCache.insert(path, theValue, kFloatMissing, theData);
 
   itsPimple->itWasCached = false;
   return path;
