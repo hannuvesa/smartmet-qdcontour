@@ -630,6 +630,60 @@ void do_windarrowscale(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "arrowfill" command
+ */
+// ----------------------------------------------------------------------
+
+void do_arrowfill(istream & theInput)
+{
+  theInput >> globals.arrowfillcolor  >> globals.arrowfillrule;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'arrowfill' command failed");
+
+  ColorTools::checkcolor(globals.arrowfillcolor);
+  ColorTools::checkrule(globals.arrowfillrule);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "arrowstroke" command
+ */
+// ----------------------------------------------------------------------
+
+void do_arrowstroke(istream & theInput)
+{
+  theInput >> globals.arrowstrokecolor  >> globals.arrowstrokerule;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'arrowstroke' command failed");
+
+  ColorTools::checkcolor(globals.arrowstrokecolor);
+  ColorTools::checkrule(globals.arrowstrokerule);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "arrowpath" command
+ */
+// ----------------------------------------------------------------------
+
+void do_arrowpath(istream & theInput)
+{
+  theInput >> globals.arrowfile;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'arrowpath' command failed");
+
+  if(!NFmiFileSystem::FileExists(globals.arrowfile) &&
+	 globals.arrowfile != "meteorological")
+	{
+	  throw runtime_error("The arrowpath file '"+globals.arrowfile+"' does not exist");
+	}
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -683,11 +737,6 @@ int domain(int argc, const char *argv[])
 
 
 
-  string theArrowFillColor = "white";
-  string theArrowStrokeColor = "black";
-  string theArrowFillRule = "Over";
-  string theArrowStrokeRule = "Over";
-  string theArrowFile = "";
 
   unsigned int theWindArrowDX = 0;
   unsigned int theWindArrowDY = 0;
@@ -755,23 +804,9 @@ int domain(int argc, const char *argv[])
 		  else if(command == "speedparam")			do_speedparam(input);
 		  else if(command == "arrowscale")			do_arrowscale(input);
 		  else if(command == "windarrowscale")		do_windarrowscale(input);
-
-
-		  else if(command == "arrowfill")
-			{
-			  input >> theArrowFillColor >> theArrowFillRule;
-			  ColorTools::checkcolor(theArrowFillColor);
-			  ColorTools::checkrule(theArrowFillRule);
-			}
-		  else if(command == "arrowstroke")
-			{
-			  input >> theArrowStrokeColor >> theArrowStrokeRule;
-			  ColorTools::checkcolor(theArrowStrokeColor);
-			  ColorTools::checkrule(theArrowStrokeRule);
-			}
-
-		  else if(command == "arrowpath")
-			input >> theArrowFile;
+		  else if(command == "arrowfill")			do_arrowfill(input);
+		  else if(command == "arrowstroke")			do_arrowstroke(input);
+		  else if(command == "arrowpath")			do_arrowpath(input);
 
 		  else if(command == "windarrow")
 			{
@@ -2099,7 +2134,7 @@ int domain(int argc, const char *argv[])
 
 					  NFmiEnumConverter converter;
 					  if((!theArrowPoints.empty() || (theWindArrowDX!=0 && theWindArrowDY!=0)) &&
-						 (theArrowFile!=""))
+						 (globals.arrowfile!=""))
 						{
 
 						  FmiParameterName param = FmiParameterName(NFmiEnumConverter().ToEnum(globals.directionparam));
@@ -2125,11 +2160,11 @@ int domain(int argc, const char *argv[])
 						  // Read the arrow definition
 
 						  NFmiPath arrowpath;
-						  if(theArrowFile != "meteorological")
+						  if(globals.arrowfile != "meteorological")
 							{
-							  ifstream arrow(theArrowFile.c_str());
+							  ifstream arrow(globals.arrowfile.c_str());
 							  if(!arrow)
-								throw runtime_error("Could not open " + theArrowFile);
+								throw runtime_error("Could not open " + globals.arrowfile);
 							  // Read in the entire file
 							  string pathstring = NFmiStringTools::ReadFile(arrow);
 							  arrow.close();
@@ -2186,7 +2221,7 @@ int domain(int argc, const char *argv[])
 
 							  NFmiPath thispath;
 
-							  if(theArrowFile == "meteorological")
+							  if(globals.arrowfile == "meteorological")
 								thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
 							  else
 								thispath.Add(arrowpath);
@@ -2200,11 +2235,11 @@ int domain(int argc, const char *argv[])
 							  // And render it
 
 							  thispath.Fill(theImage,
-											ColorTools::checkcolor(theArrowFillColor),
-											ColorTools::checkrule(theArrowFillRule));
+											ColorTools::checkcolor(globals.arrowfillcolor),
+											ColorTools::checkrule(globals.arrowfillrule));
 							  thispath.Stroke(theImage,
-											  ColorTools::checkcolor(theArrowStrokeColor),
-											  ColorTools::checkrule(theArrowStrokeRule));
+											  ColorTools::checkcolor(globals.arrowstrokecolor),
+											  ColorTools::checkrule(globals.arrowstrokerule));
 							}
 
 						  // Draw the full grid if so desired
@@ -2257,7 +2292,7 @@ int domain(int argc, const char *argv[])
 									// Create a new path
 
 									NFmiPath thispath;
-									if(theArrowFile == "meteorological")
+									if(globals.arrowfile == "meteorological")
 									  thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
 									else
 									  thispath.Add(arrowpath);
@@ -2270,11 +2305,11 @@ int domain(int argc, const char *argv[])
 									// And render it
 
 									thispath.Fill(theImage,
-												  ColorTools::checkcolor(theArrowFillColor),
-												  ColorTools::checkrule(theArrowFillRule));
+												  ColorTools::checkcolor(globals.arrowfillcolor),
+												  ColorTools::checkrule(globals.arrowfillrule));
 									thispath.Stroke(theImage,
-													ColorTools::checkcolor(theArrowStrokeColor),
-													ColorTools::checkrule(theArrowStrokeRule));
+													ColorTools::checkcolor(globals.arrowstrokecolor),
+													ColorTools::checkrule(globals.arrowstrokerule));
 								  }
 							}
 						}
