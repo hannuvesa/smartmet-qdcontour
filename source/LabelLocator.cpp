@@ -62,6 +62,8 @@ LabelLocator::LabelLocator()
 
 void LabelLocator::clear()
 {
+  itsPreviousCoordinates.clear();
+  itsCurrentCoordinates.clear();
 }
 
 // ----------------------------------------------------------------------

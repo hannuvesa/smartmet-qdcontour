@@ -8,6 +8,9 @@
 #ifndef LABELLOCATOR_H
 #define LABELLOCATOR_H
 
+#include <list>
+#include <map>
+
 class LabelLocator
 {
 public:
@@ -38,6 +41,13 @@ private:
   float itsMinDistanceToSameValue;
   float itsMinDistanceToDifferentValue;
   float itsMinDistanceToDifferentParameter;
+
+  typedef std::pair<int,int> XY;
+  typedef std::list<XY> Coordinates;
+  typedef std::map<int,Coordinates> ParamCoordinates;
+
+  ParamCoordinates itsPreviousCoordinates;
+  ParamCoordinates itsCurrentCoordinates;
 
 }; // class LabelLocator
 
