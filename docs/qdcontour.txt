@@ -489,6 +489,13 @@ symbols. The syntax is
 contourfont [value] [charnum] [color] [font]
 \endcode
 
+The placement of the symbols can be controlled with
+\code
+contourfontmindistdifferentparam [value]  # default = 8 pixels
+contourfontmindistdifferentvalue [value]  # default = 8 pixels
+contourfontmindistsamevalue [value]       # default = 8 pixels
+\endcode
+
 \section pressure_section Drawing high and low pressure symbols
 
 \code

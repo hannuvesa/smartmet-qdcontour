@@ -84,6 +84,12 @@ DoTest("contoursymbol",
        "contoursymbol.conf",
        "contoursymbol_200210140600_200210140937.png");
 
+# Test contourfont
+
+DoTest("contourfont",
+       "contourfont.conf",
+       "contourfont_200210140600_200210140937.png");
+
 # Test contourlabels
 
 DoTest("contourlabels",

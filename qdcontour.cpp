@@ -1714,6 +1714,57 @@ void do_contourlabelmindistdifferentparam(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Handle "contourfontmindistsamevalue" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourfontmindistsamevalue(istream & theInput)
+{
+  float dist;
+  theInput >> dist;
+
+  check_errors(theInput,"contourfontmindistsamevalue");
+
+  globals.symbollocator.minDistanceToSameValue(dist);
+
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "contourfontmindistdifferentvalue" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourfontmindistdifferentvalue(istream & theInput)
+{
+  float dist;
+  theInput >> dist;
+
+  check_errors(theInput,"contourfontmindistdifferentvalue");
+
+  globals.symbollocator.minDistanceToDifferentValue(dist);
+
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "contourlabelmindistdifferentparam" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourfontmindistdifferentparam(istream & theInput)
+{
+  float dist;
+
+  theInput >> dist;
+
+  check_errors(theInput,"contourfontmindistdifferentparam");
+
+  globals.symbollocator.minDistanceToDifferentParameter(dist);
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Handle "highpressure" command
  */
 // ----------------------------------------------------------------------
@@ -2128,6 +2179,7 @@ void do_clear(istream & theInput)
 	{
 	  globals.specs.clear();
 	  globals.labellocator.clear();
+	  globals.symbollocator.clear();
 	  globals.highpressureimage = NFmiImage();
 	  globals.lowpressureimage = NFmiImage();
 	}
@@ -3312,7 +3364,100 @@ void draw_contour_symbols(NFmiImage & theImage,
  */
 // ----------------------------------------------------------------------
 
-void draw_contour_fonts(NFmiImage & theImage,
+void draw_contour_fonts(NFmiImage & theImage)
+{
+  const LabelLocator::ParamCoordinates & paramcoords = globals.symbollocator.chooseLabels();
+
+  if(paramcoords.empty())
+	return;
+
+  // Iterate through all parameters
+
+  list<ContourSpec>::iterator piter;
+  list<ContourSpec>::iterator pbegin = globals.specs.begin();
+  list<ContourSpec>::iterator pend   = globals.specs.end();
+  
+  for(piter=pbegin; piter!=pend; ++piter)
+	{
+	  // Ignore the param if we could not assign any coordinates for it
+
+	  const int id = paramid(piter->param());
+
+	  LabelLocator::ParamCoordinates::const_iterator pit = paramcoords.find(id);
+	  if(pit == paramcoords.end())
+		continue;
+
+	  const LabelLocator::ContourCoordinates & coords = pit->second;
+
+	  // Loop through all the values
+
+	  for(LabelLocator::ContourCoordinates::const_iterator cit = coords.begin();
+		  cit != coords.end();
+		  ++cit)
+		{
+		  const float value = cit->first;
+
+		  // Find the specs for the font value
+
+		  list<ContourFont>::const_iterator fit;
+		  for(fit=piter->contourFonts().begin();
+			  fit!=piter->contourFonts().end();
+			  ++fit)
+			{
+			  if(fit->value() == value)
+				break;
+			}
+
+		  // Should never happen
+		  if(fit == piter->contourFonts().end())
+			throw runtime_error("Internal error while contouring with fonts");
+
+		  // Render the symbols
+
+		  const std::string & fontspec = fit->font();
+		  const int fontcolor = fit->color();
+		  const int symbol = fit->symbol();
+
+		  string text = "";
+		  text += symbol;
+		  
+		  vector<string> fontparts = NFmiStringTools::Split(fontspec,":");
+		  if(fontparts.size() != 2)
+			throw runtime_error("Invalid font specification '"+fontspec+"'");
+		  const string font = fontparts[0];
+		  fontparts = NFmiStringTools::Split(fontparts[1],"x");
+		  if(fontparts.size() != 2)
+			throw runtime_error("Invalid font size specification in '"+fontspec+"'");
+		  const int width = NFmiStringTools::Convert<int>(fontparts[0]);
+		  const int height = NFmiStringTools::Convert<int>(fontparts[1]);
+		  
+		  Imagine::NFmiFace face = Imagine::NFmiFreeType::Instance().Face(font,width,height);
+		  face.Background(false);
+		  
+		  for(LabelLocator::Coordinates::const_iterator it = cit->second.begin();
+			  it != cit->second.end();
+			  ++it)
+			{
+			  
+			  face.Draw(theImage,
+						it->first,
+						it->second,
+						text,
+						Imagine::kFmiAlignCenter,
+						fontcolor);
+			}
+		}
+	}
+}
+
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Save contour font coordinates
+ */
+// ----------------------------------------------------------------------
+
+void save_contour_fonts(NFmiImage & theImage,
 						const NFmiArea & theArea,
 						const ContourSpec & theSpec,
 						const NFmiDataMatrix<NFmiPoint> & thePoints,
@@ -3320,6 +3465,13 @@ void draw_contour_fonts(NFmiImage & theImage,
 						float theMinimum,
 						float theMaximum)
 {
+  // The ID under which the coordinates will be stored
+
+  int id = paramid(theSpec.param());
+  globals.symbollocator.parameter(id);
+
+  // Start saving candindate coordinates
+
   list<ContourFont>::const_iterator it;
   list<ContourFont>::const_iterator begin;
   list<ContourFont>::const_iterator end;
@@ -3345,26 +3497,7 @@ void draw_contour_fonts(NFmiImage & theImage,
 		}
 
 	  const float value = it->value();
-	  const int color = it->color();
-	  const int symbol = it->symbol();
-	  const string fontspec = it->font();
 
-	  // Parse the font specification
-
-	  vector<string> fontparts = NFmiStringTools::Split(fontspec,":");
-	  if(fontparts.size() != 2)
-		throw runtime_error("Invalid font specification '"+fontspec+"'");
-	  const string font = fontparts[0];
-	  fontparts = NFmiStringTools::Split(fontparts[1],"x");
-	  if(fontparts.size() != 2)
-		throw runtime_error("Invalid font size specification in '"+fontspec+"'");
-	  const int width = NFmiStringTools::Convert<int>(fontparts[0]);
-	  const int height = NFmiStringTools::Convert<int>(fontparts[1]);
-
-	  Imagine::NFmiFace face = Imagine::NFmiFreeType::Instance().Face(font,width,height);
-	  face.Background(false);
-
-	  // Draw symbol at each grid point where necessary
 	  for(unsigned int j=0; j<theValues.NY(); j++)
 		for(unsigned int i=0; i<theValues.NX(); i++)
 		  if(value == theValues[i][j])
@@ -3372,15 +3505,9 @@ void draw_contour_fonts(NFmiImage & theImage,
 			  NFmiPoint latlon = theArea.WorldXYToLatLon(thePoints[i][j]);
 			  NFmiPoint xy = theArea.ToXY(latlon);
 
-			  string text = "";
-			  text += symbol;
-
-			  face.Draw(theImage,
-						FmiRound(xy.X()),
-						FmiRound(xy.Y()),
-						text,
-						Imagine::kFmiAlignCenter,
-						color);
+			  globals.symbollocator.add(value,
+										FmiRound(xy.X()),
+										FmiRound(xy.Y()));
 			}
 	}
 }
@@ -3620,6 +3747,7 @@ void do_draw_contours(istream & theInput)
 
   globals.labellocator.clear();
   globals.pressurelocator.clear();
+  globals.symbollocator.clear();
 
   if(globals.querystreams.empty())
 	throw runtime_error("No query data has been read!");
@@ -3849,6 +3977,11 @@ void do_draw_contours(istream & theInput)
 									   image.Width()-globals.contourlabelimagexmargin,
 									   image.Height()-globals.contourlabelimageymargin);
 
+	  // Initialize symbol locator bounding box with reasonablye safety
+	  // for large symbols
+
+	  globals.symbollocator.boundingBox(-30,-30,image.Width()+30,image.Height()+30);
+
 	  // Loop over all parameters
 	  // The loop collects all contour label information, but
 	  // does not render it yet
@@ -3942,13 +4075,14 @@ void do_draw_contours(istream & theInput)
 		  // Symbol fill the contours
 
 		  draw_contour_symbols(image,*area,*piter,*worldpts,vals,min_value,max_value);
-		  // Font fill the contours
+		  // Save symbol fill coordinates
 
-		  draw_contour_fonts(image,*area,*piter,*worldpts,vals,min_value,max_value);
-		  
+		  save_contour_fonts(image,*area,*piter,*worldpts,vals,min_value,max_value);
+
 		  // Save contour label coordinates
 
 		  save_contour_labels(image,*area,*piter,interp,min_value,max_value);
+
 
 		}
 
@@ -3959,6 +4093,10 @@ void do_draw_contours(istream & theInput)
 	  // Draw wind arrows if so requested
 
 	  draw_wind_arrows(image,vals,*area);
+
+	  // Draw contour fonts
+
+	  draw_contour_fonts(image);
 
 	  // Label the contours
 
@@ -3999,6 +4137,7 @@ void do_draw_contours(istream & theInput)
 
 	  globals.labellocator.nextTime();
 	  globals.pressurelocator.nextTime();
+	  globals.symbollocator.nextTime();
 
 	}
 }
@@ -4115,6 +4254,9 @@ int domain(int argc, const char *argv[])
 		  else if(cmd == "contourlabelmindistsamevalue") do_contourlabelmindistsamevalue(in);
 		  else if(cmd == "contourlabelmindistdifferentvalue") do_contourlabelmindistdifferentvalue(in);
 		  else if(cmd == "contourlabelmindistdifferentparam") do_contourlabelmindistdifferentparam(in);
+		  else if(cmd == "contourfontmindistsamevalue") do_contourfontmindistsamevalue(in);
+		  else if(cmd == "contourfontmindistdifferentvalue") do_contourfontmindistdifferentvalue(in);
+		  else if(cmd == "contourfontmindistdifferentparam") do_contourfontmindistdifferentparam(in);
 
 		  else if(cmd == "highpressure")			do_highpressure(in);
 		  else if(cmd == "lowpressure")				do_lowpressure(in);

@@ -112,11 +112,15 @@ Globals::Globals()
   , lowpressuremaximum(1020)
   , pressurelocator()
   , labellocator()
+  , symbollocator()
   , calculator()
   , querystreams()
   , shapespecs()
   , specs()
 {
+  symbollocator.minDistanceToDifferentParameter(8);
+  symbollocator.minDistanceToDifferentValue(8);
+  symbollocator.minDistanceToSameValue(8);
 }
 
 // ----------------------------------------------------------------------

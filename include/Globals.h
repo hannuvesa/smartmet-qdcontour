@@ -146,6 +146,7 @@ struct Globals
 
   ExtremaLocator pressurelocator;	// high/low pressure locator
   LabelLocator labellocator;		// label coordinate calculator
+  LabelLocator symbollocator;		// symbol coordinate calculator
 
   ContourCalculator calculator;		// data contourer
   std::vector<LazyQueryData *> querystreams;
