@@ -33,6 +33,8 @@
 #include "newbase/NFmiStringTools.h"
 #include "newbase/NFmiPreProcessor.h"
 
+#include "boost/shared_ptr.hpp"
+
 #include <fstream>
 #include <stdexcept>
 #include <string>
@@ -40,6 +42,7 @@
 #include <sstream>
 
 using namespace std;
+using namespace boost;
 using namespace Imagine;
 
 // ----------------------------------------------------------------------
@@ -1292,7 +1295,6 @@ int domain(int argc, const char *argv[])
 				  
 				  NFmiTime utctime, time1, time2;
 				  
-				  vector<NFmiDataMatrix<NFmiPoint> > worldpts(theQueryStreams.size());
 				  NFmiDataMatrix<float> vals;
 				  
 				  unsigned int qi;
@@ -1512,19 +1514,6 @@ int domain(int argc, const char *argv[])
 					  if(theBackground != "")
 						theImage = theBackgroundImage;
 					  
-					  // Now we must make sure the coordinate matrices
-					  // have been initialized. We delay it until
-					  // this point since initializing them for
-					  // radar matrices is quite time expensive.
-
-					  {
-						for(unsigned int i=0; i<theQueryStreams.size(); i++)
-						  {
-							if(worldpts[i].NX()==0 || worldpts[i].NY()==0)
-							  theQueryStreams[i]->LocationsWorldXY(worldpts[i],theArea);
-						  }
-					  }
-
 					  // Loop over all parameters
 					  
 					  list<ContourSpec>::iterator piter;
@@ -1678,7 +1667,8 @@ int domain(int argc, const char *argv[])
 												piter->smootherFactor(),
 												piter->smootherRadius());
 						  
-						  vals = smoother.Smoothen(worldpts[qi],vals);
+						  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = theQueryInfo->LocationsWorldXY(theArea);
+						  vals = smoother.Smoothen(*worldpts,vals);
 						  
 						  // Find the minimum and maximum
 						  
@@ -1710,9 +1700,9 @@ int domain(int argc, const char *argv[])
 
 						  if(!labeldxdydone && piter->labelDX() > 0 && piter->labelDY() > 0)
 							{
-							  for(unsigned int j=0; j<worldpts[qi].NY(); j+=piter->labelDY())
-								for(unsigned int i=0; i<worldpts[qi].NX(); i+=piter->labelDX())
-								  piter->add(theArea.WorldXYToLatLon(worldpts[qi][i][j]));
+							  for(unsigned int j=0; j<worldpts->NY(); j+=piter->labelDY())
+								for(unsigned int i=0; i<worldpts->NX(); i+=piter->labelDX())
+								  piter->add(theArea.WorldXYToLatLon((*worldpts)[i][j]));
 							}
 
 						  piter->clearLabelValues();
@@ -2053,12 +2043,13 @@ int domain(int argc, const char *argv[])
 								theQueryInfo->Values(speedvalues);
 							  theQueryInfo->Param(FmiParameterName(converter.ToEnum(theDirectionParameter)));
 							  
-							  for(unsigned int j=0; j<worldpts[qi].NY(); j+=theWindArrowDY)
-								for(unsigned int i=0; i<worldpts[qi].NX(); i+=theWindArrowDX)
+							  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = theQueryInfo->LocationsWorldXY(theArea);							  
+							  for(unsigned int j=0; j<worldpts->NY(); j+=theWindArrowDY)
+								for(unsigned int i=0; i<worldpts->NX(); i+=theWindArrowDX)
 								  {
 									// The start point
 									
-									NFmiPoint latlon = theArea.WorldXYToLatLon(worldpts[qi][i][j]);
+									NFmiPoint latlon = theArea.WorldXYToLatLon((*worldpts)[i][j]);
 									NFmiPoint xy0 = theArea.ToXY(latlon);
 
 									// Skip rendering if the start point is masked

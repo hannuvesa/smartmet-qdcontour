@@ -23,6 +23,7 @@
 
 #include "newbase/NFmiDataMatrix.h"
 #include "newbase/NFmiParameterName.h"
+#include "boost/shared_ptr.hpp"
 #include <memory>
 #include <string>
 
@@ -64,9 +65,11 @@ public:
 
   bool IsParamUsable() const;
 
-  void Locations(NFmiDataMatrix<NFmiPoint> & theMatrix) const;
-  void LocationsWorldXY(NFmiDataMatrix<NFmiPoint> & theMatrix, const NFmiArea & theArea) const;
-  void LocationsXY(NFmiDataMatrix<NFmiPoint> & theMatrix, const NFmiArea & theArea) const;
+  typedef NFmiDataMatrix<NFmiPoint> Coordinates;
+
+  boost::shared_ptr<Coordinates> Locations() const;
+  boost::shared_ptr<Coordinates> LocationsWorldXY(const NFmiArea & theArea) const;
+  boost::shared_ptr<Coordinates> LocationsXY(const NFmiArea & theArea) const;
 
   bool BiLinearInterpolation(double x, double y, float & theValue,
 							 float topLeftValue, float topRightValue,
@@ -94,6 +97,11 @@ private:
   std::string itsDataFile;
   std::auto_ptr<NFmiFastQueryInfo> itsInfo;
   std::auto_ptr<NFmiQueryData> itsData;
+
+  mutable boost::shared_ptr<Coordinates> itsLocations;
+  mutable boost::shared_ptr<Coordinates> itsLocationsWorldXY;
+  mutable boost::shared_ptr<Coordinates> itsLocationsXY;
+
 
 }; // class LazyQueryData
 

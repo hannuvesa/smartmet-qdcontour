@@ -287,10 +287,16 @@ bool LazyQueryData::IsParamUsable() const
  */
 // ----------------------------------------------------------------------
 
-void LazyQueryData::Locations(NFmiDataMatrix<NFmiPoint> & theMatrix) const
+boost::shared_ptr<LazyQueryData::Coordinates>
+LazyQueryData::Locations() const
 {
   requireInfo();
-  itsInfo->Locations(theMatrix);
+  if(itsLocations.get() == 0)
+	{
+	  itsLocations.reset(new Coordinates);
+	  itsInfo->Locations(*itsLocations);
+	}
+  return itsLocations;
 }
 
 // ----------------------------------------------------------------------
@@ -299,11 +305,16 @@ void LazyQueryData::Locations(NFmiDataMatrix<NFmiPoint> & theMatrix) const
  */
 // ----------------------------------------------------------------------
 
-void LazyQueryData::LocationsWorldXY(NFmiDataMatrix<NFmiPoint> & theMatrix,
-									 const NFmiArea & theArea) const
+boost::shared_ptr<LazyQueryData::Coordinates>
+LazyQueryData::LocationsWorldXY(const NFmiArea & theArea) const
 {
   requireInfo();
-  itsInfo->LocationsWorldXY(theMatrix, theArea);
+  if(itsLocationsWorldXY.get() == 0)
+	{
+	  itsLocationsWorldXY.reset(new Coordinates);
+	  itsInfo->LocationsWorldXY(*itsLocationsWorldXY, theArea);
+	}
+  return itsLocationsWorldXY;
 }
 
 // ----------------------------------------------------------------------
@@ -312,11 +323,16 @@ void LazyQueryData::LocationsWorldXY(NFmiDataMatrix<NFmiPoint> & theMatrix,
  */
 // ----------------------------------------------------------------------
 
-void LazyQueryData::LocationsXY(NFmiDataMatrix<NFmiPoint> & theMatrix,
-								const NFmiArea & theArea) const
+boost::shared_ptr<LazyQueryData::Coordinates>
+LazyQueryData::LocationsXY(const NFmiArea & theArea) const
 {
   requireInfo();
-  itsInfo->LocationsXY(theMatrix, theArea);
+  if(itsLocationsXY.get() == 0)
+	{
+	  itsLocationsXY.reset(new Coordinates);
+	  itsInfo->LocationsXY(*itsLocationsXY, theArea);
+	}
+  return itsLocationsXY;
 }
 
 // ----------------------------------------------------------------------

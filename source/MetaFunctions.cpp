@@ -9,6 +9,9 @@
 #include "newbase/NFmiLocation.h"
 #include "newbase/NFmiMetTime.h"
 #include "newbase/NFmiPoint.h"
+
+#include "boost/shared_ptr.hpp"
+
 #include <iostream>
 #include <stdexcept>
 
@@ -28,14 +31,14 @@ namespace
   NFmiDataMatrix<float> elevation_angle_values(LazyQueryData * theQI)
   {
 	NFmiDataMatrix<float> values;
-	NFmiDataMatrix<NFmiPoint> pts;
-	theQI->Locations(pts);
-	values.Resize(pts.NX(),pts.NY(),kFloatMissing);
 
-	for(unsigned int j=0; j<pts.NY(); j++)
-	  for(unsigned int i=0; i<pts.NX(); i++)
+	boost::shared_ptr<NFmiDataMatrix<NFmiPoint> > pts = theQI->Locations();
+	values.Resize(pts->NX(),pts->NY(),kFloatMissing);
+
+	for(unsigned int j=0; j<pts->NY(); j++)
+	  for(unsigned int i=0; i<pts->NX(); i++)
 		{
-		  NFmiLocation loc(pts[i][j]);
+		  NFmiLocation loc((*pts)[i][j]);
 		  NFmiMetTime t(theQI->ValidTime());
 		  double angle = loc.ElevationAngle(t);
 		  values[i][j] = static_cast<float>(angle);
