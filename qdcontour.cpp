@@ -7,7 +7,7 @@
 
 // internal
 #include "ColorTools.h"
-#include "ContourCache.h"
+#include "ContourCalculator.h"
 #include "ContourSpec.h"
 #include "GramTools.h"
 #include "LazyQueryData.h"
@@ -107,8 +107,7 @@ int domain(int argc, const char *argv[])
 
   // Tallennetut kontuurit
 
-  ContourCache theCache;
-  int theCacheFlag = 0;
+  ContourCalculator theCalculator;
 
   // Lista komentitiedostoista
   
@@ -320,7 +319,11 @@ int domain(int argc, const char *argv[])
 			}
 		  
 		  else if(command == "cache")
-			input >> theCacheFlag;
+			{
+			  int flag;
+			  input >> flag;
+			  theCalculator.cache(flag);
+			}
 
 		  else if(command == "querydata")
 			{
@@ -804,7 +807,7 @@ int domain(int argc, const char *argv[])
 			  else if(command=="shapes")
 				theShapeSpecs.clear();
 			  else if(command=="cache")
-				theCache.clear();
+				theCalculator.clearCache();
 			  else if(command=="arrows")
 				{
 				  theArrowPoints.clear();
@@ -1900,48 +1903,25 @@ int domain(int argc, const char *argv[])
 											  piter->exactHiLimit()!=kFloatMissing &&
 											  citer->hilimit()==piter->exactHiLimit());
 
-							  NFmiPath path;
-							  if(theCacheFlag &&
-								 theCache.contains(citer->lolimit(),
-												   citer->hilimit(),
-												   *theQueryInfo))
-								{
-								  if(verbose)
-									cout << "Using cached "
-										 << citer->lolimit() << " - "
-										 << citer->hilimit() << endl;
-
-								  path = theCache.find(citer->lolimit(),
-													   citer->hilimit(),
-													   *theQueryInfo);
-								}
-							  else
-								{
-								  NFmiContourTree tree(citer->lolimit(),
-													   citer->hilimit(),
-													   exactlo,exacthi);
+							  NFmiPath path =
+								theCalculator.contour(vals,
+													  *theQueryInfo,
+													  citer->lolimit(),
+													  citer->hilimit(),
+													  exactlo,
+													  exacthi,
+													  piter->dataLoLimit(),
+													  piter->dataHiLimit(),
+													  piter->contourDepth(),
+													  interp);
 							  
-								  if(piter->dataLoLimit()!=kFloatMissing)
-									tree.DataLoLimit(piter->dataLoLimit());
-								  if(piter->dataHiLimit()!=kFloatMissing)
-									tree.DataHiLimit(piter->dataHiLimit());
-							  
-								  tree.Contour(vals,interp,piter->contourDepth());
-								  path = tree.Path();
-
-								  path.InvGrid(theQueryInfo->Grid());
-
-								  if(theCacheFlag)
-									theCache.insert(path,
-													citer->lolimit(),
-													citer->hilimit(),
-													*theQueryInfo);
-
-								}
-
-							  path.Project(&theArea);
+							  if(verbose && theCalculator.wasCached())
+								cout << "Using cached "
+									 << citer->lolimit() << " - "
+									 << citer->hilimit() << endl;
 
 							  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(citer->rule());
+							  path.Project(&theArea);
 							  path.Fill(theImage,citer->color(),rule);
 							  
 							}
@@ -1984,50 +1964,26 @@ int domain(int argc, const char *argv[])
 											  piter->exactHiLimit()!=kFloatMissing &&
 											  patiter->hilimit()==piter->exactHiLimit());
 
-							  NFmiPath path;
-							  if(theCacheFlag &&
-								 theCache.contains(patiter->lolimit(),
-												   patiter->hilimit(),
-												   *theQueryInfo))
-								{
-								  if(verbose)
-									cout << "Using cached "
-										 << patiter->lolimit() << " - "
-										 << patiter->hilimit() << endl;
+							  NFmiPath path =
+								theCalculator.contour(vals,
+													  *theQueryInfo,
+													  patiter->lolimit(),
+													  patiter->hilimit(),
+													  exactlo, exacthi,
+													  piter->dataLoLimit(),
+													  piter->dataHiLimit(),
+													  piter->contourDepth(),
+													  interp);
 
-								  path = theCache.find(patiter->lolimit(),
-													   patiter->hilimit(),
-													   *theQueryInfo);
-								}
-							  else
-								{
-							  
-								  NFmiContourTree tree(patiter->lolimit(),
-													   patiter->hilimit(),
-													   exactlo,exacthi);
-							  
-								  if(piter->dataLoLimit()!=kFloatMissing)
-									tree.DataLoLimit(piter->dataLoLimit());
-								  if(piter->dataHiLimit()!=kFloatMissing)
-									tree.DataHiLimit(piter->dataHiLimit());
-								  
-								  tree.Contour(vals,interp,piter->contourDepth());
-
-								  path = tree.Path();
-								  path.InvGrid(theQueryInfo->Grid());
-
-								  if(theCacheFlag)
-									theCache.insert(path,
-													patiter->lolimit(),
-													patiter->hilimit(),
-													*theQueryInfo);
-
-								}
+							  if(verbose && theCalculator.wasCached())
+								cout << "Using cached "
+									 << patiter->lolimit() << " - "
+									 << patiter->hilimit() << endl;
 
 							  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(patiter->rule());
-							  path.Project(&theArea);
-							  
 							  NFmiImage pattern(patiter->pattern());
+
+							  path.Project(&theArea);
 							  path.Fill(theImage,pattern,rule,patiter->factor());
 							  
 							}
@@ -2056,42 +2012,19 @@ int domain(int argc, const char *argv[])
 									continue;
 								}
 
-							  NFmiPath path;
+							  NFmiPath path =
+								theCalculator.contour(vals,
+													  *theQueryInfo,
+													  liter->value(),
+													  kFloatMissing,
+													  true, false,
+													  piter->dataLoLimit(),
+													  piter->dataHiLimit(),
+													  piter->contourDepth(),
+													  interp);
 
-							  if(theCacheFlag &&
-								 theCache.contains(liter->value(),
-												   kFloatMissing,
-												   *theQueryInfo))
-								{
-								  if(verbose)
-									cout << "Using cached " << liter->value() << endl;
-								  path = theCache.find(liter->value(),
-													   kFloatMissing,
-													   *theQueryInfo);
-								}
-							  else
-								{
-								  NFmiContourTree tree(liter->value(),kFloatMissing);
-								  if(piter->dataLoLimit()!=kFloatMissing)
-									tree.DataLoLimit(piter->dataLoLimit());
-								  if(piter->dataHiLimit()!=kFloatMissing)
-									tree.DataHiLimit(piter->dataHiLimit());
-								  
-								  tree.Contour(vals,interp,piter->contourDepth());
-								  path = tree.Path();
-								  path.InvGrid(theQueryInfo->Grid());
-
-								  if(theCacheFlag)
-									theCache.insert(path,
-													liter->value(),
-													kFloatMissing,
-													*theQueryInfo);
-
-								}
-
-							  path.Project(&theArea);
-							  
 							  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(liter->rule());
+							  path.Project(&theArea);
 							  path.SimplifyLines(10);
 							  path.Stroke(theImage,liter->color(),rule);
 							  
