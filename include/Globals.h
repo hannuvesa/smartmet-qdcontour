@@ -46,6 +46,7 @@ struct Globals
   int timestep;						// timestep, 0 = all valid
   int timeinterval;					// inclusive time interval
   int timestepskip;					// initial time to skip in minutes
+  int timesteprounding;				// rounding flag
   int timestampflag;				// put timestamp into image name?
   std::string timestampzone;		// timezone for the timestamp
 

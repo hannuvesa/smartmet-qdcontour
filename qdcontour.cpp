@@ -444,6 +444,21 @@ void do_timestampzone(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "timesteprounding" command
+ */
+// ----------------------------------------------------------------------
+
+void do_timesteprounding(istream & theInput)
+{
+  theInput >> globals.timesteprounding;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'timesteprounding' command failed");
+
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -476,7 +491,6 @@ int domain(int argc, const char *argv[])
   string theContourInterpolation = "Linear";
   string theSmoother = "None";
   float theSmootherRadius = 1.0;
-  int theTimeStepRoundingFlag = 1;
   int theSmootherFactor = 1;
 
   int theTimeStampImageX = 0;
@@ -567,22 +581,20 @@ int domain(int argc, const char *argv[])
 		{
 		  // Handle comments
 
-		  if(command == "#")					do_comment(input);
-		  else if(command[0] == '#')			do_comment(input);
-		  else if(command == "//")				do_comment(input);
-		  else if(command == "cache")			do_cache(input);
-		  else if(command == "querydata")		do_querydata(input);
-		  else if(command == "querydatalevel")	do_querydatalevel(input);
-		  else if(command == "filter")			do_filter(input);
-		  else if(command == "timestepskip")	do_timestepskip(input);
-		  else if(command == "timestep")		do_timestep(input);
-		  else if(command == "timeinterval")	do_timeinterval(input);
-		  else if(command == "timesteps")		do_timesteps(input);
-		  else if(command == "timestamp")		do_timestamp(input);
-		  else if(command == "timestampzone")	do_timestampzone(input);
-
-		  else if(command == "timesteprounding")
-			input >> theTimeStepRoundingFlag;
+		  if(command == "#")						do_comment(input);
+		  else if(command[0] == '#')				do_comment(input);
+		  else if(command == "//")					do_comment(input);
+		  else if(command == "cache")				do_cache(input);
+		  else if(command == "querydata")			do_querydata(input);
+		  else if(command == "querydatalevel")		do_querydatalevel(input);
+		  else if(command == "filter")				do_filter(input);
+		  else if(command == "timestepskip")		do_timestepskip(input);
+		  else if(command == "timestep")			do_timestep(input);
+		  else if(command == "timeinterval")		do_timeinterval(input);
+		  else if(command == "timesteps")			do_timesteps(input);
+		  else if(command == "timestamp")			do_timestamp(input);
+		  else if(command == "timestampzone")		do_timestampzone(input);
+		  else if(command == "timesteprounding")	do_timesteprounding(input);
 
 		  else if(command == "timestampimage")
 			input >> theTimeStampImage;
@@ -1465,12 +1477,12 @@ int domain(int argc, const char *argv[])
 				  // Skip to first time
 
 				  NFmiMetTime tmptime(time1,
-									  theTimeStepRoundingFlag ?
+									  globals.timesteprounding ?
 									  (globals.timestep>0 ? globals.timestep : 1) :
 									  1);
 
 				  tmptime.ChangeByMinutes(globals.timestepskip);
-				  if(theTimeStepRoundingFlag)
+				  if(globals.timesteprounding)
 					tmptime.PreviousMetTime();
 				  NFmiTime t = tmptime;
 
