@@ -1,0 +1,113 @@
+#!/usr/bin/perl
+
+$program = "../qdcontour";
+
+%usednames = ();
+
+DoTest("a trivial contour",
+       "t2m.conf",
+       "200210140900_140900.png");
+
+print "Done\n";
+
+# ----------------------------------------------------------------------
+# Run a single test
+# ----------------------------------------------------------------------
+
+sub DoTest
+{
+    my($text) = shift(@_);
+    my($conf) = shift(@_);
+    my(@outputfiles) = @_;
+
+    foreach $outputfile(@outputfiles)
+    {
+	if(exists($usednames{$outputfile}))
+	{
+	    print "Virhe regressiotesteissä: $outputfile käytössä useamman kerran\n";
+	    exit(1);
+	}
+	$usednames{$outputfile} = 1;
+    }
+
+    # Ajetaan käsky
+
+    $cmd = "$program -f conf/$conf";
+    $output = `$cmd`;
+
+    # Vertaa tuloksia
+
+    print padname($text);
+
+    $failed = 0;
+    $extratext = "";
+    foreach $outputfile(@outputfiles)
+    {
+	$expected = "results/$outputfile.ok";
+	$actual = "results/$outputfile";
+
+	if(equalcontent($expected,$actual))
+	{
+	    unlink($actual);
+	}
+	else
+	{
+	    $failed++;
+	    $extratext .= "(files $expected and $actual differ)\n";
+	}
+    }
+    
+    if($failed==0)
+    {
+	print "ok\n";
+    }
+    else
+    {
+	print "FAILED\n$extratext";
+    }
+}
+
+# ----------------------------------------------------------------------
+# Pad the given string to 70 characters with dots
+# ----------------------------------------------------------------------
+
+sub padname
+{
+    my($str) = @_[0];
+
+    while(length($str) < 70)
+    {
+	$str .= ".";
+    }
+    return $str;
+}
+
+# ----------------------------------------------------------------------
+# Compare two files
+# ----------------------------------------------------------------------
+
+sub equalcontent
+{
+    my($file1,$file2) = @_;
+
+    # Files must exits
+
+    if(!(-e $file1) || !(-e $file2))
+    { return 0; }
+
+    # Read binary file and compare results
+
+    my($buffer1,$buffer2);
+
+    open(FILE1,"$file1");
+    open(FILE2,"$file2");
+    binmode(FILE1);
+    binmode(FILE2);
+    read(FILE1,$buffer1,(stat(FILE1))[7]);
+    read(FILE2,$buffer2,(stat(FILE2))[7]);
+    close(FILE1);
+    close(FILE2);
+    return ($buffer1 eq $buffer2);
+}
+
+# ----------------------------------------------------------------------
