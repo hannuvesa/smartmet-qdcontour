@@ -1843,6 +1843,67 @@ void do_draw_imagemap(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Draw label markers
+ */
+// ----------------------------------------------------------------------
+
+void draw_label_markers(NFmiImage & theImage,
+						const ContourSpec & theSpec,
+						const NFmiArea & theArea)
+{
+  if(theSpec.labelMarker().empty())
+	return;
+
+  // Establish that something is to be done
+	  
+  if(theSpec.labelPoints().empty())
+	return;
+	  
+  // Establish the marker specs
+  
+  NFmiImage marker;
+  marker.Read(theSpec.labelMarker());
+  
+  NFmiColorTools::NFmiBlendRule markerrule = ColorTools::checkrule(theSpec.labelMarkerRule());
+  
+  float markeralpha = theSpec.labelMarkerAlphaFactor();
+  
+  // Draw individual points
+  
+  unsigned int pointnumber = 0;
+  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
+  for(iter=theSpec.labelPoints().begin();
+	  iter!=theSpec.labelPoints().end();
+	  ++iter)
+	{
+	  // The point in question
+	  
+	  NFmiPoint xy = theArea.ToXY(iter->first);
+	  
+	  // Skip rendering if the start point is masked
+	  
+	  if(IsMasked(xy, globals.mask, globals.maskimage))
+		continue;
+	  
+	  // Skip rendering if LabelMissing is "" and value is missing
+	  if(theSpec.labelMissing().empty())
+		{
+		  float value = theSpec.labelValues()[pointnumber++];
+		  if(value == kFloatMissing)
+			continue;
+		}
+	  
+	  theImage.Composite(marker,
+						 markerrule,
+						 kFmiAlignCenter,
+						 FmiRound(xy.X()),
+						 FmiRound(xy.Y()),
+						 markeralpha);
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Handle "draw contours" command
  */
 // ----------------------------------------------------------------------
@@ -2694,62 +2755,8 @@ void do_draw_contours(istream & theInput)
 
 	  for(piter=pbegin; piter!=pend; ++piter)
 		{
-
-		  // Draw label markers first
-
-		  if(!piter->labelMarker().empty())
-			{
-			  // Establish that something is to be done
-
-			  if(piter->labelPoints().empty())
-				continue;
-
-			  // Establish the marker specs
-
-			  NFmiImage marker;
-			  marker.Read(piter->labelMarker());
-
-			  NFmiColorTools::NFmiBlendRule markerrule = ColorTools::checkrule(piter->labelMarkerRule());
-
-			  float markeralpha = piter->labelMarkerAlphaFactor();
-
-			  // Draw individual points
-
-			  unsigned int pointnumber = 0;
-			  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
-			  for(iter=piter->labelPoints().begin();
-				  iter!=piter->labelPoints().end();
-				  ++iter)
-				{
-				  // The point in question
-
-				  NFmiPoint xy = area->ToXY(iter->first);
-
-				  // Skip rendering if the start point is masked
-
-				  if(IsMasked(xy,
-							  globals.mask,
-							  globals.maskimage))
-					continue;
-
-				  // Skip rendering if LabelMissing is "" and value is missing
-				  if(piter->labelMissing().empty())
-					{
-					  float value = piter->labelValues()[pointnumber++];
-					  if(value == kFloatMissing)
-						continue;
-					}
-
-				  image.Composite(marker,
-								  markerrule,
-								  kFmiAlignCenter,
-								  FmiRound(xy.X()),
-								  FmiRound(xy.Y()),
-								  markeralpha);
-				}
-
-			}
-
+		  draw_label_markers(image,*piter,*area);
+		  
 		  // Label markers now drawn, only label texts remain
 
 		  // Quick exit from loop if no labels are
