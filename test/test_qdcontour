@@ -144,6 +144,12 @@ DoTest("MetaElevationAngle",
        "meta_elevation_angle.conf",
        "meta_elevation_angle_200210141800_141237.png");
 
+# MetaWindChill
+
+DoTest("MetaWindChill",
+       "meta_wind_chill.conf",
+       "meta_wind_chill_200210141800_141237.png");
+
 print "Done\n";
 
 # ----------------------------------------------------------------------

@@ -7,6 +7,7 @@
 
 #include "MetaFunctions.h"
 #include "newbase/NFmiLocation.h"
+#include "newbase/NFmiMetMath.h"
 #include "newbase/NFmiMetTime.h"
 #include "newbase/NFmiPoint.h"
 
@@ -46,6 +47,35 @@ namespace
 	return values;
   }
 
+  // ----------------------------------------------------------------------
+  /*!
+   * \brief Return WindChill matrix from given query info
+   *
+   * \param theQI The query info
+   * \return The values in a matrix
+   */
+  // ----------------------------------------------------------------------
+
+  NFmiDataMatrix<float> wind_chill_values(LazyQueryData * theQI)
+  {
+	NFmiDataMatrix<float> t2m;
+	NFmiDataMatrix<float> wspd;
+
+	theQI->Param(kFmiTemperature);
+	theQI->Values(t2m);
+	theQI->Param(kFmiWindSpeedMS);
+	theQI->Values(wspd);
+
+	// overwrite t2m with wind chill
+
+	for(unsigned int j=0; j<t2m.NY(); j++)
+	  for(unsigned int i=0; i<t2m.NX(); i++)
+		{
+		  t2m[i][j] = FmiWindChill(wspd[i][j],t2m[i][j]);
+		}
+	return t2m;
+  }
+
 } // namespace anonymous
 
 
@@ -64,6 +94,8 @@ namespace MetaFunctions
   bool isMeta(const std::string & theFunction)
   {
 	if(theFunction == "MetaElevationAngle")
+	  return true;
+	if(theFunction == "MetaWindChill")
 	  return true;
 	return false;
   }
@@ -86,6 +118,8 @@ namespace MetaFunctions
   {
 	if(theFunction == "MetaElevationAngle")
 	  return elevation_angle_values(theQI);
+	if(theFunction == "MetaWindChill")
+	  return wind_chill_values(theQI);
 
 	throw runtime_error("Unrecognized meta function " + theFunction);
 
