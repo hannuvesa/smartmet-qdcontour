@@ -1435,12 +1435,6 @@ int domain(int argc, const char *argv[])
 							time2 = t2;
 						}
 					  
-					  // Establish coordinates
-					  
-					  theQueryInfo->LocationsWorldXY(worldpts[qi],theArea);
-					  
-					  theQueryInfo->LocationsXY(pts[qi],theArea);
-					  
 					}
 				  
 				  if(verbose)
@@ -1600,7 +1594,7 @@ int domain(int argc, const char *argv[])
 							cout << "Not overwriting " << filename << endl;
 						  continue;
 						}
-					  
+
 					  // Initialize the background
 					  
 					  NFmiImage theImage(theWidth,theHeight);
@@ -1619,6 +1613,21 @@ int domain(int argc, const char *argv[])
 					  if(theBackground != "")
 						theImage = theBackgroundImage;
 					  
+					  // Now we must make sure the coordinate matrices
+					  // have been initialized. We delay it until
+					  // this point since initializing them for
+					  // radar matrices is quite time expensive.
+
+					  {
+						for(unsigned int i=0; i<theQueryStreams.size(); i++)
+						  {
+							if(worldpts[i].NX()==0 || worldpts[i].NY()==0)
+							  theQueryStreams[i]->LocationsWorldXY(worldpts[i],theArea);
+							if(pts[i].NX()==0 || pts[i].NY()==0)
+							  theQueryStreams[i]->LocationsXY(pts[i],theArea);
+						  }
+					  }
+
 					  // Loop over all parameters
 					  
 					  list<ContourSpec>::iterator piter;

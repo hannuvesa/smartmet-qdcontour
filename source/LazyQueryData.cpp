@@ -64,20 +64,7 @@ void LazyQueryData::requireData()
 
   // Now we must read the data so that the query info remains valid.
 
-  NFmiFastQueryInfo * oldinfo = itsInfo.release();
-
-  ifstream in(itsDataFile.c_str(), ios::in|ios::binary);
-  if(!in) throw runtime_error("File "+itsDataFile+" was lost");
-
-  NFmiQueryData * qdata = new NFmiQueryData;
-  in >> *qdata;
-  in.close();
-
-  itsData.reset(qdata);
-  itsInfo.reset(new NFmiFastQueryInfo(itsData.get()));
-  itsInfo->SetDescriptors(oldinfo,false);
-  delete oldinfo;
-
+  throw runtime_error("Error: requireData() is no longer needed, see Read()");
 }
 
 // ----------------------------------------------------------------------
@@ -122,15 +109,16 @@ void LazyQueryData::Read(const std::string & theDataFile)
 	  filename = newestfile;
 	}
 
-  NFmiQueryInfo qinfo;
+  NFmiQueryData * qdata = new NFmiQueryData;
   ifstream in(filename.c_str(), ios::in|ios::binary);
   if(!in) throw runtime_error("Could not open "+filename);
-  in >> qinfo;
+  in >> *qdata;
   in.close();
 
   itsDataFile = filename;
 
-  itsInfo.reset(new NFmiFastQueryInfo(qinfo));
+  itsData.reset(qdata);
+  itsInfo.reset(new NFmiFastQueryInfo(itsData.get()));
 }
 
 // ----------------------------------------------------------------------
