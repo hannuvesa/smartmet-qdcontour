@@ -80,13 +80,17 @@ DoTest("contourpattern",
 
 # Test windarrows
 
+DoTest("windarrows at points",
+       "windarrow_points.conf",
+       "windarrow_points200210140900_140900.png");
+
 DoTest("windarrows in a grid",
        "windarrow_grid.conf",
        "windarrow_grid200210140900_140900.png");
 
-DoTest("windarrows at points",
-       "windarrow_points.conf",
-       "windarrow_points200210140900_140900.png");
+DoTest("windarrows in a grid masked",
+       "windarrow_grid_masked.conf",
+       "windarrow_grid_masked_200210140900_140900.png");
 
 DoTest("windarrowscale",
        "windarrowscale.conf",
@@ -109,6 +113,10 @@ DoTest("labels at points",
 DoTest("labels at gridpoints",
        "labels_grid.conf",
        "labels_grid_200210140900_140900.png");
+
+DoTest("labels at masked gridpoints",
+       "labels_grid_masked.conf",
+       "labels_grid_masked_200210140900_140900.png");
 
 # Labels must be on top of arrows
 

@@ -634,6 +634,47 @@ private:
   
 };
 
+
+// ----------------------------------------------------------------------
+/*!
+ * Test whether the given pixel coordinate is masked. This by definition
+ * means the respective pixel in the given mask is not fully transparent.
+ * Also, we define all pixels outside the mask image to be masked similarly
+ * as pixel(0,0).
+ *
+ * \param thePoint The pixel coordinate
+ * \param theMask The mask filename
+ * \param theMaskImage The mask image
+ * \return True, if the pixel is masked out
+ */
+// ----------------------------------------------------------------------
+
+bool IsMasked(const NFmiPoint & thePoint,
+			  const std::string & theMask,
+			  const NFmiImage & theMaskImage)
+{
+  if(theMask.empty())
+	return false;
+
+  long theX = static_cast<int>(FmiRound(thePoint.X()));
+  long theY = static_cast<int>(FmiRound(thePoint.Y()));
+
+  // Handle outside pixels the same way as pixel 0,0
+  if( theX<0 ||
+	  theY<0 ||
+	  theX>=theMaskImage.Width() ||
+	  theY>=theMaskImage.Height())
+	{
+	  theX = 0;
+	  theY = 0;
+	}
+
+  const NFmiColorTools::Color c = theMaskImage(theX,theY);
+  const int alpha = NFmiColorTools::GetAlpha(c);
+
+  return (alpha != NFmiColorTools::Transparent);
+}
+
 // ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
@@ -705,6 +746,7 @@ int main(int argc, const char *argv[])
   string theErase	= "#7F000000";
   string theBackground	= "";
   string theForeground	= "";
+  string theMask = "";
   string theFillRule	= "Atop";
   string theStrokeRule	= "Atop";
   
@@ -748,6 +790,7 @@ int main(int argc, const char *argv[])
   
   NFmiImage theBackgroundImage;
   NFmiImage theForegroundImage;
+  NFmiImage theMaskImage;
   NFmiImage theCombineImage;
   
   // This holds a vector of querydatastreams
@@ -1081,6 +1124,14 @@ int main(int argc, const char *argv[])
 				theForeground = "";
 			}
 		  
+		  else if(command == "mask")
+			{
+			  input >> theMask;
+			  if(theMask != "none")
+				theMaskImage.Read(FileComplete(theMask,mapspath));
+			  else
+				theMask = "";
+			}
 		  else if(command == "combine")
 			{
 			  input >> theCombine;
@@ -2743,6 +2794,15 @@ int main(int argc, const char *argv[])
 							  iter!=theArrowPoints.end();
 							  ++iter)
 							{
+
+							  // The start point
+							  NFmiPoint xy0 = theArea.ToXY(*iter);
+
+							  // Skip rendering if the start point is masked
+
+							  if(IsMasked(xy0,theMask,theMaskImage))
+								continue;
+
 							  float dir = theQueryInfo->InterpolatedValue(*iter);
 							  if(dir==kFloatMissing)	// ignore missing
 								continue;
@@ -2753,10 +2813,7 @@ int main(int argc, const char *argv[])
 								speed = theQueryInfo->InterpolatedValue(*iter);
 							  theQueryInfo->Param(FmiParameterName(converter.ToEnum(theDirectionParameter)));
 							  
-							  // The start point
-							  
-							  NFmiPoint xy0 = theArea.ToXY(*iter);
-							  
+						  
 							  // Direction calculations
 							  
 							  const float pi = 3.141592658979323;
@@ -2812,15 +2869,20 @@ int main(int argc, const char *argv[])
 							  for(unsigned int j=0; j<pts[qi].NY(); j+=theWindArrowDY)
 								for(unsigned int i=0; i<pts[qi].NX(); i+=theWindArrowDX)
 								  {
+									// The start point
+									
+									NFmiPoint xy0 = theArea.ToXY(latlons[i][j]);
+
+									// Skip rendering if the start point is masked
+
+									if(IsMasked(xy0,theMask,theMaskImage))
+									  continue;
+
 									float dir = vals[i][j];
 									if(dir==kFloatMissing)	// ignore missing
 									  continue;
 									
 									float speed = speedvalues[i][j];
-
-									// The start point
-									
-									NFmiPoint xy0 = theArea.ToXY(latlons[i][j]);
 
 									// Direction calculations
 									
@@ -2931,6 +2993,11 @@ int main(int argc, const char *argv[])
 									  
 									  NFmiPoint xy = theArea.ToXY(iter->first);
 									  
+									  // Skip rendering if the start point is masked
+									  
+									  if(IsMasked(xy,theMask,theMaskImage))
+										continue;
+									  
 									  theImage.Composite(marker,
 														 markerrule,
 														 kFmiAlignCenter,
@@ -2946,12 +3013,19 @@ int main(int argc, const char *argv[])
 								{
 								  for(unsigned int j=0; j<pts[qi].NY(); j+=piter->LabelDY())
 									for(unsigned int i=0; i<pts[qi].NX(); i+=piter->LabelDX())
-									  theImage.Composite(marker,
-														 markerrule,
-														 kFmiAlignCenter,
-														 FmiRound(pts[qi][i][j].X()),
-														 FmiRound(pts[qi][i][j].Y()),
-														 markeralpha);
+									  {
+										// Skip rendering if the start point is masked
+									  
+										if(IsMasked(pts[qi][i][j],theMask,theMaskImage))
+										  continue;
+
+										theImage.Composite(marker,
+														   markerrule,
+														   kFmiAlignCenter,
+														   FmiRound(pts[qi][i][j].X()),
+														   FmiRound(pts[qi][i][j].Y()),
+														   markeralpha);
+									  }
 								}
 							}
 						  
@@ -3010,6 +3084,27 @@ int main(int argc, const char *argv[])
 							  iter!=piter->LabelPoints().end();
 							  ++iter)
 							{
+
+							  // The point in question
+							  
+							  float x,y;
+							  if(iter->second.X() == kFloatMissing)
+								{
+								  NFmiPoint xy = theArea.ToXY(iter->first);
+								  x = xy.X();
+								  y = xy.Y();
+								}
+							  else
+								{
+								  x = iter->second.X();
+								  y = iter->second.Y();
+								}
+
+							  // Skip rendering if the start point is masked
+							  
+							  if(IsMasked(NFmiPoint(x,y),theMask,theMaskImage))
+								continue;
+
 							  float value = piter->LabelValues()[pointnumber++];
 							  
 							  // Convert value to string
@@ -3026,21 +3121,6 @@ int main(int argc, const char *argv[])
 							  if(strvalue.empty())
 								continue;
 							  
-							  // The point in question
-							  
-							  float x,y;
-							  if(iter->second.X() == kFloatMissing)
-								{
-								  NFmiPoint xy = theArea.ToXY(iter->first);
-								  x = xy.X();
-								  y = xy.Y();
-								}
-							  else
-								{
-								  x = iter->second.X();
-								  y = iter->second.Y();
-								}
-
 							  // Set new text properties
 							  
 							  text.Text(strvalue);
@@ -3066,7 +3146,7 @@ int main(int argc, const char *argv[])
 							  
 						}
 		  
-					  
+  
 					  
 					  // Bang the combine image (legend, logo, whatever)
 					  

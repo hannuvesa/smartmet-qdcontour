@@ -31,6 +31,7 @@
   <li>\ref contour_section</li>
   <li>\ref arrow_section</li>
   <li>\ref label_section</li>
+  <li>\ref masking_section</li>
   <li>\ref rendercontour_section</li>
   <li>\ref interpolation_section</li>
   <li>\ref filtering_section</li>
@@ -577,6 +578,26 @@ a new contouring by
 clear labels
 \endcode
 
+\subsection masking_section Masking out labels and arrows
+
+Using the commands
+\code
+mask [filename]
+mask none
+\endcode
+one can use a transparent image to choose whether the label or arrow
+should be rendered. The decision is made based on the transparency of
+the pixel nearest to the geographic coordinates from which the label
+or arrow value is taken. If the pixel is <em>fully</em> transparent,
+nothing is drawn.
+
+Note that if a geographic coordinate is outside the mask image, it
+is treated the same way as the mask pixel 0,0. That is, we propagate
+whatever is at pixel 0,0 outside the mask.
+
+Often one would use the <em>mask</em> command with the same image
+as the <em>foreground</em> command.
+
 \subsection rendercontour_section Saving the results
 
 The contoured images can be saved using
@@ -772,8 +793,9 @@ environment settings in the <em>fmi.conf</em> file:
 </dd>
 <dt>qdcontour::maps_path</dt>
 <dd>This specifies the search path for the images given in the
-    <em>background</em>, <em>foreground</em> and <em>combine</em>
-    commands. The current default value in Linux is <em>/data/share/maps</em>.
+    <em>background</em>, <em>foreground</em>, <em>combine</em>
+    and <em>mask</em> commands.
+    The current default value in Linux is <em>/data/share/maps</em>.
 </dd>
 <dt>imagine::shapes_path</dt>
 <dd>This specifies the search path for shape files given in the <em>shape</em>
