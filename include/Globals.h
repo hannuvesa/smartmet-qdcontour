@@ -158,6 +158,9 @@ struct Globals
 
 };
 
+// For global use
+static Globals globals;
+
 #endif // GLOBALS_H
 
 // ======================================================================

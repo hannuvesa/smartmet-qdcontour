@@ -15,6 +15,7 @@
 #include "ColorTools.h"
 #include "ContourSpec.h"
 #include "GramTools.h"
+#include "LazyCoordinates.h"
 #include "LazyQueryData.h"
 #include "MetaFunctions.h"
 #include "ProjectionFactory.h"
@@ -57,12 +58,6 @@ using namespace Imagine;
 // ----------------------------------------------------------------------
 
 static NFmiEnumConverter converter;
-
-// ----------------------------------------------------------------------
-// Global instance of global variables
-// ----------------------------------------------------------------------
-
-static Globals globals;
 
 // ----------------------------------------------------------------------
 // Usage
@@ -2461,7 +2456,7 @@ void filter_values(NFmiDataMatrix<float> & theValues,
 
 void add_label_grid_values(ContourSpec & theSpec,
 						   const NFmiArea & theArea,
-						   const NFmiDataMatrix<NFmiPoint> & thePoints)
+						   const LazyCoordinates & thePoints)
 {
   const int dx = theSpec.labelDX();
   const int dy = theSpec.labelDY();
@@ -2470,7 +2465,7 @@ void add_label_grid_values(ContourSpec & theSpec,
 	{
 	  for(unsigned int j=0; j<thePoints.NY(); j+=dy)
 		for(unsigned int i=0; i<thePoints.NX(); i+=dx)
-		  theSpec.add(theArea.WorldXYToLatLon(thePoints[i][j]));
+		  theSpec.add(theArea.WorldXYToLatLon(thePoints(i,j)));
 	}
 }
 
@@ -3217,7 +3212,7 @@ void draw_contour_labels(NFmiImage & theImage)
 void draw_contour_symbols(NFmiImage & theImage,
 						  const NFmiArea & theArea,
 						  const ContourSpec & theSpec,
-						  const NFmiDataMatrix<NFmiPoint> & thePoints,
+						  const LazyCoordinates & thePoints,
 						  const NFmiDataMatrix<float> & theValues,
 						  float theMinimum,
 						  float theMaximum)
@@ -3278,7 +3273,7 @@ void draw_contour_symbols(NFmiImage & theImage,
 
 			if(inside)
 			  {
-				NFmiPoint latlon = theArea.WorldXYToLatLon(thePoints[i][j]);
+				NFmiPoint latlon = theArea.WorldXYToLatLon(thePoints(i,j));
 				NFmiPoint xy = theArea.ToXY(latlon);
 
 				theImage.Composite(symbol,
@@ -3385,7 +3380,7 @@ void draw_contour_fonts(NFmiImage & theImage)
 void save_contour_fonts(NFmiImage & theImage,
 						const NFmiArea & theArea,
 						const ContourSpec & theSpec,
-						const NFmiDataMatrix<NFmiPoint> & thePoints,
+						const LazyCoordinates & thePoints,
 						const NFmiDataMatrix<float> & theValues,
 						float theMinimum,
 						float theMaximum)
@@ -3434,7 +3429,7 @@ void save_contour_fonts(NFmiImage & theImage,
 	  {
 		if(okvalues.find(theValues[i][j]) != okvalues.end())
 		  {
-			NFmiPoint latlon = theArea.WorldXYToLatLon(thePoints[i][j]);
+			NFmiPoint latlon = theArea.WorldXYToLatLon(thePoints(i,j));
 			NFmiPoint xy = theArea.ToXY(latlon);
 
 			globals.symbollocator.add(theValues[i][j],
@@ -3978,14 +3973,18 @@ void do_draw_contours(istream & theInput)
 
 		  filter_values(vals,t,*piter);
 
-		  // Smoothen the values
+		  // Call smoother only if necessary to avoid LazyCoordinates dereferencing
 
-		  NFmiSmoother smoother(piter->smoother(),
-								piter->smootherFactor(),
-								piter->smootherRadius());
+		  LazyCoordinates worldpts(*area);
 
-		  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(*area);
-		  vals = smoother.Smoothen(*worldpts,vals);
+		  if(piter->smoother() != "None")
+			{
+			  NFmiSmoother smoother(piter->smoother(),
+									piter->smootherFactor(),
+									piter->smootherRadius());
+
+			  vals = smoother.Smoothen(*worldpts,vals);
+			}
 
 		  // Find the minimum and maximum
 
@@ -4007,7 +4006,7 @@ void do_draw_contours(istream & theInput)
 		  // the grid points to the set of points, if so requested
 
 		  if(!labeldxdydone)
-			add_label_grid_values(*piter,*area,*worldpts);
+			add_label_grid_values(*piter,*area,worldpts);
 
 		  add_label_point_values(*piter,*area,vals);
 
@@ -4025,10 +4024,10 @@ void do_draw_contours(istream & theInput)
 
 		  // Symbol fill the contours
 
-		  draw_contour_symbols(*image,*area,*piter,*worldpts,vals,min_value,max_value);
+		  draw_contour_symbols(*image,*area,*piter,worldpts,vals,min_value,max_value);
 		  // Save symbol fill coordinates
 
-		  save_contour_fonts(*image,*area,*piter,*worldpts,vals,min_value,max_value);
+		  save_contour_fonts(*image,*area,*piter,worldpts,vals,min_value,max_value);
 
 		  // Save contour label coordinates
 
