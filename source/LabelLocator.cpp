@@ -494,44 +494,47 @@ void LabelLocator::removeCandidates(ParamCoordinates & theCandidates,
 {
   for(ParamCoordinates::iterator pit = theCandidates.begin();
 	  pit != theCandidates.end();
-	  ++pit)
+	  )
 	{
 	  const int param = pit->first;
 	  for(ContourCoordinates::iterator cit = pit->second.begin();
 		  cit != pit->second.end();
-		  ++cit)
+		  )
 		{
 		  const float contour = cit->first;
 		  for(Coordinates::iterator it = cit->second.begin();
 			  it != cit->second.end();
-			  ++it)
+			  )
 			{
 			  const double dist = distance(thePoint.first,
 										   thePoint.second,
 										   it->first,
 										   it->second);
 
+			  bool erase = false;
+
 			  if(param != theParam)
-				{
-				  if(dist < itsMinDistanceToDifferentParameter)
-					cit->second.erase(it);
-				}
+				erase = (dist < itsMinDistanceToDifferentParameter);
 			  else if(contour != theContour)
-				{
-				  if(dist < itsMinDistanceToDifferentValue)
-					cit->second.erase(it);
-				}
+				erase = (dist < itsMinDistanceToDifferentValue);
 			  else
-				{
-				  if(dist < itsMinDistanceToSameValue)
-					cit->second.erase(it);
-				}
+				erase = (dist < itsMinDistanceToSameValue);
+
+			  if(erase)
+				it = cit->second.erase(it);
+			  else
+				++it;
+
 			}
 		  if(cit->second.empty())
-			pit->second.erase(cit);
+			pit->second.erase(cit++);
+		  else
+			++cit;
 		}
 	  if(pit->second.empty())
-		theCandidates.erase(pit);
+		theCandidates.erase(pit++);
+	  else
+		++pit;
 	}
 	  
 }
