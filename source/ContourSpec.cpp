@@ -44,6 +44,7 @@ ContourSpec::ContourSpec(const std::string & theParam,
   , itsLabelMarkerAlphaFactor(1.0)
   , itsLabelFont("misc/6x13B.pcf.gz:6x13")
   , itsLabelColor(Imagine::NFmiColorTools::Black)
+  , itsLabelRule("OnOpaque")
   , itsLabelAlignment("Center")
   , itsLabelFormat("%.1f")
   , itsLabelMissing("-")
@@ -643,6 +644,19 @@ int ContourSpec::labelColor(void) const
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Return the label rule
+ *
+ * \return The rule
+ */
+// ----------------------------------------------------------------------
+
+const std::string & ContourSpec::labelRule(void) const
+{
+  return itsLabelRule;
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Return the label alignment
  *
  * \return The alignment
@@ -847,6 +861,19 @@ void ContourSpec::labelFont(const std::string & theValue)
 void ContourSpec::labelColor(int theValue)
 {
   itsLabelColor = theValue;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Set the label rule
+ *
+ * \param theValue The rule
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::labelRule(const std::string & theValue)
+{
+  itsLabelRule = theValue;
 }
 
 // ----------------------------------------------------------------------

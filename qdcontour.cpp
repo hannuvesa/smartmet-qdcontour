@@ -1928,6 +1928,25 @@ void do_labelcolor(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \bried Handle "labelrule" command
+ */
+// ----------------------------------------------------------------------
+
+void do_labelrule(istream & theInput)
+{
+  string rule;
+  theInput >> rule;
+
+  check_errors(theInput,"labelrule");
+
+  ColorTools::checkrule(rule);
+
+  if(!globals.specs.empty())
+	globals.specs.back().labelRule(rule);
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \bried Handle "labelalign" command
  */
 // ----------------------------------------------------------------------
@@ -2653,7 +2672,8 @@ void draw_label_texts(NFmiImage & theImage,
 				FmiRound(y + theSpec.labelOffsetY()),
 				strvalue,
 				AlignmentValue(theSpec.labelAlignment()),
-				theSpec.labelColor());
+				theSpec.labelColor(),
+				ColorTools::checkrule(theSpec.labelRule()));
 
 	  // Then the label caption
 
@@ -2664,7 +2684,8 @@ void draw_label_texts(NFmiImage & theImage,
 					FmiRound(y + theSpec.labelCaptionDY()),
 					theSpec.labelCaption(),
 					AlignmentValue(theSpec.labelCaptionAlignment()),
-					theSpec.labelColor());
+					theSpec.labelColor(),
+					ColorTools::checkrule(theSpec.labelRule()));
 		}
 	}
 }
@@ -4185,6 +4206,7 @@ int domain(int argc, const char *argv[])
 		  else if(cmd == "labelmarker")				do_labelmarker(in);
 		  else if(cmd == "labelfont")				do_labelfont(in);
 		  else if(cmd == "labelcolor")				do_labelcolor(in);
+		  else if(cmd == "labelrule")				do_labelrule(in);
 		  else if(cmd == "labelalign")				do_labelalign(in);
 		  else if(cmd == "labelformat")				do_labelformat(in);
 		  else if(cmd == "labelmissing")			do_labelmissing(in);

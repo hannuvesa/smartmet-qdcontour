@@ -96,6 +96,8 @@ public:
   float labelMarkerAlphaFactor(void) const;
   const std::string & labelFont(void) const;
   int labelColor(void) const;
+  const std::string & labelRule(void) const;
+
   const std::string & labelAlignment(void) const;
   const std::string & labelFormat(void) const;
   const std::string & labelMissing(void) const;
@@ -115,6 +117,7 @@ public:
   void labelMarkerAlphaFactor(float theValue);
   void labelFont(const std::string & theValue);
   void labelColor(int theValue);
+  void labelRule(const std::string & theValue);
   void labelFillRule(const std::string & theValue);
   void labelAlignment(const std::string & theValue);
   void labelFormat(const std::string & theValue);
@@ -178,6 +181,7 @@ private:
   float itsLabelMarkerAlphaFactor;
   std::string itsLabelFont;
   int itsLabelColor;
+  std::string itsLabelRule;
   std::string itsLabelAlignment;
   std::string itsLabelFormat;
   std::string itsLabelMissing;
