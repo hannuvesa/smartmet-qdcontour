@@ -10,6 +10,7 @@
 
 #include "ContourCalculator.h"
 #include "ContourSpec.h"
+#include "LabelLocator.h"
 #include "ShapeSpec.h"
 
 #include "NFmiImage.h"
@@ -129,6 +130,8 @@ struct Globals
   int timestampimagey;
 
   // Active storage
+
+  LabelLocator labellocator;		// label coordinate calculator
 
   ContourCalculator calculator;		// data contourer
   std::vector<LazyQueryData *> querystreams;

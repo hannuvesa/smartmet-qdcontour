@@ -1945,7 +1945,10 @@ void do_clear(istream & theInput)
   check_errors(theInput,"clear");
 
   if(command=="contours")
-	globals.specs.clear();
+	{
+	  globals.specs.clear();
+	  globals.labellocator.clear();
+	}
   else if(command=="shapes")
 	globals.shapespecs.clear();
   else if(command=="cache")
@@ -2070,6 +2073,25 @@ void do_draw_imagemap(istream & theInput)
 	  geo.WriteImageMap(out,fieldname);
 	}
   out.close();
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Assign ID for parameter name
+ *
+ * This is needed so that Meta-functions would get an ID too
+ *
+ * \param theParam The parameter name
+ * \return The unique ID, or kFmiBadParameter
+ */
+// ----------------------------------------------------------------------
+
+int paramid(const string & theParam)
+{
+  if(MetaFunctions::isMeta(theParam))
+	return MetaFunctions::id(theParam);
+  else
+	return NFmiEnumConverter().ToEnum(theParam);
 }
 
 // ----------------------------------------------------------------------
@@ -2870,11 +2892,11 @@ void draw_contour_strokes(NFmiImage & theImage,
 
 // ----------------------------------------------------------------------
 /*!
- * \brief Draw contour labels
+ * \brief Collect contour label candidate coordinates
  */
 // ----------------------------------------------------------------------
 
-void draw_contour_labels(NFmiImage & theImage,
+void save_contour_labels(NFmiImage & theImage,
 						 const NFmiArea & theArea,
 						 const ContourSpec & theSpec,
 						 const NFmiDataMatrix<NFmiPoint> & thePoints,
@@ -2882,6 +2904,14 @@ void draw_contour_labels(NFmiImage & theImage,
 						 float theMinimum,
 						 float theMaximum)
 {
+
+  // The ID under which the coordinates will be stored
+
+  int id = paramid(theSpec.param());
+  globals.labellocator.parameter(id);
+
+  // Start saving candindate coordinates
+
   list<ContourLabel>::const_iterator it;
   list<ContourLabel>::const_iterator begin;
   list<ContourLabel>::const_iterator end;
@@ -2902,27 +2932,16 @@ void draw_contour_labels(NFmiImage & theImage,
 		continue;
 
 	  const float accuracy = theSpec.contourLabelAccuracy();
-	  const std::string & fontspec = theSpec.contourLabelFont();
-	  const int fontcolor = theSpec.contourLabelColor();
-	  const int backcolor = theSpec.contourLabelBackgroundColor();
-	  const int xmargin = theSpec.contourLabelBackgroundXMargin();
-	  const int ymargin = theSpec.contourLabelBackgroundYMargin();
 
-	  cout << "Rendering labels at value " << value << "... ";
-
-	  vector<string> fontparts = NFmiStringTools::Split(fontspec,":");
-	  if(fontparts.size() != 2)
-		throw runtime_error("Invalid font specification '"+fontspec+"'");
-	  const string font = fontparts[0];
-	  fontparts = NFmiStringTools::Split(fontparts[1],"x");
-	  if(fontparts.size() != 2)
-		throw runtime_error("Invalid font size specification in '"+fontspec+"'");
-	  const int width = NFmiStringTools::Convert<int>(fontparts[0]);
-	  const int height = NFmiStringTools::Convert<int>(fontparts[1]);
+	  cout << "Saving "
+		   << theSpec.param()
+		   << " labels at value "
+		   << value
+		   << "... ";
 
 	  int count = 0;
 
-	  // Draw label at each grid point where necessary
+	  // Save label at each grid point where necessary
 	  for(unsigned int j=0; j<theValues.NY(); j++)
 		for(unsigned int i=0; i<theValues.NX(); i++)
 		  {
@@ -2939,23 +2958,85 @@ void draw_contour_labels(NFmiImage & theImage,
 			int xx = FmiRound(xy.X());
 			int yy = FmiRound(xy.Y());
 
-			Imagine::NFmiFace face = Imagine::NFmiFreeType::Instance().Face(font,width,height);
-			face.Background(true);
-			face.BackgroundColor(backcolor);
-			face.BackgroundMargin(xmargin,ymargin);
-
-			const string text = NFmiStringTools::Convert(value);
-
-			face.Draw(theImage,
-					  xx,
-					  yy,
-					  text,
-					  Imagine::kFmiAlignCenter,
-					  fontcolor);
+			globals.labellocator.add(value,xx,yy);
 		  }
 
 	  cout << count << endl;
 
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Draw contour labels
+ */
+// ----------------------------------------------------------------------
+
+void draw_contour_labels(NFmiImage & theImage)
+{
+  const LabelLocator::ParamCoordinates & coords = globals.labellocator.chooseLabels();
+
+  if(coords.empty())
+	return;
+
+  // Iterate through all parameters
+
+  list<ContourSpec>::iterator piter;
+  list<ContourSpec>::iterator pbegin = globals.specs.begin();
+  list<ContourSpec>::iterator pend   = globals.specs.end();
+  
+  for(piter=pbegin; piter!=pend; ++piter)
+	{
+	  // Ignore the param if we could not assign any coordinates for it
+
+	  const int id = paramid(piter->param());
+
+	  LabelLocator::ParamCoordinates::const_iterator pit = coords.find(id);
+	  if(pit == coords.end())
+		continue;
+
+	  // Rended the contours
+
+	  const std::string & fontspec = piter->contourLabelFont();
+	  const int fontcolor = piter->contourLabelColor();
+	  const int backcolor = piter->contourLabelBackgroundColor();
+	  const int xmargin = piter->contourLabelBackgroundXMargin();
+	  const int ymargin = piter->contourLabelBackgroundYMargin();
+
+	  vector<string> fontparts = NFmiStringTools::Split(fontspec,":");
+	  if(fontparts.size() != 2)
+		throw runtime_error("Invalid font specification '"+fontspec+"'");
+	  const string font = fontparts[0];
+	  fontparts = NFmiStringTools::Split(fontparts[1],"x");
+	  if(fontparts.size() != 2)
+		throw runtime_error("Invalid font size specification in '"+fontspec+"'");
+	  const int width = NFmiStringTools::Convert<int>(fontparts[0]);
+	  const int height = NFmiStringTools::Convert<int>(fontparts[1]);
+
+	  Imagine::NFmiFace face = Imagine::NFmiFreeType::Instance().Face(font,width,height);
+	  face.Background(true);
+	  face.BackgroundColor(backcolor);
+	  face.BackgroundMargin(xmargin,ymargin);
+
+	  for(LabelLocator::ContourCoordinates::const_iterator cit = pit->second.begin();
+		  cit != pit->second.end();
+		  ++cit)
+		{
+		  const float value = cit->first;
+		  const string text = NFmiStringTools::Convert(value);
+
+		  for(LabelLocator::Coordinates::const_iterator it = cit->second.begin();
+			  it != cit->second.end();
+			  ++it)
+			{
+			  face.Draw(theImage,
+						it->first,
+						it->second,
+						text,
+						Imagine::kFmiAlignCenter,
+						fontcolor);
+			}
+		}
 	}
 }
 
@@ -3086,6 +3167,8 @@ void do_draw_contours(istream & theInput)
   //     11. Label all specified points
   //   12. Draw arrows if requested
   //   13. Save the image
+
+  globals.labellocator.clear();
 
   if(globals.querystreams.empty())
 	throw runtime_error("No query data has been read!");
@@ -3319,7 +3402,16 @@ void do_draw_contours(istream & theInput)
 	  if(!globals.background.empty())
 		image = globals.backgroundimage;
 
+	  // Initialize label locator bounding box
+
+	  globals.labellocator.boundingBox(0,
+									   0,
+									   image.Width(),
+									   image.Height());
+
 	  // Loop over all parameters
+	  // The loop collects all contour label information, but
+	  // does not render it yet
 
 	  list<ContourSpec>::iterator piter;
 	  list<ContourSpec>::iterator pbegin = globals.specs.begin();
@@ -3406,13 +3498,12 @@ void do_draw_contours(istream & theInput)
 
 		  draw_contour_strokes(image,*area,*piter,interp,min_value,max_value);
 
-		  // Label the contours
-
-		  draw_contour_labels(image,*area,*piter,*worldpts,vals,min_value,max_value);
-
 		  // Symbol fill the contours
 
 		  draw_contour_symbols(image,*area,*piter,*worldpts,vals,min_value,max_value);
+		  // Save contour label coordinates
+
+		  save_contour_labels(image,*area,*piter,*worldpts,vals,min_value,max_value);
 
 		}
 
@@ -3423,6 +3514,10 @@ void do_draw_contours(istream & theInput)
 	  // Draw wind arrows if so requested
 
 	  draw_wind_arrows(image,vals,*area);
+
+	  // Label the contours
+
+	  draw_contour_labels(image);
 
 	  // Draw labels
 
@@ -3450,6 +3545,11 @@ void do_draw_contours(istream & theInput)
 	  // Save
 
 	  write_image(image,filename,globals.format);
+
+	  // Advance in time
+
+	  globals.labellocator.nextTime();
+
 	}
 }
 
