@@ -478,7 +478,20 @@ void do_timestampimage(istream & theInput)
 	{
 	  throw runtime_error("Unrecognized timestampimage mode '"+globals.timestampimage+"'");
 	}
+}
 
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "timestampimagexy" command
+ */
+// ----------------------------------------------------------------------
+
+void do_timestampimagexy(istream & theInput)
+{
+  theInput >> globals.timestampimagex >> globals.timestampimagey;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'timestampimagexy' command failed");
 
 }
 
@@ -516,9 +529,6 @@ int domain(int argc, const char *argv[])
   string theSmoother = "None";
   float theSmootherRadius = 1.0;
   int theSmootherFactor = 1;
-
-  int theTimeStampImageX = 0;
-  int theTimeStampImageY = 0;
 
   // Projection määritelmä
 
@@ -619,9 +629,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "timestampzone")		do_timestampzone(input);
 		  else if(command == "timesteprounding")	do_timesteprounding(input);
 		  else if(command == "timestampimage")		do_timestampimage(input);
-
-		  else if(command == "timestampimagexy")
-			input >> theTimeStampImageX >> theTimeStampImageY;
+		  else if(command == "timestampimagexy")	do_timestampimagexy(input);
 
 		  else if(command == "projection")
 			{
@@ -2505,8 +2513,8 @@ int domain(int argc, const char *argv[])
 						{
 						  NFmiFontHershey font("TimesRoman-Bold");
 
-						  int x = theTimeStampImageX;
-						  int y = theTimeStampImageY;
+						  int x = globals.timestampimagex;
+						  int y = globals.timestampimagey;
 
 						  if(x<0) x+= theImage.Width();
 						  if(y<0) y+= theImage.Height();

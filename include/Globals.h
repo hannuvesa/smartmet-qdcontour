@@ -50,6 +50,8 @@ struct Globals
   int timestampflag;				// put timestamp into image name?
   std::string timestampzone;		// timezone for the timestamp
   std::string timestampimage;		// image timestamping mode
+  int timestampimagex;
+  int timestampimagey;
 
   // Active storage
 
