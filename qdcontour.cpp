@@ -565,7 +565,7 @@ private:
 // Main program.
 // ----------------------------------------------------------------------
 
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
   // Ympäristön konfigurointi
 
@@ -2252,7 +2252,7 @@ int main(int argc, char *argv[])
 								  long offset = t.DifferenceInMinutes(t1);
 								  long range = t2.DifferenceInMinutes(t1);
 								  
-								  float weight = ((float) offset)/range;
+								  float weight = (static_cast<float>(offset))/range;
 								  
 								  vals.LinearCombination(tmpvals,weight,1-weight);
 								  
