@@ -42,6 +42,7 @@ struct Globals
 
   LazyQueryData * queryinfo;		// active data, does not own pointer
   int querydatalevel;				// level index
+  int timesteps;					// how many images to draw?
   int timestep;						// timestep, 0 = all valid
   int timeinterval;					// inclusive time interval
   int timestepskip;					// initial time to skip in minutes

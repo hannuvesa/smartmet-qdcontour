@@ -392,6 +392,28 @@ void do_timeinterval(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "timesteps" command
+ */
+// ----------------------------------------------------------------------
+
+void do_timesteps(istream & theInput)
+{
+  theInput >> globals.timesteps;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'timeinterval' command failed");
+
+  if(globals.timesteps < 0)
+	throw runtime_error("timesteps cannot be negative");
+
+  const int ludicruous = 30*24*60;	// 1 month
+  if(globals.timesteps > ludicruous)
+	throw runtime_error("timesteps "+NFmiStringTools::Convert(globals.timesteps)+" is ridiculously large");
+
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -428,7 +450,6 @@ int domain(int argc, const char *argv[])
   int theTimeStampFlag	= 1;
   string theTimeStampZone = "local";
   int theSmootherFactor = 1;
-  int theTimeSteps	= 24;		// max kuvien lukumäärä
 
   int theTimeStampImageX = 0;
   int theTimeStampImageY = 0;
@@ -543,7 +564,7 @@ int domain(int argc, const char *argv[])
 			do_timeinterval(input);
 
 		  else if(command == "timesteps")
-			input >> theTimeSteps;
+			do_timesteps(input);
 
 		  else if(command == "timestamp")
 			input >> theTimeStampFlag;
@@ -1450,7 +1471,7 @@ int domain(int argc, const char *argv[])
 				  bool labeldxdydone = false;
 				  for(;;)
 					{
-					  if(imagesdone>=theTimeSteps)
+					  if(imagesdone>=globals.timesteps)
 						break;
 
 					  // Skip to next time to be drawn
