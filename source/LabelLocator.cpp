@@ -189,8 +189,8 @@ void LabelLocator::minDistanceToDifferentParameter(float theDistance)
 
 void LabelLocator::nextTime()
 {
+  itsPreviousCoordinates.clear();
   swap(itsPreviousCoordinates,itsCurrentCoordinates);
-  itsCurrentCoordinates.clear();
 }
 
 
