@@ -905,7 +905,7 @@ void ContourSpec::labelAlignment(const std::string & theValue)
 /*!
  * \brief Set the label number format
  *
- * \param The format
+ * \param theValue The format
  */
 // ----------------------------------------------------------------------
 
