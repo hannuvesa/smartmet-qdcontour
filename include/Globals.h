@@ -9,6 +9,7 @@
 #define GLOBALS_H
 
 #include "ContourCalculator.h"
+#include "ContourSpec.h"
 #include "ShapeSpec.h"
 
 #include "NFmiImage.h"
@@ -118,6 +119,7 @@ struct Globals
   std::vector<LazyQueryData *> querystreams;
 
   std::list<ShapeSpec> shapespecs;
+  std::list<ContourSpec> specs;
 
 };
 

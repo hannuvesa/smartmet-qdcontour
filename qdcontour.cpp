@@ -1015,10 +1015,6 @@ int domain(int argc, const char *argv[])
 
   parse_command_line(argc,argv);
 
-  // Aktiiviset contour-speksit (ja label speksit)
-
-  list<ContourSpec> theSpecs;
-
   // Komentotiedostosta luettavat optiot
 
   string theParam = "";
@@ -1111,42 +1107,42 @@ int domain(int argc, const char *argv[])
 			{
 			  float limit;
 			  input >> limit;
-			  if(!theSpecs.empty())
-				theSpecs.back().exactHiLimit(limit);
+			  if(!globals.specs.empty())
+				globals.specs.back().exactHiLimit(limit);
 			}
 		  else if(command == "datalolimit")
 			{
 			  float limit;
 			  input >> limit;
-			  if(!theSpecs.empty())
-				theSpecs.back().dataLoLimit(limit);
+			  if(!globals.specs.empty())
+				globals.specs.back().dataLoLimit(limit);
 			}
 		  else if(command == "datahilimit")
 			{
 			  float limit;
 			  input >> limit;
-			  if(!theSpecs.empty());
-			  theSpecs.back().dataHiLimit(limit);
+			  if(!globals.specs.empty());
+			  globals.specs.back().dataHiLimit(limit);
 			}
 		  else if(command == "datareplace")
 			{
 			  float src,dst;
 			  input >> src >> dst;
-			  if(!theSpecs.empty())
-				theSpecs.back().replace(src,dst);
+			  if(!globals.specs.empty())
+				globals.specs.back().replace(src,dst);
 			}
 		  else if(command == "contourdepth")
 			{
 			  input >> theContourDepth;
-			  if(!theSpecs.empty())
-				theSpecs.back().contourDepth(theContourDepth);
+			  if(!globals.specs.empty())
+				globals.specs.back().contourDepth(theContourDepth);
 			}
 
 		  else if(command == "contourinterpolation")
 			{
 			  input >> theContourInterpolation;
-			  if(!theSpecs.empty())
-				theSpecs.back().contourInterpolation(theContourInterpolation);
+			  if(!globals.specs.empty())
+				globals.specs.back().contourInterpolation(theContourInterpolation);
 			}
 		  else if(command == "contourtriangles")
 			{
@@ -1156,30 +1152,30 @@ int domain(int argc, const char *argv[])
 		  else if(command == "smoother")
 			{
 			  input >> theSmoother;
-			  if(!theSpecs.empty())
-				theSpecs.back().smoother(theSmoother);
+			  if(!globals.specs.empty())
+				globals.specs.back().smoother(theSmoother);
 			}
 		  else if(command == "smootherradius")
 			{
 			  input >> theSmootherRadius;
-			  if(!theSpecs.empty())
-				theSpecs.back().smootherRadius(theSmootherRadius);
+			  if(!globals.specs.empty())
+				globals.specs.back().smootherRadius(theSmootherRadius);
 			}
 		  else if(command == "smootherfactor")
 			{
 			  input >> theSmootherFactor;
-			  if(!theSpecs.empty())
-				theSpecs.back().smootherFactor(theSmootherFactor);
+			  if(!globals.specs.empty())
+				globals.specs.back().smootherFactor(theSmootherFactor);
 			}
 		  else if(command == "param")
 			{
 			  input >> theParam;
-			  theSpecs.push_back(ContourSpec(theParam,
-											 theContourInterpolation,
-											 theSmoother,
-											 theContourDepth,
-											 theSmootherRadius,
-											 theSmootherFactor));
+			  globals.specs.push_back(ContourSpec(theParam,
+												  theContourInterpolation,
+												  theSmoother,
+												  theContourDepth,
+												  theSmootherRadius,
+												  theSmootherFactor));
 			}
 
 		  else if(command == "shape")
@@ -1231,8 +1227,8 @@ int domain(int argc, const char *argv[])
 
 			  NFmiColorTools::Color color = ColorTools::checkcolor(scolor);
 
-			  if(!theSpecs.empty())
-				theSpecs.back().add(ContourRange(lo,hi,color,globals.fillrule));
+			  if(!globals.specs.empty())
+				globals.specs.back().add(ContourRange(lo,hi,color,globals.fillrule));
 			}
 
 		  else if(command == "contourpattern")
@@ -1251,8 +1247,8 @@ int domain(int argc, const char *argv[])
 			  else
 				hi = atof(shi.c_str());
 
-			  if(!theSpecs.empty())
-				theSpecs.back().add(ContourPattern(lo,hi,spattern,srule,alpha));
+			  if(!globals.specs.empty())
+				globals.specs.back().add(ContourPattern(lo,hi,spattern,srule,alpha));
 			}
 
 		  else if(command == "contourline")
@@ -1267,8 +1263,8 @@ int domain(int argc, const char *argv[])
 				value = atof(svalue.c_str());
 
 			  NFmiColorTools::Color color = ColorTools::checkcolor(scolor);
-			  if(!theSpecs.empty())
-				theSpecs.back().add(ContourValue(value,color,globals.strokerule));
+			  if(!globals.specs.empty())
+				globals.specs.back().add(ContourValue(value,color,globals.strokerule));
 			}
 
 		  else if(command == "contourfills")
@@ -1289,8 +1285,8 @@ int domain(int argc, const char *argv[])
 				  int color = color1;	// in case steps=1
 				  if(steps!=1)
 					color = NFmiColorTools::Interpolate(color1,color2,i/(steps-1.0));
-				  if(!theSpecs.empty())
-					theSpecs.back().add(ContourRange(tmplo,tmphi,color,globals.fillrule));
+				  if(!globals.specs.empty())
+					globals.specs.back().add(ContourRange(tmplo,tmphi,color,globals.fillrule));
 				}
 			}
 
@@ -1311,8 +1307,8 @@ int domain(int argc, const char *argv[])
 				  int color = color1;	// in case steps=1
 				  if(steps!=0)
 					color = NFmiColorTools::Interpolate(color1,color2,i/static_cast<float>(steps));
-				  if(!theSpecs.empty())
-					theSpecs.back().add(ContourValue(tmplo,color,globals.strokerule));
+				  if(!globals.specs.empty())
+					globals.specs.back().add(ContourValue(tmplo,color,globals.strokerule));
 				}
 			}
 
@@ -1320,7 +1316,7 @@ int domain(int argc, const char *argv[])
 			{
 			  input >> command;
 			  if(command=="contours")
-				theSpecs.clear();
+				globals.specs.clear();
 			  else if(command=="shapes")
 				globals.shapespecs.clear();
 			  else if(command=="cache")
@@ -1334,7 +1330,7 @@ int domain(int argc, const char *argv[])
 			  else if(command=="labels")
 				{
 				  list<ContourSpec>::iterator piter;
-				  for(piter=theSpecs.begin(); piter!=theSpecs.end(); ++piter)
+				  for(piter=globals.specs.begin(); piter!=globals.specs.end(); ++piter)
 					piter->clearLabels();
 				}
 			  else
@@ -1348,11 +1344,11 @@ int domain(int argc, const char *argv[])
 
 			  input >> filename >> rule >> alpha;
 
-			  if(!theSpecs.empty())
+			  if(!globals.specs.empty())
 				{
-				  theSpecs.back().labelMarker(filename);
-				  theSpecs.back().labelMarkerRule(rule);
-				  theSpecs.back().labelMarkerAlphaFactor(alpha);
+				  globals.specs.back().labelMarker(filename);
+				  globals.specs.back().labelMarkerRule(rule);
+				  globals.specs.back().labelMarkerAlphaFactor(alpha);
 				}
 			}
 
@@ -1360,26 +1356,26 @@ int domain(int argc, const char *argv[])
 			{
 			  string font;
 			  input >> font;
-			  if(!theSpecs.empty())
-				theSpecs.back().labelFont(font);
+			  if(!globals.specs.empty())
+				globals.specs.back().labelFont(font);
 			}
 
 		  else if(command == "labelsize")
 			{
 			  float size;
 			  input >> size;
-			  if(!theSpecs.empty())
-				theSpecs.back().labelSize(size);
+			  if(!globals.specs.empty())
+				globals.specs.back().labelSize(size);
 			}
 
 		  else if(command == "labelstroke")
 			{
 			  string color,rule;
 			  input >> color >> rule;
-			  if(!theSpecs.empty())
+			  if(!globals.specs.empty())
 				{
-				  theSpecs.back().labelStrokeColor(ColorTools::checkcolor(color));
-				  theSpecs.back().labelStrokeRule(rule);
+				  globals.specs.back().labelStrokeColor(ColorTools::checkcolor(color));
+				  globals.specs.back().labelStrokeRule(rule);
 				}
 			}
 
@@ -1387,10 +1383,10 @@ int domain(int argc, const char *argv[])
 			{
 			  string color,rule;
 			  input >> color >> rule;
-			  if(!theSpecs.empty())
+			  if(!globals.specs.empty())
 				{
-				  theSpecs.back().labelFillColor(ColorTools::checkcolor(color));
-				  theSpecs.back().labelFillRule(rule);
+				  globals.specs.back().labelFillColor(ColorTools::checkcolor(color));
+				  globals.specs.back().labelFillRule(rule);
 				}
 			}
 
@@ -1398,8 +1394,8 @@ int domain(int argc, const char *argv[])
 			{
 			  string align;
 			  input >> align;
-			  if(!theSpecs.empty())
-				theSpecs.back().labelAlignment(align);
+			  if(!globals.specs.empty())
+				globals.specs.back().labelAlignment(align);
 			}
 
 		  else if(command == "labelformat")
@@ -1407,8 +1403,8 @@ int domain(int argc, const char *argv[])
 			  string format;
 			  input >> format;
 			  if(format == "-") format = "";
-			  if(!theSpecs.empty())
-				theSpecs.back().labelFormat(format);
+			  if(!globals.specs.empty())
+				globals.specs.back().labelFormat(format);
 			}
 
 		  else if(command == "labelmissing")
@@ -1416,26 +1412,26 @@ int domain(int argc, const char *argv[])
 			  string label;
 			  input >> label;
 			  if(label == "none") label = "";
-			  if(!theSpecs.empty())
-				theSpecs.back().labelMissing(label);
+			  if(!globals.specs.empty())
+				globals.specs.back().labelMissing(label);
 			}
 
 		  else if(command == "labelangle")
 			{
 			  float angle;
 			  input >> angle;
-			  if(!theSpecs.empty())
-				theSpecs.back().labelAngle(angle);
+			  if(!globals.specs.empty())
+				globals.specs.back().labelAngle(angle);
 			}
 
 		  else if(command == "labeloffset")
 			{
 			  float dx,dy;
 			  input >> dx >> dy;
-			  if(!theSpecs.empty())
+			  if(!globals.specs.empty())
 				{
-				  theSpecs.back().labelOffsetX(dx);
-				  theSpecs.back().labelOffsetY(dy);
+				  globals.specs.back().labelOffsetX(dx);
+				  globals.specs.back().labelOffsetY(dy);
 				}
 			}
 
@@ -1444,12 +1440,12 @@ int domain(int argc, const char *argv[])
 			  string name,align;
 			  float dx,dy;
 			  input >> name >> dx >> dy >> align;
-			  if(!theSpecs.empty())
+			  if(!globals.specs.empty())
 				{
-				  theSpecs.back().labelCaption(name);
-				  theSpecs.back().labelCaptionDX(dx);
-				  theSpecs.back().labelCaptionDY(dy);
-				  theSpecs.back().labelCaptionAlignment(align);
+				  globals.specs.back().labelCaption(name);
+				  globals.specs.back().labelCaptionDX(dx);
+				  globals.specs.back().labelCaptionDY(dy);
+				  globals.specs.back().labelCaptionAlignment(align);
 				}
 			}
 
@@ -1457,8 +1453,8 @@ int domain(int argc, const char *argv[])
 			{
 			  float lon,lat;
 			  input >> lon >> lat;
-			  if(!theSpecs.empty())
-				theSpecs.back().add(NFmiPoint(lon,lat));
+			  if(!globals.specs.empty())
+				globals.specs.back().add(NFmiPoint(lon,lat));
 			}
 
 		  else if(command == "labelxy")
@@ -1467,18 +1463,18 @@ int domain(int argc, const char *argv[])
 			  input >> lon >> lat;
 			  int dx, dy;
 			  input >> dx >> dy;
-			  if(!theSpecs.empty())
-				theSpecs.back().add(NFmiPoint(lon,lat),NFmiPoint(dx,dy));
+			  if(!globals.specs.empty())
+				globals.specs.back().add(NFmiPoint(lon,lat),NFmiPoint(dx,dy));
 			}
 
 		  else if(command == "labels")
 			{
 			  int dx,dy;
 			  input >> dx >> dy;
-			  if(!theSpecs.empty())
+			  if(!globals.specs.empty())
 				{
-				  theSpecs.back().labelDX(dx);
-				  theSpecs.back().labelDY(dy);
+				  globals.specs.back().labelDX(dx);
+				  globals.specs.back().labelDY(dy);
 				}
 
 			}
@@ -1499,8 +1495,8 @@ int domain(int argc, const char *argv[])
 					{
 					  float lon,lat;
 					  datafile >> lon >> lat;
-					  if(!theSpecs.empty())
-						theSpecs.back().add(NFmiPoint(lon,lat));
+					  if(!globals.specs.empty())
+						globals.specs.back().add(NFmiPoint(lon,lat));
 					}
 				  else
 					throw runtime_error("Unknown datacommand " + datacommand);
@@ -1927,8 +1923,8 @@ int domain(int argc, const char *argv[])
 					  // Loop over all parameters
 
 					  list<ContourSpec>::iterator piter;
-					  list<ContourSpec>::iterator pbegin = theSpecs.begin();
-					  list<ContourSpec>::iterator pend   = theSpecs.end();
+					  list<ContourSpec>::iterator pbegin = globals.specs.begin();
+					  list<ContourSpec>::iterator pend   = globals.specs.end();
 
 					  for(piter=pbegin; piter!=pend; ++piter)
 						{

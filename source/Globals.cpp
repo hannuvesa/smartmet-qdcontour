@@ -88,6 +88,7 @@ Globals::Globals()
   , calculator()
   , querystreams()
   , shapespecs()
+  , specs()
 {
 }
 
