@@ -126,7 +126,7 @@ void LazyQueryData::Read(const std::string & theDataFile)
 		  string tmpfile = dirname + '/' + *it;
 		  if(FileReadable(tmpfile))
 			{
-			  time_t modtime = FileModificationTime(filename);
+			  time_t modtime = FileModificationTime(tmpfile);
 			  if(modtime > newesttime)
 				{
 				  newesttime = modtime;
