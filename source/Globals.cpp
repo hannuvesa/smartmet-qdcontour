@@ -9,14 +9,20 @@
 #include "LazyQueryData.h"
 #include "TimeTools.h"
 
+#include "imagine/NFmiEsriBox.h"
+#include "imagine/NFmiFontHershey.h"	// for Hershey fonts
+#include "imagine/NFmiPath.h"
+#include "imagine/NFmiText.h"			// for labels
+
 #include "newbase/NFmiAreaFactory.h"
 #include "newbase/NFmiSettings.h"
 #include "newbase/NFmiTime.h"
 
 #include <string>
 
-using namespace std;
 using NFmiSettings::Optional;
+using namespace Imagine;
+using namespace std;
 
 // ----------------------------------------------------------------------
 /*!
@@ -229,4 +235,49 @@ const std::string Globals::getImageStampText(const NFmiTime & theTime) const
   return stamp;
 }
 
+// ----------------------------------------------------------------------
+/*!
+ * \brief Draw the given text into the time stamp position in the image
+ */
+// ----------------------------------------------------------------------
+
+void Globals::drawImageStampText(NFmiImage & theImage,
+								 const std::string & theText) const
+{
+  if(theText.empty())
+	return;
+
+  NFmiFontHershey font("TimesRoman-Bold");
+  
+  int x = timestampimagex;
+  int y = timestampimagey;
+  
+  if(x<0) x+= theImage.Width();
+  if(y<0) y+= theImage.Height();
+		  
+  NFmiText text(theText,font,14,x,y,kFmiAlignNorthWest,0.0);
+
+  // And render the text
+
+  NFmiPath path = text.Path();
+
+  NFmiEsriBox box = path.BoundingBox();
+
+  NFmiPath rect;
+  int w = 4;
+  rect.MoveTo(box.Xmin()-w,box.Ymin()-w);
+  rect.LineTo(box.Xmax()+w,box.Ymin()-w);
+  rect.LineTo(box.Xmax()+w,box.Ymax()+w);
+  rect.LineTo(box.Xmin()-w,box.Ymax()+w);
+  rect.CloseLineTo();
+
+  rect.Fill(theImage,
+			NFmiColorTools::MakeColor(180,180,180,32),
+			NFmiColorTools::kFmiColorOver);
+
+  path.Stroke(theImage,
+			  NFmiColorTools::Black,
+			  NFmiColorTools::kFmiColorCopy);
+
+}
 // ======================================================================

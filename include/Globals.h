@@ -34,6 +34,7 @@ struct Globals
   void setImageModes(NFmiImage & theImage) const;
   std::auto_ptr<NFmiArea> createArea() const;
   const std::string getImageStampText(const NFmiTime & theTime) const;
+  void drawImageStampText(NFmiImage & theImage, const std::string & theText) const;
 
   // Command line options
 

@@ -15,10 +15,10 @@
 #include "TimeTools.h"
 
 #include "imagine/NFmiColorTools.h"
+#include "imagine/NFmiFontHershey.h"	// for Hershey fonts
 #include "imagine/NFmiImage.h"			// for rendering
 #include "imagine/NFmiGeoShape.h"		// for esri data
 #include "imagine/NFmiText.h"			// for labels
-#include "imagine/NFmiFontHershey.h"	// for Hershey fonts
 
 #include "newbase/NFmiCmdLine.h"			// command line options
 #include "newbase/NFmiDataMatrix.h"
@@ -2882,44 +2882,8 @@ void do_draw_contours(istream & theInput)
 	  // Finally, draw a time stamp on the image if so
 	  // requested
 
-	  const string thestamp = globals.getImageStampText(t);
-
-
-	  if(!thestamp.empty())
-		{
-		  NFmiFontHershey font("TimesRoman-Bold");
-
-		  int x = globals.timestampimagex;
-		  int y = globals.timestampimagey;
-
-		  if(x<0) x+= image.Width();
-		  if(y<0) y+= image.Height();
-
-		  NFmiText text(thestamp,font,14,x,y,kFmiAlignNorthWest,0.0);
-
-		  // And render the text
-
-		  NFmiPath path = text.Path();
-
-		  NFmiEsriBox box = path.BoundingBox();
-
-		  NFmiPath rect;
-		  int w = 4;
-		  rect.MoveTo(box.Xmin()-w,box.Ymin()-w);
-		  rect.LineTo(box.Xmax()+w,box.Ymin()-w);
-		  rect.LineTo(box.Xmax()+w,box.Ymax()+w);
-		  rect.LineTo(box.Xmin()-w,box.Ymax()+w);
-		  rect.CloseLineTo();
-
-		  rect.Fill(image,
-					NFmiColorTools::MakeColor(180,180,180,32),
-					NFmiColorTools::kFmiColorOver);
-
-		  path.Stroke(image,
-					  NFmiColorTools::Black,
-					  NFmiColorTools::kFmiColorCopy);
-
-		}
+	  const string stamp = globals.getImageStampText(t);
+	  globals.drawImageStampText(image,stamp);
 
 	  // dx and dy labels have now been extracted into a list,
 	  // disable adding them again and again and again..
