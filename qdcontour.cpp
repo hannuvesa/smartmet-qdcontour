@@ -1746,6 +1746,99 @@ void do_clear(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "draw shapes" command
+ */
+// ----------------------------------------------------------------------
+
+void do_draw_shapes(istream & theInput)
+{
+  // The output filename
+  
+  string filename;
+  theInput >> filename;
+
+  auto_ptr<NFmiArea> area;
+  
+  if(globals.projection.empty())
+	throw runtime_error("No projection has been specified for rendering shapes");
+  else
+	area.reset(NFmiAreaFactory::Create(globals.projection).release());
+  
+  if(globals.verbose)
+	cout << "Area corners are"
+		 << endl
+		 << "bottomleft\t= "
+		 << area->BottomLeftLatLon().X()
+		 << ','
+		 << area->BottomLeftLatLon().Y()
+		 << endl
+		 << "topright\t= "
+		 << area->TopRightLatLon().X()
+		 << ','
+		 << area->TopRightLatLon().Y()
+		 << endl;
+  
+  int imgwidth = static_cast<int>(area->Width()+0.5);
+  int imgheight = static_cast<int>(area->Height()+0.5);
+  
+  // Initialize the background
+  
+  NFmiImage theImage(imgwidth, imgheight);
+  theImage.SaveAlpha(globals.savealpha);
+  theImage.WantPalette(globals.wantpalette);
+  theImage.ForcePalette(globals.forcepalette);
+  if(globals.gamma>0) theImage.Gamma(globals.gamma);
+  if(!globals.intent.empty()) theImage.Intent(globals.intent);
+  if(globals.pngquality>=0) theImage.PngQuality(globals.pngquality);
+  if(globals.jpegquality>=0) theImage.JpegQuality(globals.jpegquality);
+  if(globals.alphalimit>=0) theImage.AlphaLimit(globals.alphalimit);
+  
+  NFmiColorTools::Color erasecolor = ColorTools::checkcolor(globals.erase);
+  theImage.Erase(erasecolor);
+  
+  // Draw all the shapes
+  
+  list<ShapeSpec>::const_iterator iter;
+  list<ShapeSpec>::const_iterator begin = globals.shapespecs.begin();
+  list<ShapeSpec>::const_iterator end   = globals.shapespecs.end();
+  
+  for(iter=begin; iter!=end; ++iter)
+	{
+	  NFmiGeoShape geo(iter->filename(),kFmiGeoShapeEsri);
+	  geo.ProjectXY(*area);
+	  
+	  if(iter->marker()=="")
+		{
+		  NFmiColorTools::NFmiBlendRule fillrule = ColorTools::checkrule(iter->fillrule());
+		  NFmiColorTools::NFmiBlendRule strokerule = ColorTools::checkrule(iter->strokerule());
+		  geo.Fill(theImage,iter->fillcolor(),fillrule);
+		  geo.Stroke(theImage,iter->strokecolor(),strokerule);
+		}
+	  else
+		{
+		  NFmiColorTools::NFmiBlendRule markerrule = ColorTools::checkrule(iter->markerrule());
+		  
+		  NFmiImage marker;
+		  marker.Read(iter->marker());
+		  geo.Mark(theImage,marker,markerrule,
+				   kFmiAlignCenter,
+				   iter->markeralpha());
+		}
+	}
+  
+  string outfile = filename + "." + globals.format;
+  if(globals.verbose)
+	cout << "Writing " << outfile << endl;
+  if(globals.format=="png")
+	theImage.WritePng(outfile);
+  else if(globals.format=="jpg" || globals.format=="jpeg")
+	theImage.WriteJpeg(outfile);
+  else if(globals.format=="gif")
+	theImage.WriteGif(outfile);
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -1861,104 +1954,11 @@ int domain(int argc, const char *argv[])
 		  else if(command == "labelfile")			do_labelfile(input);
 		  else if(command == "clear")				do_clear(input);
 
-
 		  else if(command == "draw")
 			{
-			  // Draw what?
-
 			  input >> command;
 
-			  // --------------------------------------------------
-			  // Render shapes
-			  // --------------------------------------------------
-
-			  if(command == "shapes")
-				{
-				  // The output filename
-
-				  string filename;
-				  input >> filename;
-
-				  auto_ptr<NFmiArea> theArea;
-
-				  if(globals.projection.empty())
-					throw runtime_error("No projection has been specified for rendering shapes");
-				  else
-					theArea.reset(NFmiAreaFactory::Create(globals.projection).release());
-
-
-				  if(globals.verbose)
-					cout << "Area corners are"
-						 << endl
-						 << "bottomleft\t= "
-						 << theArea->BottomLeftLatLon().X()
-						 << ','
-						 << theArea->BottomLeftLatLon().Y()
-						 << endl
-						 << "topright\t= "
-						 << theArea->TopRightLatLon().X()
-						 << ','
-						 << theArea->TopRightLatLon().Y()
-						 << endl;
-
-				  int imgwidth = static_cast<int>(theArea->Width()+0.5);
-				  int imgheight = static_cast<int>(theArea->Height()+0.5);
-
-				  // Initialize the background
-
-				  NFmiImage theImage(imgwidth, imgheight);
-				  theImage.SaveAlpha(globals.savealpha);
-				  theImage.WantPalette(globals.wantpalette);
-				  theImage.ForcePalette(globals.forcepalette);
-				  if(globals.gamma>0) theImage.Gamma(globals.gamma);
-				  if(!globals.intent.empty()) theImage.Intent(globals.intent);
-				  if(globals.pngquality>=0) theImage.PngQuality(globals.pngquality);
-				  if(globals.jpegquality>=0) theImage.JpegQuality(globals.jpegquality);
-				  if(globals.alphalimit>=0) theImage.AlphaLimit(globals.alphalimit);
-
-				  NFmiColorTools::Color erasecolor = ColorTools::checkcolor(globals.erase);
-				  theImage.Erase(erasecolor);
-
-				  // Draw all the shapes
-
-				  list<ShapeSpec>::const_iterator iter;
-				  list<ShapeSpec>::const_iterator begin = globals.shapespecs.begin();
-				  list<ShapeSpec>::const_iterator end   = globals.shapespecs.end();
-
-				  for(iter=begin; iter!=end; ++iter)
-					{
-					  NFmiGeoShape geo(iter->filename(),kFmiGeoShapeEsri);
-					  geo.ProjectXY(*theArea);
-
-					  if(iter->marker()=="")
-						{
-						  NFmiColorTools::NFmiBlendRule fillrule = ColorTools::checkrule(iter->fillrule());
-						  NFmiColorTools::NFmiBlendRule strokerule = ColorTools::checkrule(iter->strokerule());
-						  geo.Fill(theImage,iter->fillcolor(),fillrule);
-						  geo.Stroke(theImage,iter->strokecolor(),strokerule);
-						}
-					  else
-						{
-						  NFmiColorTools::NFmiBlendRule markerrule = ColorTools::checkrule(iter->markerrule());
-
-						  NFmiImage marker;
-						  marker.Read(iter->marker());
-						  geo.Mark(theImage,marker,markerrule,
-								   kFmiAlignCenter,
-								   iter->markeralpha());
-						}
-					}
-
-				  string outfile = filename + "." + globals.format;
-				  if(globals.verbose)
-					cout << "Writing " << outfile << endl;
-				  if(globals.format=="png")
-					theImage.WritePng(outfile);
-				  else if(globals.format=="jpg" || globals.format=="jpeg")
-					theImage.WriteJpeg(outfile);
-				  else if(globals.format=="gif")
-					theImage.WriteGif(outfile);
-				}
+			  if(command == "shapes")				do_draw_shapes(input);
 
 			  // --------------------------------------------------
 			  // Generate imagemap data
