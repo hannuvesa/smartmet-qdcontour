@@ -315,12 +315,11 @@ common time span of the given queryfiles.
 Whenever a parameter is specified to be contoured, the order
 of the queryfiles is the order in which the parameter is searched.
 
-Since one is only able to use one level when contouring,
-one may choose it using the following command.
+The desired level value may be controlled with
 \code
-querydatalevel [level]
+level [levelvalue]
 \endcode
-The default level is 1.
+The default level value is -1, indicating the first level of the data.
 
 \subsection multipledatas_section Rendering many queryfiles
 
@@ -1453,6 +1452,7 @@ clear contours
 \subsection deprecated_section Deprecated features
 
 \code
+querydatalevel [level]
 contourdepth [depth]
 draw imagemap [fieldname] [filename]
 labelfile [filename]
