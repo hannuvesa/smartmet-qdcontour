@@ -840,6 +840,34 @@ void do_savepath(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "prefix" command
+ */
+// ----------------------------------------------------------------------
+
+void do_prefix(istream & theInput)
+{
+  theInput >> globals.prefix;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'prefix' command failed");
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "suffix" command
+ */
+// ----------------------------------------------------------------------
+
+void do_suffix(istream & theInput)
+{
+  theInput >> globals.suffix;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'suffix' command failed");
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -866,9 +894,6 @@ int domain(int argc, const char *argv[])
   float theSmootherRadius = 1.0;
   int theSmootherFactor = 1;
 
-
-  string thePrefix	= "";
-  string theSuffix	= "";
   string theFormat	= "png";
   bool   theSaveAlphaFlag = true;
   bool   theWantPaletteFlag = false;
@@ -949,13 +974,8 @@ int domain(int argc, const char *argv[])
 		  else if(command == "combine")				do_combine(input);
 		  else if(command == "foregroundrule")		do_foregroundrule(input);
 		  else if(command == "savepath")			do_savepath(input);
-
-
-		  else if(command == "prefix")
-			input >> thePrefix;
-
-		  else if(command == "suffix")
-			input >> theSuffix;
+		  else if(command == "prefix")				do_prefix(input);
+		  else if(command == "suffix")				do_suffix(input);
 
 		  else if(command == "format")
 			input >> theFormat;
@@ -1752,7 +1772,7 @@ int domain(int argc, const char *argv[])
 					  string filename =
 						globals.savepath
 						+ "/"
-						+ thePrefix
+						+ globals.prefix
 						+ datatimestr.CharPtr();
 
 					  if(globals.timestampflag)
@@ -1766,7 +1786,7 @@ int domain(int argc, const char *argv[])
 						}
 
 					  filename +=
-						theSuffix
+						globals.suffix
 						+ "."
 						+ theFormat;
 

@@ -42,6 +42,8 @@ struct Globals
   std::string mapspath;				// default searchpath for maps
 
   std::string savepath;				// image output path
+  std::string prefix;				// filename prefix
+  std::string suffix;				// filename suffix
 
   std::string projection;			// projection definition
   std::string filter;				// filtering mode
