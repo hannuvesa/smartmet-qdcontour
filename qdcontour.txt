@@ -447,14 +447,18 @@ speedparam [parametername]
 The default values are <em>WindDirection</em> and <em>WindSpeedMS</em>
 respectively.
 
-The arrow to be drawn at each location is defined with the
-command
+The arrow to be drawn at each location is defined with the commands
 \code
 arrowpath [filename]
+arrowpath meteorological
 \endcode
 where <em>filename</em> contains an SVG-style (limited) path definition,
-which will be rotated according to the direction parameter. The arrow
-is rendered according to the rules specified by
+which will be rotated according to the direction parameter. Specifying
+<em>meteorological</em> arrow will let qdcontour automatically calculate
+the suitable meteorological arrow. The arrow does not at the moment fully
+comply with the specifications, no flag is generated from speeds above 25 m/s.
+
+The arrow is rendered according to the rules specified by
 \code
 arrowfill [color] [blendrule]
 arrowstroke [color] [blendrule]
