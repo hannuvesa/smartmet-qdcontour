@@ -6,6 +6,7 @@
 // ======================================================================
 
 #include "ColorTools.h"
+#include <stdexcept>
 #include <vector>
 
 using namespace std;
@@ -190,6 +191,26 @@ namespace ColorTools
 	// Handle ascii format
   
 	return parse_named_color(theColor);
+  }
+
+  // ----------------------------------------------------------------------
+  /*!
+   * \brief Check a textual color parses ok
+   *
+   * Throws an exception if the color is not recognized
+   *
+   * \param theColor The color string
+   * \return The color
+   */
+  // ----------------------------------------------------------------------
+
+  NFmiColorTools::Color checkcolor(const std::string & theColor)
+  {
+	NFmiColorTools::Color c = parsecolor(theColor);
+	if(c != NFmiColorTools::MissingColor)
+	  return c;
+
+	throw runtime_error("Unrecognized color " + theColor);
   }
 
 } // namespace ColorTools

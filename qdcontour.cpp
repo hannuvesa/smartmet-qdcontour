@@ -424,15 +424,13 @@ int domain(int argc, const char *argv[])
 		  else if(command == "erase")
 			{
 			  input >> theErase;
-			  if(ColorTools::parsecolor(theErase)==NFmiColorTools::MissingColor)
-				throw runtime_error("Invalid color "+theErase);
+			  ColorTools::checkcolor(theErase);
 			}
 		  
 		  else if(command == "legenderase")
 			{
 			  input >> theLegendErase;
-			  if(ColorTools::parsecolor(theLegendErase)==NFmiColorTools::MissingColor)
-				throw runtime_error("Invalid color "+theLegendErase);
+			  ColorTools::checkcolor(theLegendErase);
 			}
 		  
 		  else if(command == "fillrule")
@@ -467,8 +465,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "arrowfill")
 			{
 			  input >> theArrowFillColor >> theArrowFillRule;
-			  if(ColorTools::parsecolor(theArrowFillColor)==NFmiColorTools::MissingColor)
-				throw runtime_error("Invalid color " + theArrowFillColor);
+			  ColorTools::checkcolor(theArrowFillColor);
 			  
 			  if(NFmiColorTools::BlendValue(theArrowFillRule)==NFmiColorTools::kFmiColorRuleMissing)
 				throw runtime_error("Unknown blending rule "+theArrowFillRule);
@@ -476,8 +473,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "arrowstroke")
 			{
 			  input >> theArrowStrokeColor >> theArrowStrokeRule;
-			  if(ColorTools::parsecolor(theArrowStrokeColor)==NFmiColorTools::MissingColor)
-				throw runtime_error("Invalid color " + theArrowStrokeColor);
+			  ColorTools::checkcolor(theArrowStrokeColor);
 			  if(NFmiColorTools::BlendValue(theArrowStrokeRule)==NFmiColorTools::kFmiColorRuleMissing)
 				throw runtime_error("Unknown blending rule "+ theArrowStrokeRule);
 			}
@@ -678,12 +674,8 @@ int domain(int argc, const char *argv[])
 				  string fillcolor = arg1;
 				  string strokecolor;
 				  input >> strokecolor;
-				  NFmiColorTools::Color fill = ColorTools::parsecolor(fillcolor);
-				  NFmiColorTools::Color stroke = ColorTools::parsecolor(strokecolor);
-				  if(fill == NFmiColorTools::MissingColor)
-					throw runtime_error("Unknown color "+fillcolor);
-				  if(stroke == NFmiColorTools::MissingColor)
-					throw runtime_error("Unknown color "+strokecolor);
+				  NFmiColorTools::Color fill = ColorTools::checkcolor(fillcolor);
+				  NFmiColorTools::Color stroke = ColorTools::checkcolor(strokecolor);
 
 				  theShapeSpecs.push_back(ShapeSpec(theShapeFileName,
 													fill,stroke,
@@ -706,7 +698,7 @@ int domain(int argc, const char *argv[])
 			  else
 				hi = atof(shi.c_str());
 			  
-			  NFmiColorTools::Color color = ColorTools::parsecolor(scolor);
+			  NFmiColorTools::Color color = ColorTools::checkcolor(scolor);
 			  
 			  if(!theSpecs.empty())
 				theSpecs.back().add(ContourRange(lo,hi,color,theFillRule));
@@ -743,7 +735,7 @@ int domain(int argc, const char *argv[])
 			  else
 				value = atof(svalue.c_str());
 			  
-			  NFmiColorTools::Color color = ColorTools::parsecolor(scolor);
+			  NFmiColorTools::Color color = ColorTools::checkcolor(scolor);
 			  if(!theSpecs.empty())
 				theSpecs.back().add(ContourValue(value,color,theStrokeRule));
 			}
@@ -754,8 +746,8 @@ int domain(int argc, const char *argv[])
 			  string scolor1,scolor2;
 			  input >> lo >> hi >> step >> scolor1 >> scolor2;
 			  
-			  int color1 = ColorTools::parsecolor(scolor1);
-			  int color2 = ColorTools::parsecolor(scolor2);
+			  int color1 = ColorTools::checkcolor(scolor1);
+			  int color2 = ColorTools::checkcolor(scolor2);
 			  
 			  int steps = static_cast<int>((hi-lo)/step);
 			  
@@ -777,8 +769,8 @@ int domain(int argc, const char *argv[])
 			  string scolor1,scolor2;
 			  input >> lo >> hi >> step >> scolor1 >> scolor2;
 			  
-			  int color1 = ColorTools::parsecolor(scolor1);
-			  int color2 = ColorTools::parsecolor(scolor2);
+			  int color1 = ColorTools::checkcolor(scolor1);
+			  int color2 = ColorTools::checkcolor(scolor2);
 			  
 			  int steps = static_cast<int>((hi-lo)/step);
 			  
@@ -858,7 +850,7 @@ int domain(int argc, const char *argv[])
 			  input >> color >> rule;
 			  if(!theSpecs.empty())
 				{
-				  theSpecs.back().labelStrokeColor(ColorTools::parsecolor(color));
+				  theSpecs.back().labelStrokeColor(ColorTools::checkcolor(color));
 				  theSpecs.back().labelStrokeRule(rule);
 				}
 			}
@@ -869,7 +861,7 @@ int domain(int argc, const char *argv[])
 			  input >> color >> rule;
 			  if(!theSpecs.empty())
 				{
-				  theSpecs.back().labelFillColor(ColorTools::parsecolor(color));
+				  theSpecs.back().labelFillColor(ColorTools::checkcolor(color));
 				  theSpecs.back().labelFillRule(rule);
 				}
 			}
@@ -1009,7 +1001,7 @@ int domain(int argc, const char *argv[])
 					{
 					  NFmiImage legend(width,height);
 					  
-					  NFmiColorTools::Color color = ColorTools::parsecolor(theLegendErase);
+					  NFmiColorTools::Color color = ColorTools::checkcolor(theLegendErase);
 					  legend.Erase(color);
 					  
 					  list<ContourRange>::const_iterator citer;
@@ -1170,7 +1162,7 @@ int domain(int argc, const char *argv[])
 				  if(theJpegQuality>=0) theImage.JpegQuality(theJpegQuality);
 				  if(theAlphaLimit>=0) theImage.AlphaLimit(theAlphaLimit);
 				  
-				  NFmiColorTools::Color erasecolor = ColorTools::parsecolor(theErase);
+				  NFmiColorTools::Color erasecolor = ColorTools::checkcolor(theErase);
 				  theImage.Erase(erasecolor);
 				  
 				  // Draw all the shapes
@@ -1619,7 +1611,7 @@ int domain(int argc, const char *argv[])
 					  if(theJpegQuality>=0) theImage.JpegQuality(theJpegQuality);
 					  if(theAlphaLimit>=0) theImage.AlphaLimit(theAlphaLimit);
 					  
-					  NFmiColorTools::Color erasecolor = ColorTools::parsecolor(theErase);
+					  NFmiColorTools::Color erasecolor = ColorTools::checkcolor(theErase);
 					  theImage.Erase(erasecolor);
 					  
 					  if(theBackground != "")
@@ -2117,10 +2109,10 @@ int domain(int argc, const char *argv[])
 							  // And render it
 							  
 							  thispath.Fill(theImage,
-											ColorTools::parsecolor(theArrowFillColor),
+											ColorTools::checkcolor(theArrowFillColor),
 											NFmiColorTools::BlendValue(theArrowFillRule));
 							  thispath.Stroke(theImage,
-											  ColorTools::parsecolor(theArrowStrokeColor),
+											  ColorTools::checkcolor(theArrowStrokeColor),
 											  NFmiColorTools::BlendValue(theArrowStrokeRule));
 							}
 						  
@@ -2188,10 +2180,10 @@ int domain(int argc, const char *argv[])
 									// And render it
 									
 									thispath.Fill(theImage,
-												  ColorTools::parsecolor(theArrowFillColor),
+												  ColorTools::checkcolor(theArrowFillColor),
 												  NFmiColorTools::BlendValue(theArrowFillRule));
 									thispath.Stroke(theImage,
-													ColorTools::parsecolor(theArrowStrokeColor),
+													ColorTools::checkcolor(theArrowStrokeColor),
 													NFmiColorTools::BlendValue(theArrowStrokeRule));
 								  }
 							}

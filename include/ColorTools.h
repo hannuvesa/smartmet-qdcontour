@@ -20,6 +20,7 @@ namespace ColorTools
 {
 
   NFmiColorTools::Color parsecolor(const std::string & theColor);
+  NFmiColorTools::Color checkcolor(const std::string & theColor);
 
 } // namespace ColorTools
 
