@@ -1843,6 +1843,27 @@ void do_draw_imagemap(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Save grid values for later labelling
+ */
+// ----------------------------------------------------------------------
+
+void add_label_grid_values(ContourSpec & theSpec,
+						   const NFmiArea & theArea,
+						   const NFmiDataMatrix<NFmiPoint> & thePoints)
+{
+  const int dx = theSpec.labelDX();
+  const int dy = theSpec.labelDY();
+
+  if(dx>0 && dy>0)
+	{
+	  for(unsigned int j=0; j<thePoints.NY(); j+=dy)
+		for(unsigned int i=0; i<thePoints.NX(); i+=dx)
+		  theSpec.add(theArea.WorldXYToLatLon(thePoints[i][j]));
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Draw label markers
  */
 // ----------------------------------------------------------------------
@@ -2882,12 +2903,8 @@ void do_draw_contours(istream & theInput)
 		  // First, however, if this is the first image, we add
 		  // the grid points to the set of points, if so requested
 
-		  if(!labeldxdydone && piter->labelDX() > 0 && piter->labelDY() > 0)
-			{
-			  for(unsigned int j=0; j<worldpts->NY(); j+=piter->labelDY())
-				for(unsigned int i=0; i<worldpts->NX(); i+=piter->labelDX())
-				  piter->add(area->WorldXYToLatLon((*worldpts)[i][j]));
-			}
+		  if(!labeldxdydone)
+			add_label_grid_values(*piter,*area,*worldpts);
 
 		  piter->clearLabelValues();
 		  if((piter->labelFormat() != "") &&
