@@ -216,6 +216,19 @@ const string preprocess_script(const string & theScript)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle a comment token
+ *
+ * \param theInput The input stream
+ */
+// ----------------------------------------------------------------------
+
+void do_comment(istream & theInput)
+{
+  theInput.ignore(numeric_limits<std::streamsize>::max(),'\n');
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -363,9 +376,7 @@ int domain(int argc, const char *argv[])
 		  // Handle comments
 		  
 		  if(command == "#" || command == "//" || command[0]=='#')
-			{
-			  input.ignore(numeric_limits<std::streamsize>::max(),'\n');
-			}
+			do_comment(input);
 		  
 		  else if(command == "cache")
 			{
