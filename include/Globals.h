@@ -29,6 +29,7 @@ struct Globals
   Globals();
 
   void clear_querystreams();
+  void setImageModes(NFmiImage & theImage) const;
 
   // Command line options
 

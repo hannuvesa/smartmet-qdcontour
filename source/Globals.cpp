@@ -127,4 +127,21 @@ void Globals::clear_querystreams()
   queryinfo = 0;
 }
 
+// ----------------------------------------------------------------------
+/*!
+ * \brief Set image modes
+ */
+// ----------------------------------------------------------------------
+
+void Globals::setImageModes(NFmiImage & theImage) const
+{
+  theImage.SaveAlpha(savealpha);
+  theImage.WantPalette(wantpalette);
+  theImage.ForcePalette(forcepalette);
+  if(gamma>0) theImage.Gamma(gamma);
+  if(!intent.empty()) theImage.Intent(intent);
+  if(pngquality>=0) theImage.PngQuality(pngquality);
+  if(jpegquality>=0) theImage.JpegQuality(jpegquality);
+  if(alphalimit>=0) theImage.AlphaLimit(alphalimit);
+}
 // ======================================================================
