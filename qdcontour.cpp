@@ -242,8 +242,6 @@ int domain(int argc, const char *argv[])
   
   LazyQueryData *theQueryInfo = 0;
   
-  bool force	= false;	// overwrite disabled
-
   string theCommandLineQueryData;
   
   // Read command line options
@@ -270,7 +268,7 @@ int domain(int argc, const char *argv[])
   // Read -f option
   
   if(cmdline.isOption('f'))
-    force = true;
+    globals.force = true;
 
   if(cmdline.isOption('q'))
 	theCommandLineQueryData = cmdline.OptionValue('q');
@@ -1545,7 +1543,7 @@ int domain(int argc, const char *argv[])
 					  // exists. If so, we assume it is up to date
 					  // and skip to the next time stamp.
 					  
-					  if(!force && !NFmiFileSystem::FileEmpty(filename))
+					  if(!globals.force && !NFmiFileSystem::FileEmpty(filename))
 						{
 						  if(globals.verbose)
 							cout << "Not overwriting " << filename << endl;

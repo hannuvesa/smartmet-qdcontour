@@ -21,6 +21,7 @@ using NFmiSettings::Optional;
 
 Globals::Globals()
   : verbose(false)
+  , force(false)
   , datapath(Optional<string>("qdcontour::querydata_path","."))
   , mapspath(Optional<string>("qdcontour::maps_path","."))
 {
