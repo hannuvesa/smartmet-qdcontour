@@ -3390,7 +3390,7 @@ void draw_pressure_markers(NFmiImage & theImage,
 
   // Get the data to be analyzed
 
-  choose_queryinfo("Pressure",-1);
+  choose_queryinfo("Pressure",0);
 
   shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(theArea);
 
