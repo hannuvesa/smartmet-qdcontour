@@ -1303,6 +1303,8 @@ int domain(int argc, const char *argv[])
 					{
 					  theWidth = theBackgroundImage.Width();
 					  theHeight = theBackgroundImage.Height();
+
+					  cout << "Contouring for background " << theBackground << endl;
 					}
 
 				  auto_ptr<NFmiArea> theArea;
@@ -1418,8 +1420,6 @@ int domain(int argc, const char *argv[])
 					  // Skip to next time to be drawn
 					  
 					  t.ChangeByMinutes(theTimeStep > 0 ? theTimeStep : 1);
-					  
-					  cout << t << endl;
 					  
 					  // If the time is after time2, we're done
 					  
