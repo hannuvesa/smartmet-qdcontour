@@ -34,6 +34,7 @@
   <li>\ref label_section</li>
   <li>\ref masking_section</li>
   <li>\ref rendercontour_section</li>
+  <li>\ref contourcache_section</li>
   <li>\ref interpolation_section</li>
   <li>\ref filtering_section</li>
   <li>\ref smoothing_section</li>
@@ -653,6 +654,39 @@ combine [imagefilename] [x] [y] [blendingrule] [blendfactor]
 The extra image setting can be cleared using
 \code
 combine none
+\endcode
+
+\subsection contourcache_section
+
+Often one will render the exact same parameters with the exact
+same contour settings on multiple backgrounds, possibly with
+a different projections. When the data being contoured is
+very large, for example radar data, the production is unnecessarily
+slow since the contours are recalculated for each background.
+
+By using the command
+\code
+cache 1
+\endcoce
+one can turn on an internal cache for all calculated contours.
+The contours will be stored in an internal hash, whose key
+is formed by the time, file, parameter etc information for
+that particular contour.
+
+However, there is no doubt the cache is not foolproof. For example,
+if one changes the data smoother between two maps, the cache will
+not notice it.
+
+As a key rule, if all you change is the backgrounds, foregrounds
+and the projections, you're safe in using the cache. If not, one
+should atleast clear the cache before rendering the "new" set of
+images with
+\code
+clear cache
+\endcode
+The cache can be turned completely off with the command
+\code
+cache 0
 \endcode
 
 \subsection interpolation_section Interpolation of the querydata
