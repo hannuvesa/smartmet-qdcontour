@@ -457,7 +457,7 @@ The relevant settings may be controlled with
 
 \code
 contourlabelaccuracy [value]    # default = 0.25
-contourlabelfont [font]         # default = misc/6x13.pcf.gz:6x13
+contourlabelfont [font]         # default = misc/5x8.pcf.gz:5x8
 contourlabelcolor [color]       # default = black
 contourlabelbackground [color]  # default = #20B4B4B4
 contourlabelmargin [dx] [dy]    # default = 2 2
