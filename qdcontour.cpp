@@ -346,14 +346,12 @@ int domain(int argc, const char *argv[])
   list<string>::const_iterator fileiter = globals.cmdline_files.begin();
   for( ; fileiter!=globals.cmdline_files.end(); ++fileiter)
     {
-      const string & cmdfilename = *fileiter;
-	  
-      if(globals.verbose)
-		cout << "Processing file: " << cmdfilename << endl;
-	  
       // Get the script to be executed
 	  
-	  string text = read_script(cmdfilename);
+      if(globals.verbose)
+		cout << "Processing file: " << *fileiter << endl;
+
+	  string text = read_script(*fileiter);
 	  text = preprocess_script(text);
 	  
       // Process the commands
