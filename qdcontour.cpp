@@ -21,6 +21,7 @@
 #include "imagine/NFmiText.h"			// for labels
 #include "imagine/NFmiFontHershey.h"	// for Hershey fonts
 
+#include "newbase/NFmiAreaFactory.h"
 #include "newbase/NFmiCmdLine.h"			// command line options
 #include "newbase/NFmiDataMatrix.h"
 #include "newbase/NFmiDataModifierClasses.h"
@@ -36,10 +37,11 @@
 #include "boost/shared_ptr.hpp"
 
 #include <fstream>
+#include <list>
+#include <memory>
+#include <sstream>
 #include <stdexcept>
 #include <string>
-#include <list>
-#include <sstream>
 
 using namespace std;
 using namespace boost;
@@ -160,6 +162,10 @@ int domain(int argc, const char *argv[])
   int theHeight		= -1;
   float theScale	= -1;
   
+  // Projection määritelmä
+
+  string theProjection;
+
   string theSavePath	= ".";
   string thePrefix	= "";
   string theSuffix	= "";
@@ -405,8 +411,14 @@ int domain(int argc, const char *argv[])
 		  else if(command == "timestampimagexy")
 			input >> theTimeStampImageX >> theTimeStampImageY;
 		  
+		  else if(command == "projection")
+			{
+			  input >> theProjection;
+			}
+
 		  else if(command == "bottomleft")
 			{
+			  // cerr << "Warning: 'bottomleft' command is deprecated, use 'projection' instead" << endl;
 			  double lon,lat;
 			  input >> lon >> lat;
 			  theBottomLeft.Set(lon,lat);
@@ -416,6 +428,7 @@ int domain(int argc, const char *argv[])
 		  
 		  else if(command == "topright")
 			{
+			  // cerr << "Warning: 'topright' command is deprecated, use 'projection' instead" << endl;
 			  double lon,lat;
 			  input >> lon >> lat;
 			  theTopRight.Set(lon,lat);
@@ -425,6 +438,7 @@ int domain(int argc, const char *argv[])
 		  
 		  else if(command == "center")
 			{
+			  // cerr << "Warning: 'center' command is deprecated, use 'projection' instead" << endl;
 			  double lon,lat;
 			  input >> lon >> lat;
 			  theCenter.Set(lon,lat);
@@ -434,27 +448,39 @@ int domain(int argc, const char *argv[])
 
 		  else if(command == "scale")
 			{
+			  // cerr << "Warning: 'scale' command is deprecated, use 'projection' instead" << endl;
 			  input >> theScale;
 			  theBottomLeft.Set(kFloatMissing, kFloatMissing);
 			  theTopRight.Set(kFloatMissing, kFloatMissing);
 			}
 
 		  else if(command == "stereographic")
-			input >> theCentralLongitude
-				  >> theCentralLatitude
-				  >> theTrueLatitude;
+			{
+			  // cerr << "Warning: 'stereographic' command is deprecated, use 'projection' instead" << endl;
+			  input >> theCentralLongitude
+					>> theCentralLatitude
+					>> theTrueLatitude;
+			}
 		  
 		  else if(command == "size")
 			{
+			  // cerr << "Warning: 'size' command is deprecated, use 'projection' instead" << endl;
 			  input >> theWidth >> theHeight;
 			  theBackground = "";
 			}
 		  
 		  else if(command == "width")
-			input >> theWidth;
+			{
+			  // cerr << "Warning: 'width' command is deprecated, use 'projection' instead" << endl;
+
+			  input >> theWidth;
+			}
 		  
 		  else if(command == "height")
-			input >> theHeight;
+			{
+			  // cerr << "Warning: 'height' command is deprecated, use 'projection' instead" << endl;
+			  input >> theHeight;
+			}
 		  
 		  else if(command == "erase")
 			{
@@ -1099,33 +1125,42 @@ int domain(int argc, const char *argv[])
 				  string filename;
 				  input >> filename;
 
-				  NFmiStereographicArea theArea =
-					ProjectionFactory::createStereographic(theCentralLongitude,
-														   theCentralLatitude,
-														   theTrueLatitude,
-														   theCenter,
-														   theScale,
-														   theBottomLeft,
-														   theTopRight,
-														   theWidth,
-														   theHeight);
+				  auto_ptr<NFmiArea> theArea;
 
+				  if(theProjection.empty())
+					{
+					  NFmiStereographicArea tmp
+						= ProjectionFactory::createStereographic(theCentralLongitude,
+																 theCentralLatitude,
+																 theTrueLatitude,
+																 theCenter,
+																 theScale,
+																 theBottomLeft,
+																 theTopRight,
+																 theWidth,
+																 theHeight);
+					  theArea.reset(new NFmiStereographicArea(tmp));
+					}
+				  else
+					theArea.reset(NFmiAreaFactory::Create(theProjection).release());
+				  
+				  
 				  if(verbose)
 					cout << "Area corners are"
 						 << endl
 						 << "bottomleft\t= " 
-						 << theBottomLeft.X()
+						 << theArea->BottomLeftLatLon().X()
 						 << ','
-						   << theBottomLeft.Y()
+						 << theArea->BottomLeftLatLon().Y()
 						 << endl
 						 << "topright\t= "
-						 << theTopRight.X()
+						 << theArea->TopRightLatLon().X()
 						 << ','
-						 << theTopRight.Y()
+						 << theArea->TopRightLatLon().Y()
 						 << endl;
 
-				  int imgwidth = static_cast<int>(theArea.Width()+0.5);
-				  int imgheight = static_cast<int>(theArea.Height()+0.5);
+				  int imgwidth = static_cast<int>(theArea->Width()+0.5);
+				  int imgheight = static_cast<int>(theArea->Height()+0.5);
 				  
 				  // Initialize the background
 				  
@@ -1151,7 +1186,7 @@ int domain(int argc, const char *argv[])
 				  for(iter=begin; iter!=end; ++iter)
 					{
 					  NFmiGeoShape geo(iter->filename(),kFmiGeoShapeEsri);
-					  geo.ProjectXY(theArea);
+					  geo.ProjectXY(*theArea);
 					  
 					  if(iter->marker()=="")
 						{
@@ -1196,16 +1231,25 @@ int domain(int argc, const char *argv[])
 				  string fieldname, filename;
 				  input >> fieldname >> filename;
 				  
-				  NFmiStereographicArea theArea =
-					ProjectionFactory::createStereographic(theCentralLongitude,
-														   theCentralLatitude,
-														   theTrueLatitude,
-														   theCenter,
-														   theScale,
-														   theBottomLeft,
-														   theTopRight,
-														   theWidth,
-														   theHeight);
+
+				  auto_ptr<NFmiArea> theArea;
+
+				  if(theProjection.empty())
+					{
+					  NFmiStereographicArea tmp
+						= ProjectionFactory::createStereographic(theCentralLongitude,
+																 theCentralLatitude,
+																 theTrueLatitude,
+																 theCenter,
+																 theScale,
+																 theBottomLeft,
+																 theTopRight,
+																 theWidth,
+																 theHeight);
+					  theArea.reset(new NFmiStereographicArea(tmp));
+					}
+				  else
+					theArea.reset(NFmiAreaFactory::Create(theProjection).release());
 				  
 				  // Generate map from all shapes in the list
 				  
@@ -1223,7 +1267,7 @@ int domain(int argc, const char *argv[])
 				  for(iter=begin; iter!=end; ++iter)
 					{
 					  NFmiGeoShape geo(iter->filename(),kFmiGeoShapeEsri);
-					  geo.ProjectXY(theArea);
+					  geo.ProjectXY(*theArea);
 					  geo.WriteImageMap(out,fieldname);
 					}
 				  out.close();
@@ -1260,29 +1304,38 @@ int domain(int argc, const char *argv[])
 					  theHeight = theBackgroundImage.Height();
 					}
 
-				  NFmiStereographicArea theArea =
-					ProjectionFactory::createStereographic(theCentralLongitude,
-														   theCentralLatitude,
-														   theTrueLatitude,
-														   theCenter,
-														   theScale,
-														   theBottomLeft,
-														   theTopRight,
-														   theWidth,
-														   theHeight);
+				  auto_ptr<NFmiArea> theArea;
+
+				  if(theProjection.empty())
+					{
+					  NFmiStereographicArea tmp
+						= ProjectionFactory::createStereographic(theCentralLongitude,
+																 theCentralLatitude,
+																 theTrueLatitude,
+																 theCenter,
+																 theScale,
+																 theBottomLeft,
+																 theTopRight,
+																 theWidth,
+																 theHeight);
+					  theArea.reset(new NFmiStereographicArea(tmp));
+					}
+				  else
+					theArea.reset(NFmiAreaFactory::Create(theProjection).release());
+				  
 
 				  if(verbose)
 					cout << "Area corners are"
 						 << endl
 						 << "bottomleft\t= " 
-						 << theBottomLeft.X()
+						 << theArea->BottomLeftLatLon().X()
 						 << ','
-						   << theBottomLeft.Y()
+						 << theArea->BottomLeftLatLon().Y()
 						 << endl
 						 << "topright\t= "
-						 << theTopRight.X()
+						 << theArea->TopRightLatLon().X()
 						 << ','
-						 << theTopRight.Y()
+						 << theArea->TopRightLatLon().Y()
 						 << endl;
 
 				  // Establish querydata timelimits and initialize
@@ -1495,8 +1548,8 @@ int domain(int argc, const char *argv[])
 
 					  // Initialize the background
 
-					  int imgwidth = static_cast<int>(theArea.Width()+0.5);
-					  int imgheight = static_cast<int>(theArea.Height()+0.5);
+					  int imgwidth = static_cast<int>(theArea->Width()+0.5);
+					  int imgheight = static_cast<int>(theArea->Height()+0.5);
 					  
 					  NFmiImage theImage(imgwidth,imgheight);
 					  theImage.SaveAlpha(theSaveAlphaFlag);
@@ -1667,7 +1720,7 @@ int domain(int argc, const char *argv[])
 												piter->smootherFactor(),
 												piter->smootherRadius());
 						  
-						  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = theQueryInfo->LocationsWorldXY(theArea);
+						  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = theQueryInfo->LocationsWorldXY(*theArea);
 						  vals = smoother.Smoothen(*worldpts,vals);
 						  
 						  // Find the minimum and maximum
@@ -1702,7 +1755,7 @@ int domain(int argc, const char *argv[])
 							{
 							  for(unsigned int j=0; j<worldpts->NY(); j+=piter->labelDY())
 								for(unsigned int i=0; i<worldpts->NX(); i+=piter->labelDX())
-								  piter->add(theArea.WorldXYToLatLon((*worldpts)[i][j]));
+								  piter->add(theArea->WorldXYToLatLon((*worldpts)[i][j]));
 							}
 
 						  piter->clearLabelValues();
@@ -1801,7 +1854,7 @@ int domain(int argc, const char *argv[])
 									 << citer->hilimit() << endl;
 
 							  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(citer->rule());
-							  path.Project(&theArea);
+							  path.Project(theArea.get());
 							  path.Fill(theImage,citer->color(),rule);
 							  
 							}
@@ -1863,7 +1916,7 @@ int domain(int argc, const char *argv[])
 							  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(patiter->rule());
 							  NFmiImage pattern(patiter->pattern());
 
-							  path.Project(&theArea);
+							  path.Project(theArea.get());
 							  path.Fill(theImage,pattern,rule,patiter->factor());
 							  
 							}
@@ -1904,7 +1957,7 @@ int domain(int argc, const char *argv[])
 													  theContourTrianglesOn);
 
 							  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(liter->rule());
-							  path.Project(&theArea);
+							  path.Project(theArea.get());
 							  path.SimplifyLines(10);
 							  path.Stroke(theImage,liter->color(),rule);
 							  
@@ -1975,7 +2028,7 @@ int domain(int argc, const char *argv[])
 							{
 
 							  // The start point
-							  NFmiPoint xy0 = theArea.ToXY(*iter);
+							  NFmiPoint xy0 = theArea->ToXY(*iter);
 
 							  // Skip rendering if the start point is masked
 
@@ -2001,7 +2054,7 @@ int domain(int argc, const char *argv[])
 							  float x1 = iter->X()+sin(dir*pi/180)*length;
 							  float y1 = iter->Y()+cos(dir*pi/180)*length;
 							  
-							  NFmiPoint xy1 = theArea.ToXY(NFmiPoint(x1,y1));
+							  NFmiPoint xy1 = theArea->ToXY(NFmiPoint(x1,y1));
 							  
 							  // Calculate the actual angle
 							  
@@ -2043,14 +2096,14 @@ int domain(int argc, const char *argv[])
 								theQueryInfo->Values(speedvalues);
 							  theQueryInfo->Param(FmiParameterName(converter.ToEnum(theDirectionParameter)));
 							  
-							  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = theQueryInfo->LocationsWorldXY(theArea);							  
+							  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = theQueryInfo->LocationsWorldXY(*theArea);							  
 							  for(unsigned int j=0; j<worldpts->NY(); j+=theWindArrowDY)
 								for(unsigned int i=0; i<worldpts->NX(); i+=theWindArrowDX)
 								  {
 									// The start point
 									
-									NFmiPoint latlon = theArea.WorldXYToLatLon((*worldpts)[i][j]);
-									NFmiPoint xy0 = theArea.ToXY(latlon);
+									NFmiPoint latlon = theArea->WorldXYToLatLon((*worldpts)[i][j]);
+									NFmiPoint xy0 = theArea->ToXY(latlon);
 
 									// Skip rendering if the start point is masked
 									if(IsMasked(xy0,theMask,theMaskImage))
@@ -2073,7 +2126,7 @@ int domain(int argc, const char *argv[])
 									float x1 = x0+sin(dir*pi/180)*length;
 									float y1 = y0+cos(dir*pi/180)*length;
 									
-									NFmiPoint xy1 = theArea.ToXY(NFmiPoint(x1,y1));
+									NFmiPoint xy1 = theArea->ToXY(NFmiPoint(x1,y1));
 									
 									// Calculate the actual angle
 									
@@ -2138,7 +2191,7 @@ int domain(int argc, const char *argv[])
 								{
 								  // The point in question
 								  
-								  NFmiPoint xy = theArea.ToXY(iter->first);
+								  NFmiPoint xy = theArea->ToXY(iter->first);
 								  
 								  // Skip rendering if the start point is masked
 								  
@@ -2217,7 +2270,7 @@ int domain(int argc, const char *argv[])
 							  float x,y;
 							  if(iter->second.X() == kFloatMissing)
 								{
-								  NFmiPoint xy = theArea.ToXY(iter->first);
+								  NFmiPoint xy = theArea->ToXY(iter->first);
 								  x = xy.X();
 								  y = xy.Y();
 								}
