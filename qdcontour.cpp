@@ -2038,15 +2038,15 @@ void draw_wind_arrows(NFmiImage & theImage,
 	  (globals.windarrowdx!=0 && globals.windarrowdy!=0)) &&
 	 (globals.arrowfile!=""))
 	{
-	  
+
 	  FmiParameterName param = FmiParameterName(NFmiEnumConverter().ToEnum(globals.directionparam));
 	  if(param==kFmiBadParameter)
 		throw runtime_error("Unknown parameter "+globals.directionparam);
-	  
+
 	  // Find the proper queryinfo to be used
 	  // Note that qi will be used later on for
 	  // getting the coordinate matrices
-	  
+
 	  bool ok = false;
 	  for(unsigned int qi=0; qi<globals.querystreams.size(); qi++)
 		{
@@ -2055,12 +2055,12 @@ void draw_wind_arrows(NFmiImage & theImage,
 		  ok = globals.queryinfo->IsParamUsable();
 		  if(ok) break;
 		}
-	  
+
 	  if(!ok)
 		throw runtime_error("Parameter is not usable: " + globals.directionparam);
-	  
+
 	  // Read the arrow definition
-	  
+
 	  NFmiPath arrowpath;
 	  if(globals.arrowfile != "meteorological")
 		{
@@ -2070,72 +2070,72 @@ void draw_wind_arrows(NFmiImage & theImage,
 		  // Read in the entire file
 		  string pathstring = NFmiStringTools::ReadFile(arrow);
 		  arrow.close();
-		  
+
 		  // Convert to a path
-		  
+
 		  arrowpath.Add(pathstring);
 		}
-	  
+
 	  // Handle all given coordinates
-	  
+
 	  list<NFmiPoint>::const_iterator iter;
-	  
+
 	  for(iter=globals.arrowpoints.begin();
 		  iter!=globals.arrowpoints.end();
 		  ++iter)
 		{
-		  
+
 		  // The start point
 		  NFmiPoint xy0 = theArea.ToXY(*iter);
-		  
+
 		  // Skip rendering if the start point is masked
-		  
+
 		  if(IsMasked(xy0,globals.mask,globals.maskimage))
 			continue;
-		  
+
 		  float dir = globals.queryinfo->InterpolatedValue(*iter);
 		  if(dir==kFloatMissing)	// ignore missing
 			continue;
-		  
+
 		  float speed = -1;
-		  
+
 		  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
 			speed = globals.queryinfo->InterpolatedValue(*iter);
 		  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
-		  
-		  
+
+
 		  // Direction calculations
-		  
+
 		  const float pi = 3.141592658979323;
 		  const float length = 0.1;	// degrees
-		  
+
 		  float x1 = iter->X()+sin(dir*pi/180)*length;
 		  float y1 = iter->Y()+cos(dir*pi/180)*length;
-		  
+
 		  NFmiPoint xy1 = theArea.ToXY(NFmiPoint(x1,y1));
-		  
+
 		  // Calculate the actual angle
-		  
+
 		  float alpha = atan2(xy1.X()-xy0.X(),
 							  xy1.Y()-xy0.Y());
-		  
+
 		  // Create a new path
-		  
+
 		  NFmiPath thispath;
-		  
+
 		  if(globals.arrowfile == "meteorological")
 			thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
 		  else
 			thispath.Add(arrowpath);
-		  
+
 		  if(speed>0 && speed!=kFloatMissing)
 			thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
 		  thispath.Scale(globals.arrowscale);
 		  thispath.Rotate(alpha*180/pi);
 		  thispath.Translate(xy0.X(),xy0.Y());
-		  
+
 		  // And render it
-		  
+
 		  thispath.Fill(theImage,
 						ColorTools::checkcolor(globals.arrowfillcolor),
 						ColorTools::checkrule(globals.arrowfillrule));
@@ -2143,58 +2143,58 @@ void draw_wind_arrows(NFmiImage & theImage,
 						  ColorTools::checkcolor(globals.arrowstrokecolor),
 						  ColorTools::checkrule(globals.arrowstrokerule));
 		}
-	  
+
 	  // Draw the full grid if so desired
-	  
+
 	  if(globals.windarrowdx!=0 && globals.windarrowdy!=0)
 		{
-		  
+
 		  NFmiDataMatrix<float> speedvalues(theValues.NX(),theValues.NY(),-1);
 		  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
 			globals.queryinfo->Values(speedvalues);
 		  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
-		  
+
 		  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(theArea);
 		  for(unsigned int j=0; j<worldpts->NY(); j+=globals.windarrowdy)
 			for(unsigned int i=0; i<worldpts->NX(); i+=globals.windarrowdx)
 			  {
 				// The start point
-				
+
 				NFmiPoint latlon = theArea.WorldXYToLatLon((*worldpts)[i][j]);
 				NFmiPoint xy0 = theArea.ToXY(latlon);
-				
+
 				// Skip rendering if the start point is masked
 				if(IsMasked(xy0,
 							globals.mask,
 							globals.maskimage))
 				  continue;
-				
+
 				float dir = theValues[i][j];
 				if(dir==kFloatMissing)	// ignore missing
 				  continue;
-				
+
 				float speed = speedvalues[i][j];
-				
+
 				// Direction calculations
-				
+
 				const float pi = 3.141592658979323;
 				const float length = 0.1;	// degrees
-				
+
 				float x0 = latlon.X();
 				float y0 = latlon.Y();
-				
+
 				float x1 = x0+sin(dir*pi/180)*length;
 				float y1 = y0+cos(dir*pi/180)*length;
-				
+
 				NFmiPoint xy1 = theArea.ToXY(NFmiPoint(x1,y1));
-				
+
 				// Calculate the actual angle
-				
+
 				float alpha = atan2(xy1.X()-xy0.X(),
 									xy1.Y()-xy0.Y());
-				
+
 				// Create a new path
-				
+
 				NFmiPath thispath;
 				if(globals.arrowfile == "meteorological")
 				  thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
@@ -2205,9 +2205,9 @@ void draw_wind_arrows(NFmiImage & theImage,
 				thispath.Scale(globals.arrowscale);
 				thispath.Rotate(alpha*180/pi);
 				thispath.Translate(xy0.X(),xy0.Y());
-				
+
 				// And render it
-				
+
 				thispath.Fill(theImage,
 							  ColorTools::checkcolor(globals.arrowfillcolor),
 							  ColorTools::checkrule(globals.arrowfillrule));
@@ -2217,7 +2217,81 @@ void draw_wind_arrows(NFmiImage & theImage,
 			  }
 		}
 	}
-  
+
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Draw contour patterns
+ */
+// ----------------------------------------------------------------------
+
+void draw_contour_patterns(NFmiImage & theImage,
+						   const NFmiArea & theArea,
+						   const ContourSpec & theSpec,
+						   NFmiContourTree::NFmiContourInterpolation theInterpolation,
+						   float theMinimum,
+						   float theMaximum)
+{
+  list<ContourPattern>::const_iterator it;
+  list<ContourPattern>::const_iterator begin;
+  list<ContourPattern>::const_iterator end;
+
+  begin = theSpec.contourPatterns().begin();
+  end   = theSpec.contourPatterns().end();
+
+  for(it=begin ; it!=end; ++it)
+	{
+	  // Skip to next contour if this one is outside
+	  // the value range. As a special case
+	  // min=max=missing is ok, if both the limits
+	  // are missing too. That is, when we are
+	  // contouring missing values.
+
+	  if(theMinimum==kFloatMissing || theMaximum==kFloatMissing)
+		{
+		  if(it->lolimit()!=kFloatMissing &&
+			 it->hilimit()!=kFloatMissing)
+			continue;
+		}
+	  else
+		{
+		  if(it->lolimit()!=kFloatMissing &&
+			 theMaximum<it->lolimit())
+			continue;
+		  if(it->hilimit()!=kFloatMissing &&
+			 theMinimum>it->hilimit())
+			continue;
+		}
+
+	  bool exactlo = true;
+	  bool exacthi = (it->hilimit()!=kFloatMissing &&
+					  theSpec.exactHiLimit()!=kFloatMissing &&
+					  it->hilimit()==theSpec.exactHiLimit());
+
+	  NFmiPath path =
+		globals.calculator.contour(*globals.queryinfo,
+								   it->lolimit(),
+								   it->hilimit(),
+								   exactlo, exacthi,
+								   theSpec.dataLoLimit(),
+								   theSpec.dataHiLimit(),
+								   theSpec.contourDepth(),
+								   theInterpolation,
+								   globals.contourtriangles);
+
+	  if(globals.verbose && globals.calculator.wasCached())
+		cout << "Using cached "
+			 << it->lolimit() << " - "
+			 << it->hilimit() << endl;
+
+	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
+	  NFmiImage pattern(it->pattern());
+
+	  path.Project(&theArea);
+	  path.Fill(theImage,pattern,rule,it->factor());
+
+	}
 }
 
 // ----------------------------------------------------------------------
@@ -2236,15 +2310,15 @@ void draw_contour_strokes(NFmiImage & theImage,
   list<ContourValue>::const_iterator it;
   list<ContourValue>::const_iterator begin;
   list<ContourValue>::const_iterator end;
-  
+
   begin = theSpec.contourValues().begin();
   end   = theSpec.contourValues().end();
-  
+
   for(it=begin ; it!=end; ++it)
 	{
 	  // Skip to next contour if this one is outside
 	  // the value range.
-	  
+
 	  if(theMinimum!=kFloatMissing &&
 		 theMaximum!=kFloatMissing)
 		{
@@ -2255,7 +2329,7 @@ void draw_contour_strokes(NFmiImage & theImage,
 			 theMinimum>it->value())
 			continue;
 		}
-	  
+
 	  NFmiPath path =
 		globals.calculator.contour(*globals.queryinfo,
 								   it->value(),
@@ -2266,12 +2340,12 @@ void draw_contour_strokes(NFmiImage & theImage,
 								   theSpec.contourDepth(),
 								   theInterpolation,
 								   globals.contourtriangles);
-	  
+
 	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
 	  path.Project(&theArea);
 	  path.SimplifyLines(10);
 	  path.Stroke(theImage,it->color(),rule);
-	  
+
 	}
 }
 
@@ -2287,7 +2361,7 @@ void draw_foreground(NFmiImage & theImage)
 	return;
 
   NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(globals.foregroundrule);
-	  
+
   theImage.Composite(globals.foregroundimage,
 					 rule,
 					 kFmiAlignNorthWest,
@@ -2845,65 +2919,9 @@ void do_draw_contours(istream & theInput)
 
 		  // Fill the contours with patterns
 
-		  list<ContourPattern>::const_iterator patiter;
-		  list<ContourPattern>::const_iterator patbegin;
-		  list<ContourPattern>::const_iterator patend;
+		  // Stroke the contours
 
-		  patbegin = piter->contourPatterns().begin();
-		  patend   = piter->contourPatterns().end();
-
-		  for(patiter=patbegin ; patiter!=patend; ++patiter)
-			{
-			  // Skip to next contour if this one is outside
-			  // the value range. As a special case
-			  // min=max=missing is ok, if both the limits
-			  // are missing too. That is, when we are
-			  // contouring missing values.
-
-			  if(min_value==kFloatMissing || max_value==kFloatMissing)
-				{
-				  if(patiter->lolimit()!=kFloatMissing &&
-					 patiter->hilimit()!=kFloatMissing)
-					continue;
-				}
-			  else
-				{
-				  if(patiter->lolimit()!=kFloatMissing &&
-					 max_value<patiter->lolimit())
-					continue;
-				  if(patiter->hilimit()!=kFloatMissing &&
-					 min_value>patiter->hilimit())
-					continue;
-				}
-
-			  bool exactlo = true;
-			  bool exacthi = (patiter->hilimit()!=kFloatMissing &&
-							  piter->exactHiLimit()!=kFloatMissing &&
-							  patiter->hilimit()==piter->exactHiLimit());
-
-			  NFmiPath path =
-				globals.calculator.contour(*globals.queryinfo,
-										   patiter->lolimit(),
-										   patiter->hilimit(),
-										   exactlo, exacthi,
-										   piter->dataLoLimit(),
-										   piter->dataHiLimit(),
-										   piter->contourDepth(),
-										   interp,
-										   globals.contourtriangles);
-
-			  if(globals.verbose && globals.calculator.wasCached())
-				cout << "Using cached "
-					 << patiter->lolimit() << " - "
-					 << patiter->hilimit() << endl;
-
-			  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(patiter->rule());
-			  NFmiImage pattern(patiter->pattern());
-
-			  path.Project(area.get());
-			  path.Fill(image,pattern,rule,patiter->factor());
-
-			}
+		  draw_contour_patterns(image,*area,*piter,interp,min_value,max_value);
 
 		  // Stroke the contours
 
