@@ -60,6 +60,12 @@ ContourSpec::ContourSpec(const std::string & theParam,
   , itsLabelCaptionDX(0)
   , itsLabelCaptionDY(0)
   , itsLabelCaptionAlignment("West")
+  , itsContourLabelAccuracy(0.25)
+  , itsContourLabelFont("misc/6x13.pcf.gz:6x13")
+  , itsContourLabelColor(Imagine::NFmiColorTools::Black)
+  , itsContourLabelBackgroundColor(Imagine::NFmiColorTools::MakeColor(180,180,180,32))
+  , itsContourLabelBackgroundXMargin(2)
+  , itsContourLabelBackgroundYMargin(2)
 {
 }
 
@@ -113,6 +119,19 @@ const std::list<ContourValue> & ContourSpec::contourValues(void) const
 const std::list<ContourSymbol> & ContourSpec::contourSymbols(void) const
 {
   return itsContourSymbols;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return ContourLabel specifications
+ *
+ * \return Reference to the internal list of ContourLabel objects
+ */
+// ----------------------------------------------------------------------
+
+const std::list<ContourLabel> & ContourSpec::contourLabels(void) const
+{
+  return itsContourLabels;
 }
 
 // ----------------------------------------------------------------------
@@ -344,7 +363,7 @@ void ContourSpec::dataHiLimit(float theLimit)
  */
 // ----------------------------------------------------------------------
 
-void ContourSpec::add(ContourRange theRange)
+void ContourSpec::add(const ContourRange & theRange)
 {
   itsContourFills.push_back(theRange);
 }
@@ -357,7 +376,7 @@ void ContourSpec::add(ContourRange theRange)
  */
 // ----------------------------------------------------------------------
 
-void ContourSpec::add(ContourValue theValue)
+void ContourSpec::add(const ContourValue & theValue)
 {
   itsContourValues.push_back(theValue);
 }
@@ -370,7 +389,7 @@ void ContourSpec::add(ContourValue theValue)
  */
 // ----------------------------------------------------------------------
 
-void ContourSpec::add(ContourPattern theValue)
+void ContourSpec::add(const ContourPattern & theValue)
 {
   itsContourPatterns.push_back(theValue);
 }
@@ -383,9 +402,22 @@ void ContourSpec::add(ContourPattern theValue)
  */
 // ----------------------------------------------------------------------
 
-void ContourSpec::add(ContourSymbol theValue)
+void ContourSpec::add(const ContourSymbol & theValue)
 {
   itsContourSymbols.push_back(theValue);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Add a new ContourLabel specification
+ *
+ * \param theLabel The specification to add
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::add(const ContourLabel & theLabel)
+{
+  itsContourLabels.push_back(theLabel);
 }
 
 // ----------------------------------------------------------------------
@@ -1069,6 +1101,163 @@ void ContourSpec::labelCaptionAlignment(const std::string & theValue)
 {
   itsLabelCaptionAlignment = theValue;
 }
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Set the contour label accuracy
+ *
+ * \param theValue The required accuracy
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::contourLabelAccuracy(float theValue)
+{
+  itsContourLabelAccuracy = theValue;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Set the contour label font
+ *
+ * \param theValue The font description
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::contourLabelFont(const std::string & theValue)
+{
+  itsContourLabelFont = theValue;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Set the contour label color
+ *
+ * \param theValue The color
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::contourLabelColor(int theValue)
+{
+  itsContourLabelColor = theValue;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Set the contour label background color
+ *
+ * \param theValue The color
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::contourLabelBackgroundColor(int theValue)
+{
+  itsContourLabelBackgroundColor = theValue;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Set the contour label background x-margin
+ *
+ * \param theValue The x-margin
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::contourLabelBackgroundXMargin(int theValue)
+{
+  itsContourLabelBackgroundXMargin = theValue;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Set the contour label background y-margin
+ *
+ * \param theValue The y-margin
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::contourLabelBackgroundYMargin(int theValue)
+{
+  itsContourLabelBackgroundYMargin = theValue;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Get the contour label accuracy
+ *
+ * \return The required accuracy
+ */
+// ----------------------------------------------------------------------
+
+float ContourSpec::contourLabelAccuracy() const
+{
+  return itsContourLabelAccuracy;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Get the contour label font
+ *
+ * \return The font description
+ */
+// ----------------------------------------------------------------------
+
+const std::string & ContourSpec::contourLabelFont() const
+{
+  return itsContourLabelFont;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Get the contour label color
+ *
+ * \return The color
+ */
+// ----------------------------------------------------------------------
+
+int ContourSpec::contourLabelColor() const
+{
+  return itsContourLabelColor;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Get the contour label background color
+ *
+ * \return The color
+ */
+// ----------------------------------------------------------------------
+
+int ContourSpec::contourLabelBackgroundColor() const
+{
+  return itsContourLabelBackgroundColor;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Get the contour label background x-margin
+ *
+ * \return The x-margin
+ */
+// ----------------------------------------------------------------------
+
+int ContourSpec::contourLabelBackgroundXMargin() const
+{
+  return itsContourLabelBackgroundXMargin;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Get the contour label background y-margin
+ *
+ * \return The y-margin
+ */
+// ----------------------------------------------------------------------
+
+int ContourSpec::contourLabelBackgroundYMargin() const
+{
+  return itsContourLabelBackgroundYMargin;
+}
+
 
 // ======================================================================
 

@@ -5,6 +5,7 @@
 #ifndef CONTOURSPEC_H
 #define CONTOURSPEC_H
 
+#include "ContourLabel.h"
 #include "ContourPattern.h"
 #include "ContourRange.h"
 #include "ContourSymbol.h"
@@ -38,7 +39,8 @@ public:
   const std::list<ContourPattern> & contourPatterns(void) const;
   const std::list<ContourValue> & contourValues(void) const;
   const std::list<ContourSymbol> & contourSymbols(void) const;
-  
+  const std::list<ContourLabel> & contourLabels(void) const;
+
   const std::string & param(void) const;
   const std::string & contourInterpolation(void) const;
   const std::string & smoother(void) const;
@@ -59,10 +61,11 @@ public:
   void dataLoLimit(float theLimit);
   void dataHiLimit(float theLimit);
   
-  void add(ContourRange theRange);
-  void add(ContourValue theValue);
-  void add(ContourPattern theValue);
-  void add(ContourSymbol theValue);
+  void add(const ContourRange & theRange);
+  void add(const ContourValue & theValue);
+  void add(const ContourPattern & theValue);
+  void add(const ContourSymbol & theValue);
+  void add(const ContourLabel & theValue);
   
   // This was done to replace 32700 with -1 in PrecipitationForm
   
@@ -107,7 +110,8 @@ public:
   float labelCaptionDX(void) const;
   float labelCaptionDY(void) const;
   std::string labelCaptionAlignment(void) const;
-  
+
+
   void labelMarker(const std::string & theValue);
   void labelMarkerRule(const std::string & theValue);
   void labelMarkerAlphaFactor(float theValue);
@@ -130,7 +134,22 @@ public:
   void labelCaptionDX(float theValue);
   void labelCaptionDY(float theValue);
   void labelCaptionAlignment(const std::string & theValue);
-  
+
+  float contourLabelAccuracy() const;
+  const std::string & contourLabelFont() const;
+  int contourLabelColor() const;
+  int contourLabelBackgroundColor() const;
+  int contourLabelBackgroundXMargin() const;
+  int contourLabelBackgroundYMargin() const;
+
+  void contourLabelAccuracy(float theValue);
+  void contourLabelFont(const std::string & theValue);
+  void contourLabelColor(int theValue);
+  void contourLabelBackgroundColor(int theValue);
+  void contourLabelBackgroundXMargin(int theValue);
+  void contourLabelBackgroundYMargin(int theValue);
+ 
+
 private:
 
   ContourSpec(void);
@@ -145,6 +164,7 @@ private:
   std::list<ContourValue> itsContourValues;
   std::list<ContourPattern> itsContourPatterns;
   std::list<ContourSymbol> itsContourSymbols;
+  std::list<ContourLabel> itsContourLabels;
   
   float itsExactHiLimit;
   int itsContourDepth;
@@ -182,6 +202,14 @@ private:
   float itsLabelCaptionDX;
   float itsLabelCaptionDY;
   std::string itsLabelCaptionAlignment;
+
+  float itsContourLabelAccuracy;
+  std::string itsContourLabelFont;
+  int itsContourLabelColor;
+  int itsContourLabelBackgroundColor;
+  int itsContourLabelBackgroundXMargin;
+  int itsContourLabelBackgroundYMargin;
+
   
 };
 
