@@ -1311,12 +1311,6 @@ timestampimagexy -160 -15
 
 contourinterpolation Linear
 
-# We do not wish the algorithm to recursively subdivide
-# the grid, it usually is of very little help in smoothening
-# the appearance of the output
-
-contourdepth 0
-
 # We wish to smoothen the data itself first, to get
 # better looking contours. We use a gaussian-lookin
 # weighting scheme.
