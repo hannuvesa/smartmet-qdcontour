@@ -638,7 +638,7 @@ int main(int argc, char *argv[])
   
   float theArrowScale = 1.0;
 
-  float theWindArrowScaleA = 0.0;	// a*x+b = 0*x+1 = 1
+  float theWindArrowScaleA = 0.0;	// a*log10(x+1)+b = 0*log10(x+1)+1 = 1
   float theWindArrowScaleB = 1.0;
 
   string theArrowFillColor = "white";
@@ -2778,7 +2778,7 @@ int main(int argc, char *argv[])
 							  NFmiPath thispath;
 							  thispath.Add(arrowpath);
 							  if(speed>0 && speed!=kFloatMissing)
-								thispath.Scale(theWindArrowScaleA*speed+theWindArrowScaleB);
+								thispath.Scale(theWindArrowScaleA*log10(speed+1)+theWindArrowScaleB);
 							  thispath.Scale(theArrowScale);
 							  thispath.Rotate(alpha*180/pi);
 							  thispath.Translate(xy0.X(),xy0.Y());
@@ -2841,7 +2841,7 @@ int main(int argc, char *argv[])
 									NFmiPath thispath;
 									thispath.Add(arrowpath);
 									if(speed>0 && speed != kFloatMissing)
-									  thispath.Scale(theWindArrowScaleA*speed+theWindArrowScaleB);
+									  thispath.Scale(theWindArrowScaleA*log10(speed+1)+theWindArrowScaleB);
 									thispath.Scale(theArrowScale);
 									thispath.Rotate(alpha*180/pi);
 									thispath.Translate(xy0.X(),xy0.Y());
