@@ -3286,8 +3286,9 @@ int extrematype(const NFmiDataMatrix<float> & theValues,
   int smaller = 0;
   int bigger = 0;
 
-  float minimum = theValues[i][j];
-  float maximum = theValues[i][j];
+  // minimum/maximum on the frame
+  float minimum = theValues[i-DX][j-DY];
+  float maximum = theValues[i-DX][j-DY];
 
   for(int dy = -DY; dy<=DY; dy++)
 	for(int dx = -DY; dx<=DX; dx++)
@@ -3310,12 +3311,19 @@ int extrematype(const NFmiDataMatrix<float> & theValues,
 
 		// update extrema values
 
-		minimum = min(minimum,theValues[i+dx][j+dy]);
-		maximum = max(maximum,theValues[i+dx][j+dy]);
-
+		if(dx == -DX || dx == DX || dy == -DY || dy == DY)
+		  {
+			minimum = min(minimum,theValues[i+dx][j+dy]);
+			maximum = max(maximum,theValues[i+dx][j+dy]);
+		  }
 	  }
 
-  if(maximum - minimum < mingradient)
+  // minimum change from center to rim
+
+  float change = min(abs(theValues[i][j]-minimum),
+					 abs(theValues[i][j]-maximum));
+
+  if(change < mingradient)
 	return 0;
   else if(smaller == (DX*2+1)*(DY*2+1)-1)
 	return 2;
