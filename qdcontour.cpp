@@ -544,6 +544,25 @@ void do_fillrule(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "strokerule" command
+ */
+// ----------------------------------------------------------------------
+
+void do_strokerule(istream & theInput)
+{
+  theInput >> globals.strokerule;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'strokerule' command failed");
+
+  ColorTools::checkrule(globals.strokerule);
+
+  if(!globals.shapespecs.empty())
+	globals.shapespecs.back().strokerule(globals.strokerule);
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -584,7 +603,6 @@ int domain(int argc, const char *argv[])
   string theBackground	= "";
   string theForeground	= "";
   string theMask = "";
-  string theStrokeRule	= "Atop";
 
   string theForegroundRule = "Over";
 
@@ -670,14 +688,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "projection")			do_projection(input);
 		  else if(command == "erase")				do_erase(input);
 		  else if(command == "fillrule")			do_fillrule(input);
-
-		  else if(command == "strokerule")
-			{
-			  input >> theStrokeRule;
-			  ColorTools::checkrule(theStrokeRule);
-			  if(!globals.shapespecs.empty())
-				globals.shapespecs.back().strokerule(theStrokeRule);
-			}
+		  else if(command == "strokerule")			do_strokerule(input);
 
 		  else if(command == "directionparam")
 		    input >> theDirectionParameter;
@@ -906,7 +917,7 @@ int domain(int argc, const char *argv[])
 
 				  globals.shapespecs.push_back(ShapeSpec(theShapeFileName,
 													fill,stroke,
-													globals.fillrule,theStrokeRule));
+													globals.fillrule,globals.strokerule));
 				}
 			}
 
@@ -964,7 +975,7 @@ int domain(int argc, const char *argv[])
 
 			  NFmiColorTools::Color color = ColorTools::checkcolor(scolor);
 			  if(!theSpecs.empty())
-				theSpecs.back().add(ContourValue(value,color,theStrokeRule));
+				theSpecs.back().add(ContourValue(value,color,globals.strokerule));
 			}
 
 		  else if(command == "contourfills")
@@ -1008,7 +1019,7 @@ int domain(int argc, const char *argv[])
 				  if(steps!=0)
 					color = NFmiColorTools::Interpolate(color1,color2,i/static_cast<float>(steps));
 				  if(!theSpecs.empty())
-					theSpecs.back().add(ContourValue(tmplo,color,theStrokeRule));
+					theSpecs.back().add(ContourValue(tmplo,color,globals.strokerule));
 				}
 			}
 

@@ -41,6 +41,7 @@ struct Globals
 
   std::string erase;				// background color
   std::string fillrule;				// normal filling rule
+  std::string strokerule;			// normal stroking rule
 
   std::string queryfilelist;		// querydata files in use
   std::vector<std::string> queryfilenames;	// querydata files in use
