@@ -1,3 +1,4 @@
+HTML = qdcontour
 PROG = qdcontour
 
 MAINFLAGS = -Wall -W -Wno-unused-parameter
