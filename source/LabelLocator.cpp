@@ -18,6 +18,18 @@
  *   - the minimum allowed distance to nearest different value label
  *   - the minimum allowed distance to nearest label of another parameter
  *
+ * The algorithm for choosing the labels for a new timestep is
+ *
+ *   -# discard all points not within the bounding box
+ *   -# for all candidate labels
+ *      -# remove those too close to labels of different value
+ *      -# remove those too close to labels of another parameter
+ *   -# sort the candidate coordinates based on minimum distances to
+ *      previous timestep coordinates
+ *   -# for all remaining candidate labels until there are none
+ *      -# remove those too close to same value labels chosen earlier
+ *      -# choose the first label (the one closest to the earlier timestep)
+ *
  */
 // ======================================================================
 
