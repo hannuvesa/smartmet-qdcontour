@@ -490,7 +490,7 @@ void do_timestepskip(istream & theInput)
 void do_timestep(istream & theInput)
 {
   theInput >> globals.timestep;
-  globals.timestep = globals.timestep;
+  globals.timeinterval = globals.timestep;
 
   check_errors(theInput,"timestep");
 
