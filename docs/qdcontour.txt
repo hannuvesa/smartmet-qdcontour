@@ -357,7 +357,7 @@ command
 \code
 format [format]
 \endcode
-where format is one of png, jpeg or gif.
+where format is one of png, jpeg, gif or wbmp.
 
 The prefix and suffix are by default null strings, but can
 be modified with the commands
