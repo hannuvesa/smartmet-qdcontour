@@ -287,7 +287,11 @@ int domain(int argc, const char *argv[])
 	  // Insert querydata command if option -q was used
 
 	  if(!theCommandLineQueryData.empty())
-		text = "querydata "+theCommandLineQueryData + '\n' + text;
+		{
+		  if(verbose)
+			cout << "Using querydata " << theCommandLineQueryData << endl;
+		  text = "querydata "+theCommandLineQueryData + '\n' + text;
+		}
 
 #ifdef OLDGCC
 	  istrstream input(text.c_str());
