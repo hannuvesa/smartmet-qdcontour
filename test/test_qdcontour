@@ -4,9 +4,11 @@ $program = "../qdcontour";
 
 %usednames = ();
 
+# A trivial test
+
 DoTest("trivial contour",
        "trivial.conf",
-       "200210140900_140900.png");
+       "trivial_200210140900_140900.png");
 
 print "Done\n";
 
