@@ -6,6 +6,7 @@
 // ======================================================================
 
 // internal
+#include "ContourValue.h"
 #include "StringTools.h"
 // imagine
 #include "NFmiColorTools.h"
@@ -307,30 +308,6 @@ NFmiPath MetArrow(float theSpeed)
   return path;
 
 }
-
-// ----------------------------------------------------------------------
-// Yksittäisen contour-arvon säilytysluokka
-// ----------------------------------------------------------------------
-
-class ContourValue
-{
-public:
-  
-  ContourValue(float value, int color, string rule="Atop")
-    : itsValue(value)
-    , itsColor(color)
-    , itsRule(rule)
-  {}
-  
-  float Value(void) const { return itsValue; }
-  int Color(void) const { return itsColor; }
-  const string & Rule(void) const { return itsRule; }
-private:
-  ContourValue(void);
-  float itsValue;
-  int itsColor;
-  string itsRule;
-};
 
 // ----------------------------------------------------------------------
 // Yksittäisen contour-intervallin säilytysluokka
@@ -1730,7 +1707,7 @@ int main(int argc, const char *argv[])
 					  
 					  for(liter=lbegin ; liter!=lend; ++liter)
 						{
-						  float thevalue = liter->Value();
+						  float thevalue = liter->value();
 						  
 						  if(thevalue==kFloatMissing)
 							continue;
@@ -1738,7 +1715,7 @@ int main(int argc, const char *argv[])
 						  NFmiPath path;
 						  path.MoveTo(0,height*(1-(thevalue-lolimit)/(hilimit-lolimit)));
 						  path.LineTo(width,height*(1-(thevalue-lolimit)/(hilimit-lolimit)));
-						  path.Stroke(legend,liter->Color());
+						  path.Stroke(legend,liter->color());
 						}
 					  
 					  legend.WritePng(legendname+".png");
@@ -2734,25 +2711,25 @@ int main(int argc, const char *argv[])
 							  
 							  if(valmin!=kFloatMissing && valmax!=kFloatMissing)
 								{
-								  if(liter->Value()!=kFloatMissing &&
-									 valmax<liter->Value())
+								  if(liter->value()!=kFloatMissing &&
+									 valmax<liter->value())
 									continue;
-								  if(liter->Value()!=kFloatMissing &&
-									 valmin>liter->Value())
+								  if(liter->value()!=kFloatMissing &&
+									 valmin>liter->value())
 									continue;
 								}
 							  
-							  NFmiContourTree tree(liter->Value(),kFloatMissing);
+							  NFmiContourTree tree(liter->value(),kFloatMissing);
 							  if(piter->DataLoLimit()!=kFloatMissing)
 								tree.DataLoLimit(piter->DataLoLimit());
 							  if(piter->DataHiLimit()!=kFloatMissing)
 								tree.DataHiLimit(piter->DataHiLimit());
 							  
-							  NFmiColorTools::NFmiBlendRule rule = NFmiColorTools::BlendValue(liter->Rule());
+							  NFmiColorTools::NFmiBlendRule rule = NFmiColorTools::BlendValue(liter->rule());
 							  tree.Contour(pts[qi],vals,interp,piter->ContourDepth());
 							  NFmiPath path = tree.Path();
 							  path.SimplifyLines(10);
-							  path.Stroke(theImage,liter->Color(),rule);
+							  path.Stroke(theImage,liter->color(),rule);
 							  
 							  // cout << path << endl;
 							  // cout << "Value = " << liter->LoLimit() << endl;
