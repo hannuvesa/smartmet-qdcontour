@@ -1396,8 +1396,6 @@ clear contours
 
 \code
 contourdepth [depth]
-legenderase [color]
-draw legend [name] [lo] [hi] [width] [height]
 draw imagemap [fieldname] [filename]
 labelfile [filename]
 hilimit [value]

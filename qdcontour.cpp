@@ -567,7 +567,6 @@ int domain(int argc, const char *argv[])
   bool   theSaveAlphaFlag = true;
   bool   theWantPaletteFlag = false;
   bool   theForcePaletteFlag = false;
-  string theLegendErase = "white";
   string theBackground	= "";
   string theForeground	= "";
   string theMask = "";
@@ -657,12 +656,6 @@ int domain(int argc, const char *argv[])
 		  else if(command == "timestampimagexy")	do_timestampimagexy(input);
 		  else if(command == "projection")			do_projection(input);
 		  else if(command == "erase")				do_erase(input);
-
-		  else if(command == "legenderase")
-			{
-			  input >> theLegendErase;
-			  ColorTools::checkcolor(theLegendErase);
-			}
 
 		  else if(command == "fillrule")
 			{
@@ -1211,79 +1204,10 @@ int domain(int argc, const char *argv[])
 			  input >> command;
 
 			  // --------------------------------------------------
-			  // Draw legend
-			  // --------------------------------------------------
-
-			  if(command == "legend")
-				{
-				  string legendname;
-				  int width, height;
-				  float lolimit, hilimit;
-				  input >> legendname >> lolimit >> hilimit >> width >> height;
-
-				  if(!theSpecs.empty())
-					{
-					  NFmiImage legend(width,height);
-
-					  NFmiColorTools::Color color = ColorTools::checkcolor(theLegendErase);
-					  legend.Erase(color);
-
-					  list<ContourRange>::const_iterator citer;
-					  list<ContourRange>::const_iterator cbegin;
-					  list<ContourRange>::const_iterator cend;
-
-					  cbegin = theSpecs.back().contourFills().begin();
-					  cend   = theSpecs.back().contourFills().end();
-
-					  for(citer=cbegin ; citer!=cend; ++citer)
-						{
-						  float thelo = citer->lolimit();
-						  float thehi = citer->hilimit();
-						  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(citer->rule());
-
-						  if(thelo==kFloatMissing) thelo=-1e6;
-						  if(thehi==kFloatMissing) thehi= 1e6;
-
-						  NFmiPath path;
-						  path.MoveTo(0,height*(1-(thelo-lolimit)/(hilimit-lolimit)));
-						  path.LineTo(width,height*(1-(thelo-lolimit)/(hilimit-lolimit)));
-						  path.LineTo(width,height*(1-(thehi-lolimit)/(hilimit-lolimit)));
-						  path.LineTo(0,height*(1-(thehi-lolimit)/(hilimit-lolimit)));
-						  path.CloseLineTo();
-
-						  path.Fill(legend,citer->color(),rule);
-						}
-
-					  list<ContourValue>::const_iterator liter;
-					  list<ContourValue>::const_iterator lbegin;
-					  list<ContourValue>::const_iterator lend;
-
-					  lbegin = theSpecs.back().contourValues().begin();
-					  lend   = theSpecs.back().contourValues().end();
-
-					  for(liter=lbegin ; liter!=lend; ++liter)
-						{
-						  float thevalue = liter->value();
-
-						  if(thevalue==kFloatMissing)
-							continue;
-
-						  NFmiPath path;
-						  path.MoveTo(0,height*(1-(thevalue-lolimit)/(hilimit-lolimit)));
-						  path.LineTo(width,height*(1-(thevalue-lolimit)/(hilimit-lolimit)));
-						  path.Stroke(legend,liter->color());
-						}
-
-					  legend.WritePng(legendname+".png");
-					}
-
-				}
-
-			  // --------------------------------------------------
 			  // Render shapes
 			  // --------------------------------------------------
 
-			  else if(command == "shapes")
+			  if(command == "shapes")
 				{
 				  // The output filename
 
