@@ -836,7 +836,7 @@ int domain(int argc, const char *argv[])
 				  float tmplo=lo+i*step;
 				  int color = color1;	// in case steps=1
 				  if(steps!=0)
-					color = NFmiColorTools::Interpolate(color1,color2,i/steps);
+					color = NFmiColorTools::Interpolate(color1,color2,i/static_cast<float>(steps));
 				  if(!theSpecs.empty())
 					theSpecs.back().add(ContourValue(tmplo,color,theStrokeRule));
 				}
