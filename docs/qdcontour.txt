@@ -685,6 +685,16 @@ The first command may be replaced with an <em>erase [color]</em> command,
 provided a foreground is given. Alternatively the foreground may be
 omitted, provided the background is given.
 
+<b>
+Normally qdcontour will abort rendering the contours if the querydata
+being contoured was given as a directory, and the directory has been
+updated after the querydata was initially read in.
+</b>
+The assumption is that a new qdcontour routine has been triggered
+by the querydata update, and it will replace the images being
+rendered with newer ones. This can be prevented by using the
+<code>-f</code> command line option.
+
 The <em>clear contours</em> command is optional, and should only
 be applied at the end of a file, or when the contour specifications
 documented in the earlier sections really change. Note especially
