@@ -1375,14 +1375,6 @@ int main(int argc, const char *argv[])
 					color = NFmiColorTools::Interpolate(color1,color2,i/steps);
 				  if(!theSpecs.empty())
 					theSpecs.back().Add(ContourValue(tmplo,color,theStrokeRule));
-				  // if(verbose)
-				  // cout << "Value " << tmplo
-				  // << " colour is "
-				  // << NFmiColorTools::GetRed(color) << ","
-				  // << NFmiColorTools::GetGreen(color) << ","
-				  // << NFmiColorTools::GetBlue(color) << ","
-				  // << NFmiColorTools::GetAlpha(color)
-				  // << endl;
 				}
 			}
 	      
@@ -2432,10 +2424,6 @@ int main(int argc, const char *argv[])
 						  
 						  vals = smoother.Smoothen(worldpts[qi],vals);
 						  
-						  // ofstream out("values.dat");
-						  // out << vals;
-						  // out.close();
-						  
 						  // Find the minimum and maximum
 						  
 						  float valmin = kFloatMissing;
@@ -2558,17 +2546,6 @@ int main(int argc, const char *argv[])
 							  tree.Contour(pts[qi],vals,interp,piter->ContourDepth());
 							  tree.Fill(theImage,citer->color(),rule);
 							  
-							  // NFmiPath path = tree.Path();
-							  // path.Fill(theImage,citer->Color(),rule);
-							  // cout << "<path style=\"fill=rgb("
-							  // << NFmiColorTools::GetRed(citer->Color()) << ","
-							  // << NFmiColorTools::GetGreen(citer->Color()) << ","
-							  // << NFmiColorTools::GetBlue(citer->Color())
-							  // << ")\" d=\""
-							  // << path.SVG()
-							  // << "\">"
-							  // << endl;
-							  
 							}
 						  
 						  // Fill the contours with patterns
@@ -2624,17 +2601,6 @@ int main(int argc, const char *argv[])
 							  
 							  tree.Fill(theImage,pattern,rule,patiter->factor());
 							  
-							  // NFmiPath path = tree.Path();
-							  // path.Fill(theImage,citer->Color(),rule);
-							  // cout << "<path style=\"fill=rgb("
-							  // << NFmiColorTools::GetRed(citer->Color()) << ","
-							  // << NFmiColorTools::GetGreen(citer->Color()) << ","
-							  // << NFmiColorTools::GetBlue(citer->Color())
-							  // << ")\" d=\""
-							  // << path.SVG()
-							  // << "\">"
-							  // << endl;
-							  
 							}
 						  
 						  // Stroke the contours
@@ -2672,17 +2638,6 @@ int main(int argc, const char *argv[])
 							  NFmiPath path = tree.Path();
 							  path.SimplifyLines(10);
 							  path.Stroke(theImage,liter->color(),rule);
-							  
-							  // cout << path << endl;
-							  // cout << "Value = " << liter->LoLimit() << endl;
-							  // cout << "<path style=\"fill=rgb("
-							  // << NFmiColorTools::GetRed(citer->Color()) << ","
-							  // << NFmiColorTools::GetGreen(citer->Color()) << ","
-							  // << NFmiColorTools::GetBlue(citer->Color())
-							  // << ")\" d=\""
-							  // << path.SVG()
-							  // << "\">"
-							  // << endl;
 							  
 							  
 							}
