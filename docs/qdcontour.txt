@@ -462,9 +462,9 @@ contourlabelcolor [color]       # default = black
 contourlabelbackground [color]  # default = #20B4B4B4
 contourlabelmargin [dx] [dy]    # default = 2 2
 
-contourlabelmindistancetosamevalue [value]	# default = 100
-contourlabelmindistancetodifferentvalue [value]	# default = 30
-contourlabelmindistancetodifferentparam [value]	# default = 30
+contourlabelmindistsamevalue [value]		# default = 200
+contourlabelmindistdifferentvalue [value]	# default = 30
+contourlabelmindistdifferentparam [value]	# default = 30
 \endcode
 
 \subsection symbol_section Drawing symbols at grid points

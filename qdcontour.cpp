@@ -1641,6 +1641,57 @@ void do_contourlabelimagemargin(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Handle "contourlabelmindistsamevalue" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourlabelmindistsamevalue(istream & theInput)
+{
+  float dist;
+  theInput >> dist;
+
+  check_errors(theInput,"contourlabelmindistsamevalue");
+
+  globals.labellocator.minDistanceToSameValue(dist);
+
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "contourlabelmindistdifferentvalue" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourlabelmindistdifferentvalue(istream & theInput)
+{
+  float dist;
+  theInput >> dist;
+
+  check_errors(theInput,"contourlabelmindistdifferentvalue");
+
+  globals.labellocator.minDistanceToDifferentValue(dist);
+
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "contourlabelmindistdifferentparam" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourlabelmindistdifferentparam(istream & theInput)
+{
+  float dist;
+
+  theInput >> dist;
+
+  check_errors(theInput,"contourlabelmindistdifferentparam");
+
+  globals.labellocator.minDistanceToDifferentParameter(dist);
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \bried Handle "labelmarker" command
  */
 // ----------------------------------------------------------------------
@@ -3663,6 +3714,10 @@ int domain(int argc, const char *argv[])
 		  else if(cmd == "contourlabelbackground")	do_contourlabelbackground(in);
 		  else if(cmd == "contourlabelmargin")		do_contourlabelmargin(in);
 		  else if(cmd == "contourlabelimagemargin")	do_contourlabelimagemargin(in);
+		  else if(cmd == "contourlabelmindistsamevalue") do_contourlabelmindistsamevalue(in);
+		  else if(cmd == "contourlabelmindistdifferentvalue") do_contourlabelmindistdifferentvalue(in);
+		  else if(cmd == "contourlabelmindistdifferentparam") do_contourlabelmindistdifferentparam(in);
+
 
 		  else if(cmd == "labelmarker")				do_labelmarker(in);
 		  else if(cmd == "labelfont")				do_labelfont(in);
