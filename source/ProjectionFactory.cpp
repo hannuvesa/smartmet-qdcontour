@@ -29,16 +29,19 @@ namespace ProjectionFactory
 											double theTrueLatitude,
 											const NFmiPoint & theCenter,
 											float theScale,
-											NFmiPoint & theBottomLeft,
-											NFmiPoint & theTopRight,
+											const NFmiPoint & theBottomLeft,
+											const NFmiPoint & theTopRight,
 											int & theWidth,
 											int & theHeight)
   {
 
-	if(theBottomLeft.X()==kFloatMissing ||
-	   theBottomLeft.Y()==kFloatMissing ||
-	   theTopRight.X()==kFloatMissing ||
-	   theTopRight.Y()==kFloatMissing)
+	NFmiPoint bottomleft = theBottomLeft;
+	NFmiPoint topright = theTopRight;
+
+	if(bottomleft.X()==kFloatMissing ||
+	   bottomleft.Y()==kFloatMissing ||
+	   topright.X()==kFloatMissing ||
+	   topright.Y()==kFloatMissing)
 	  {
 		
 		if(theCenter.X()==kFloatMissing || theCenter.Y()==kFloatMissing)
@@ -59,15 +62,15 @@ namespace ProjectionFactory
 		NFmiPoint bl(c.X()-theScale*1000*theWidth, c.Y()-theScale*1000*theHeight);
 		NFmiPoint tr(c.X()+theScale*1000*theWidth, c.Y()+theScale*1000*theHeight);
 		
-		theBottomLeft = area.WorldXYToLatLon(bl);
-		theTopRight = area.WorldXYToLatLon(tr);
+		bottomleft = area.WorldXYToLatLon(bl);
+		topright = area.WorldXYToLatLon(tr);
 
 	  }		
 
 	// Initialize XY-coordinates
 	
-	NFmiStereographicArea area(theBottomLeft,
-							   theTopRight,
+	NFmiStereographicArea area(bottomleft,
+							   topright,
 							   theCentralLongitude,
 							   NFmiPoint(0,0),
 							   NFmiPoint(1,1),
@@ -76,8 +79,8 @@ namespace ProjectionFactory
 	
 	// Calculate world coordinates
 	
-	NFmiPoint bl = area.LatLonToWorldXY(theBottomLeft);
-	NFmiPoint tr = area.LatLonToWorldXY(theTopRight);
+	NFmiPoint bl = area.LatLonToWorldXY(bottomleft);
+	NFmiPoint tr = area.LatLonToWorldXY(topright);
 	
 	if(theWidth<=0 && theHeight>0)
 	  {
@@ -94,8 +97,8 @@ namespace ProjectionFactory
 	
 	// The actual area we wanted
 	
-	NFmiStereographicArea theArea(theBottomLeft,
-								  theTopRight,
+	NFmiStereographicArea theArea(bottomleft,
+								  topright,
 								  theCentralLongitude,
 								  NFmiPoint(0,0),
 								  NFmiPoint(theWidth,theHeight),

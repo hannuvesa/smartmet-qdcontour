@@ -1108,10 +1108,12 @@ int domain(int argc, const char *argv[])
 						 << theTopRight.Y()
 						 << endl;
 
+				  int imgwidth = static_cast<int>(theArea.Width()+0.5);
+				  int imgheight = static_cast<int>(theArea.Height()+0.5);
 				  
 				  // Initialize the background
 				  
-				  NFmiImage theImage(theWidth,theHeight);
+				  NFmiImage theImage(imgwidth, imgheight);
 				  theImage.SaveAlpha(theSaveAlphaFlag);
 				  theImage.WantPalette(theWantPaletteFlag);
 				  theImage.ForcePalette(theForcePaletteFlag);
@@ -1476,8 +1478,11 @@ int domain(int argc, const char *argv[])
 						}
 
 					  // Initialize the background
+
+					  int imgwidth = static_cast<int>(theArea.Width()+0.5);
+					  int imgheight = static_cast<int>(theArea.Height()+0.5);
 					  
-					  NFmiImage theImage(theWidth,theHeight);
+					  NFmiImage theImage(imgwidth,imgheight);
 					  theImage.SaveAlpha(theSaveAlphaFlag);
 					  theImage.WantPalette(theWantPaletteFlag);
 					  theImage.ForcePalette(theForcePaletteFlag);

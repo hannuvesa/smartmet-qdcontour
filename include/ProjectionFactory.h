@@ -25,8 +25,8 @@ namespace ProjectionFactory
 											double theTrueLatitude,
 											const NFmiPoint & theCenter,
 											float theScale,
-											NFmiPoint & theBottomLeft,
-											NFmiPoint & theTopRight,
+											const NFmiPoint & theBottomLeft,
+											const NFmiPoint & theTopRight,
 											int & theWidth,
 											int & theHeight);
 
