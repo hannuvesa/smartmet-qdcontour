@@ -60,8 +60,14 @@ static Globals globals;
 
 void Usage(void)
 {
-  cout << "Usage: qdcontour [conffiles]" << endl << endl;
-  cout << "Commands in configuration files:" << endl << endl;
+  cout << "Usage: qdcontour [options] [conffiles]" << endl
+	   << endl
+	   << "Available options:" << endl
+	   << "   -h\tDisplay this help information" << endl
+	   << "   -v\tVerbose mode" << endl
+	   << "   -f\tForce overwriting old images" << endl
+	   << "   -q [querydata]\tSpecify querydata to be rendered" << endl
+	   << endl;
 }
 
 // ----------------------------------------------------------------------
@@ -113,16 +119,21 @@ bool IsMasked(const NFmiPoint & thePoint,
 void parse_command_line(int argc, const char * argv[])
 {
 
-  NFmiCmdLine cmdline(argc,argv,"vfq!");
-  
-  if(cmdline.NumberofParameters() == 0)
-	throw runtime_error("Atleast one command line parameter is required");
+  NFmiCmdLine cmdline(argc,argv,"hvfq!");
   
   // Check for parsing errors
   
   if(cmdline.Status().IsError())
 	throw runtime_error(cmdline.Status().ErrorLog().CharPtr());
   
+  // Handle -h option
+
+  if(cmdline.isOption('h'))
+	{
+	  Usage();
+	  exit(0);
+	}
+
   // Read -v option
   
   if(cmdline.isOption('v'))
@@ -135,8 +146,11 @@ void parse_command_line(int argc, const char * argv[])
   
   if(cmdline.isOption('q'))
 	globals.cmdline_querydata = cmdline.OptionValue('q');
-  
+
   // Read command filenames
+
+  if(cmdline.NumberofParameters() == 0)
+	throw runtime_error("Atleast one command line parameter is required");
   
   for(int i=1; i<=cmdline.NumberofParameters(); i++)
 	globals.cmdline_files.push_back(cmdline.Parameter(i));
