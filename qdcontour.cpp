@@ -291,6 +291,21 @@ void do_querydata(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "querydatalevel" command
+ */
+// ----------------------------------------------------------------------
+
+void do_querydatalevel(istream & theInput)
+{
+  theInput >> globals.querydatalevel;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'querydatalevel' command failed");
+
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -399,10 +414,6 @@ int domain(int argc, const char *argv[])
   NFmiImage theMaskImage;
   NFmiImage theCombineImage;
 
-  // This holds a vector of querydatastreams
-
-  int theQueryDataLevel = 1;
-
 
   // Process all command files
   // ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -436,7 +447,7 @@ int domain(int argc, const char *argv[])
 			do_querydata(input);
 
 		  else if(command == "querydatalevel")
-			input >> theQueryDataLevel;
+			do_querydatalevel(input);
 
 		  else if(command == "filter")
 			input >> theFilter;
@@ -1307,9 +1318,9 @@ int domain(int argc, const char *argv[])
 
 					  globals.queryinfo = globals.querystreams[qi];
 					  globals.queryinfo->FirstLevel();
-					  if(theQueryDataLevel>0)
+					  if(globals.querydatalevel>0)
 						{
-						  int level = theQueryDataLevel;
+						  int level = globals.querydatalevel;
 						  while(--level > 0)
 							globals.queryinfo->NextLevel();
 						}

@@ -38,11 +38,13 @@ struct Globals
   std::string queryfilelist;		// querydata files in use
   std::vector<std::string> queryfilenames;	// querydata files in use
 
+  LazyQueryData * queryinfo;		// active data, does not own pointer
+  int querydatalevel;				// level index
+
   // Active storage
 
   ContourCalculator calculator;		// data contourer
   std::vector<LazyQueryData *> querystreams;
-  LazyQueryData * queryinfo;		// active data, does not own pointer
 
 };
 

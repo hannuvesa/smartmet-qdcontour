@@ -30,9 +30,10 @@ Globals::Globals()
   , mapspath(Optional<string>("qdcontour::maps_path","."))
   , queryfilelist()
   , queryfilenames()
+  , queryinfo(0)
+  , querydatalevel(1)
   , calculator()
   , querystreams()
-  , queryinfo(0)
 {
 }
 
