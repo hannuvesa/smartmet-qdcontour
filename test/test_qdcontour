@@ -110,6 +110,12 @@ DoTest("labels at gridpoints",
        "labels_grid.conf",
        "labels_grid_200210140900_140900.png");
 
+# Labels must be on top of arrows
+
+DoTest("labels on top of arrows",
+       "labels_and_arrows.conf",
+       "labels_and_arrows_200210140900_140900.png");
+
 print "Done\n";
 
 # ----------------------------------------------------------------------

@@ -2580,6 +2580,154 @@ int main(int argc, const char *argv[])
 						  theImage.Composite(theForegroundImage,rule,kFmiAlignNorthWest,0,0,1);
 						  
 						}
+
+					  // Draw wind arrows if so requested
+					  
+					  NFmiEnumConverter converter;
+					  if(converter.ToString(theQueryInfo->Param().GetParamIdent()) == theDirectionParameter &&
+						 (!theArrowPoints.empty() || (theWindArrowDX!=0 && theWindArrowDY!=0)) &&
+						 (theArrowFile!=""))
+						{
+						  // Read the arrow definition
+						  
+						  ifstream arrow(theArrowFile.c_str());
+						  if(!arrow)
+							{
+							  cerr << "Error: Could not open " << theArrowFile << endl;
+							  exit(1);
+							}
+						  // Read in the entire file
+						  
+						  string pathstring;
+						  StringReader(arrow,pathstring);
+						  arrow.close();
+						  
+						  // Convert to a path
+						  
+						  NFmiPath arrowpath;
+						  arrowpath.Add(pathstring);
+						  
+						  // Handle all given coordinates
+						  
+						  list<NFmiPoint>::const_iterator iter;
+						  
+						  for(iter=theArrowPoints.begin();
+							  iter!=theArrowPoints.end();
+							  ++iter)
+							{
+							  float dir = theQueryInfo->InterpolatedValue(*iter);
+							  if(dir==kFloatMissing)	// ignore missing
+								continue;
+							  
+							  float speed = -1;
+							  
+							  if(theQueryInfo->Param(FmiParameterName(converter.ToEnum(theSpeedParameter))))
+								speed = theQueryInfo->InterpolatedValue(*iter);
+							  theQueryInfo->Param(FmiParameterName(converter.ToEnum(theDirectionParameter)));
+							  
+							  // The start point
+							  
+							  NFmiPoint xy0 = theArea.ToXY(*iter);
+							  
+							  // Direction calculations
+							  
+							  const float pi = 3.141592658979323;
+							  const float length = 0.1;	// degrees
+							  
+							  float x1 = iter->X()+sin(dir*pi/180)*length;
+							  float y1 = iter->Y()+cos(dir*pi/180)*length;
+							  
+							  NFmiPoint xy1 = theArea.ToXY(NFmiPoint(x1,y1));
+							  
+							  // Calculate the actual angle
+							  
+							  float alpha = atan2(xy1.X()-xy0.X(),
+												  xy1.Y()-xy0.Y());
+							  
+							  // Create a new path
+							  
+							  NFmiPath thispath;
+							  thispath.Add(arrowpath);
+							  if(speed>0 && speed!=kFloatMissing)
+								thispath.Scale(theWindArrowScaleA*log10(theWindArrowScaleB*speed+1)+theWindArrowScaleC);
+							  thispath.Scale(theArrowScale);
+							  thispath.Rotate(alpha*180/pi);
+							  thispath.Translate(xy0.X(),xy0.Y());
+							  
+							  // And render it
+							  
+							  thispath.Fill(theImage,
+											ToColor(theArrowFillColor),
+											NFmiColorTools::BlendValue(theArrowFillRule));
+							  thispath.Stroke(theImage,
+											  ToColor(theArrowStrokeColor),
+											  NFmiColorTools::BlendValue(theArrowStrokeRule));
+							}
+						  
+						  // Draw the full grid if so desired
+						  
+						  if(theWindArrowDX!=0 && theWindArrowDY!=0)
+							{
+							  NFmiDataMatrix<NFmiPoint> latlons;
+							  theQueryInfo->Locations(latlons);
+
+							  NFmiDataMatrix<float> speedvalues(vals.NX(),vals.NY(),-1);
+							  if(theQueryInfo->Param(FmiParameterName(converter.ToEnum(theSpeedParameter))))
+								theQueryInfo->Values(speedvalues);
+							  theQueryInfo->Param(FmiParameterName(converter.ToEnum(theDirectionParameter)));
+							  
+							  for(unsigned int j=0; j<pts[qi].NY(); j+=theWindArrowDY)
+								for(unsigned int i=0; i<pts[qi].NX(); i+=theWindArrowDX)
+								  {
+									float dir = vals[i][j];
+									if(dir==kFloatMissing)	// ignore missing
+									  continue;
+									
+									float speed = speedvalues[i][j];
+
+									// The start point
+									
+									NFmiPoint xy0 = theArea.ToXY(latlons[i][j]);
+									
+									// Direction calculations
+									
+									const float pi = 3.141592658979323;
+									const float length = 0.1;	// degrees
+									
+									float x0 = latlons[i][j].X();
+									float y0 = latlons[i][j].Y();
+									
+									float x1 = x0+sin(dir*pi/180)*length;
+									float y1 = y0+cos(dir*pi/180)*length;
+									
+									NFmiPoint xy1 = theArea.ToXY(NFmiPoint(x1,y1));
+									
+									// Calculate the actual angle
+									
+									float alpha = atan2(xy1.X()-xy0.X(),
+														xy1.Y()-xy0.Y());
+									
+									// Create a new path
+									
+									NFmiPath thispath;
+									thispath.Add(arrowpath);
+									if(speed>0 && speed != kFloatMissing)
+									  thispath.Scale(theWindArrowScaleA*log10(theWindArrowScaleB*speed+1)+theWindArrowScaleC);
+									thispath.Scale(theArrowScale);
+									thispath.Rotate(alpha*180/pi);
+									thispath.Translate(xy0.X(),xy0.Y());
+									
+									// And render it
+									
+									thispath.Fill(theImage,
+												  ToColor(theArrowFillColor),
+												  NFmiColorTools::BlendValue(theArrowFillRule));
+									thispath.Stroke(theImage,
+													ToColor(theArrowStrokeColor),
+													NFmiColorTools::BlendValue(theArrowStrokeRule));
+								  }
+							}
+						}
 					  
 					  // Draw labels
 					  
@@ -2781,155 +2929,8 @@ int main(int argc, const char *argv[])
 							}
 							  
 						}
+		  
 					  
-					  
-					  // Draw wind arrows if so requested
-					  
-					  NFmiEnumConverter converter;
-					  if(converter.ToString(theQueryInfo->Param().GetParamIdent()) == theDirectionParameter &&
-						 (!theArrowPoints.empty() || (theWindArrowDX!=0 && theWindArrowDY!=0)) &&
-						 (theArrowFile!=""))
-						{
-						  // Read the arrow definition
-						  
-						  ifstream arrow(theArrowFile.c_str());
-						  if(!arrow)
-							{
-							  cerr << "Error: Could not open " << theArrowFile << endl;
-							  exit(1);
-							}
-						  // Read in the entire file
-						  
-						  string pathstring;
-						  StringReader(arrow,pathstring);
-						  arrow.close();
-						  
-						  // Convert to a path
-						  
-						  NFmiPath arrowpath;
-						  arrowpath.Add(pathstring);
-						  
-						  // Handle all given coordinates
-						  
-						  list<NFmiPoint>::const_iterator iter;
-						  
-						  for(iter=theArrowPoints.begin();
-							  iter!=theArrowPoints.end();
-							  ++iter)
-							{
-							  float dir = theQueryInfo->InterpolatedValue(*iter);
-							  if(dir==kFloatMissing)	// ignore missing
-								continue;
-							  
-							  float speed = -1;
-							  
-							  if(theQueryInfo->Param(FmiParameterName(converter.ToEnum(theSpeedParameter))))
-								speed = theQueryInfo->InterpolatedValue(*iter);
-							  theQueryInfo->Param(FmiParameterName(converter.ToEnum(theDirectionParameter)));
-							  
-							  // The start point
-							  
-							  NFmiPoint xy0 = theArea.ToXY(*iter);
-							  
-							  // Direction calculations
-							  
-							  const float pi = 3.141592658979323;
-							  const float length = 0.1;	// degrees
-							  
-							  float x1 = iter->X()+sin(dir*pi/180)*length;
-							  float y1 = iter->Y()+cos(dir*pi/180)*length;
-							  
-							  NFmiPoint xy1 = theArea.ToXY(NFmiPoint(x1,y1));
-							  
-							  // Calculate the actual angle
-							  
-							  float alpha = atan2(xy1.X()-xy0.X(),
-												  xy1.Y()-xy0.Y());
-							  
-							  // Create a new path
-							  
-							  NFmiPath thispath;
-							  thispath.Add(arrowpath);
-							  if(speed>0 && speed!=kFloatMissing)
-								thispath.Scale(theWindArrowScaleA*log10(theWindArrowScaleB*speed+1)+theWindArrowScaleC);
-							  thispath.Scale(theArrowScale);
-							  thispath.Rotate(alpha*180/pi);
-							  thispath.Translate(xy0.X(),xy0.Y());
-							  
-							  // And render it
-							  
-							  thispath.Fill(theImage,
-											ToColor(theArrowFillColor),
-											NFmiColorTools::BlendValue(theArrowFillRule));
-							  thispath.Stroke(theImage,
-											  ToColor(theArrowStrokeColor),
-											  NFmiColorTools::BlendValue(theArrowStrokeRule));
-							}
-						  
-						  // Draw the full grid if so desired
-						  
-						  if(theWindArrowDX!=0 && theWindArrowDY!=0)
-							{
-							  NFmiDataMatrix<NFmiPoint> latlons;
-							  theQueryInfo->Locations(latlons);
-
-							  NFmiDataMatrix<float> speedvalues(vals.NX(),vals.NY(),-1);
-							  if(theQueryInfo->Param(FmiParameterName(converter.ToEnum(theSpeedParameter))))
-								theQueryInfo->Values(speedvalues);
-							  theQueryInfo->Param(FmiParameterName(converter.ToEnum(theDirectionParameter)));
-							  
-							  for(unsigned int j=0; j<pts[qi].NY(); j+=theWindArrowDY)
-								for(unsigned int i=0; i<pts[qi].NX(); i+=theWindArrowDX)
-								  {
-									float dir = vals[i][j];
-									if(dir==kFloatMissing)	// ignore missing
-									  continue;
-									
-									float speed = speedvalues[i][j];
-
-									// The start point
-									
-									NFmiPoint xy0 = theArea.ToXY(latlons[i][j]);
-									
-									// Direction calculations
-									
-									const float pi = 3.141592658979323;
-									const float length = 0.1;	// degrees
-									
-									float x0 = latlons[i][j].X();
-									float y0 = latlons[i][j].Y();
-									
-									float x1 = x0+sin(dir*pi/180)*length;
-									float y1 = y0+cos(dir*pi/180)*length;
-									
-									NFmiPoint xy1 = theArea.ToXY(NFmiPoint(x1,y1));
-									
-									// Calculate the actual angle
-									
-									float alpha = atan2(xy1.X()-xy0.X(),
-														xy1.Y()-xy0.Y());
-									
-									// Create a new path
-									
-									NFmiPath thispath;
-									thispath.Add(arrowpath);
-									if(speed>0 && speed != kFloatMissing)
-									  thispath.Scale(theWindArrowScaleA*log10(theWindArrowScaleB*speed+1)+theWindArrowScaleC);
-									thispath.Scale(theArrowScale);
-									thispath.Rotate(alpha*180/pi);
-									thispath.Translate(xy0.X(),xy0.Y());
-									
-									// And render it
-									
-									thispath.Fill(theImage,
-												  ToColor(theArrowFillColor),
-												  NFmiColorTools::BlendValue(theArrowFillRule));
-									thispath.Stroke(theImage,
-													ToColor(theArrowStrokeColor),
-													NFmiColorTools::BlendValue(theArrowStrokeRule));
-								  }
-							}
-						}
 					  
 					  // Bang the combine image (legend, logo, whatever)
 					  
