@@ -4,6 +4,12 @@ $program = "../qdcontour";
 
 %usednames = ();
 
+# Timestamping
+
+DoTest("timestampimage",
+       "timestampimage.conf",
+       "timestampimage_200210140600_200210140937.png");
+
 # Shape filling
 
 DoTest("shape filling",
