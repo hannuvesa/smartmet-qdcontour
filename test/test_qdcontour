@@ -4,8 +4,8 @@ $program = "../qdcontour";
 
 %usednames = ();
 
-DoTest("a trivial contour",
-       "t2m.conf",
+DoTest("trivial contour",
+       "trivial.conf",
        "200210140900_140900.png");
 
 print "Done\n";
