@@ -51,7 +51,6 @@ Käskyt:
 	fillrule <rulename>
 	strokerule <rulename>
 
-
 	contourdepth <int>	
 	contourinterpolation <Nearest|Linear>
 	smoother <None|Neighbourhood|PseudoGaussian>
@@ -72,6 +71,9 @@ Käskyt:
 
 	erase <color>
 	background <filename>
+	foreground <filename>
+	combine <imagefile> <x> <y> <rulename> <alphafactor>
+	combine none
 
 	savepath <path>
 	prefix <string>

@@ -633,6 +633,12 @@ int main(int argc, char *argv[])
   string theStrokeRule	= "Atop";
   
   string theForegroundRule = "Over";
+
+  string theCombine = "";
+  int theCombineX;
+  int theCombineY;
+  string theCombineRule = "Over";
+  float theCombineFactor = 1.0;
   
   string theFilter = "none";
   
@@ -663,6 +669,7 @@ int main(int argc, char *argv[])
   
   NFmiImage theBackgroundImage;
   NFmiImage theForegroundImage;
+  NFmiImage theCombineImage;
   
   // This holds a vector of querydatastreams
   
@@ -989,6 +996,24 @@ int main(int argc, char *argv[])
 				theForeground = "";
 			}
 		  
+		  else if(command == "combine")
+			{
+			  input >> theCombine;
+			  if(theCombine != "none")
+				{
+				  input >> theCombineX >> theCombineY;
+				  input >> theCombineRule >> theCombineFactor;
+				  if(NFmiColorTools::BlendValue(theCombineRule)==NFmiColorTools::kFmiColorRuleMissing)
+					{
+					  cerr << "Error: Unknown blending rule " << theCombineRule << endl;
+					  exit(1);
+					}
+				  theCombineImage.Read(theCombine);
+				}
+			  else
+				theCombine = "";
+			}
+
 		  else if(command == "foregroundrule")
 			{
 			  input >> theForegroundRule;
@@ -2882,6 +2907,16 @@ int main(int argc, char *argv[])
 							}
 						}
 					  
+					  // Bang the combine image (legend, logo, whatever)
+					  
+					  if(theCombine != "")
+						{
+						  NFmiColorTools::NFmiBlendRule rule = NFmiColorTools::BlendValue(theCombineRule);
+						  
+						  theImage.Composite(theCombineImage,rule,kFmiAlignNorthWest,theCombineX,theCombineY,theCombineFactor);
+						  
+						}
+
 					  // Finally, draw a time stamp on the image if so
 					  // requested
 					  
