@@ -38,6 +38,11 @@ public:
   ~LazyQueryData();
   LazyQueryData();
 
+  const std::string & Filename() const { return itsDataFile; }
+
+  std::string GetParamName() const;
+  unsigned long GetParamIdent() const;
+
   // These do not require the data values
 
   void Read(const std::string & theDataFile);

@@ -69,6 +69,34 @@ void LazyQueryData::requireData()
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Return the parameter name
+ *
+ * \return The parameter name
+ */
+// ----------------------------------------------------------------------
+
+std::string LazyQueryData::GetParamName() const
+{
+  requireInfo();
+  return (itsInfo->Param().GetParamName().CharPtr());
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return the parameter ID number
+ *
+ * \return The number
+ */
+// ----------------------------------------------------------------------
+
+unsigned long LazyQueryData::GetParamIdent() const
+{
+  requireInfo();
+  return (itsInfo->Param().GetParamIdent());
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Lazy-read the given query data file
  *
  * Throws if an error occurs.
