@@ -2984,6 +2984,7 @@ int main(int argc, const char *argv[])
 							  
 							  if(!piter->LabelPoints().empty())
 								{
+								  unsigned int pointnumber = 0;
 								  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
 								  for(iter=piter->LabelPoints().begin();
 									  iter!=piter->LabelPoints().end();
@@ -2997,6 +2998,14 @@ int main(int argc, const char *argv[])
 									  
 									  if(IsMasked(xy,theMask,theMaskImage))
 										continue;
+
+                                      // Skip rendering if LabelMissing is "" and value is missing
+                                      if(piter->LabelMissing().empty())
+                                        {
+                                          float value = piter->LabelValues()[pointnumber++];
+                                          if(value == kFloatMissing)
+                                            continue;
+                                        }
 									  
 									  theImage.Composite(marker,
 														 markerrule,
