@@ -2656,108 +2656,113 @@ int main(int argc, const char *argv[])
 							 !(piter->LabelDX()!=0 && piter->LabelDY()!=0))
 							continue;
 						  
+						  if(piter->LabelFormat() == "")
+							continue;
+
 						  // Draw markers if so requested
+						  
+						  
+						  // Create the font object to be used
+						  
+						  NFmiFontHershey font(piter->LabelFont());
+							  
+						  // Create the text object to be used
+						  
+						  NFmiText text("",
+										font,
+										piter->LabelSize(),
+										0.0,	// x
+										0.0,	// y
+										AlignmentValue(piter->LabelAlignment()),
+										piter->LabelAngle());
+						  
+						  
+						  NFmiText caption(piter->LabelCaption(),
+										   font,
+										   piter->LabelSize(),
+										   0.0,
+										   0.0,
+										   AlignmentValue(piter->LabelCaptionAlignment()),
+										   piter->LabelAngle());
+						  
+						  // The rules
+						  
+						  NFmiColorTools::NFmiBlendRule fillrule
+							= NFmiColorTools::BlendValue(piter->LabelFillRule());
+						  
+						  NFmiColorTools::NFmiBlendRule strokerule
+							= NFmiColorTools::BlendValue(piter->LabelStrokeRule());
 						  
 						  // Draw labels at specifing latlon points if requested
 						  
-						  if( (piter->LabelFormat() != "") && !piter->LabelPoints().empty())
+						  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
+						  
+						  int pointnumber = 0;
+						  for(iter=piter->LabelPoints().begin();
+							  iter!=piter->LabelPoints().end();
+							  ++iter)
 							{
+							  float value = piter->LabelValues()[pointnumber++];
 							  
-							  // Create the font object to be used
+							  // Convert value to string
 							  
-							  NFmiFontHershey font(piter->LabelFont());
+							  string strvalue("-");
 							  
-							  // Create the text object to be used
-							  
-							  NFmiText text("",
-											font,
-											piter->LabelSize(),
-											0.0,	// x
-											0.0,	// y
-											AlignmentValue(piter->LabelAlignment()),
-											piter->LabelAngle());
-							  
-							  
-							  NFmiText caption(piter->LabelCaption(),
-											   font,
-											   piter->LabelSize(),
-											   0.0,
-											   0.0,
-											   AlignmentValue(piter->LabelCaptionAlignment()),
-											   piter->LabelAngle());
-							  
-							  // The rules
-							  
-							  NFmiColorTools::NFmiBlendRule fillrule
-								= NFmiColorTools::BlendValue(piter->LabelFillRule());
-							  
-							  NFmiColorTools::NFmiBlendRule strokerule
-								= NFmiColorTools::BlendValue(piter->LabelStrokeRule());
-							  
-							  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
-							  
-							  int pointnumber = 0;
-							  for(iter=piter->LabelPoints().begin();
-								  iter!=piter->LabelPoints().end();
-								  ++iter)
+							  if(value!=kFloatMissing)
 								{
-								  float value = piter->LabelValues()[pointnumber++];
-								  
-								  // Convert value to string
-								  
-								  string strvalue("-");
-								  
-								  if(value!=kFloatMissing)
-									{
-									  char tmp[20];
-									  sprintf(tmp,piter->LabelFormat().c_str(),value);
-									  strvalue = tmp;
-									}
-								  
-								  // The point in question
-								  
-								  float x,y;
-								  if(iter->second.X() == kFloatMissing)
-									{
-									  NFmiPoint xy = theArea.ToXY(iter->first);
-									  x = xy.X();
-									  y = xy.Y();
-									}
-								  else
-									{
-									  x = iter->second.X();
-									  y = iter->second.Y();
-									}
-								  
-								  // Set new text properties
-								  
-								  text.Text(strvalue);
-								  text.X(x + piter->LabelOffsetX());
-								  text.Y(y + piter->LabelOffsetY());
-								  
-								  // And render the text
-								  
-								  text.Fill(theImage,piter->LabelFillColor(),fillrule);
-								  text.Stroke(theImage,piter->LabelStrokeColor(),strokerule);
-								  
-								  // Then the label caption
-								  
-								  if(!piter->LabelCaption().empty())
-									{
-									  caption.X(text.X() + piter->LabelCaptionDX());
-									  caption.Y(text.Y() + piter->LabelCaptionDY());
-									  caption.Fill(theImage,piter->LabelFillColor(),fillrule);
-									  caption.Stroke(theImage,piter->LabelStrokeColor(),strokerule);
-									}
-								  
+								  char tmp[20];
+								  sprintf(tmp,piter->LabelFormat().c_str(),value);
+								  strvalue = tmp;
 								}
 							  
-							  // Grid would be labeled here, but it's not implemented
-							  // yet. I have to decide whether to smoothen as in
-							  // contouring or whether to use the original data value
-							  // at the grid point.
+							  // The point in question
+							  
+							  float x,y;
+							  if(iter->second.X() == kFloatMissing)
+								{
+								  NFmiPoint xy = theArea.ToXY(iter->first);
+								  x = xy.X();
+								  y = xy.Y();
+								}
+							  else
+								{
+								  x = iter->second.X();
+								  y = iter->second.Y();
+								}
+							  
+							  // Set new text properties
+							  
+							  text.Text(strvalue);
+							  text.X(x + piter->LabelOffsetX());
+							  text.Y(y + piter->LabelOffsetY());
+							  
+							  // And render the text
+							  
+							  text.Fill(theImage,piter->LabelFillColor(),fillrule);
+							  text.Stroke(theImage,piter->LabelStrokeColor(),strokerule);
+							  
+							  // Then the label caption
+							  
+							  if(!piter->LabelCaption().empty())
+								{
+								  caption.X(text.X() + piter->LabelCaptionDX());
+								  caption.Y(text.Y() + piter->LabelCaptionDY());
+								  caption.Fill(theImage,piter->LabelFillColor(),fillrule);
+								  caption.Stroke(theImage,piter->LabelStrokeColor(),strokerule);
+								}
 							  
 							}
+							  
+						  // Grid would be labeled here, but it's not implemented
+						  // yet. I have to decide whether to smoothen as in
+						  // contouring or whether to use the original data value
+						  // at the grid point.
+							  
+						  if(piter->LabelDX() != 0 && piter->LabelDY() != 0)
+							{
+							}
+
+
 						}
 					  
 					  
