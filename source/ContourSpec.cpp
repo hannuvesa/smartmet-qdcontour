@@ -122,6 +122,19 @@ const std::list<ContourSymbol> & ContourSpec::contourSymbols(void) const
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Return ContourFont specifications
+ *
+ * \return Reference to the internal list of ContourFont objects
+ */
+// ----------------------------------------------------------------------
+
+const std::list<ContourFont> & ContourSpec::contourFonts(void) const
+{
+  return itsContourFonts;
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Return ContourLabel specifications
  *
  * \return Reference to the internal list of ContourLabel objects
@@ -404,6 +417,19 @@ void ContourSpec::add(const ContourPattern & theValue)
 void ContourSpec::add(const ContourSymbol & theValue)
 {
   itsContourSymbols.push_back(theValue);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Add a new ContourFont specification
+ *
+ * \param theValue The specification to add
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::add(const ContourFont & theValue)
+{
+  itsContourFonts.push_back(theValue);
 }
 
 // ----------------------------------------------------------------------

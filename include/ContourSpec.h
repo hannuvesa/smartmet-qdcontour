@@ -5,6 +5,7 @@
 #ifndef CONTOURSPEC_H
 #define CONTOURSPEC_H
 
+#include "ContourFont.h"
 #include "ContourLabel.h"
 #include "ContourPattern.h"
 #include "ContourRange.h"
@@ -40,6 +41,7 @@ public:
   const std::list<ContourValue> & contourValues(void) const;
   const std::list<ContourSymbol> & contourSymbols(void) const;
   const std::list<ContourLabel> & contourLabels(void) const;
+  const std::list<ContourFont> & contourFonts(void) const;
 
   const std::string & param(void) const;
   int level() const;
@@ -66,6 +68,7 @@ public:
   void add(const ContourPattern & theValue);
   void add(const ContourSymbol & theValue);
   void add(const ContourLabel & theValue);
+  void add(const ContourFont & theValue);
   
   // This was done to replace 32700 with -1 in PrecipitationForm
   
@@ -164,6 +167,7 @@ private:
   std::list<ContourPattern> itsContourPatterns;
   std::list<ContourSymbol> itsContourSymbols;
   std::list<ContourLabel> itsContourLabels;
+  std::list<ContourFont> itsContourFonts;
   
   float itsExactHiLimit;
   float itsDataLoLimit;
