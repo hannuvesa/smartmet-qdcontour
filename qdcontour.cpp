@@ -496,6 +496,20 @@ void do_timestampimagexy(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "projection" command
+ */
+// ----------------------------------------------------------------------
+
+void do_projection(istream & theInput)
+{
+  theInput >> globals.projection;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'projection' command failed");
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -529,10 +543,6 @@ int domain(int argc, const char *argv[])
   string theSmoother = "None";
   float theSmootherRadius = 1.0;
   int theSmootherFactor = 1;
-
-  // Projection määritelmä
-
-  string theProjection;
 
   string theSavePath	= ".";
   string thePrefix	= "";
@@ -630,11 +640,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "timesteprounding")	do_timesteprounding(input);
 		  else if(command == "timestampimage")		do_timestampimage(input);
 		  else if(command == "timestampimagexy")	do_timestampimagexy(input);
-
-		  else if(command == "projection")
-			{
-			  input >> theProjection;
-			}
+		  else if(command == "projection")			do_projection(input);
 
 		  else if(command == "erase")
 			{
@@ -1276,10 +1282,10 @@ int domain(int argc, const char *argv[])
 
 				  auto_ptr<NFmiArea> theArea;
 
-				  if(theProjection.empty())
+				  if(globals.projection.empty())
 					throw runtime_error("No projection has been specified for rendering shapes");
 				  else
-					theArea.reset(NFmiAreaFactory::Create(theProjection).release());
+					theArea.reset(NFmiAreaFactory::Create(globals.projection).release());
 
 
 				  if(globals.verbose)
@@ -1371,10 +1377,10 @@ int domain(int argc, const char *argv[])
 
 				  auto_ptr<NFmiArea> theArea;
 
-				  if(theProjection.empty())
+				  if(globals.projection.empty())
 					throw runtime_error("No projection has been specified for rendering shapes");
 				  else
-					theArea.reset(NFmiAreaFactory::Create(theProjection).release());
+					theArea.reset(NFmiAreaFactory::Create(globals.projection).release());
 
 				  // Generate map from all shapes in the list
 
@@ -1423,10 +1429,10 @@ int domain(int argc, const char *argv[])
 
 				  auto_ptr<NFmiArea> theArea;
 
-				  if(theProjection.empty())
+				  if(globals.projection.empty())
 					throw runtime_error("No projection has been specified for rendering shapes");
 				  else
-					theArea.reset(NFmiAreaFactory::Create(theProjection).release());
+					theArea.reset(NFmiAreaFactory::Create(globals.projection).release());
 
 				  // This message intentionally ignores globals.verbose
 
