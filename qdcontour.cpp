@@ -249,6 +249,31 @@ void report_area(const NFmiArea & theArea)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Write image to file with desired format
+ */
+// ----------------------------------------------------------------------
+
+void write_image(const NFmiImage & theImage,
+				 const string & theName,
+				 const string & theFormat)
+{
+  if(globals.verbose)
+	cout << "Writing '" << theName << "'" << endl;
+
+  if(theFormat == "png")
+	theImage.WritePng(theName);
+  else if(theFormat == "jpg")
+	theImage.WriteJpeg(theName);
+  else if(theFormat == "jpeg")
+	theImage.WriteJpeg(theName);
+  else if(theFormat == "gif")
+	theImage.WriteGif(theName);
+  else
+	throw runtime_error("Unknown image format '"+theFormat+"'");
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Handle a comment token
  */
 // ----------------------------------------------------------------------
@@ -1777,15 +1802,9 @@ void do_draw_shapes(istream & theInput)
 		}
 	}
 
-  string outfile = filename + "." + globals.format;
-  if(globals.verbose)
-	cout << "Writing " << outfile << endl;
-  if(globals.format=="png")
-	image.WritePng(outfile);
-  else if(globals.format=="jpg" || globals.format=="jpeg")
-	image.WriteJpeg(outfile);
-  else if(globals.format=="gif")
-	image.WriteGif(outfile);
+  write_image(image,
+			  filename+'.'+globals.format,
+			  globals.format);
 }
 
 // ----------------------------------------------------------------------
@@ -2982,17 +3001,9 @@ void do_draw_contours(istream & theInput)
 
 	  // Save
 
-	  if(globals.verbose)
-		cout << "Writing " << filename << endl;
-	  if(globals.format=="png")
-		image.WritePng(filename);
-	  else if(globals.format=="jpg" || globals.format=="jpeg")
-		image.WriteJpeg(filename);
-	  else if(globals.format=="gif")
-		image.WriteGif(filename);
+	  write_image(image,filename,globals.format);
 	}
 }
-
 
 // ----------------------------------------------------------------------
 // Main program.
