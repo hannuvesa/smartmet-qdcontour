@@ -1409,10 +1409,6 @@ int main(int argc, const char *argv[])
 				  theBottomLeft = NFmiPoint(kFloatMissing,kFloatMissing);
 				  theTopRight = NFmiPoint(kFloatMissing,kFloatMissing);
 				}
-			  else if(command == "params")
-				{
-				  theSpecs.clear();
-				}
 			  else
 				{
 				  cerr << "Error: Unknown clear target: " << command << endl;
