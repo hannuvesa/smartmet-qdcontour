@@ -620,6 +620,85 @@ void do_timestampimagexy(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Handle "timestampimageformat" command
+ */
+// ----------------------------------------------------------------------
+
+void do_timestampimageformat(istream & theInput)
+{
+  theInput >> globals.timestampimageformat;
+
+  check_errors(theInput,"timestampimageformat");
+
+  if(globals.timestampimageformat != "hour" &&
+	 globals.timestampimageformat != "hourdate" &&
+	 globals.timestampimageformat != "hourdateyear")
+	{
+	  throw runtime_error("Unrecognized timestampimageformat '"+globals.timestampimageformat+"'");
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "timestampimagefont" command
+ */
+// ----------------------------------------------------------------------
+
+void do_timestampimagefont(istream & theInput)
+{
+  theInput >> globals.timestampimagefont;
+
+  check_errors(theInput,"timestampimagefont");
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "timestampimagecolor" command
+ */
+// ----------------------------------------------------------------------
+
+void do_timestampimagecolor(istream & theInput)
+{
+  string scolor;
+  theInput >> scolor;
+
+  check_errors(theInput,"timestampimagecolor");
+
+  globals.timestampimagecolor = ColorTools::checkcolor(scolor);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "timestampimagebackground" command
+ */
+// ----------------------------------------------------------------------
+
+void do_timestampimagebackground(istream & theInput)
+{
+  string scolor;
+  theInput >> scolor;
+
+  check_errors(theInput,"timestampimagebackground");
+
+  globals.timestampimagebackground = ColorTools::checkcolor(scolor);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "timestampimagemargin" command
+ */
+// ----------------------------------------------------------------------
+
+void do_timestampimagemargin(istream & theInput)
+{
+  theInput >> globals.timestampimagexmargin
+		   >> globals.timestampimageymargin;
+
+  check_errors(theInput,"timestampimagemargin");
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Handle "projection" command
  */
 // ----------------------------------------------------------------------
@@ -4160,6 +4239,11 @@ int domain(int argc, const char *argv[])
 		  else if(cmd == "timesteprounding")		do_timesteprounding(in);
 		  else if(cmd == "timestampimage")			do_timestampimage(in);
 		  else if(cmd == "timestampimagexy")		do_timestampimagexy(in);
+		  else if(cmd == "timestampimageformat")	do_timestampimageformat(in);
+		  else if(cmd == "timestampimagefont")		do_timestampimagefont(in);
+		  else if(cmd == "timestampimagecolor")		do_timestampimagecolor(in);
+		  else if(cmd == "timestampimagebackground")	do_timestampimagebackground(in);
+		  else if(cmd == "timestampimagemargin")	do_timestampimagemargin(in);
 		  else if(cmd == "projection")				do_projection(in);
 		  else if(cmd == "erase")					do_erase(in);
 		  else if(cmd == "fillrule")				do_fillrule(in);
