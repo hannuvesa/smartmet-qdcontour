@@ -610,8 +610,7 @@ int main(int argc, char *argv[])
   
   int theWidth		= -1;
   int theHeight		= -1;
-  float theWidthKm	= -1;
-  float theHeightKm	= -1;
+  float theScale	= -1;
   
   string theSavePath	= ".";
   string thePrefix	= "";
@@ -855,14 +854,8 @@ int main(int argc, char *argv[])
 		  else if(command == "height")
 			infile >> theHeight;
 		  
-		  else if(command == "width_km")
-			infile >> theWidthKm;
-
-		  else if(command == "height_km")
-			infile >> theHeightKm;
-
-		  else if(command == "size_km")
-			infile >> theWidthKm >> theHeightKm;
+		  else if(command == "scale")
+			infile >> theScale;
 
 		  else if(command == "erase")
 			{
@@ -1263,13 +1256,6 @@ int main(int argc, char *argv[])
 				  for(piter=theSpecs.begin(); piter!=theSpecs.end(); ++piter)
 					piter->ClearLabels();
 				}
-			  else if(command=="sizes")
-				{
-				  theWidth = -1;
-				  theHeight = -1;
-				  theWidthKm = -1;
-				  theHeightKm = -1;
-				}
 			  else if(command=="corners")
 				{
 				  theBottomLeft = NFmiPoint(kFloatMissing,kFloatMissing);
@@ -1543,6 +1529,12 @@ int main(int argc, char *argv[])
 						  return 1;
 						}
 					  
+					  if(theScale<0 || theWidth<0 || theHeight<0)
+						{
+						  cerr << "Error: scale, width and height must be given along with center coordinates" << endl;
+						  return 1;
+						}
+
 					  NFmiStereographicArea area(theCenter,theCenter,
 												 theCentralLongitude,
 												 NFmiPoint(0,0),
@@ -1551,32 +1543,10 @@ int main(int argc, char *argv[])
 												 theTrueLatitude);
 
 					  NFmiPoint c = area.LatLonToWorldXY(theCenter);
+					  
+					  NFmiPoint bl(c.X()-theScale*1000*theWidth, c.Y()-theScale*1000*theHeight);
+					  NFmiPoint tr(c.X()+theScale*1000*theWidth, c.Y()+theScale*1000*theHeight);
 
-					  // Try to calculate the area. Atleast 3 variables out of
-					  // width, height, width_km and height_km must be defined
-					  // for this to work.
-
-					  float width = theWidthKm;
-					  float height = theHeightKm;
-
-					  if(theWidth>0 && theHeight>0 && theWidthKm>0 && theHeightKm>0)
-						;
-					  else if(theWidth>0 && theHeight>0 && theWidthKm>0 && theHeightKm<0)
-						height = theWidthKm*theHeight/theWidth;
-					  else if(theWidth>0 && theHeight>0 && theWidthKm<0 && theHeightKm>0)
-						width = theHeightKm*theWidth/theHeight;
-					  else if(theWidth>0 && theHeight<0 && theWidthKm>0 && theHeightKm>0)
-						theHeight = static_cast<int>(theWidth*theHeightKm/theWidthKm);
-					  else if(theWidth<0 && theHeight>0 && theWidthKm>0 && theHeightKm>0)
-						theWidth = static_cast<int>(theHeight*theWidthKm/theHeightKm);
-					  else
-						{
-						  cerr << "Error: Insufficient information to calculate map corners" << endl;
-						  return 1;
-						}
-
-					  NFmiPoint bl(c.X()-width*1000, c.Y()-height*1000);
-					  NFmiPoint tr(c.X()+width*1000, c.Y()+height*1000);
 					  theBottomLeft = area.WorldXYToLatLon(bl);
 					  theTopRight = area.WorldXYToLatLon(tr);
 					}
@@ -1825,6 +1795,12 @@ int main(int argc, char *argv[])
 						  return 1;
 						}
 					  
+					  if(theScale<0 || theWidth<0 || theHeight<0)
+						{
+						  cerr << "Error: scale, width and height must be given along with center coordinates" << endl;
+						  return 1;
+						}
+
 					  NFmiStereographicArea area(theCenter,theCenter,
 												 theCentralLongitude,
 												 NFmiPoint(0,0),
@@ -1833,32 +1809,10 @@ int main(int argc, char *argv[])
 												 theTrueLatitude);
 
 					  NFmiPoint c = area.LatLonToWorldXY(theCenter);
+					  
+					  NFmiPoint bl(c.X()-theScale*1000*theWidth, c.Y()-theScale*1000*theHeight);
+					  NFmiPoint tr(c.X()+theScale*1000*theWidth, c.Y()+theScale*1000*theHeight);
 
-					  // Try to calculate the area. Atleast 3 variables out of
-					  // width, height, width_km and height_km must be defined
-					  // for this to work.
-
-					  float width = theWidthKm;
-					  float height = theHeightKm;
-
-					  if(theWidth>0 && theHeight>0 && theWidthKm>0 && theHeightKm>0)
-						;
-					  else if(theWidth>0 && theHeight>0 && theWidthKm>0 && theHeightKm<0)
-						height = theWidthKm*theHeight/theWidth;
-					  else if(theWidth>0 && theHeight>0 && theWidthKm<0 && theHeightKm>0)
-						width = theHeightKm*theWidth/theHeight;
-					  else if(theWidth>0 && theHeight<0 && theWidthKm>0 && theHeightKm>0)
-						theHeight = static_cast<int>(theWidth*theHeightKm/theWidthKm);
-					  else if(theWidth<0 && theHeight>0 && theWidthKm>0 && theHeightKm>0)
-						theWidth = static_cast<int>(theHeight*theWidthKm/theHeightKm);
-					  else 
-						{
-						  cerr << "Error: Insufficient information to calculate map corners" << endl;
-						  return 1;
-						}
-
-					  NFmiPoint bl(c.X()-width*1000/2, c.Y()-height*1000/2);
-					  NFmiPoint tr(c.X()+width*1000/2, c.Y()+height*1000/2);
 					  theBottomLeft = area.WorldXYToLatLon(bl);
 					  theTopRight = area.WorldXYToLatLon(tr);
 					  
