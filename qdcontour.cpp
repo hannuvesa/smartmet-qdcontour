@@ -24,6 +24,7 @@
 #include "NFmiFontHershey.h"	// for Hershey fonts
 // newbase
 #include "NFmiCmdLine.h"			// command line options
+#include "NFmiDataMatrix.h"
 #include "NFmiDataModifierClasses.h"
 #include "NFmiEnumConverter.h"		// FmiParameterName<-->string
 #include "NFmiFileSystem.h"			// FileExists()
