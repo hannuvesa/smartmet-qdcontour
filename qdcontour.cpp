@@ -3196,8 +3196,8 @@ void draw_contour_labels(NFmiImage & theImage)
 			  ++it)
 			{
 			  face.Draw(theImage,
-						it->first,
-						it->second,
+						it->second.first,
+						it->second.second,
 						text,
 						Imagine::kFmiAlignCenter,
 						fontcolor);
@@ -3363,8 +3363,8 @@ void draw_contour_fonts(NFmiImage & theImage)
 			{
 			  
 			  face.Draw(theImage,
-						it->first,
-						it->second,
+						it->second.first,
+						it->second.second,
 						text,
 						Imagine::kFmiAlignCenter,
 						fontcolor);

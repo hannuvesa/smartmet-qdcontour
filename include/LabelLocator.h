@@ -32,7 +32,7 @@ public:
   void add(float theContour, int theX, int theY);
 
   typedef std::pair<int,int> XY;
-  typedef std::list<XY> Coordinates;
+  typedef std::multimap<float,XY> Coordinates;
   typedef std::map<float,Coordinates> ContourCoordinates;
   typedef std::map<int,ContourCoordinates> ParamCoordinates;
 
@@ -63,21 +63,7 @@ private:
 
   bool inside(int theX1, int theY1) const;
 
-  Coordinates::const_iterator
-  chooseOne(const Coordinates & theCandidates,
-			int theParam,
-			float theContour);
-
-  Coordinates::const_iterator
-  chooseClosestToPrevious(const Coordinates & theCandidates,
-						  const Coordinates & thePreviousChoices,
-						  int theParam,
-						  float theContour);
-
-  Coordinates::const_iterator
-  chooseClosestToBorder(const Coordinates & theCandidates,
-						int theParam,
-						float theContour);
+  float distanceToBorder(float theX, float theY) const;
 
   void removeCandidates(ParamCoordinates & theCandidates,
 						const XY & thePoint,

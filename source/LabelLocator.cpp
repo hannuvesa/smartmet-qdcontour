@@ -88,7 +88,7 @@ namespace
 		it != theCoords.end();
 		++it)
 	  {
-		double dist = distance(theX,theY,it->first,it->second);
+		double dist = distance(theX,theY,it->second.first,it->second.second);
 		if(best < 0)
 		  best = dist;
 		else
@@ -334,9 +334,46 @@ void LabelLocator::add(float theContour, int theX, int theY)
   ContourCoordinates & cc = itsCurrentCoordinates[itsActiveParameter];
   Coordinates & c = cc[theContour];
 
-  c.push_back(Coordinates::value_type(theX,theY));
+  // Now calculate the distance value used for sorting
+
+  ParamCoordinates::const_iterator it = itsPreviousCoordinates.find(itsActiveParameter);
+
+  float dist;
+  if(it == itsPreviousCoordinates.end())
+	dist = distanceToBorder(theX,theY);
+  else
+	{
+	  ContourCoordinates::const_iterator jt = it->second.find(theContour);
+	  if(jt == it->second.end())
+		dist = distanceToBorder(theX,theY);
+	  else
+		dist = mindistance(theX,theY,jt->second);
+	}
+
+  c.insert(Coordinates::value_type(dist,XY(theX,theY)));
 
 }
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Calculate point distance to border
+ *
+ * \param theX The X-coordinate
+ * \param theY The Y-coordinate
+ * \return The distance
+ */
+// ----------------------------------------------------------------------
+
+float LabelLocator::distanceToBorder(float theX, float theY) const
+{
+  if(!itHasBBox)
+	return 0;
+
+  double xdist = min(abs(theX-itsBBoxX1),abs(theX-itsBBoxX2));
+  double ydist = min(abs(theY-itsBBoxY1),abs(theY-itsBBoxY2));
+  return min(xdist,ydist);
+}
+
 
 // ----------------------------------------------------------------------
 /*!
@@ -367,24 +404,23 @@ const LabelLocator::ParamCoordinates & LabelLocator::chooseLabels()
 		  if(cit->second.empty())
 			continue;
 
-		  // find the best label coordinate
+		  // the candidate is the first label coordinate, since we've
+		  // sorted them so
 
-		  const float value = cit->first;
-
-		  Coordinates::const_iterator best = chooseOne(cit->second,param,value);
-		  if(best == cit->second.end())
+		  if(cit->second.empty())
 			throw runtime_error("Internal error in LabelLocator::chooseLabels()");
+		  const float value = cit->first;
+		  const Coordinates::value_type best = *(cit->second.begin());
 
 		  // add the best label coordinate
 
 		  ContourCoordinates & contours = choices[param];
 		  Coordinates & coords = contours[value];
-
-		  coords.push_back(*best);
+		  coords.insert(best);
 
 		  // and erase all candidates too close to the accepted coordinate
 
-		  removeCandidates(candidates,*best,param,value);
+		  removeCandidates(candidates,best.second,param,value);
 
 		}
 
@@ -398,107 +434,6 @@ const LabelLocator::ParamCoordinates & LabelLocator::chooseLabels()
 
   return itsCurrentCoordinates;
 
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Choose a label location from given candidates
- *
- * \param theCandidates The list of candidates
- * \param theParam The parameter ID
- * \param theContour The contour value
- */
-// ----------------------------------------------------------------------
-
-LabelLocator::Coordinates::const_iterator
-LabelLocator::chooseOne(const Coordinates & theCandidates,
-						int theParam,
-						float theContour)
-{
-  ParamCoordinates::const_iterator pit = itsPreviousCoordinates.find(theParam);
-  if(pit == itsPreviousCoordinates.end())
-	return chooseClosestToBorder(theCandidates,theParam,theContour);
-
-  ContourCoordinates::const_iterator cit = pit->second.find(theContour);
-  if(cit == pit->second.end())
-	return chooseClosestToBorder(theCandidates,theParam,theContour);
-
-  return chooseClosestToPrevious(theCandidates,cit->second,theParam,theContour);
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Choose a label location from given candidates closest to earlier ones
- *
- * \param theCandidates The list of candidates
- * \param thePreviousChoises The list of choises from previous timestep
- * \param theParam The parameter ID
- * \param theContour The contour value
- */
-// ----------------------------------------------------------------------
-
-LabelLocator::Coordinates::const_iterator
-LabelLocator::chooseClosestToPrevious(const Coordinates & theCandidates,
-									  const Coordinates & thePreviousChoises,
-									  int theParam,
-									  float theContour)
-{
-  double bestdist = -1;
-  Coordinates::const_iterator best = theCandidates.end();
-
-  for(Coordinates::const_iterator it = theCandidates.begin();
-	  it != theCandidates.end();
-	  ++it)
-	{
-	  double mindist = mindistance(it->first,it->second,thePreviousChoises);
-	  if(bestdist < 0 || mindist < bestdist)
-		{
-		  bestdist = mindist;
-		  best = it;
-		}
-	}
-  return best;
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Choose a label location closest to the bounding box
- *
- * \param theCandidates The list of candidates
- * \param theParam The parameter ID
- * \param theContour The contour value
- */
-// ----------------------------------------------------------------------
-
-LabelLocator::Coordinates::const_iterator
-LabelLocator::chooseClosestToBorder(const Coordinates & theCandidates,
-									int theParam,
-									float theContour)
-{
-  double bestdist = -1;
-  Coordinates::const_iterator best = theCandidates.end();
-
-  if(theCandidates.empty())
-	return best;
-
-  if(!itHasBBox)
-	return theCandidates.begin();
-
-  for(Coordinates::const_iterator it = theCandidates.begin();
-	  it != theCandidates.end();
-	  ++it)
-	{
-	  double xdist = min(abs(it->first-itsBBoxX1),abs(it->first-itsBBoxX2));
-	  double ydist = min(abs(it->second-itsBBoxY1),abs(it->second-itsBBoxY2));
-	  double dist = min(xdist,ydist);
-
-	  if(bestdist < 0 || dist < bestdist)
-		{
-		  bestdist = dist;
-		  best = it;
-		}
-	}
-  return best;
 }
 
 // ----------------------------------------------------------------------
@@ -537,8 +472,8 @@ void LabelLocator::removeCandidates(ParamCoordinates & theCandidates,
 			{
 			  const double dist = distance(thePoint.first,
 										   thePoint.second,
-										   it->first,
-										   it->second);
+										   it->second.first,
+										   it->second.second);
 
 			  bool erase = false;
 
@@ -550,7 +485,7 @@ void LabelLocator::removeCandidates(ParamCoordinates & theCandidates,
 				erase = (dist < itsMinDistanceToSameValue);
 
 			  if(erase)
-				it = cit->second.erase(it);
+				cit->second.erase(it++);
 			  else
 				++it;
 
