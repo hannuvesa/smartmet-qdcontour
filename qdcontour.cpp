@@ -118,10 +118,6 @@ int domain(int argc, const char *argv[])
 
   ContourCalculator theCalculator;
 
-  // Lista komentitiedostoista
-  
-  list<string> theFiles;
-  
   // Aktiiviset contour-speksit (ja label speksit)
   
   list<ContourSpec> theSpecs;
@@ -274,13 +270,13 @@ int domain(int argc, const char *argv[])
   // Read command filenames
   
   for(int i=1; i<=cmdline.NumberofParameters(); i++)
-	theFiles.push_back(cmdline.Parameter(i));
+	globals.cmdline_files.push_back(cmdline.Parameter(i));
   
   // Process all command files
   // ~~~~~~~~~~~~~~~~~~~~~~~~~
   
-  list<string>::const_iterator fileiter = theFiles.begin();
-  for( ; fileiter!=theFiles.end(); ++fileiter)
+  list<string>::const_iterator fileiter = globals.cmdline_files.begin();
+  for( ; fileiter!=globals.cmdline_files.end(); ++fileiter)
     {
       const string & cmdfilename = *fileiter;
 	  

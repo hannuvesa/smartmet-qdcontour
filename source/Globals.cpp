@@ -22,7 +22,8 @@ using NFmiSettings::Optional;
 Globals::Globals()
   : verbose(false)
   , force(false)
-  , cmdline_querydata("")
+  , cmdline_querydata()
+  , cmdline_files()
   , datapath(Optional<string>("qdcontour::querydata_path","."))
   , mapspath(Optional<string>("qdcontour::maps_path","."))
 {
