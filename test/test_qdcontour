@@ -68,6 +68,10 @@ DoTest("windarrows at points",
        "windarrow_points.conf",
        "windarrow_points200210140900_140900.png");
 
+DoTest("windarrowscale",
+       "windarrowscale.conf",
+       "windarrowscale_200210140900_140900.png");
+
 print "Done\n";
 
 # ----------------------------------------------------------------------
