@@ -166,8 +166,8 @@ sub imagedifference
     if(scalar(@out) == 2 && $result eq "different size")
     { return -1; }
 
-    if(scalar(@out) == 3 && $out[0] eq "different" && $out eq "pixels:")
-    { return $out[3]; }
+    if(scalar(@out) == 3 && $out[0] eq "different" && $out[1] eq "pixels:")
+    { return $out[2]; }
 
     return -1;
 }
