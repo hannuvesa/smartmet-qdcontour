@@ -39,6 +39,8 @@ struct Globals
   void drawImageStampText(NFmiImage & theImage, const std::string & theText) const;
   void drawCombine(NFmiImage & theImage) const;
 
+  bool isOutdated() const;
+
   // Command line options
 
   bool verbose;								// -v option

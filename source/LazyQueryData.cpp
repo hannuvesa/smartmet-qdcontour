@@ -108,6 +108,8 @@ unsigned long LazyQueryData::GetParamIdent() const
 
 void LazyQueryData::Read(const std::string & theDataFile)
 {
+  itsInputName = theDataFile;
+
   itsInfo.reset(0);
   itsData.reset(0);
 
@@ -115,27 +117,9 @@ void LazyQueryData::Read(const std::string & theDataFile)
 
   if(NFmiFileSystem::DirectoryExists(filename))
 	{
-	  const string & dirname = filename;
-	  list<string> files = NFmiFileSystem::DirectoryFiles(filename);
-	  if(files.empty())
-		throw runtime_error("Directory "+filename+" is empty");
-	  string newestfile;
-	  time_t newesttime = 0;
-
-	  for(list<string>::const_iterator it=files.begin(); it!=files.end(); ++it)
-		{
-		  string tmpfile = dirname + '/' + *it;
-		  if(NFmiFileSystem::FileReadable(tmpfile))
-			{
-			  time_t modtime = NFmiFileSystem::FileModificationTime(tmpfile);
-			  if(modtime > newesttime)
-				{
-				  newesttime = modtime;
-				  newestfile = tmpfile;
-				}
-			}
-		}
-	  filename = newestfile;
+	  filename = NFmiFileSystem::NewestFile(filename);
+	  if(filename.empty())
+		throw runtime_error("Directory "+filename+" is missing or empty");
 	}
 
   NFmiQueryData * qdata = new NFmiQueryData;
@@ -148,6 +132,34 @@ void LazyQueryData::Read(const std::string & theDataFile)
 
   itsData.reset(qdata);
   itsInfo.reset(new NFmiFastQueryInfo(itsData.get()));
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return true, if the original querydata is outdated
+ */
+// ----------------------------------------------------------------------
+
+bool LazyQueryData::IsOutdated() const
+{
+  // Not outdated if not read yet
+  if(itsInputName.empty())
+	return false;
+
+  // Fixed files never become outdated
+
+  if(itsInputName == itsDataFile)
+	return false;
+
+  // Weird case - but makes this check safer
+  if(!NFmiFileSystem::DirectoryExists(itsInputName))
+	return false;
+
+  // And finally the actual case of a changed datafile
+
+  string filename = NFmiFileSystem::NewestFile(filename);
+  return (filename != itsDataFile);
+
 }
 
 // ----------------------------------------------------------------------

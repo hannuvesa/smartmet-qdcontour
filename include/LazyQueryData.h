@@ -41,6 +41,8 @@ public:
   ~LazyQueryData();
   LazyQueryData();
 
+  bool IsOutdated() const;
+
   const std::string & Filename() const { return itsDataFile; }
 
   std::string GetParamName() const;
@@ -98,6 +100,7 @@ private:
   void requireInfo() const;
   void requireData();
 
+  std::string itsInputName;
   std::string itsDataFile;
   std::auto_ptr<NFmiFastQueryInfo> itsInfo;
   std::auto_ptr<NFmiQueryData> itsData;
