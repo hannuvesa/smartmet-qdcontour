@@ -178,7 +178,14 @@ DoTest("MetaWindChill",
        "meta_wind_chill.conf",
        "meta_wind_chill_200210141500_200210140937.png");
 
+# MetaT2mAdvection
+
+DoTest("MetaT2mAdvection",
+       "meta_t2m_advection.conf",
+       "meta_t2m_advection_200210140600_200210140937.png");
+
 print "Done\n";
+
 
 # ----------------------------------------------------------------------
 # Run a single test

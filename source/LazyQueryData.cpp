@@ -432,6 +432,18 @@ const NFmiGrid * LazyQueryData::Grid(void) const
  */
 // ----------------------------------------------------------------------
 
+const NFmiArea * LazyQueryData::Area(void) const
+{
+  requireInfo();
+  return itsInfo->Area();
+}
+
+// ----------------------------------------------------------------------
+/*!
+ *
+ */
+// ----------------------------------------------------------------------
+
 float LazyQueryData::InterpolatedValue(const NFmiPoint & theLatLonPoint)
 {
   requireData();

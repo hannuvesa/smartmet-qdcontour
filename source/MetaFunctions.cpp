@@ -6,6 +6,8 @@
 // ======================================================================
 
 #include "MetaFunctions.h"
+#include "newbase/NFmiArea.h"
+#include "newbase/NFmiGrid.h"
 #include "newbase/NFmiLocation.h"
 #include "newbase/NFmiMetMath.h"
 #include "newbase/NFmiMetTime.h"
@@ -168,6 +170,80 @@ namespace
 	return nn;
   }
 
+  // ----------------------------------------------------------------------
+  /*!
+   * \brief Return T2m advection field
+   *
+   * \param theQI The query info
+   * \return The values in a matrix
+   */
+  // ----------------------------------------------------------------------
+
+  NFmiDataMatrix<float> t2m_advection(LazyQueryData * theQI)
+  {
+	NFmiDataMatrix<float> wspd;
+	NFmiDataMatrix<float> wdir;
+	NFmiDataMatrix<float> t2m;
+	
+	theQI->Param(kFmiTemperature);
+	theQI->Values(t2m);
+	theQI->Param(kFmiWindSpeedMS);
+	theQI->Values(wspd);
+	theQI->Param(kFmiWindDirection);
+	theQI->Values(wdir);
+
+	// advection = v dot nabla(t)
+	// we overwrite wspd with the results
+	
+	// grid resolution in meters for difference formulas
+	const float dx = (theQI->Area()->WorldXYWidth()) / (theQI->Grid()->XNumber());
+	const float dy = (theQI->Area()->WorldXYHeight()) / (theQI->Grid()->YNumber());
+
+	const float pirad=3.14159265358979323/360;
+
+	for(unsigned int j=0; j<t2m.NY(); j++)
+	  for(unsigned int i=0; i<t2m.NX(); i++)
+		{
+		  const float ff = wspd[i][j];
+		  const float fd = wdir[i][j];
+
+		  wspd[i][j] = kFloatMissing;
+
+		  if(ff != kFloatMissing && fd != kFloatMissing)
+			{
+			  bool allok = t2m[i][j] != kFloatMissing;
+			  if(i>0)          allok &= t2m[i-1][j] != kFloatMissing;
+			  if(i<t2m.NX()-1) allok &= t2m[i+1][j] != kFloatMissing;
+			  if(j>0)          allok &= t2m[i][j-1] != kFloatMissing;
+			  if(j<t2m.NY()-1) allok &= t2m[i][j+1] != kFloatMissing;
+
+			  if(allok)
+				{
+				  float tx, ty;
+				  if(i==0)
+					tx = (t2m[i+1][j]-t2m[i][j])/dx;		// forward difference
+				  else if(i==t2m.NX()-1)
+					tx = (t2m[i][j]-t2m[i-1][j])/dx;		// backward difference
+				  else
+					tx = (t2m[i+1][j]-t2m[i-1][j])/(2*dx);	// centered difference
+
+				  if(j==0)
+					ty = (t2m[i][j+1]-t2m[i][j])/dy;
+				  else if(j==t2m.NY()-1)
+					ty = (t2m[i][j]-t2m[i][j-1])/dy;
+				  else
+					ty = (t2m[i][j+1]-t2m[i][j-1])/(2*dy);
+
+				  const float adv = -ff*(cos(fd*pirad)*tx + sin(fd*pirad)*ty)*3600;	// degrees/hour
+
+				  wspd[i][j] = adv;
+				}
+			}
+
+		}
+	return wspd;
+  }
+
 } // namespace anonymous
 
 
@@ -185,17 +261,7 @@ namespace MetaFunctions
   
   bool isMeta(const std::string & theFunction)
   {
-	if(theFunction == "MetaElevationAngle")
-	  return true;
-	if(theFunction == "MetaWindChill")
-	  return true;
-	if(theFunction == "MetaDewDifference")
-	  return true;
-	if(theFunction == "MetaN")
-	  return true;
-	if(theFunction == "MetaNN")
-	  return true;
-	return false;
+	return (id(theFunction) != 0);
   }
 
   // ----------------------------------------------------------------------
@@ -219,6 +285,8 @@ namespace MetaFunctions
 	  return 10003;
 	if(theFunction == "MetaNN")
 	  return 10004;
+	if(theFunction == "MetaT2mAdvection")
+	  return 10005;
 	return 0;
   }
 
@@ -248,6 +316,8 @@ namespace MetaFunctions
 	  return n_cloudiness(theQI);
 	if(theFunction == "MetaNN")
 	  return nn_cloudiness(theQI);
+	if(theFunction == "MetaT2mAdvection")
+	  return t2m_advection(theQI);
 
 	throw runtime_error("Unrecognized meta function " + theFunction);
 
