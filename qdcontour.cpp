@@ -187,6 +187,35 @@ const string read_script(const string & theName)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Preprocess a configuration script for execution
+ *
+ * Currently the preprocessing consists only of handling the
+ * possible -q command line option. When the option is present,
+ * the equivalent 'querydata' command is inserted into the first
+ * line of the script.
+ *
+ * \param theScript The script to preprocess
+ * \return The preprocessed script
+ */
+// ----------------------------------------------------------------------
+
+const string preprocess_script(const string & theScript)
+{
+  string ret;
+
+  if(!globals.cmdline_querydata.empty())
+	{
+	  ret += "querydata ";
+	  ret += globals.cmdline_querydata;
+	  ret += '\n';
+	}
+  ret += theScript;
+
+  return ret;
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -322,22 +351,14 @@ int domain(int argc, const char *argv[])
       if(globals.verbose)
 		cout << "Processing file: " << cmdfilename << endl;
 	  
-      // Open command file for reading
+      // Get the script to be executed
 	  
 	  string text = read_script(cmdfilename);
-
-	  // Insert querydata command if option -q was used
-
-	  if(!globals.cmdline_querydata.empty())
-		{
-		  if(globals.verbose)
-			cout << "Using querydata " << globals.cmdline_querydata << endl;
-		  text = "querydata "+globals.cmdline_querydata + '\n' + text;
-		}
-
-	  istringstream input(text);
+	  text = preprocess_script(text);
 	  
       // Process the commands
+
+	  istringstream input(text);
       string command;
       while( input >> command)
 		{
