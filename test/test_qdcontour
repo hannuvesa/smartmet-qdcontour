@@ -52,6 +52,12 @@ DoTest("contourfill",
        "contourfill.conf",
        "contourfill_200210140900_140900.png");
 
+# Test contourpattern
+
+DoTest("contourpattern",
+       "contourpattern.conf",
+       "contourpattern_200210140900_140900.png");
+
 print "Done\n";
 
 # ----------------------------------------------------------------------
