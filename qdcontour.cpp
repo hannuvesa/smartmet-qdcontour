@@ -1020,6 +1020,60 @@ void do_hilimit(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "datalolimit" command
+ */
+// ----------------------------------------------------------------------
+
+void do_datalolimit(istream & theInput)
+{
+  float limit;
+  theInput >> limit;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'datalolimit' command failed");
+
+  if(!globals.specs.empty())
+	globals.specs.back().dataLoLimit(limit);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "datahilimit" command
+ */
+// ----------------------------------------------------------------------
+
+void do_datahilimit(istream & theInput)
+{
+  float limit;
+  theInput >> limit;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'datahilimit' command failed");
+
+  if(!globals.specs.empty())
+	globals.specs.back().dataHiLimit(limit);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "datareplace" command
+ */
+// ----------------------------------------------------------------------
+
+void do_datareplace(istream & theInput)
+{
+  float src, dst;
+  theInput >> src >> dst;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'datareplace' command failed");
+
+  if(!globals.specs.empty())
+	globals.specs.back().replace(src,dst);
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -1121,28 +1175,10 @@ int domain(int argc, const char *argv[])
 		  else if(command == "forcepalette")		do_forcepalette(input);
 		  else if(command == "alphalimit")			do_alphalimit(input);
 		  else if(command == "hilimit")				do_hilimit(input);
+		  else if(command == "datalolimit")			do_datalolimit(input);
+		  else if(command == "datahilimit")			do_datahilimit(input);
+		  else if(command == "datareplace")			do_datareplace(input);
 
-		  else if(command == "datalolimit")
-			{
-			  float limit;
-			  input >> limit;
-			  if(!globals.specs.empty())
-				globals.specs.back().dataLoLimit(limit);
-			}
-		  else if(command == "datahilimit")
-			{
-			  float limit;
-			  input >> limit;
-			  if(!globals.specs.empty());
-			  globals.specs.back().dataHiLimit(limit);
-			}
-		  else if(command == "datareplace")
-			{
-			  float src,dst;
-			  input >> src >> dst;
-			  if(!globals.specs.empty())
-				globals.specs.back().replace(src,dst);
-			}
 		  else if(command == "contourdepth")
 			{
 			  input >> theContourDepth;
