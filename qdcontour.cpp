@@ -667,6 +667,7 @@ int main(int argc, char *argv[])
   // This holds a vector of querydatastreams
   
   vector<NFmiStreamQueryData *> theQueryStreams;
+  int theQueryDataLevel = 1;
   string theQueryStreamNames = "";
   
   // These will hold the querydata for the active parameter
@@ -804,6 +805,9 @@ int main(int argc, char *argv[])
 					}
 				}
 			}
+
+		  else if(command == "querydatalevel")
+			input >> theQueryDataLevel;
 		  
 		  else if(command == "filter")
 			input >> theFilter;
@@ -1916,6 +1920,12 @@ int main(int argc, char *argv[])
 					  
 					  theQueryInfo = theQueryStreams[qi]->QueryInfoIter();
 					  theQueryInfo->FirstLevel();
+					  if(theQueryDataLevel>0)
+						{
+						  int level = theQueryDataLevel;
+						  while(--level > 0)
+							theQueryInfo->NextLevel();
+						}
 					  
 					  // Establish time limits
 					  theQueryInfo->LastTime();

@@ -20,6 +20,7 @@ Käskyt:
 
 	include <filename>
 	querydata <filename1,filename2,filename3>
+	querydatalevel <level>
 
 	timestep <integer>	aika-askeleen pituus minuutteina
 	timesteprounding <1|0>	pyöristetäänkö timestep monikertaan?
