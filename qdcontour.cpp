@@ -1393,6 +1393,322 @@ void do_contourlines(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \bried Handle "labelmarker" command
+ */
+// ----------------------------------------------------------------------
+
+void do_labelmarker(istream & theInput)
+{
+  string filename, rule;
+  float alpha;
+  
+  theInput >> filename >> rule >> alpha;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'labelmarker' command failed");
+
+  if(!globals.specs.empty())
+	{
+	  globals.specs.back().labelMarker(filename);
+	  globals.specs.back().labelMarkerRule(rule);
+	  globals.specs.back().labelMarkerAlphaFactor(alpha);
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "labelfont" command
+ */
+// ----------------------------------------------------------------------
+
+void do_labelfont(istream & theInput)
+{
+  string font;
+  theInput >> font;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'labelfont' command failed");
+
+  if(!globals.specs.empty())
+	globals.specs.back().labelFont(font);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "labelsize" command
+ */
+// ----------------------------------------------------------------------
+
+void do_labelsize(istream & theInput)
+{
+  float size;
+  theInput >> size;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'labelsize' command failed");
+
+  if(!globals.specs.empty())
+	globals.specs.back().labelSize(size);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "labelstroke" command
+ */
+// ----------------------------------------------------------------------
+
+void do_labelstroke(istream & theInput)
+{
+  string color,rule;
+  theInput >> color >> rule;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'labelstroke' command failed");
+
+  if(!globals.specs.empty())
+	{
+	  globals.specs.back().labelStrokeColor(ColorTools::checkcolor(color));
+	  globals.specs.back().labelStrokeRule(rule);
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "labelfill" command
+ */
+// ----------------------------------------------------------------------
+
+void do_labelfill(istream & theInput)
+{
+  string color,rule;
+  theInput >> color >> rule;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'labelfill' command failed");
+  
+  if(!globals.specs.empty())
+	{
+	  globals.specs.back().labelFillColor(ColorTools::checkcolor(color));
+	  globals.specs.back().labelFillRule(rule);
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "labelalign" command
+ */
+// ----------------------------------------------------------------------
+
+void do_labelalign(istream & theInput)
+{
+  string align;
+  theInput >> align;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'labelalign' command failed");
+  
+  if(!globals.specs.empty())
+	globals.specs.back().labelAlignment(align);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "labelformat" command
+ */
+// ----------------------------------------------------------------------
+
+void do_labelformat(istream & theInput)
+{
+  string format;
+  theInput >> format;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'labelformat' command failed");
+
+  if(format == "-") format = "";
+  if(!globals.specs.empty())
+	globals.specs.back().labelFormat(format);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "labelmissing" command
+ */
+// ----------------------------------------------------------------------
+
+void do_labelmissing(istream & theInput)
+{
+  string label;
+  theInput >> label;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'labelmissing' command failed");
+
+  if(label == "none")
+	label = "";
+
+  if(!globals.specs.empty())
+	globals.specs.back().labelMissing(label);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "labeloffset" command
+ */
+// ----------------------------------------------------------------------
+
+void do_labeloffset(istream & theInput)
+{
+  float dx,dy;
+  theInput >> dx >> dy;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'labeloffset' command failed");
+  
+  if(!globals.specs.empty())
+	{
+	  globals.specs.back().labelOffsetX(dx);
+	  globals.specs.back().labelOffsetY(dy);
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "labelangle" command
+ */
+// ----------------------------------------------------------------------
+
+void do_labelangle(istream & theInput)
+{
+  float angle;
+  theInput >> angle;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'labelangle' command failed");
+
+  if(!globals.specs.empty())
+	globals.specs.back().labelAngle(angle);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "labelcaption" command
+ */
+// ----------------------------------------------------------------------
+
+void do_labelcaption(istream & theInput)
+{
+  string name,align;
+  float dx,dy;
+  theInput >> name >> dx >> dy >> align;
+  
+  if(theInput.fail())
+	throw runtime_error("Processing the 'labelcaption' command failed");
+  
+  if(!globals.specs.empty())
+	{
+	  globals.specs.back().labelCaption(name);
+	  globals.specs.back().labelCaptionDX(dx);
+	  globals.specs.back().labelCaptionDY(dy);
+	  globals.specs.back().labelCaptionAlignment(align);
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "label" command
+ */
+// ----------------------------------------------------------------------
+
+void do_label(istream & theInput)
+{
+  float lon,lat;
+  theInput >> lon >> lat;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'label' command failed");
+
+  if(!globals.specs.empty())
+	globals.specs.back().add(NFmiPoint(lon,lat));
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "labelxy" command
+ */
+// ----------------------------------------------------------------------
+
+void do_labelxy(istream & theInput)
+{
+  float lon,lat;
+  int dx, dy;
+  theInput >> lon >> lat >> dx >> dy;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'labelxy' command failed");
+  
+  if(!globals.specs.empty())
+	globals.specs.back().add(NFmiPoint(lon,lat),NFmiPoint(dx,dy));
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "labels" command
+ */
+// ----------------------------------------------------------------------
+
+void do_labels(istream & theInput)
+{
+  int dx,dy;
+  theInput >> dx >> dy;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'labels' command failed");
+
+  if(!globals.specs.empty())
+	{
+	  globals.specs.back().labelDX(dx);
+	  globals.specs.back().labelDY(dy);
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "labelfile" command
+ */
+// ----------------------------------------------------------------------
+
+void do_labelfile(istream & theInput)
+{
+  string datafilename;
+  theInput >> datafilename;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'labelfile' command failed");
+
+  ifstream datafile(datafilename.c_str());
+  if(!datafile)
+	throw runtime_error("No data file named " + datafilename);
+  string datacommand;
+  while( datafile >> datacommand)
+	{
+	  if(datacommand == "#" || datacommand == "//")
+		datafile.ignore(numeric_limits<std::streamsize>::max(),'\n');
+	  else if(datacommand == "label")
+		{
+		  float lon,lat;
+		  datafile >> lon >> lat;
+		  if(!globals.specs.empty())
+			globals.specs.back().add(NFmiPoint(lon,lat));
+		}
+	  else
+		throw runtime_error("Unknown datacommand " + datacommand);
+	}
+  datafile.close();
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -1491,6 +1807,21 @@ int domain(int argc, const char *argv[])
 		  else if(command == "contourline")			do_contourline(input);
 		  else if(command == "contourfills")		do_contourfills(input);
 		  else if(command == "contourlines")		do_contourlines(input);
+		  else if(command == "labelmarker")			do_labelmarker(input);
+		  else if(command == "labelfont")			do_labelfont(input);
+		  else if(command == "labelsize")			do_labelsize(input);
+		  else if(command == "labelstroke")			do_labelstroke(input);
+		  else if(command == "labelfill")			do_labelfill(input);
+		  else if(command == "labelalign")			do_labelalign(input);
+		  else if(command == "labelformat")			do_labelformat(input);
+		  else if(command == "labelmissing")		do_labelmissing(input);
+		  else if(command == "labelangle")			do_labelangle(input);
+		  else if(command == "labeloffset")			do_labeloffset(input);
+		  else if(command == "labelcaption")		do_labelcaption(input);
+		  else if(command == "label")				do_label(input);
+		  else if(command == "labelxy")				do_labelxy(input);
+		  else if(command == "labels")				do_labels(input);
+		  else if(command == "labelfile")			do_labelfile(input);
 
 		  else if(command == "clear")
 			{
@@ -1517,172 +1848,6 @@ int domain(int argc, const char *argv[])
 				throw runtime_error("Unknown clear target: " + command);
 			}
 
-		  else if(command == "labelmarker")
-			{
-			  string filename, rule;
-			  float alpha;
-
-			  input >> filename >> rule >> alpha;
-
-			  if(!globals.specs.empty())
-				{
-				  globals.specs.back().labelMarker(filename);
-				  globals.specs.back().labelMarkerRule(rule);
-				  globals.specs.back().labelMarkerAlphaFactor(alpha);
-				}
-			}
-
-		  else if(command == "labelfont")
-			{
-			  string font;
-			  input >> font;
-			  if(!globals.specs.empty())
-				globals.specs.back().labelFont(font);
-			}
-
-		  else if(command == "labelsize")
-			{
-			  float size;
-			  input >> size;
-			  if(!globals.specs.empty())
-				globals.specs.back().labelSize(size);
-			}
-
-		  else if(command == "labelstroke")
-			{
-			  string color,rule;
-			  input >> color >> rule;
-			  if(!globals.specs.empty())
-				{
-				  globals.specs.back().labelStrokeColor(ColorTools::checkcolor(color));
-				  globals.specs.back().labelStrokeRule(rule);
-				}
-			}
-
-		  else if(command == "labelfill")
-			{
-			  string color,rule;
-			  input >> color >> rule;
-			  if(!globals.specs.empty())
-				{
-				  globals.specs.back().labelFillColor(ColorTools::checkcolor(color));
-				  globals.specs.back().labelFillRule(rule);
-				}
-			}
-
-		  else if(command == "labelalign")
-			{
-			  string align;
-			  input >> align;
-			  if(!globals.specs.empty())
-				globals.specs.back().labelAlignment(align);
-			}
-
-		  else if(command == "labelformat")
-			{
-			  string format;
-			  input >> format;
-			  if(format == "-") format = "";
-			  if(!globals.specs.empty())
-				globals.specs.back().labelFormat(format);
-			}
-
-		  else if(command == "labelmissing")
-			{
-			  string label;
-			  input >> label;
-			  if(label == "none") label = "";
-			  if(!globals.specs.empty())
-				globals.specs.back().labelMissing(label);
-			}
-
-		  else if(command == "labelangle")
-			{
-			  float angle;
-			  input >> angle;
-			  if(!globals.specs.empty())
-				globals.specs.back().labelAngle(angle);
-			}
-
-		  else if(command == "labeloffset")
-			{
-			  float dx,dy;
-			  input >> dx >> dy;
-			  if(!globals.specs.empty())
-				{
-				  globals.specs.back().labelOffsetX(dx);
-				  globals.specs.back().labelOffsetY(dy);
-				}
-			}
-
-		  else if(command == "labelcaption")
-			{
-			  string name,align;
-			  float dx,dy;
-			  input >> name >> dx >> dy >> align;
-			  if(!globals.specs.empty())
-				{
-				  globals.specs.back().labelCaption(name);
-				  globals.specs.back().labelCaptionDX(dx);
-				  globals.specs.back().labelCaptionDY(dy);
-				  globals.specs.back().labelCaptionAlignment(align);
-				}
-			}
-
-		  else if(command == "label")
-			{
-			  float lon,lat;
-			  input >> lon >> lat;
-			  if(!globals.specs.empty())
-				globals.specs.back().add(NFmiPoint(lon,lat));
-			}
-
-		  else if(command == "labelxy")
-			{
-			  float lon,lat;
-			  input >> lon >> lat;
-			  int dx, dy;
-			  input >> dx >> dy;
-			  if(!globals.specs.empty())
-				globals.specs.back().add(NFmiPoint(lon,lat),NFmiPoint(dx,dy));
-			}
-
-		  else if(command == "labels")
-			{
-			  int dx,dy;
-			  input >> dx >> dy;
-			  if(!globals.specs.empty())
-				{
-				  globals.specs.back().labelDX(dx);
-				  globals.specs.back().labelDY(dy);
-				}
-
-			}
-
-		  else if(command == "labelfile")
-			{
-			  string datafilename;
-			  input >> datafilename;
-			  ifstream datafile(datafilename.c_str());
-			  if(!datafile)
-				throw runtime_error("No data file named " + datafilename);
-			  string datacommand;
-			  while( datafile >> datacommand)
-				{
-				  if(datacommand == "#" || datacommand == "//")
-					datafile.ignore(1000000,'\n');
-				  else if(datacommand == "label")
-					{
-					  float lon,lat;
-					  datafile >> lon >> lat;
-					  if(!globals.specs.empty())
-						globals.specs.back().add(NFmiPoint(lon,lat));
-					}
-				  else
-					throw runtime_error("Unknown datacommand " + datacommand);
-				}
-			  datafile.close();
-			}
 
 		  else if(command == "draw")
 			{
