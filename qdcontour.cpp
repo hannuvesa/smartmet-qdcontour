@@ -2866,18 +2866,7 @@ void do_draw_contours(istream & theInput)
 
 	  // Bang the combine image (legend, logo, whatever)
 
-	  if(!globals.combine.empty())
-		{
-		  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(globals.combinerule);
-
-		  image.Composite(globals.combineimage,
-						  rule,
-						  kFmiAlignNorthWest,
-						  globals.combinex,
-						  globals.combiney,
-						  globals.combinefactor);
-
-		}
+	  globals.drawCombine(image);
 
 	  // Finally, draw a time stamp on the image if so
 	  // requested

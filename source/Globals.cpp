@@ -5,6 +5,7 @@
  */
 // ======================================================================
 
+#include "ColorTools.h"
 #include "Globals.h"
 #include "LazyQueryData.h"
 #include "TimeTools.h"
@@ -280,4 +281,26 @@ void Globals::drawImageStampText(NFmiImage & theImage,
 			  NFmiColorTools::kFmiColorCopy);
 
 }
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Draw the "combine" image over the given image
+ */
+// ----------------------------------------------------------------------
+
+void Globals::drawCombine(NFmiImage & theImage) const
+{
+  if(combine.empty())
+	return;
+
+  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(combinerule);
+
+  theImage.Composite(combineimage,
+					 rule,
+					 kFmiAlignNorthWest,
+					 combinex,
+					 combiney,
+					 combinefactor);
+}
+
 // ======================================================================
