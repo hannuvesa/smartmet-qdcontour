@@ -11,6 +11,8 @@
 #include "ContourCalculator.h"
 #include "ShapeSpec.h"
 
+#include "NFmiPoint.h"
+
 #include <list>
 #include <string>
 #include <vector>
@@ -56,6 +58,8 @@ struct Globals
   float windarrowscaleA;			// a*log10(b*x+1)
   float windarrowscaleB;			// default:
   float windarrowscaleC;			// 0*log10(0+1)+1 = 1
+
+  std::list<NFmiPoint> arrowpoints;	// Active wind arrows
 
   std::string queryfilelist;		// querydata files in use
   std::vector<std::string> queryfilenames;	// querydata files in use

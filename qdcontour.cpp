@@ -684,6 +684,24 @@ void do_arrowpath(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle command "windarrow"
+ */
+// ----------------------------------------------------------------------
+
+void do_windarrow(istream & theInput)
+{
+  double lon,lat;
+  theInput >> lon >> lat;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'windarrow' command failed");
+
+  globals.arrowpoints.push_back(NFmiPoint(lon,lat));
+
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -700,10 +718,6 @@ int domain(int argc, const char *argv[])
   // Aktiiviset contour-speksit (ja label speksit)
 
   list<ContourSpec> theSpecs;
-
-  // Aktiiviset tuulinuolet
-
-  list<NFmiPoint> theArrowPoints;
 
   // Komentotiedostosta luettavat optiot
 
@@ -807,13 +821,8 @@ int domain(int argc, const char *argv[])
 		  else if(command == "arrowfill")			do_arrowfill(input);
 		  else if(command == "arrowstroke")			do_arrowstroke(input);
 		  else if(command == "arrowpath")			do_arrowpath(input);
+		  else if(command == "windarrow")			do_windarrow(input);
 
-		  else if(command == "windarrow")
-			{
-			  float lon,lat;
-			  input >> lon >> lat;
-			  theArrowPoints.push_back(NFmiPoint(lon,lat));
-			}
 
 		  else if(command == "windarrows")
 			input >> theWindArrowDX >> theWindArrowDY;
@@ -1124,7 +1133,7 @@ int domain(int argc, const char *argv[])
 				globals.calculator.clearCache();
 			  else if(command=="arrows")
 				{
-				  theArrowPoints.clear();
+				  globals.arrowpoints.clear();
 				  theWindArrowDX = 0;
 				  theWindArrowDY = 0;
 				}
@@ -2133,7 +2142,7 @@ int domain(int argc, const char *argv[])
 					  // Draw wind arrows if so requested
 
 					  NFmiEnumConverter converter;
-					  if((!theArrowPoints.empty() || (theWindArrowDX!=0 && theWindArrowDY!=0)) &&
+					  if((!globals.arrowpoints.empty() || (theWindArrowDX!=0 && theWindArrowDY!=0)) &&
 						 (globals.arrowfile!=""))
 						{
 
@@ -2178,8 +2187,8 @@ int domain(int argc, const char *argv[])
 
 						  list<NFmiPoint>::const_iterator iter;
 
-						  for(iter=theArrowPoints.begin();
-							  iter!=theArrowPoints.end();
+						  for(iter=globals.arrowpoints.begin();
+							  iter!=globals.arrowpoints.end();
 							  ++iter)
 							{
 
