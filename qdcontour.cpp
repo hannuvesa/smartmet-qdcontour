@@ -3906,23 +3906,35 @@ void do_draw_contours(istream & theInput)
 
 	  NFmiColorTools::Color erasecolor = ColorTools::checkcolor(globals.erase);
 
-	  NFmiImage image(imgwidth,imgheight,erasecolor);
-	  globals.setImageModes(image);
+	  auto_ptr<NFmiImage> image;
+	  if(globals.background.empty())
+		image.reset(new NFmiImage(imgwidth,imgheight,erasecolor));
+	  else
+		{
+		  if(imgwidth != globals.backgroundimage.Width() ||
+			 imgheight != globals.backgroundimage.Height())
+			{
+			  throw runtime_error("Background image size does not match area size");
+			}
+		  image.reset(new NFmiImage(globals.backgroundimage));
+		}
 
-	  if(!globals.background.empty())
-		image = globals.backgroundimage;
+	  if(image.get()==0)
+		throw runtime_error("Failed to allocate a new image for rendering");
+
+	  globals.setImageModes(*image);
 
 	  // Initialize label locator bounding box
 
 	  globals.labellocator.boundingBox(globals.contourlabelimagexmargin,
 									   globals.contourlabelimageymargin,
-									   image.Width()-globals.contourlabelimagexmargin,
-									   image.Height()-globals.contourlabelimageymargin);
+									   image->Width()-globals.contourlabelimagexmargin,
+									   image->Height()-globals.contourlabelimageymargin);
 
 	  // Initialize symbol locator bounding box with reasonably safety
 	  // for large symbols
 
-	  globals.symbollocator.boundingBox(-30,-30,image.Width()+30,image.Height()+30);
+	  globals.symbollocator.boundingBox(-30,-30,image->Width()+30,image->Height()+30);
 
 	  // Loop over all parameters
 	  // The loop collects all contour label information, but
@@ -4004,67 +4016,67 @@ void do_draw_contours(istream & theInput)
 
 		  // Fill the contours
 
-		  draw_contour_fills(image,*area,*piter,interp,min_value,max_value);
+		  draw_contour_fills(*image,*area,*piter,interp,min_value,max_value);
 
 		  // Pattern fill the contours
 
-		  draw_contour_patterns(image,*area,*piter,interp,min_value,max_value);
+		  draw_contour_patterns(*image,*area,*piter,interp,min_value,max_value);
 
 		  // Stroke the contours
 
-		  draw_contour_strokes(image,*area,*piter,interp,min_value,max_value);
+		  draw_contour_strokes(*image,*area,*piter,interp,min_value,max_value);
 
 		  // Symbol fill the contours
 
-		  draw_contour_symbols(image,*area,*piter,*worldpts,vals,min_value,max_value);
+		  draw_contour_symbols(*image,*area,*piter,*worldpts,vals,min_value,max_value);
 		  // Save symbol fill coordinates
 
-		  save_contour_fonts(image,*area,*piter,*worldpts,vals,min_value,max_value);
+		  save_contour_fonts(*image,*area,*piter,*worldpts,vals,min_value,max_value);
 
 		  // Save contour label coordinates
 
-		  save_contour_labels(image,*area,*piter,interp,min_value,max_value);
+		  save_contour_labels(*image,*area,*piter,interp,min_value,max_value);
 
 
 		}
 
 	  // Bang the foreground
 
-	  draw_foreground(image);
+	  draw_foreground(*image);
 
 	  // Draw wind arrows if so requested
 
-	  draw_wind_arrows(image,vals,*area);
+	  draw_wind_arrows(*image,vals,*area);
 
 	  // Draw contour fonts
 
-	  draw_contour_fonts(image);
+	  draw_contour_fonts(*image);
 
 	  // Label the contours
 
-	  draw_contour_labels(image);
+	  draw_contour_labels(*image);
 
 	  // Draw labels
 
 	  for(piter=pbegin; piter!=pend; ++piter)
 		{
-		  draw_label_markers(image,*piter,*area);
-		  draw_label_texts(image,*piter,*area);
+		  draw_label_markers(*image,*piter,*area);
+		  draw_label_texts(*image,*piter,*area);
 		}
 
 	  // Draw high/low pressure markers
 
-	  draw_pressure_markers(image,*area);
+	  draw_pressure_markers(*image,*area);
 
 	  // Bang the combine image (legend, logo, whatever)
 
-	  globals.drawCombine(image);
+	  globals.drawCombine(*image);
 
 	  // Finally, draw a time stamp on the image if so
 	  // requested
 
 	  const string stamp = globals.getImageStampText(t);
-	  globals.drawImageStampText(image,stamp);
+	  globals.drawImageStampText(*image,stamp);
 
 	  // dx and dy labels have now been extracted into a list,
 	  // disable adding them again and again and again..
@@ -4073,7 +4085,7 @@ void do_draw_contours(istream & theInput)
 
 	  // Save
 
-	  write_image(image,filename,globals.format);
+	  write_image(*image,filename,globals.format);
 
 	  // Advance in time
 
