@@ -602,13 +602,16 @@ int main(int argc, char *argv[])
   
   NFmiPoint theBottomLeft	= NFmiPoint(kFloatMissing,kFloatMissing);
   NFmiPoint theTopRight		= NFmiPoint(kFloatMissing,kFloatMissing);
-  
+  NFmiPoint theCenter		= NFmiPoint(kFloatMissing,kFloatMissing);
+
   float theCentralLongitude	= 25.0;
   float theCentralLatitude	= 90.0;
   float theTrueLatitude		= 60.0;
   
   int theWidth		= -1;
   int theHeight		= -1;
+  float theWidthKm	= -1;
+  float theHeightKm	= -1;
   
   string theSavePath	= ".";
   string thePrefix	= "";
@@ -774,7 +777,7 @@ int main(int argc, char *argv[])
 						{
 						  NFmiStreamQueryData * tmp = new NFmiStreamQueryData();
 						  string filename = *iter;
-						  if(!FileExists(filename))
+						  if(!FileExists(filename) && !DirectoryExists(filename))
 							filename = datapath + '/' + filename;
 						  if(!tmp->ReadLatestData(filename))
 							exit(1);
@@ -828,6 +831,13 @@ int main(int argc, char *argv[])
 			  theTopRight.Set(lon,lat);
 			}
 		  
+		  else if(command == "center")
+			{
+			  float lon,lat;
+			  infile >> lon >> lat;
+			  theCenter.Set(lon,lat);
+			}
+
 		  else if(command == "stereographic")
 			infile >> theCentralLongitude
 				   >> theCentralLatitude
@@ -845,6 +855,15 @@ int main(int argc, char *argv[])
 		  else if(command == "height")
 			infile >> theHeight;
 		  
+		  else if(command == "width_km")
+			infile >> theWidthKm;
+
+		  else if(command == "height_km")
+			infile >> theHeightKm;
+
+		  else if(command == "size_km")
+			infile >> theWidthKm >> theHeightKm;
+
 		  else if(command == "erase")
 			{
 			  infile >> theErase;
@@ -1244,6 +1263,18 @@ int main(int argc, char *argv[])
 				  for(piter=theSpecs.begin(); piter!=theSpecs.end(); ++piter)
 					piter->ClearLabels();
 				}
+			  else if(command=="sizes")
+				{
+				  theWidth = -1;
+				  theHeight = -1;
+				  theWidthKm = -1;
+				  theHeightKm = -1;
+				}
+			  else if(command=="corners")
+				{
+				  theBottomLeft = NFmiPoint(kFloatMissing,kFloatMissing);
+				  theTopRight = NFmiPoint(kFloatMissing,kFloatMissing);
+				}
 			  else
 				{
 				  cerr << "Error: Unknown clear target: " << command << endl;
@@ -1505,10 +1536,51 @@ int main(int argc, char *argv[])
 					 theTopRight.X()==kFloatMissing ||
 					 theTopRight.Y()==kFloatMissing)
 					{
-					  cerr << "Error: Area corner coordinates not given"
-						   << endl;
-					  return 1;
+
+					  if(theCenter.X()==kFloatMissing || theCenter.Y()==kFloatMissing)
+						{
+						  cerr << "Error: Area corner coordinates not given" << endl;
+						  return 1;
+						}
+					  
+					  NFmiStereographicArea area(theCenter,theCenter,
+												 theCentralLongitude,
+												 NFmiPoint(0,0),
+												 NFmiPoint(1,1),
+												 theCentralLatitude,
+												 theTrueLatitude);
+
+					  NFmiPoint c = area.LatLonToWorldXY(theCenter);
+
+					  // Try to calculate the area. Atleast 3 variables out of
+					  // width, height, width_km and height_km must be defined
+					  // for this to work.
+
+					  float width = theWidthKm;
+					  float height = theHeightKm;
+
+					  if(theWidth>0 && theHeight>0 && theWidthKm>0 && theHeightKm>0)
+						;
+					  else if(theWidth>0 && theHeight>0 && theWidthKm>0 && theHeightKm<0)
+						height = theWidthKm*theHeight/theWidth;
+					  else if(theWidth>0 && theHeight>0 && theWidthKm<0 && theHeightKm>0)
+						width = theHeightKm*theWidth/theHeight;
+					  else if(theWidth>0 && theHeight<0 && theWidthKm>0 && theHeightKm>0)
+						theHeight = static_cast<int>(theWidth*theHeightKm/theWidthKm);
+					  else if(theWidth<0 && theHeight>0 && theWidthKm>0 && theHeightKm>0)
+						theWidth = static_cast<int>(theHeight*theWidthKm/theHeightKm);
+					  else
+						{
+						  cerr << "Error: Insufficient information to calculate map corners" << endl;
+						  return 1;
+						}
+
+					  NFmiPoint bl(c.X()-width*1000, c.Y()-height*1000);
+					  NFmiPoint tr(c.X()+width*1000, c.Y()+height*1000);
+					  theBottomLeft = area.WorldXYToLatLon(bl);
+					  theTopRight = area.WorldXYToLatLon(tr);
 					}
+
 				  
 				  // Initialize XY-coordinates
 				  
@@ -1632,6 +1704,8 @@ int main(int argc, char *argv[])
 					  cerr << "Error: Area corner coordinates not given"
 						   << endl;
 					  return 1;
+
+
 					}
 				  
 				  // Initialize XY-coordinates
@@ -1743,9 +1817,51 @@ int main(int argc, char *argv[])
 					 theTopRight.X()==kFloatMissing ||
 					 theTopRight.Y()==kFloatMissing)
 					{
-					  cerr << "Error: Area corner coordinates not given"
-						   << endl;
-					  return 1;
+
+					  // Duplicate code as in "draw shapes"
+					  if(theCenter.X()==kFloatMissing || theCenter.Y()==kFloatMissing)
+						{
+						  cerr << "Error: Area corner coordinates not given" << endl;
+						  return 1;
+						}
+					  
+					  NFmiStereographicArea area(theCenter,theCenter,
+												 theCentralLongitude,
+												 NFmiPoint(0,0),
+												 NFmiPoint(1,1),
+												 theCentralLatitude,
+												 theTrueLatitude);
+
+					  NFmiPoint c = area.LatLonToWorldXY(theCenter);
+
+					  // Try to calculate the area. Atleast 3 variables out of
+					  // width, height, width_km and height_km must be defined
+					  // for this to work.
+
+					  float width = theWidthKm;
+					  float height = theHeightKm;
+
+					  if(theWidth>0 && theHeight>0 && theWidthKm>0 && theHeightKm>0)
+						;
+					  else if(theWidth>0 && theHeight>0 && theWidthKm>0 && theHeightKm<0)
+						height = theWidthKm*theHeight/theWidth;
+					  else if(theWidth>0 && theHeight>0 && theWidthKm<0 && theHeightKm>0)
+						width = theHeightKm*theWidth/theHeight;
+					  else if(theWidth>0 && theHeight<0 && theWidthKm>0 && theHeightKm>0)
+						theHeight = static_cast<int>(theWidth*theHeightKm/theWidthKm);
+					  else if(theWidth<0 && theHeight>0 && theWidthKm>0 && theHeightKm>0)
+						theWidth = static_cast<int>(theHeight*theWidthKm/theHeightKm);
+					  else 
+						{
+						  cerr << "Error: Insufficient information to calculate map corners" << endl;
+						  return 1;
+						}
+
+					  NFmiPoint bl(c.X()-width*1000/2, c.Y()-height*1000/2);
+					  NFmiPoint tr(c.X()+width*1000/2, c.Y()+height*1000/2);
+					  theBottomLeft = area.WorldXYToLatLon(bl);
+					  theTopRight = area.WorldXYToLatLon(tr);
+					  
 					}
 				  
 				  // Initialize XY-coordinates
