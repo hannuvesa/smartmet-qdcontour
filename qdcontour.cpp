@@ -534,7 +534,7 @@ void do_timesteps(istream & theInput)
 {
   theInput >> globals.timesteps;
 
-  check_errors(theInput,"timeinterval");
+  check_errors(theInput,"timesteps");
 
   if(globals.timesteps < 0)
 	throw runtime_error("timesteps cannot be negative");
