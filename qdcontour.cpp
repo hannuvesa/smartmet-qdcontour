@@ -2953,11 +2953,10 @@ void do_draw_contours(istream & theInput)
 	  int imgwidth = static_cast<int>(area->Width()+0.5);
 	  int imgheight = static_cast<int>(area->Height()+0.5);
 
-	  NFmiImage image(imgwidth,imgheight);
-	  globals.setImageModes(image);
-
 	  NFmiColorTools::Color erasecolor = ColorTools::checkcolor(globals.erase);
-	  image.Erase(erasecolor);
+
+	  NFmiImage image(imgwidth,imgheight,erasecolor);
+	  globals.setImageModes(image);
 
 	  if(!globals.background.empty())
 		image = globals.backgroundimage;
