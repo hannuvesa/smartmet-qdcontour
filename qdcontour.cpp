@@ -104,8 +104,8 @@ int domain(int argc, const char *argv[])
 {
   // Ympäristön konfigurointi
 
-  string datapath = NFmiSettings::instance().value("qdcontour::querydata_path",".");
-  string mapspath = NFmiSettings::instance().value("qdcontour::maps_path",".");
+  string datapath = NFmiSettings::Optional<string>("qdcontour::querydata_path",".");
+  string mapspath = NFmiSettings::Optional<string>("qdcontour::maps_path",".");
 
   // Tallennetut kontuurit
 
