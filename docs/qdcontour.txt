@@ -27,6 +27,7 @@
 <li>\ref renderingcontours_section</li>
 <ol>
   <li>\ref querydata_section</li>
+  <li>\ref multipledatas_section</li>
   <li>\ref filename_section</li>
   <li>\ref contour_section</li>
   <li>\ref arrow_section</li>
