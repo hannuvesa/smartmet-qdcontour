@@ -10,6 +10,7 @@
 
 #include "ContourCalculator.h"
 #include "ContourSpec.h"
+#include "ExtremaLocator.h"
 #include "LabelLocator.h"
 #include "ShapeSpec.h"
 
@@ -132,8 +133,19 @@ struct Globals
   int contourlabelimagexmargin;		// minimum distance from borders
   int contourlabelimageymargin;
 
+  NFmiImage highpressureimage;		// high pressure image
+  std::string highpressurerule;
+  float highpressurefactor;
+  float highpressureminimum;
+
+  NFmiImage lowpressureimage;		// low pressure image
+  std::string lowpressurerule;
+  float lowpressurefactor;
+  float lowpressuremaximum;
+
   // Active storage
 
+  ExtremaLocator pressurelocator;	// high/low pressure locator
   LabelLocator labellocator;		// label coordinate calculator
 
   ContourCalculator calculator;		// data contourer

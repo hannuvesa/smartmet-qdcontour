@@ -19,6 +19,7 @@
 #include "MetaFunctions.h"
 #include "ProjectionFactory.h"
 #include "TimeTools.h"
+#include "ExtremaLocator.h"
 
 #include "imagine/NFmiColorTools.h"
 #include "imagine/NFmiFace.h"
@@ -1669,6 +1670,99 @@ void do_contourlabelmindistdifferentparam(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Handle "highpressure" command
+ */
+// ----------------------------------------------------------------------
+
+void do_highpressure(istream & theInput)
+{
+  string imagefile;
+  theInput >> imagefile
+		   >> globals.highpressurerule
+		   >> globals.highpressurefactor;
+
+  check_errors(theInput,"highpressure");
+
+  globals.highpressureimage.Read(imagefile);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "lowpressure" command
+ */
+// ----------------------------------------------------------------------
+
+void do_lowpressure(istream & theInput)
+{
+  string imagefile;
+  theInput >> imagefile
+		   >> globals.lowpressurerule
+		   >> globals.lowpressurefactor;
+  
+  check_errors(theInput,"lowpressure");
+
+  globals.lowpressureimage.Read(imagefile);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "highpressureminimum" command
+ */
+// ----------------------------------------------------------------------
+
+void do_highpressureminimum(istream & theInput)
+{
+  theInput >> globals.highpressureminimum;
+
+  check_errors(theInput,"highpressureminimum");
+
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "lowpressuremaximum" command
+ */
+// ----------------------------------------------------------------------
+
+void do_lowpressuremaximum(istream & theInput)
+{
+  theInput >> globals.lowpressuremaximum;
+
+  check_errors(theInput,"lowpressuremaximum");
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "pressuremindistsame" command
+ */
+// ----------------------------------------------------------------------
+
+void do_pressuremindistsame(istream & theInput)
+{
+  float dist;
+  theInput >> dist;
+  check_errors(theInput,"mindistsame");
+
+  globals.pressurelocator.minDistanceToSame(dist);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "pressuremindistdifferent" command
+ */
+// ----------------------------------------------------------------------
+
+void do_pressuremindistdifferent(istream & theInput)
+{
+  float dist;
+  theInput >> dist;
+  check_errors(theInput,"mindistdifferent");
+
+  globals.pressurelocator.minDistanceToDifferent(dist);
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \bried Handle "labelmarker" command
  */
 // ----------------------------------------------------------------------
@@ -1990,6 +2084,8 @@ void do_clear(istream & theInput)
 	{
 	  globals.specs.clear();
 	  globals.labellocator.clear();
+	  globals.highpressureimage = NFmiImage();
+	  globals.lowpressureimage = NFmiImage();
 	}
   else if(command=="shapes")
 	globals.shapespecs.clear();
@@ -2006,6 +2102,11 @@ void do_clear(istream & theInput)
 	  list<ContourSpec>::iterator it;
 	  for(it=globals.specs.begin(); it!=globals.specs.end(); ++it)
 		it->clearLabels();
+	}
+  else if(command=="pressure")
+	{
+	  globals.highpressureimage = NFmiImage();
+	  globals.lowpressureimage = NFmiImage();
 	}
   else
 	throw runtime_error("Unknown clear target: " + command);
@@ -3163,6 +3264,182 @@ void draw_contour_symbols(NFmiImage & theImage,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Establish the type of extremum at the given point
+ *
+ * \param theValues The matrix of values
+ * \param i The i-coordinate of the value
+ * \param j The j-coordinate of the value
+ * \param DX The search region in X-direction
+ * \param DY The search region in Y-direction
+ * \param mingradient Minimum required difference in area
+ * \return -2/2 for absolute minima/maxima, -1/1 for minima/maxima, 0 for none
+ */
+// ----------------------------------------------------------------------
+
+int extrematype(const NFmiDataMatrix<float> & theValues,
+				int i,
+				int j,
+				int DX,
+				int DY,
+				float mingradient)
+{
+  int smaller = 0;
+  int bigger = 0;
+
+  float minimum = theValues[i][j];
+  float maximum = theValues[i][j];
+
+  for(int dy = -DY; dy<=DY; dy++)
+	for(int dx = -DY; dx<=DX; dx++)
+	  {
+		// quick exit for missing values
+		if(theValues[i+dx][j+dy] == kFloatMissing)
+		  return 0;
+
+		if(dx!=0 && dy!=0)
+		  {
+			if(theValues[i+dx][j+dy] < theValues[i][j])
+			  ++smaller;
+			else if(theValues[i+dx][j+dy] > theValues[i][j])
+			  ++bigger;
+		  }
+
+		// quick exit for non-extrema
+		if(smaller>0 && bigger>0)
+		  return 0;
+
+		// update extrema values
+
+		minimum = min(minimum,theValues[i+dx][j+dy]);
+		maximum = max(maximum,theValues[i+dx][j+dy]);
+
+	  }
+
+  if(maximum - minimum < mingradient)
+	return 0;
+  else if(smaller == (DX*2+1)*(DY*2+1)-1)
+	return 2;
+  else if(bigger == (DX*2+1)*(DY*2+1)-1)
+	return -2;
+  else if(smaller > 0)
+	return 1;
+  else if(bigger > 0)
+	return -1;
+  else
+	return 0;	// should never happen due to quick exit in the loop
+}
+
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Draw high/low pressure markers
+ */
+// ----------------------------------------------------------------------
+
+void draw_pressure_markers(NFmiImage & theImage,
+						   const NFmiArea & theArea)
+{
+  // Establish which markers are to be drawn
+
+  bool dohigh = (globals.highpressureimage.Width() > 0 &&
+				 globals.highpressureimage.Height() > 0);
+  bool dolow =  (globals.lowpressureimage.Width() > 0 &&
+				 globals.lowpressureimage.Height() > 0);
+
+  // Exit if none
+
+  if(!dohigh && !dolow)
+	return;
+
+  // Get the data to be analyzed
+
+  choose_queryinfo("Pressure");
+
+  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(theArea);
+
+  NFmiDataMatrix<float> vals;
+  globals.queryinfo->Values(vals);
+
+  // Insert candidate coordinates into the system
+
+  // const double dx = theArea.WorldXYWidth()/theArea.Grid()->XNumber();
+  // const double dy = theArea.WorldXYHeight()/theArea.Grid()->YNumber();
+
+  const int DX = 8; // ceil(200*1000/dx/2);	// 200km radius required
+  const int DY = 8; // ceil(200*1000/dx/2);
+  const float required_gradient = 5;
+
+  for(unsigned int j=DY; j<vals.NY()-DY; j++)
+	for(unsigned int i=DX; i<vals.NX()-DX; i++)
+	  {
+		int extrem = extrematype(vals,i,j,DX,DY,required_gradient);
+		if(extrem != 0)
+		  {
+			// the point in kilometer units
+			NFmiPoint point((*worldpts)[i][j].X()/1000,
+							(*worldpts)[i][j].Y()/1000);
+			
+			if(extrem < 0)
+			  {
+				if(dolow)
+				  globals.pressurelocator.add(ExtremaLocator::Minimum,
+											  point.X(),
+											  point.Y());
+			  }
+			else
+			  {
+				if(dohigh)
+				  globals.pressurelocator.add(ExtremaLocator::Maximum,
+											  point.X(),
+											  point.Y());
+			  }
+		  }
+	  }
+
+  // Now choose the marker positions and draw them
+
+  const ExtremaLocator::ExtremaCoordinates & extrema = globals.pressurelocator.chooseCoordinates();
+
+  NFmiColorTools::NFmiBlendRule lowrule = ColorTools::checkrule(globals.lowpressurerule);
+  NFmiColorTools::NFmiBlendRule highrule = ColorTools::checkrule(globals.highpressurerule);
+
+  for(ExtremaLocator::ExtremaCoordinates::const_iterator eit = extrema.begin();
+	  eit != extrema.end();
+	  ++eit)
+	{
+	  for(ExtremaLocator::Coordinates::const_iterator it = eit->second.begin();
+		  it != eit->second.end();
+		  ++it)
+		{
+		  NFmiPoint wxy(it->first*1000,it->second*1000);
+		  NFmiPoint latlon = theArea.WorldXYToLatLon(wxy);
+		  NFmiPoint xy = theArea.ToXY(latlon);
+
+		  switch(eit->first)
+			{
+			case ExtremaLocator::Minimum:
+			  theImage.Composite(globals.lowpressureimage,
+								 lowrule,
+								 kFmiAlignCenter,
+								 FmiRound(xy.X()),
+								 FmiRound(xy.Y()),
+								 globals.lowpressurefactor);
+			  break;
+			case ExtremaLocator::Maximum:
+			  theImage.Composite(globals.highpressureimage,
+								 highrule,
+								 kFmiAlignCenter,
+								 FmiRound(xy.X()),
+								 FmiRound(xy.Y()),
+								 globals.highpressurefactor);
+			  break;
+			}
+		}
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Draw the foreground onto the image
  */
 // ----------------------------------------------------------------------
@@ -3205,6 +3482,7 @@ void do_draw_contours(istream & theInput)
   //   13. Save the image
 
   globals.labellocator.clear();
+  globals.pressurelocator.clear();
 
   if(globals.querystreams.empty())
 	throw runtime_error("No query data has been read!");
@@ -3563,6 +3841,10 @@ void do_draw_contours(istream & theInput)
 		  draw_label_texts(image,*piter,*area);
 		}
 
+	  // Draw high/low pressure markers
+
+	  draw_pressure_markers(image,*area);
+
 	  // Bang the combine image (legend, logo, whatever)
 
 	  globals.drawCombine(image);
@@ -3585,6 +3867,7 @@ void do_draw_contours(istream & theInput)
 	  // Advance in time
 
 	  globals.labellocator.nextTime();
+	  globals.pressurelocator.nextTime();
 
 	}
 }
@@ -3701,7 +3984,12 @@ int domain(int argc, const char *argv[])
 		  else if(cmd == "contourlabelmindistdifferentvalue") do_contourlabelmindistdifferentvalue(in);
 		  else if(cmd == "contourlabelmindistdifferentparam") do_contourlabelmindistdifferentparam(in);
 
-
+		  else if(cmd == "highpressure")			do_highpressure(in);
+		  else if(cmd == "lowpressure")				do_lowpressure(in);
+		  else if(cmd == "lowpressuremaximum")		do_lowpressuremaximum(in);
+		  else if(cmd == "highpressureminimum")		do_highpressureminimum(in);
+		  else if(cmd == "pressuremindistsame")		do_pressuremindistsame(in);
+		  else if(cmd == "pressuremindistdifferent") do_pressuremindistdifferent(in);
 		  else if(cmd == "labelmarker")				do_labelmarker(in);
 		  else if(cmd == "labelfont")				do_labelfont(in);
 		  else if(cmd == "labelsize")				do_labelsize(in);

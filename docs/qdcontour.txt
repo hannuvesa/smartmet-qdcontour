@@ -492,9 +492,10 @@ lowpressure [image] [blendrule] [blendfactor]
 lowpressuremaximum [value]		# default 1020
 highpressureminimum [value]		# default 980
 
-highpressuremindist [value]		# default = 100
-lowpressuremindist [value]		# default = 100
-pressuremindist [value]			# default = 50
+pressuremindistsame [value]		# default = 50
+pressuremindistdifferent [value]	# default = 50
+
+clear pressure
 \endcode
 
 \subsection arrow_section Drawing arrows from querydata
