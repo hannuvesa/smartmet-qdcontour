@@ -539,32 +539,17 @@ int domain(int argc, const char *argv[])
 		{
 		  // Handle comments
 
-		  if(command == "#" || command == "//" || command[0]=='#')
-			do_comment(input);
-
-		  else if(command == "cache")
-			do_cache(input);
-
-		  else if(command == "querydata")
-			do_querydata(input);
-
-		  else if(command == "querydatalevel")
-			do_querydatalevel(input);
-
-		  else if(command == "filter")
-			do_filter(input);
-
-		  else if(command == "timestepskip")
-			do_timestepskip(input);
-
-		  else if(command == "timestep")
-			do_timestep(input);
-
-		  else if(command == "timeinterval")
-			do_timeinterval(input);
-
-		  else if(command == "timesteps")
-			do_timesteps(input);
+		  if(command == "#")					do_comment(input);
+		  else if(command[0] == '#')			do_comment(input);
+		  else if(command == "//")				do_comment(input);
+		  else if(command == "cache")			do_cache(input);
+		  else if(command == "querydata")		do_querydata(input);
+		  else if(command == "querydatalevel")	do_querydatalevel(input);
+		  else if(command == "filter")			do_filter(input);
+		  else if(command == "timestepskip")	do_timestepskip(input);
+		  else if(command == "timestep")		do_timestep(input);
+		  else if(command == "timeinterval")	do_timeinterval(input);
+		  else if(command == "timesteps")		do_timesteps(input);
 
 		  else if(command == "timestamp")
 			input >> theTimeStampFlag;
