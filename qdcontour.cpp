@@ -1855,21 +1855,21 @@ void draw_label_markers(NFmiImage & theImage,
 	return;
 
   // Establish that something is to be done
-	  
+
   if(theSpec.labelPoints().empty())
 	return;
-	  
+
   // Establish the marker specs
-  
+
   NFmiImage marker;
   marker.Read(theSpec.labelMarker());
-  
+
   NFmiColorTools::NFmiBlendRule markerrule = ColorTools::checkrule(theSpec.labelMarkerRule());
-  
+
   float markeralpha = theSpec.labelMarkerAlphaFactor();
-  
+
   // Draw individual points
-  
+
   unsigned int pointnumber = 0;
   list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
   for(iter=theSpec.labelPoints().begin();
@@ -1877,14 +1877,14 @@ void draw_label_markers(NFmiImage & theImage,
 	  ++iter)
 	{
 	  // The point in question
-	  
+
 	  NFmiPoint xy = theArea.ToXY(iter->first);
-	  
+
 	  // Skip rendering if the start point is masked
-	  
+
 	  if(IsMasked(xy, globals.mask, globals.maskimage))
 		continue;
-	  
+
 	  // Skip rendering if LabelMissing is "" and value is missing
 	  if(theSpec.labelMissing().empty())
 		{
@@ -1892,13 +1892,134 @@ void draw_label_markers(NFmiImage & theImage,
 		  if(value == kFloatMissing)
 			continue;
 		}
-	  
+
 	  theImage.Composite(marker,
 						 markerrule,
 						 kFmiAlignCenter,
 						 FmiRound(xy.X()),
 						 FmiRound(xy.Y()),
 						 markeralpha);
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Draw label texts
+ */
+// ----------------------------------------------------------------------
+
+void draw_label_texts(NFmiImage & theImage,
+					  const ContourSpec & theSpec,
+					  const NFmiArea & theArea)
+{
+  // Establish that something is to be done
+
+  if(theSpec.labelPoints().empty())
+	return;
+
+  // Quick exit if no labels are desired for this parameter
+
+  if(theSpec.labelFormat() == "")
+	return;
+
+  // Create the font object to be used
+
+  NFmiFontHershey font(theSpec.labelFont());
+
+  // Create the text object to be used
+
+  NFmiText text("",
+				font,
+				theSpec.labelSize(),
+				0.0,	// x
+				0.0,	// y
+				AlignmentValue(theSpec.labelAlignment()),
+				theSpec.labelAngle());
+
+  NFmiText caption(theSpec.labelCaption(),
+				   font,
+				   theSpec.labelSize(),
+				   0.0,
+				   0.0,
+				   AlignmentValue(theSpec.labelCaptionAlignment()),
+				   theSpec.labelAngle());
+
+  // The rules
+
+  NFmiColorTools::NFmiBlendRule fillrule
+	= ColorTools::checkrule(theSpec.labelFillRule());
+
+  NFmiColorTools::NFmiBlendRule strokerule
+	= ColorTools::checkrule(theSpec.labelStrokeRule());
+
+  // Draw labels at specifing latlon points if requested
+
+  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
+
+  int pointnumber = 0;
+  for(iter=theSpec.labelPoints().begin();
+	  iter!=theSpec.labelPoints().end();
+	  ++iter)
+	{
+
+	  // The point in question
+
+	  float x,y;
+	  if(iter->second.X() == kFloatMissing)
+		{
+		  NFmiPoint xy = theArea.ToXY(iter->first);
+		  x = xy.X();
+		  y = xy.Y();
+		}
+	  else
+		{
+		  x = iter->second.X();
+		  y = iter->second.Y();
+		}
+
+	  // Skip rendering if the start point is masked
+
+	  if(IsMasked(NFmiPoint(x,y),
+				  globals.mask,
+				  globals.maskimage))
+		continue;
+
+	  float value = theSpec.labelValues()[pointnumber++];
+
+	  // Convert value to string
+	  string strvalue = theSpec.labelMissing();
+
+	  if(value!=kFloatMissing)
+		{
+		  char tmp[20];
+		  sprintf(tmp,theSpec.labelFormat().c_str(),value);
+		  strvalue = tmp;
+		}
+
+	  // Don't bother drawing empty strings
+	  if(strvalue.empty())
+		continue;
+
+	  // Set new text properties
+
+	  text.Text(strvalue);
+	  text.X(x + theSpec.labelOffsetX());
+	  text.Y(y + theSpec.labelOffsetY());
+
+	  // And render the text
+
+	  text.Fill(theImage,theSpec.labelFillColor(),fillrule);
+	  text.Stroke(theImage,theSpec.labelStrokeColor(),strokerule);
+
+	  // Then the label caption
+
+	  if(!theSpec.labelCaption().empty())
+		{
+		  caption.X(text.X() + theSpec.labelCaptionDX());
+		  caption.Y(text.Y() + theSpec.labelCaptionDY());
+		  caption.Fill(theImage,theSpec.labelFillColor(),fillrule);
+		  caption.Stroke(theImage,theSpec.labelStrokeColor(),strokerule);
+		}
 	}
 }
 
@@ -2756,120 +2877,8 @@ void do_draw_contours(istream & theInput)
 	  for(piter=pbegin; piter!=pend; ++piter)
 		{
 		  draw_label_markers(image,*piter,*area);
-		  
-		  // Label markers now drawn, only label texts remain
-
-		  // Quick exit from loop if no labels are
-		  // desired for this parameter
-
-		  if(piter->labelFormat() == "")
-			continue;
-
-		  // Create the font object to be used
-
-		  NFmiFontHershey font(piter->labelFont());
-
-		  // Create the text object to be used
-
-		  NFmiText text("",
-						font,
-						piter->labelSize(),
-						0.0,	// x
-						0.0,	// y
-						AlignmentValue(piter->labelAlignment()),
-						piter->labelAngle());
-
-
-		  NFmiText caption(piter->labelCaption(),
-						   font,
-						   piter->labelSize(),
-						   0.0,
-						   0.0,
-						   AlignmentValue(piter->labelCaptionAlignment()),
-						   piter->labelAngle());
-
-		  // The rules
-
-		  NFmiColorTools::NFmiBlendRule fillrule
-			= ColorTools::checkrule(piter->labelFillRule());
-
-		  NFmiColorTools::NFmiBlendRule strokerule
-			= ColorTools::checkrule(piter->labelStrokeRule());
-
-		  // Draw labels at specifing latlon points if requested
-
-		  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
-
-		  int pointnumber = 0;
-		  for(iter=piter->labelPoints().begin();
-			  iter!=piter->labelPoints().end();
-			  ++iter)
-			{
-
-			  // The point in question
-
-			  float x,y;
-			  if(iter->second.X() == kFloatMissing)
-				{
-				  NFmiPoint xy = area->ToXY(iter->first);
-				  x = xy.X();
-				  y = xy.Y();
-				}
-			  else
-				{
-				  x = iter->second.X();
-				  y = iter->second.Y();
-				}
-
-			  // Skip rendering if the start point is masked
-
-			  if(IsMasked(NFmiPoint(x,y),
-						  globals.mask,
-						  globals.maskimage))
-				continue;
-
-			  float value = piter->labelValues()[pointnumber++];
-
-			  // Convert value to string
-			  string strvalue = piter->labelMissing();
-
-			  if(value!=kFloatMissing)
-				{
-				  char tmp[20];
-				  sprintf(tmp,piter->labelFormat().c_str(),value);
-				  strvalue = tmp;
-				}
-
-			  // Don't bother drawing empty strings
-			  if(strvalue.empty())
-				continue;
-
-			  // Set new text properties
-
-			  text.Text(strvalue);
-			  text.X(x + piter->labelOffsetX());
-			  text.Y(y + piter->labelOffsetY());
-
-			  // And render the text
-
-			  text.Fill(image,piter->labelFillColor(),fillrule);
-			  text.Stroke(image,piter->labelStrokeColor(),strokerule);
-
-			  // Then the label caption
-
-			  if(!piter->labelCaption().empty())
-				{
-				  caption.X(text.X() + piter->labelCaptionDX());
-				  caption.Y(text.Y() + piter->labelCaptionDY());
-				  caption.Fill(image,piter->labelFillColor(),fillrule);
-				  caption.Stroke(image,piter->labelStrokeColor(),strokerule);
-				}
-
-			}
-
+		  draw_label_texts(image,*piter,*area);
 		}
-
-
 
 	  // Bang the combine image (legend, logo, whatever)
 
