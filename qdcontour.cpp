@@ -637,6 +637,10 @@ int main(int argc, char *argv[])
   string theFilter = "none";
   
   float theArrowScale = 1.0;
+
+  float theWindArrowScaleA = 0.0;	// a*x+b = 0*x+1 = 1
+  float theWindArrowScaleB = 1.0;
+
   string theArrowFillColor = "white";
   string theArrowStrokeColor = "black";
   string theArrowFillRule = "Over";
@@ -916,6 +920,9 @@ int main(int argc, char *argv[])
 		  
 		  else if(command == "arrowscale")
 			input >> theArrowScale;
+
+		  else if(command == "windarrowscale")
+			input >> theWindArrowScaleA >> theWindArrowScaleB;
 		  
 		  else if(command == "arrowfill")
 			{
@@ -2742,6 +2749,11 @@ int main(int argc, char *argv[])
 							  if(dir==kFloatMissing)	// ignore missing
 								continue;
 							  
+							  float speed = -1;
+							  if(theQueryInfo->Param(kFmiWindSpeedMS))
+								speed = theQueryInfo->InterpolatedValue(*iter);
+							  theQueryInfo->Param(kFmiWindDirection);
+							  
 							  // The start point
 							  
 							  NFmiPoint xy0 = theArea.ToXY(*iter);
@@ -2765,6 +2777,8 @@ int main(int argc, char *argv[])
 							  
 							  NFmiPath thispath;
 							  thispath.Add(arrowpath);
+							  if(speed>0 && speed!=kFloatMissing)
+								thispath.Scale(theWindArrowScaleA*speed+theWindArrowScaleB);
 							  thispath.Scale(theArrowScale);
 							  thispath.Rotate(alpha*180/pi);
 							  thispath.Translate(xy0.X(),xy0.Y());
@@ -2785,6 +2799,11 @@ int main(int argc, char *argv[])
 							{
 							  NFmiDataMatrix<NFmiPoint> latlons;
 							  theQueryInfo->Locations(latlons);
+
+							  NFmiDataMatrix<float> speedvalues(vals.NX(),vals.NY(),-1);
+							  if(theQueryInfo->Param(kFmiWindSpeedMS))
+								theQueryInfo->Values(speedvalues);
+							  theQueryInfo->Param(kFmiWindDirection);
 							  
 							  for(unsigned int j=0; j<pts[qi].NY(); j+=theWindArrowDY)
 								for(unsigned int i=0; i<pts[qi].NX(); i+=theWindArrowDX)
@@ -2793,6 +2812,8 @@ int main(int argc, char *argv[])
 									if(dir==kFloatMissing)	// ignore missing
 									  continue;
 									
+									float speed = speedvalues[i][j];
+
 									// The start point
 									
 									NFmiPoint xy0 = theArea.ToXY(latlons[i][j]);
@@ -2819,6 +2840,8 @@ int main(int argc, char *argv[])
 									
 									NFmiPath thispath;
 									thispath.Add(arrowpath);
+									if(speed>0 && speed != kFloatMissing)
+									  thispath.Scale(theWindArrowScaleA*speed+theWindArrowScaleB);
 									thispath.Scale(theArrowScale);
 									thispath.Rotate(alpha*180/pi);
 									thispath.Translate(xy0.X(),xy0.Y());

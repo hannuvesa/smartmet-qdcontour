@@ -15,8 +15,10 @@ Kommentit:
 	käsky	# kommentti
 	käsky	// kommentti
 
+
 Käskyt:
 
+	include <filename>
 	querydata <filename1,filename2,filename3>
 
 	timestep <integer>	aika-askeleen pituus minuutteina
@@ -33,7 +35,13 @@ Käskyt:
 
 	bottomleft <lon> <lat>
 	topright <lon> <lat>
+	center <lon> <lat>
+	width_km <kilometers>
+	height_km <kilometers>
+	size_km <kilometers> <kilometers>
+
 	stereographic <loncentral> <latcentral> <lattrue>
+
 
 	size <width> <height>
 	width <width>
@@ -58,6 +66,8 @@ Käskyt:
 
 	clear contours
 	clear shapes
+	clear sizes
+	clear corners
 
 	erase <color>
 	background <filename>
@@ -95,6 +105,7 @@ Käskyt:
 	arrowpath <filename>
 	windarrow <lon> <lat>
 	windarrows <dx> <dy>
+	windarrowscale <a> <b>         # scale = a*speed+b
 	clear arrows
 
 Rendering values:
