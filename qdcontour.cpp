@@ -5,6 +5,9 @@
  */
 // ======================================================================
 
+// internal
+#include "StringTools.h"
+// imagine
 #include "NFmiColorTools.h"
 #include "NFmiSmoother.h"		// for smoothing data
 #include "NFmiContourTree.h"	// for contouring
@@ -12,7 +15,7 @@
 #include "NFmiGeoShape.h"		// for esri data
 #include "NFmiText.h"			// for labels
 #include "NFmiFontHershey.h"	// for Hershey fonts
-
+// newbase
 #include "NFmiCmdLine.h"			// command line options
 #include "NFmiDataModifierClasses.h"
 #include "NFmiEnumConverter.h"		// FmiParameterName<-->string
@@ -22,7 +25,7 @@
 #include "NFmiStereographicArea.h"	// Stereographic projection
 #include "NFmiStreamQueryData.h"
 #include "NFmiPreProcessor.h"
-
+// system
 #include <fstream>
 #include <string>
 #include <list>
@@ -42,23 +45,6 @@ void Usage(void)
 {
   cout << "Usage: qdcontour [conffiles]" << endl << endl;
   cout << "Commands in configuration files:" << endl << endl;
-}
-
-// ----------------------------------------------------------------------
-// Read a file into the input string
-// ----------------------------------------------------------------------
-
-void StringReader(std::istream & is, string & theString)
-{
-  theString.resize(0);
-
-  const int bufsize = 1024;
-  char buffer[bufsize];
-  while(!is.eof() && !is.fail())
-    {
-      is.read(buffer,bufsize);
-      theString.append(buffer,is.gcount());
-    }
 }
 
 // ----------------------------------------------------------------------
@@ -2841,8 +2827,7 @@ int main(int argc, const char *argv[])
 								  exit(1);
 								}
 							  // Read in the entire file
-							  string pathstring;
-							  StringReader(arrow,pathstring);
+							  string pathstring = StringTools::readfile(arrow);
 							  arrow.close();
 
 							  // Convert to a path
