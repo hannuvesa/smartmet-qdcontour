@@ -112,10 +112,10 @@ void LazyQueryData::Read(const std::string & theDataFile)
 
   string filename = theDataFile;
 
-  if(DirectoryExists(filename))
+  if(NFmiFileSystem::DirectoryExists(filename))
 	{
 	  const string & dirname = filename;
-	  list<string> files = DirectoryFiles(filename);
+	  list<string> files = NFmiFileSystem::DirectoryFiles(filename);
 	  if(files.empty())
 		throw runtime_error("Directory "+filename+" is empty");
 	  string newestfile;
@@ -124,9 +124,9 @@ void LazyQueryData::Read(const std::string & theDataFile)
 	  for(list<string>::const_iterator it=files.begin(); it!=files.end(); ++it)
 		{
 		  string tmpfile = dirname + '/' + *it;
-		  if(FileReadable(tmpfile))
+		  if(NFmiFileSystem::FileReadable(tmpfile))
 			{
-			  time_t modtime = FileModificationTime(tmpfile);
+			  time_t modtime = NFmiFileSystem::FileModificationTime(tmpfile);
 			  if(modtime > newesttime)
 				{
 				  newesttime = modtime;

@@ -360,7 +360,7 @@ int domain(int argc, const char *argv[])
 					  for(iter=qnames.begin(); iter!=qnames.end(); ++iter)
 						{
 						  LazyQueryData * tmp = new LazyQueryData();
-						  string filename = FileComplete(*iter,datapath);
+						  string filename = NFmiFileSystem::FileComplete(*iter,datapath);
 						  theFullQueryFileNames.push_back(filename);
 						  tmp->Read(filename);
 						  theQueryStreams.push_back(tmp);
@@ -525,7 +525,7 @@ int domain(int argc, const char *argv[])
 			{
 			  input >> theBackground;
 			  if(theBackground != "none")
-				theBackgroundImage.Read(FileComplete(theBackground,mapspath));
+				theBackgroundImage.Read(NFmiFileSystem::FileComplete(theBackground,mapspath));
 			  else
 				theBackground = "";
 			}
@@ -534,7 +534,7 @@ int domain(int argc, const char *argv[])
 			{
 			  input >> theForeground;
 			  if(theForeground != "none")
-				theForegroundImage.Read(FileComplete(theForeground,mapspath));
+				theForegroundImage.Read(NFmiFileSystem::FileComplete(theForeground,mapspath));
 			  else
 				theForeground = "";
 			}
@@ -543,7 +543,7 @@ int domain(int argc, const char *argv[])
 			{
 			  input >> theMask;
 			  if(theMask != "none")
-				theMaskImage.Read(FileComplete(theMask,mapspath));
+				theMaskImage.Read(NFmiFileSystem::FileComplete(theMask,mapspath));
 			  else
 				theMask = "";
 			}
@@ -555,7 +555,7 @@ int domain(int argc, const char *argv[])
 				  input >> theCombineX >> theCombineY;
 				  input >> theCombineRule >> theCombineFactor;
 				  ColorTools::checkrule(theCombineRule);
-				  theCombineImage.Read(FileComplete(theCombine,mapspath));
+				  theCombineImage.Read(NFmiFileSystem::FileComplete(theCombine,mapspath));
 				}
 			  else
 				theCombine = "";
@@ -570,7 +570,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "savepath")
 			{
 			  input >> theSavePath;
-			  if(!DirectoryExists(theSavePath))
+			  if(!NFmiFileSystem::DirectoryExists(theSavePath))
 				throw runtime_error("savepath "+theSavePath+" does not exist");
 			}
 		  
@@ -1470,7 +1470,7 @@ int domain(int argc, const char *argv[])
 						{
 						  for(qi=0; qi<theFullQueryFileNames.size(); qi++)
 							{
-							  time_t secs = FileModificationTime(theFullQueryFileNames[qi]);
+							  time_t secs = NFmiFileSystem::FileModificationTime(theFullQueryFileNames[qi]);
 							  NFmiTime tlocal(secs);
 							  filename += "_" + tlocal.ToStr(kDDHHMM);
 							}
@@ -1486,7 +1486,7 @@ int domain(int argc, const char *argv[])
 					  // exists. If so, we assume it is up to date
 					  // and skip to the next time stamp.
 					  
-					  if(!force && !FileEmpty(filename))
+					  if(!force && !NFmiFileSystem::FileEmpty(filename))
 						{
 						  if(verbose)
 							cout << "Not overwriting " << filename << endl;
