@@ -14,7 +14,6 @@
 #include "imagine/NFmiFace.h"
 #include "imagine/NFmiFreeType.h"
 #include "imagine/NFmiPath.h"
-#include "imagine/NFmiText.h"			// for labels
 
 #include "newbase/NFmiAreaFactory.h"
 #include "newbase/NFmiSettings.h"
