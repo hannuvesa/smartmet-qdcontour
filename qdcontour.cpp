@@ -288,8 +288,9 @@ int domain(int argc, const char *argv[])
 	  
       // Open command file for reading
 
-	  const bool strip_pound = true;
+	  const bool strip_pound = false;
 	  NFmiPreProcessor processor(strip_pound);
+	  processor.SetDefine("#define");
 	  processor.SetIncluding("include", "", "");
 	  if(!processor.ReadAndStripFile(cmdfilename))
 		throw runtime_error("Could not parse "+cmdfilename);
