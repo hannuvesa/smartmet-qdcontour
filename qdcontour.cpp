@@ -611,6 +611,25 @@ void do_arrowscale(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "windarrowscale" command
+ */
+// ----------------------------------------------------------------------
+
+void do_windarrowscale(istream & theInput)
+{
+  theInput >> globals.windarrowscaleA
+		   >> globals.windarrowscaleB
+		   >> globals.windarrowscaleC;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'windarrowscale' command failed");
+
+  if(globals.windarrowscaleB < 0)
+	throw runtime_error("Second parameter of windarrowscale must be nonnegative");
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -662,9 +681,7 @@ int domain(int argc, const char *argv[])
 
 
 
-  float theWindArrowScaleA = 0.0;	// a*log10(b*x+1)+c = 0*log10(0+1)+1 = 1
-  float theWindArrowScaleB = 0.0;
-  float theWindArrowScaleC = 1.0;
+
 
   string theArrowFillColor = "white";
   string theArrowStrokeColor = "black";
@@ -737,10 +754,8 @@ int domain(int argc, const char *argv[])
 		  else if(command == "directionparam")		do_directionparam(input);
 		  else if(command == "speedparam")			do_speedparam(input);
 		  else if(command == "arrowscale")			do_arrowscale(input);
+		  else if(command == "windarrowscale")		do_windarrowscale(input);
 
-
-		  else if(command == "windarrowscale")
-			input >> theWindArrowScaleA >> theWindArrowScaleB >> theWindArrowScaleC;
 
 		  else if(command == "arrowfill")
 			{
@@ -2172,12 +2187,12 @@ int domain(int argc, const char *argv[])
 							  NFmiPath thispath;
 
 							  if(theArrowFile == "meteorological")
-								thispath.Add(GramTools::metarrow(speed*theWindArrowScaleC));
+								thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
 							  else
 								thispath.Add(arrowpath);
 
 							  if(speed>0 && speed!=kFloatMissing)
-								thispath.Scale(theWindArrowScaleA*log10(theWindArrowScaleB*speed+1)+theWindArrowScaleC);
+								thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
 							  thispath.Scale(globals.arrowscale);
 							  thispath.Rotate(alpha*180/pi);
 							  thispath.Translate(xy0.X(),xy0.Y());
@@ -2243,11 +2258,11 @@ int domain(int argc, const char *argv[])
 
 									NFmiPath thispath;
 									if(theArrowFile == "meteorological")
-									  thispath.Add(GramTools::metarrow(speed*theWindArrowScaleC));
+									  thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
 									else
 									  thispath.Add(arrowpath);
 									if(speed>0 && speed != kFloatMissing)
-									  thispath.Scale(theWindArrowScaleA*log10(theWindArrowScaleB*speed+1)+theWindArrowScaleC);
+									  thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
 									thispath.Scale(globals.arrowscale);
 									thispath.Rotate(alpha*180/pi);
 									thispath.Translate(xy0.X(),xy0.Y());

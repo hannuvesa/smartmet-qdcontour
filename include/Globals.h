@@ -47,6 +47,10 @@ struct Globals
   std::string speedparam;			// speed parameter for arrows
   float arrowscale;					// scale factor for arrows
 
+  float windarrowscaleA;			// a*log10(b*x+1)
+  float windarrowscaleB;			// default:
+  float windarrowscaleC;			// 0*log10(0+1)+1 = 1
+
   std::string queryfilelist;		// querydata files in use
   std::vector<std::string> queryfilenames;	// querydata files in use
 
