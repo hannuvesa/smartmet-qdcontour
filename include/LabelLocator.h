@@ -18,6 +18,7 @@ public:
   ~LabelLocator();
   LabelLocator();
 
+  bool empty() const;
   void clear();
 
   void boundingBox(int theX1, int theY1, int theX2, int theY2);

@@ -18,6 +18,12 @@
  *   - the minimum allowed distance to nearest different value label
  *   - the minimum allowed distance to nearest label of another parameter
  *
+ * Note that all the relevant settings should be made before adding
+ * any candidate coordinates to the object. In particular, the bounding
+ * box filtering is used to immediately discard coordinates outside
+ * the target image. The code enforces this by throwing an exception
+ * when the settings are changed while coordinates have been added.
+ *
  * The algorithm for choosing the labels for a new timestep is
  *
  *   -# discard all points not within the bounding box
@@ -68,6 +74,19 @@ LabelLocator::LabelLocator()
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Test if the locator contains no coordinates
+ *
+ * \return True, if there are no coordinates in the locator
+ */
+// ----------------------------------------------------------------------
+
+bool LabelLocator::empty() const
+{
+  return (itsPreviousCoordinates.empty() && itsCurrentCoordinates.empty());
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Clear all earlier label locations
  */
 // ----------------------------------------------------------------------
@@ -96,6 +115,9 @@ void LabelLocator::clear()
 
 void LabelLocator::boundingBox(int theX1, int theY1, int theX2, int theY2)
 {
+  if(!empty())
+	throw runtime_error("LabelLocator: Cannot change bounding box once coordinates have been added");
+
   if(theX2 <= theX1 || theY2 <= theY1)
 	throw runtime_error("Empty bounding box not allowed in LabelLocator");
 
@@ -116,6 +138,9 @@ void LabelLocator::boundingBox(int theX1, int theY1, int theX2, int theY2)
 
 void LabelLocator::minDistanceToSameValue(float theDistance)
 {
+  if(!empty())
+	throw runtime_error("LabelLocator: Cannot change minimum distances once coordinates have been added");
+
   itsMinDistanceToSameValue = theDistance;
 }
 
@@ -129,6 +154,9 @@ void LabelLocator::minDistanceToSameValue(float theDistance)
 
 void LabelLocator::minDistanceToDifferentValue(float theDistance)
 {
+  if(!empty())
+	throw runtime_error("LabelLocator: Cannot change minimum distances once coordinates have been added");
+
   itsMinDistanceToDifferentValue = theDistance;
 }
 
@@ -142,6 +170,9 @@ void LabelLocator::minDistanceToDifferentValue(float theDistance)
 
 void LabelLocator::minDistanceToDifferentParameter(float theDistance)
 {
+  if(!empty())
+	throw runtime_error("LabelLocator: Cannot change minimum distances once coordinates have been added");
+
   itsMinDistanceToDifferentParameter = theDistance;
 }
 
