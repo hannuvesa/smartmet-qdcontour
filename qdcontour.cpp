@@ -12,7 +12,6 @@
 #include "LazyQueryData.h"
 #include "MetaFunctions.h"
 #include "ProjectionFactory.h"
-#include "ShapeSpec.h"
 #include "TimeTools.h"
 
 #include "imagine/NFmiColorTools.h"
@@ -526,6 +525,25 @@ void do_erase(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "fillrule" command
+ */
+// ----------------------------------------------------------------------
+
+void do_fillrule(istream & theInput)
+{
+  theInput >> globals.fillrule;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'fillrule' command failed");
+
+  ColorTools::checkrule(globals.fillrule);
+
+  if(!globals.shapespecs.empty())
+	globals.shapespecs.back().fillrule(globals.fillrule);
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -542,10 +560,6 @@ int domain(int argc, const char *argv[])
   // Aktiiviset contour-speksit (ja label speksit)
 
   list<ContourSpec> theSpecs;
-
-  // Aktiiviset shape-speksit
-
-  list<ShapeSpec> theShapeSpecs;
 
   // Aktiiviset tuulinuolet
 
@@ -570,7 +584,6 @@ int domain(int argc, const char *argv[])
   string theBackground	= "";
   string theForeground	= "";
   string theMask = "";
-  string theFillRule	= "Atop";
   string theStrokeRule	= "Atop";
 
   string theForegroundRule = "Over";
@@ -656,20 +669,14 @@ int domain(int argc, const char *argv[])
 		  else if(command == "timestampimagexy")	do_timestampimagexy(input);
 		  else if(command == "projection")			do_projection(input);
 		  else if(command == "erase")				do_erase(input);
+		  else if(command == "fillrule")			do_fillrule(input);
 
-		  else if(command == "fillrule")
-			{
-			  input >> theFillRule;
-			  ColorTools::checkrule(theFillRule);
-			  if(!theShapeSpecs.empty())
-				theShapeSpecs.back().fillrule(theFillRule);
-			}
 		  else if(command == "strokerule")
 			{
 			  input >> theStrokeRule;
 			  ColorTools::checkrule(theStrokeRule);
-			  if(!theShapeSpecs.empty())
-				theShapeSpecs.back().strokerule(theStrokeRule);
+			  if(!globals.shapespecs.empty())
+				globals.shapespecs.back().strokerule(theStrokeRule);
 			}
 
 		  else if(command == "directionparam")
@@ -887,7 +894,7 @@ int domain(int argc, const char *argv[])
 				  ColorTools::checkrule(markerrule);
 				  ShapeSpec spec(theShapeFileName);
 				  spec.marker(marker,markerrule,markeralpha);
-				  theShapeSpecs.push_back(spec);
+				  globals.shapespecs.push_back(spec);
 				}
 			  else
 				{
@@ -897,9 +904,9 @@ int domain(int argc, const char *argv[])
 				  NFmiColorTools::Color fill = ColorTools::checkcolor(fillcolor);
 				  NFmiColorTools::Color stroke = ColorTools::checkcolor(strokecolor);
 
-				  theShapeSpecs.push_back(ShapeSpec(theShapeFileName,
+				  globals.shapespecs.push_back(ShapeSpec(theShapeFileName,
 													fill,stroke,
-													theFillRule,theStrokeRule));
+													globals.fillrule,theStrokeRule));
 				}
 			}
 
@@ -921,7 +928,7 @@ int domain(int argc, const char *argv[])
 			  NFmiColorTools::Color color = ColorTools::checkcolor(scolor);
 
 			  if(!theSpecs.empty())
-				theSpecs.back().add(ContourRange(lo,hi,color,theFillRule));
+				theSpecs.back().add(ContourRange(lo,hi,color,globals.fillrule));
 			}
 
 		  else if(command == "contourpattern")
@@ -979,7 +986,7 @@ int domain(int argc, const char *argv[])
 				  if(steps!=1)
 					color = NFmiColorTools::Interpolate(color1,color2,i/(steps-1.0));
 				  if(!theSpecs.empty())
-					theSpecs.back().add(ContourRange(tmplo,tmphi,color,theFillRule));
+					theSpecs.back().add(ContourRange(tmplo,tmphi,color,globals.fillrule));
 				}
 			}
 
@@ -1011,7 +1018,7 @@ int domain(int argc, const char *argv[])
 			  if(command=="contours")
 				theSpecs.clear();
 			  else if(command=="shapes")
-				theShapeSpecs.clear();
+				globals.shapespecs.clear();
 			  else if(command=="cache")
 				globals.calculator.clearCache();
 			  else if(command=="arrows")
@@ -1257,8 +1264,8 @@ int domain(int argc, const char *argv[])
 				  // Draw all the shapes
 
 				  list<ShapeSpec>::const_iterator iter;
-				  list<ShapeSpec>::const_iterator begin = theShapeSpecs.begin();
-				  list<ShapeSpec>::const_iterator end   = theShapeSpecs.end();
+				  list<ShapeSpec>::const_iterator begin = globals.shapespecs.begin();
+				  list<ShapeSpec>::const_iterator end   = globals.shapespecs.end();
 
 				  for(iter=begin; iter!=end; ++iter)
 					{
@@ -1319,8 +1326,8 @@ int domain(int argc, const char *argv[])
 				  // Generate map from all shapes in the list
 
 				  list<ShapeSpec>::const_iterator iter;
-				  list<ShapeSpec>::const_iterator begin = theShapeSpecs.begin();
-				  list<ShapeSpec>::const_iterator end   = theShapeSpecs.end();
+				  list<ShapeSpec>::const_iterator begin = globals.shapespecs.begin();
+				  list<ShapeSpec>::const_iterator end   = globals.shapespecs.end();
 
 				  string outfile = filename + ".map";
 				  ofstream out(outfile.c_str());

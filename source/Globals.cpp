@@ -31,6 +31,7 @@ Globals::Globals()
   , projection()
   , filter("none")
   , erase("transparent")
+  , fillrule("Atop")
   , queryfilelist()
   , queryfilenames()
   , queryinfo(0)
@@ -46,6 +47,7 @@ Globals::Globals()
   , timestampimagey(0)
   , calculator()
   , querystreams()
+  , shapespecs()
 {
 }
 

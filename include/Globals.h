@@ -9,6 +9,7 @@
 #define GLOBALS_H
 
 #include "ContourCalculator.h"
+#include "ShapeSpec.h"
 
 #include <list>
 #include <string>
@@ -39,6 +40,7 @@ struct Globals
   std::string filter;				// filtering mode
 
   std::string erase;				// background color
+  std::string fillrule;				// normal filling rule
 
   std::string queryfilelist;		// querydata files in use
   std::vector<std::string> queryfilenames;	// querydata files in use
@@ -60,6 +62,8 @@ struct Globals
 
   ContourCalculator calculator;		// data contourer
   std::vector<LazyQueryData *> querystreams;
+
+  std::list<ShapeSpec> shapespecs;
 
 };
 
