@@ -889,59 +889,59 @@ int main(int argc, const char *argv[])
 			  float limit;
 			  input >> limit;
 			  if(!theSpecs.empty())
-				theSpecs.back().ExactHiLimit(limit);
+				theSpecs.back().exactHiLimit(limit);
 			}
 		  else if(command == "datalolimit")
 			{
 			  float limit;
 			  input >> limit;
 			  if(!theSpecs.empty())
-				theSpecs.back().DataLoLimit(limit);
+				theSpecs.back().dataLoLimit(limit);
 			}
 		  else if(command == "datahilimit")
 			{
 			  float limit;
 			  input >> limit;
 			  if(!theSpecs.empty());
-			  theSpecs.back().DataHiLimit(limit);
+			  theSpecs.back().dataHiLimit(limit);
 			}
 		  else if(command == "datareplace")
 			{
 			  float src,dst;
 			  input >> src >> dst;
 			  if(!theSpecs.empty())
-				theSpecs.back().Replace(src,dst);
+				theSpecs.back().replace(src,dst);
 			}
 		  else if(command == "contourdepth")
 			{
 			  input >> theContourDepth;
 			  if(!theSpecs.empty())
-				theSpecs.back().ContourDepth(theContourDepth);
+				theSpecs.back().contourDepth(theContourDepth);
 			}
 		  
 		  else if(command == "contourinterpolation")
 			{
 			  input >> theContourInterpolation;
 			  if(!theSpecs.empty())
-				theSpecs.back().ContourInterpolation(theContourInterpolation);
+				theSpecs.back().contourInterpolation(theContourInterpolation);
 			}
 		  else if(command == "smoother")
 			{
 			  input >> theSmoother;
 			  if(!theSpecs.empty())
-				theSpecs.back().Smoother(theSmoother);
+				theSpecs.back().smoother(theSmoother);
 			}
 		  else if(command == "smootherradius")
 			{
 			  input >> theSmootherRadius;
 			  if(!theSpecs.empty())
-				theSpecs.back().SmootherRadius(theSmootherRadius);
+				theSpecs.back().smootherRadius(theSmootherRadius);
 			}
 		  else if(command == "smootherfactor")
 			{
 			  input >> theSmootherFactor;
 			  if(!theSpecs.empty())
-				theSpecs.back().SmootherFactor(theSmootherFactor);
+				theSpecs.back().smootherFactor(theSmootherFactor);
 			}
 		  else if(command == "param")
 			{
@@ -1017,7 +1017,7 @@ int main(int argc, const char *argv[])
 			  NFmiColorTools::Color color = ToColor(scolor);
 			  
 			  if(!theSpecs.empty())
-				theSpecs.back().Add(ContourRange(lo,hi,color,theFillRule));
+				theSpecs.back().add(ContourRange(lo,hi,color,theFillRule));
 			}
 		  
 		  else if(command == "contourpattern")
@@ -1037,7 +1037,7 @@ int main(int argc, const char *argv[])
 				hi = atof(shi.c_str());
 			  
 			  if(!theSpecs.empty())
-				theSpecs.back().Add(ContourPattern(lo,hi,spattern,srule,alpha));
+				theSpecs.back().add(ContourPattern(lo,hi,spattern,srule,alpha));
 			}
 		  
 		  else if(command == "contourline")
@@ -1053,7 +1053,7 @@ int main(int argc, const char *argv[])
 			  
 			  NFmiColorTools::Color color = ToColor(scolor);
 			  if(!theSpecs.empty())
-				theSpecs.back().Add(ContourValue(value,color,theStrokeRule));
+				theSpecs.back().add(ContourValue(value,color,theStrokeRule));
 			}
 		  
 		  else if(command == "contourfills")
@@ -1075,7 +1075,7 @@ int main(int argc, const char *argv[])
 				  if(steps!=1)
 					color = NFmiColorTools::Interpolate(color1,color2,i/(steps-1.0));
 				  if(!theSpecs.empty())
-					theSpecs.back().Add(ContourRange(tmplo,tmphi,color,theFillRule));
+					theSpecs.back().add(ContourRange(tmplo,tmphi,color,theFillRule));
 				  // if(verbose)
 				  // cout << "Interval " << tmplo << "," << tmphi
 				  // << " colour is "
@@ -1105,7 +1105,7 @@ int main(int argc, const char *argv[])
 				  if(steps!=0)
 					color = NFmiColorTools::Interpolate(color1,color2,i/steps);
 				  if(!theSpecs.empty())
-					theSpecs.back().Add(ContourValue(tmplo,color,theStrokeRule));
+					theSpecs.back().add(ContourValue(tmplo,color,theStrokeRule));
 				}
 			}
 	      
@@ -1126,7 +1126,7 @@ int main(int argc, const char *argv[])
 				{
 				  list<ContourSpec>::iterator piter;
 				  for(piter=theSpecs.begin(); piter!=theSpecs.end(); ++piter)
-					piter->ClearLabels();
+					piter->clearLabels();
 				}
 			  else if(command=="corners")
 				{
@@ -1149,9 +1149,9 @@ int main(int argc, const char *argv[])
 			  
 			  if(!theSpecs.empty())
 				{
-				  theSpecs.back().LabelMarker(filename);
-				  theSpecs.back().LabelMarkerRule(rule);
-				  theSpecs.back().LabelMarkerAlphaFactor(alpha);
+				  theSpecs.back().labelMarker(filename);
+				  theSpecs.back().labelMarkerRule(rule);
+				  theSpecs.back().labelMarkerAlphaFactor(alpha);
 				}
 			}
 		  
@@ -1160,7 +1160,7 @@ int main(int argc, const char *argv[])
 			  string font;
 			  input >> font;
 			  if(!theSpecs.empty())
-				theSpecs.back().LabelFont(font);
+				theSpecs.back().labelFont(font);
 			}
 		  
 		  else if(command == "labelsize")
@@ -1168,7 +1168,7 @@ int main(int argc, const char *argv[])
 			  float size;
 			  input >> size;
 			  if(!theSpecs.empty())
-				theSpecs.back().LabelSize(size);
+				theSpecs.back().labelSize(size);
 			}
 		  
 		  else if(command == "labelstroke")
@@ -1177,8 +1177,8 @@ int main(int argc, const char *argv[])
 			  input >> color >> rule;
 			  if(!theSpecs.empty())
 				{
-				  theSpecs.back().LabelStrokeColor(ToColor(color));
-				  theSpecs.back().LabelStrokeRule(rule);
+				  theSpecs.back().labelStrokeColor(ToColor(color));
+				  theSpecs.back().labelStrokeRule(rule);
 				}
 			}
 		  
@@ -1188,8 +1188,8 @@ int main(int argc, const char *argv[])
 			  input >> color >> rule;
 			  if(!theSpecs.empty())
 				{
-				  theSpecs.back().LabelFillColor(ToColor(color));
-				  theSpecs.back().LabelFillRule(rule);
+				  theSpecs.back().labelFillColor(ToColor(color));
+				  theSpecs.back().labelFillRule(rule);
 				}
 			}
 		  
@@ -1198,7 +1198,7 @@ int main(int argc, const char *argv[])
 			  string align;
 			  input >> align;
 			  if(!theSpecs.empty())
-				theSpecs.back().LabelAlignment(align);
+				theSpecs.back().labelAlignment(align);
 			}
 		  
 		  else if(command == "labelformat")
@@ -1207,7 +1207,7 @@ int main(int argc, const char *argv[])
 			  input >> format;
 			  if(format == "-") format = "";
 			  if(!theSpecs.empty())
-				theSpecs.back().LabelFormat(format);
+				theSpecs.back().labelFormat(format);
 			}
 		  
 		  else if(command == "labelmissing")
@@ -1216,7 +1216,7 @@ int main(int argc, const char *argv[])
 			  input >> label;
 			  if(label == "none") label = "";
 			  if(!theSpecs.empty())
-				theSpecs.back().LabelMissing(label);
+				theSpecs.back().labelMissing(label);
 			}
 		  
 		  else if(command == "labelangle")
@@ -1224,7 +1224,7 @@ int main(int argc, const char *argv[])
 			  float angle;
 			  input >> angle;
 			  if(!theSpecs.empty())
-				theSpecs.back().LabelAngle(angle);
+				theSpecs.back().labelAngle(angle);
 			}
 		  
 		  else if(command == "labeloffset")
@@ -1233,8 +1233,8 @@ int main(int argc, const char *argv[])
 			  input >> dx >> dy;
 			  if(!theSpecs.empty())
 				{
-				  theSpecs.back().LabelOffsetX(dx);
-				  theSpecs.back().LabelOffsetY(dy);
+				  theSpecs.back().labelOffsetX(dx);
+				  theSpecs.back().labelOffsetY(dy);
 				}
 			}
 		  
@@ -1245,10 +1245,10 @@ int main(int argc, const char *argv[])
 			  input >> name >> dx >> dy >> align;
 			  if(!theSpecs.empty())
 				{
-				  theSpecs.back().LabelCaption(name);
-				  theSpecs.back().LabelCaptionDX(dx);
-				  theSpecs.back().LabelCaptionDY(dy);
-				  theSpecs.back().LabelCaptionAlignment(align);
+				  theSpecs.back().labelCaption(name);
+				  theSpecs.back().labelCaptionDX(dx);
+				  theSpecs.back().labelCaptionDY(dy);
+				  theSpecs.back().labelCaptionAlignment(align);
 				}
 			}
 		  
@@ -1257,7 +1257,7 @@ int main(int argc, const char *argv[])
 			  float lon,lat;
 			  input >> lon >> lat;
 			  if(!theSpecs.empty())
-				theSpecs.back().Add(NFmiPoint(lon,lat));
+				theSpecs.back().add(NFmiPoint(lon,lat));
 			}
 		  
 		  else if(command == "labelxy")
@@ -1267,7 +1267,7 @@ int main(int argc, const char *argv[])
 			  int dx, dy;
 			  input >> dx >> dy;
 			  if(!theSpecs.empty())
-				theSpecs.back().Add(NFmiPoint(lon,lat),NFmiPoint(dx,dy));
+				theSpecs.back().add(NFmiPoint(lon,lat),NFmiPoint(dx,dy));
 			}
 		  
 		  else if(command == "labels")
@@ -1276,8 +1276,8 @@ int main(int argc, const char *argv[])
 			  input >> dx >> dy;
 			  if(!theSpecs.empty())
 				{
-				  theSpecs.back().LabelDX(dx);
-				  theSpecs.back().LabelDY(dy);
+				  theSpecs.back().labelDX(dx);
+				  theSpecs.back().labelDY(dy);
 				}
 
 			}
@@ -1302,7 +1302,7 @@ int main(int argc, const char *argv[])
 					  float lon,lat;
 					  datafile >> lon >> lat;
 					  if(!theSpecs.empty())
-						theSpecs.back().Add(NFmiPoint(lon,lat));
+						theSpecs.back().add(NFmiPoint(lon,lat));
 					}
 				  else
 					{
@@ -1341,8 +1341,8 @@ int main(int argc, const char *argv[])
 					  list<ContourRange>::const_iterator cbegin;
 					  list<ContourRange>::const_iterator cend;
 					  
-					  cbegin = theSpecs.back().ContourFills().begin();
-					  cend   = theSpecs.back().ContourFills().end();
+					  cbegin = theSpecs.back().contourFills().begin();
+					  cend   = theSpecs.back().contourFills().end();
 					  
 					  for(citer=cbegin ; citer!=cend; ++citer)
 						{
@@ -1367,8 +1367,8 @@ int main(int argc, const char *argv[])
 					  list<ContourValue>::const_iterator lbegin;
 					  list<ContourValue>::const_iterator lend;
 					  
-					  lbegin = theSpecs.back().ContourValues().begin();
-					  lend   = theSpecs.back().ContourValues().end();
+					  lbegin = theSpecs.back().contourValues().begin();
+					  lend   = theSpecs.back().contourValues().end();
 					  
 					  for(liter=lbegin ; liter!=lend; ++liter)
 						{
@@ -2002,7 +2002,7 @@ int main(int argc, const char *argv[])
 						{
 						  // Establish the parameter
 						  
-						  string name = piter->Param();
+						  string name = piter->param();
 
 						  bool ismeta = false;
 						  ok = false;
@@ -2050,7 +2050,7 @@ int main(int argc, const char *argv[])
 						  
 						  // Establish the contour method
 						  
-						  string interpname = piter->ContourInterpolation();
+						  string interpname = piter->contourInterpolation();
 						  NFmiContourTree::NFmiContourInterpolation interp
 							= NFmiContourTree::ContourInterpolationValue(interpname);
 						  if(interp==NFmiContourTree::kFmiContourMissingInterpolation)
@@ -2064,12 +2064,12 @@ int main(int argc, const char *argv[])
 						  if(!ismeta)
 							theQueryInfo->Values(vals);
 						  else
-							meta_values(piter->Param(), theQueryInfo, vals);
+							meta_values(piter->param(), theQueryInfo, vals);
 						  
 						  // Replace values if so requested
 						  
-						  if(piter->Replace())
-							vals.Replace(piter->ReplaceSourceValue(),piter->ReplaceTargetValue());
+						  if(piter->replace())
+							vals.Replace(piter->replaceSourceValue(),piter->replaceTargetValue());
 						  
 						  if(theFilter=="none")
 							{
@@ -2092,10 +2092,10 @@ int main(int argc, const char *argv[])
 								  if(!ismeta)
 									theQueryInfo->Values(tmpvals);
 								  else
-									meta_values(piter->Param(), theQueryInfo, tmpvals);
-								  if(piter->Replace())
-									tmpvals.Replace(piter->ReplaceSourceValue(),
-													piter->ReplaceTargetValue());
+									meta_values(piter->param(), theQueryInfo, tmpvals);
+								  if(piter->replace())
+									tmpvals.Replace(piter->replaceSourceValue(),
+													piter->replaceTargetValue());
 								  
 								  // Data from t1,t2, we want t
 								  
@@ -2127,10 +2127,10 @@ int main(int argc, const char *argv[])
 								  if(!ismeta)
 									theQueryInfo->Values(tmpvals);
 								  else
-									meta_values(piter->Param(), theQueryInfo, tmpvals);
-								  if(piter->Replace())
-									tmpvals.Replace(piter->ReplaceSourceValue(),
-													piter->ReplaceTargetValue());
+									meta_values(piter->param(), theQueryInfo, tmpvals);
+								  if(piter->replace())
+									tmpvals.Replace(piter->replaceSourceValue(),
+													piter->replaceTargetValue());
 								  
 								  if(theFilter=="min")
 									vals.Min(tmpvals);
@@ -2149,9 +2149,9 @@ int main(int argc, const char *argv[])
 						  
 						  // Smoothen the values
 						  
-						  NFmiSmoother smoother(piter->Smoother(),
-												piter->SmootherFactor(),
-												piter->SmootherRadius());
+						  NFmiSmoother smoother(piter->smoother(),
+												piter->smootherFactor(),
+												piter->smootherRadius());
 						  
 						  vals = smoother.Smoothen(worldpts[qi],vals);
 						  
@@ -2179,21 +2179,21 @@ int main(int argc, const char *argv[])
 						  // First, however, if this is the first image, we add
 						  // the grid points to the set of points, if so requested
 
-						  if(piter->LabelDX() > 0 && piter->LabelDY() > 0)
+						  if(piter->labelDX() > 0 && piter->labelDY() > 0)
 							{
-							  for(unsigned int j=0; j<pts[qi].NY(); j+=piter->LabelDY())
-								for(unsigned int i=0; i<pts[qi].NX(); i+=piter->LabelDX())
-								  piter->Add(area.WorldXYToLatLon(worldpts[qi][i][j]));
+							  for(unsigned int j=0; j<pts[qi].NY(); j+=piter->labelDY())
+								for(unsigned int i=0; i<pts[qi].NX(); i+=piter->labelDX())
+								  piter->add(area.WorldXYToLatLon(worldpts[qi][i][j]));
 							}
 
-						  piter->ClearLabelValues();
-						  if((piter->LabelFormat() != "") &&
-							 !piter->LabelPoints().empty() )
+						  piter->clearLabelValues();
+						  if((piter->labelFormat() != "") &&
+							 !piter->labelPoints().empty() )
 							{
 							  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
 							  
-							  for(iter=piter->LabelPoints().begin();
-								  iter!=piter->LabelPoints().end();
+							  for(iter=piter->labelPoints().begin();
+								  iter!=piter->labelPoints().end();
 								  ++iter)
 								{
 								  NFmiPoint latlon = iter->first;
@@ -2222,7 +2222,7 @@ int main(int argc, const char *argv[])
 										value = kFloatMissing;
 
 									}
-								  piter->AddLabelValue(value);
+								  piter->addLabelValue(value);
 								}
 							}
 					  
@@ -2232,8 +2232,8 @@ int main(int argc, const char *argv[])
 						  list<ContourRange>::const_iterator cbegin;
 						  list<ContourRange>::const_iterator cend;
 						  
-						  cbegin = piter->ContourFills().begin();
-						  cend   = piter->ContourFills().end();
+						  cbegin = piter->contourFills().begin();
+						  cend   = piter->contourFills().end();
 						  
 						  for(citer=cbegin ; citer!=cend; ++citer)
 							{
@@ -2261,20 +2261,20 @@ int main(int argc, const char *argv[])
 							  
 							  bool exactlo = true;
 							  bool exacthi = (citer->hilimit()!=kFloatMissing &&
-											  piter->ExactHiLimit()!=kFloatMissing &&
-											  citer->hilimit()==piter->ExactHiLimit());
+											  piter->exactHiLimit()!=kFloatMissing &&
+											  citer->hilimit()==piter->exactHiLimit());
 							  NFmiContourTree tree(citer->lolimit(),
 												   citer->hilimit(),
 												   exactlo,exacthi);
 							  
-							  if(piter->DataLoLimit()!=kFloatMissing)
-								tree.DataLoLimit(piter->DataLoLimit());
-							  if(piter->DataHiLimit()!=kFloatMissing)
-								tree.DataHiLimit(piter->DataHiLimit());
+							  if(piter->dataLoLimit()!=kFloatMissing)
+								tree.DataLoLimit(piter->dataLoLimit());
+							  if(piter->dataHiLimit()!=kFloatMissing)
+								tree.DataHiLimit(piter->dataHiLimit());
 							  
 							  NFmiColorTools::NFmiBlendRule rule = NFmiColorTools::BlendValue(citer->rule());
 							  
-							  tree.Contour(pts[qi],vals,interp,piter->ContourDepth());
+							  tree.Contour(pts[qi],vals,interp,piter->contourDepth());
 							  tree.Fill(theImage,citer->color(),rule);
 							  
 							}
@@ -2285,8 +2285,8 @@ int main(int argc, const char *argv[])
 						  list<ContourPattern>::const_iterator patbegin;
 						  list<ContourPattern>::const_iterator patend;
 						  
-						  patbegin = piter->ContourPatterns().begin();
-						  patend   = piter->ContourPatterns().end();
+						  patbegin = piter->contourPatterns().begin();
+						  patend   = piter->contourPatterns().end();
 						  
 						  for(patiter=patbegin ; patiter!=patend; ++patiter)
 							{
@@ -2314,20 +2314,20 @@ int main(int argc, const char *argv[])
 							  
 							  bool exactlo = true;
 							  bool exacthi = (patiter->hilimit()!=kFloatMissing &&
-											  piter->ExactHiLimit()!=kFloatMissing &&
-											  patiter->hilimit()==piter->ExactHiLimit());
+											  piter->exactHiLimit()!=kFloatMissing &&
+											  patiter->hilimit()==piter->exactHiLimit());
 							  NFmiContourTree tree(patiter->lolimit(),
 												   patiter->hilimit(),
 												   exactlo,exacthi);
 							  
-							  if(piter->DataLoLimit()!=kFloatMissing)
-								tree.DataLoLimit(piter->DataLoLimit());
-							  if(piter->DataHiLimit()!=kFloatMissing)
-								tree.DataHiLimit(piter->DataHiLimit());
+							  if(piter->dataLoLimit()!=kFloatMissing)
+								tree.DataLoLimit(piter->dataLoLimit());
+							  if(piter->dataHiLimit()!=kFloatMissing)
+								tree.DataHiLimit(piter->dataHiLimit());
 							  
 							  NFmiColorTools::NFmiBlendRule rule = NFmiColorTools::BlendValue(patiter->rule());
 							  
-							  tree.Contour(pts[qi],vals,interp,piter->ContourDepth());
+							  tree.Contour(pts[qi],vals,interp,piter->contourDepth());
 							  NFmiImage pattern(patiter->pattern());
 							  
 							  tree.Fill(theImage,pattern,rule,patiter->factor());
@@ -2340,8 +2340,8 @@ int main(int argc, const char *argv[])
 						  list<ContourValue>::const_iterator lbegin;
 						  list<ContourValue>::const_iterator lend;
 						  
-						  lbegin = piter->ContourValues().begin();
-						  lend   = piter->ContourValues().end();
+						  lbegin = piter->contourValues().begin();
+						  lend   = piter->contourValues().end();
 						  
 						  for(liter=lbegin ; liter!=lend; ++liter)
 							{
@@ -2359,13 +2359,13 @@ int main(int argc, const char *argv[])
 								}
 							  
 							  NFmiContourTree tree(liter->value(),kFloatMissing);
-							  if(piter->DataLoLimit()!=kFloatMissing)
-								tree.DataLoLimit(piter->DataLoLimit());
-							  if(piter->DataHiLimit()!=kFloatMissing)
-								tree.DataHiLimit(piter->DataHiLimit());
+							  if(piter->dataLoLimit()!=kFloatMissing)
+								tree.DataLoLimit(piter->dataLoLimit());
+							  if(piter->dataHiLimit()!=kFloatMissing)
+								tree.DataHiLimit(piter->dataHiLimit());
 							  
 							  NFmiColorTools::NFmiBlendRule rule = NFmiColorTools::BlendValue(liter->rule());
-							  tree.Contour(pts[qi],vals,interp,piter->ContourDepth());
+							  tree.Contour(pts[qi],vals,interp,piter->contourDepth());
 							  NFmiPath path = tree.Path();
 							  path.SimplifyLines(10);
 							  path.Stroke(theImage,liter->color(),rule);
@@ -2588,31 +2588,31 @@ int main(int argc, const char *argv[])
 						  
 						  // Draw label markers first
 						  
-						  if(!piter->LabelMarker().empty())
+						  if(!piter->labelMarker().empty())
 							{
 							  // Establish that something is to be done
 							  
-							  if(piter->LabelPoints().empty() &&
-								 !(piter->LabelDX()==0 || piter->LabelDX()==0))
+							  if(piter->labelPoints().empty() &&
+								 !(piter->labelDX()==0 || piter->labelDX()==0))
 								continue;
 							  
 							  // Establish the marker specs
 							  
 							  NFmiImage marker;
-							  marker.Read(piter->LabelMarker());
+							  marker.Read(piter->labelMarker());
 							  
-							  NFmiColorTools::NFmiBlendRule markerrule = NFmiColorTools::BlendValue(piter->LabelMarkerRule());
+							  NFmiColorTools::NFmiBlendRule markerrule = NFmiColorTools::BlendValue(piter->labelMarkerRule());
 							  
-							  float markeralpha = piter->LabelMarkerAlphaFactor();
+							  float markeralpha = piter->labelMarkerAlphaFactor();
 							  
 							  // Draw individual points
 							  
-							  if(!piter->LabelPoints().empty())
+							  if(!piter->labelPoints().empty())
 								{
 								  unsigned int pointnumber = 0;
 								  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
-								  for(iter=piter->LabelPoints().begin();
-									  iter!=piter->LabelPoints().end();
+								  for(iter=piter->labelPoints().begin();
+									  iter!=piter->labelPoints().end();
 									  ++iter)
 									{
 									  // The point in question
@@ -2625,9 +2625,9 @@ int main(int argc, const char *argv[])
 										continue;
 
                                       // Skip rendering if LabelMissing is "" and value is missing
-                                      if(piter->LabelMissing().empty())
+                                      if(piter->labelMissing().empty())
                                         {
-                                          float value = piter->LabelValues()[pointnumber++];
+                                          float value = piter->labelValues()[pointnumber++];
                                           if(value == kFloatMissing)
                                             continue;
                                         }
@@ -2648,11 +2648,11 @@ int main(int argc, const char *argv[])
 						  // Quick exit from loop if no labels are
 						  // desired for this parameter
 						  
-						  if(piter->LabelPoints().empty() &&
-							 !(piter->LabelDX()!=0 && piter->LabelDY()!=0))
+						  if(piter->labelPoints().empty() &&
+							 !(piter->labelDX()!=0 && piter->labelDY()!=0))
 							continue;
 						  
-						  if(piter->LabelFormat() == "")
+						  if(piter->labelFormat() == "")
 							continue;
 
 						  // Draw markers if so requested
@@ -2660,42 +2660,42 @@ int main(int argc, const char *argv[])
 						  
 						  // Create the font object to be used
 						  
-						  NFmiFontHershey font(piter->LabelFont());
+						  NFmiFontHershey font(piter->labelFont());
 							  
 						  // Create the text object to be used
 						  
 						  NFmiText text("",
 										font,
-										piter->LabelSize(),
+										piter->labelSize(),
 										0.0,	// x
 										0.0,	// y
-										AlignmentValue(piter->LabelAlignment()),
-										piter->LabelAngle());
+										AlignmentValue(piter->labelAlignment()),
+										piter->labelAngle());
 						  
 						  
-						  NFmiText caption(piter->LabelCaption(),
+						  NFmiText caption(piter->labelCaption(),
 										   font,
-										   piter->LabelSize(),
+										   piter->labelSize(),
 										   0.0,
 										   0.0,
-										   AlignmentValue(piter->LabelCaptionAlignment()),
-										   piter->LabelAngle());
+										   AlignmentValue(piter->labelCaptionAlignment()),
+										   piter->labelAngle());
 						  
 						  // The rules
 						  
 						  NFmiColorTools::NFmiBlendRule fillrule
-							= NFmiColorTools::BlendValue(piter->LabelFillRule());
+							= NFmiColorTools::BlendValue(piter->labelFillRule());
 						  
 						  NFmiColorTools::NFmiBlendRule strokerule
-							= NFmiColorTools::BlendValue(piter->LabelStrokeRule());
+							= NFmiColorTools::BlendValue(piter->labelStrokeRule());
 						  
 						  // Draw labels at specifing latlon points if requested
 						  
 						  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
 						  
 						  int pointnumber = 0;
-						  for(iter=piter->LabelPoints().begin();
-							  iter!=piter->LabelPoints().end();
+						  for(iter=piter->labelPoints().begin();
+							  iter!=piter->labelPoints().end();
 							  ++iter)
 							{
 
@@ -2719,15 +2719,15 @@ int main(int argc, const char *argv[])
 							  if(IsMasked(NFmiPoint(x,y),theMask,theMaskImage))
 								continue;
 
-							  float value = piter->LabelValues()[pointnumber++];
+							  float value = piter->labelValues()[pointnumber++];
 							  
 							  // Convert value to string
-							  string strvalue = piter->LabelMissing();
+							  string strvalue = piter->labelMissing();
 							  
 							  if(value!=kFloatMissing)
 								{
 								  char tmp[20];
-								  sprintf(tmp,piter->LabelFormat().c_str(),value);
+								  sprintf(tmp,piter->labelFormat().c_str(),value);
 								  strvalue = tmp;
 								}
 
@@ -2738,22 +2738,22 @@ int main(int argc, const char *argv[])
 							  // Set new text properties
 							  
 							  text.Text(strvalue);
-							  text.X(x + piter->LabelOffsetX());
-							  text.Y(y + piter->LabelOffsetY());
+							  text.X(x + piter->labelOffsetX());
+							  text.Y(y + piter->labelOffsetY());
 							  
 							  // And render the text
 							  
-							  text.Fill(theImage,piter->LabelFillColor(),fillrule);
-							  text.Stroke(theImage,piter->LabelStrokeColor(),strokerule);
+							  text.Fill(theImage,piter->labelFillColor(),fillrule);
+							  text.Stroke(theImage,piter->labelStrokeColor(),strokerule);
 							  
 							  // Then the label caption
 							  
-							  if(!piter->LabelCaption().empty())
+							  if(!piter->labelCaption().empty())
 								{
-								  caption.X(text.X() + piter->LabelCaptionDX());
-								  caption.Y(text.Y() + piter->LabelCaptionDY());
-								  caption.Fill(theImage,piter->LabelFillColor(),fillrule);
-								  caption.Stroke(theImage,piter->LabelStrokeColor(),strokerule);
+								  caption.X(text.X() + piter->labelCaptionDX());
+								  caption.Y(text.Y() + piter->labelCaptionDY());
+								  caption.Fill(theImage,piter->labelFillColor(),fillrule);
+								  caption.Stroke(theImage,piter->labelStrokeColor(),strokerule);
 								}
 							  
 							}

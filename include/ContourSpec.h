@@ -2,6 +2,8 @@
 // Yksittäisen parametrin piirto-ohjeet
 // ----------------------------------------------------------------------
 
+#include "ContourPattern.h"
+#include "ContourRange.h"
 #include "ContourValue.h"
 
 #include "NFmiColorTools.h"
@@ -14,20 +16,27 @@
 class ContourSpec
 {
 public:
-  ContourSpec(const std::string & param,
-			  const std::string & interpolation,
-			  const std::string & smoother,
-			  int depth=0,
-			  float smootherradius=1.0,
-			  int smootherfactor=1,
-			  float hilimit=kFloatMissing)
-    : itsParam(param)
-    , itsContourInterpolation(interpolation)
-    , itsSmoother(smoother)
-    , itsSmootherRadius(smootherradius)
-    , itsSmootherFactor(smootherfactor)
-    , itsExactHiLimit(hilimit)
-    , itsContourDepth(depth)
+
+#ifdef COMPILER_GENERATED
+  ~ContourSpec();
+  ContourSpec(const ContourSpec & theValue);
+  ContourSpec & operator=(const ContourSpec & theValue);
+#endif
+
+  ContourSpec(const std::string & theParam,
+			  const std::string & theInterpolation,
+			  const std::string & theSmoother,
+			  int theDepth=0,
+			  float theSmootherRadius=1.0,
+			  int theSmootherFactor=1,
+			  float theHiLimit=kFloatMissing)
+    : itsParam(theParam)
+    , itsContourInterpolation(theInterpolation)
+    , itsSmoother(theSmoother)
+    , itsSmootherRadius(theSmootherRadius)
+    , itsSmootherFactor(theSmootherFactor)
+    , itsExactHiLimit(theHiLimit)
+    , itsContourDepth(theDepth)
     , itsDataLoLimit(kFloatMissing)
     , itsDataHiLimit(kFloatMissing)
     , itHasReplace(false)
@@ -54,41 +63,41 @@ public:
     , itsLabelCaptionAlignment("West")
   {}
   
-  const std::list<ContourRange> & ContourFills(void) const { return itsContourFills; }
-  const std::list<ContourPattern> & ContourPatterns(void) const { return itsContourPatterns; }
-  const std::list<ContourValue> & ContourValues(void) const { return itsContourValues; }
+  const std::list<ContourRange> & contourFills(void) const { return itsContourFills; }
+  const std::list<ContourPattern> & contourPatterns(void) const { return itsContourPatterns; }
+  const std::list<ContourValue> & contourValues(void) const { return itsContourValues; }
   
-  const std::string & Param(void) const		{ return itsParam; }
-  const std::string & ContourInterpolation(void) const	{ return itsContourInterpolation; }
-  const std::string & Smoother(void) const		{ return itsSmoother; }
-  float SmootherRadius(void) const		{ return itsSmootherRadius; }
-  int SmootherFactor(void) const		{ return itsSmootherFactor; }
-  float ExactHiLimit(void) const		{ return itsExactHiLimit; }
-  int ContourDepth(void) const			{ return itsContourDepth; }
-  float DataHiLimit(void) const			{ return itsDataHiLimit; }
-  float DataLoLimit(void) const			{ return itsDataLoLimit; }
+  const std::string & param(void) const		{ return itsParam; }
+  const std::string & contourInterpolation(void) const	{ return itsContourInterpolation; }
+  const std::string & smoother(void) const		{ return itsSmoother; }
+  float smootherRadius(void) const		{ return itsSmootherRadius; }
+  int smootherFactor(void) const		{ return itsSmootherFactor; }
+  float exactHiLimit(void) const		{ return itsExactHiLimit; }
+  int contourDepth(void) const			{ return itsContourDepth; }
+  float dataHiLimit(void) const			{ return itsDataHiLimit; }
+  float dataLoLimit(void) const			{ return itsDataLoLimit; }
   
-  void ContourInterpolation(const std::string & val)	{ itsContourInterpolation = val; }
-  void Smoother(const std::string & val)		{ itsSmoother = val; }
-  void SmootherRadius(float radius)		{ itsSmootherRadius = radius; }
-  void SmootherFactor(int factor)		{ itsSmootherFactor = factor; }
-  void ExactHiLimit(float limit)		{ itsExactHiLimit = limit; }
-  void ContourDepth(int depth)			{ itsContourDepth = depth; }
+  void contourInterpolation(const std::string & val)	{ itsContourInterpolation = val; }
+  void smoother(const std::string & val)		{ itsSmoother = val; }
+  void smootherRadius(float radius)		{ itsSmootherRadius = radius; }
+  void smootherFactor(int factor)		{ itsSmootherFactor = factor; }
+  void exactHiLimit(float limit)		{ itsExactHiLimit = limit; }
+  void contourDepth(int depth)			{ itsContourDepth = depth; }
   
-  void DataLoLimit(float limit)			{ itsDataLoLimit = limit; }
-  void DataHiLimit(float limit)			{ itsDataHiLimit = limit; }
+  void dataLoLimit(float limit)			{ itsDataLoLimit = limit; }
+  void dataHiLimit(float limit)			{ itsDataHiLimit = limit; }
   
-  void Add(ContourRange range) { itsContourFills.push_back(range); }
-  void Add(ContourValue value) { itsContourValues.push_back(value); }
-  void Add(ContourPattern value) { itsContourPatterns.push_back(value); }
+  void add(ContourRange range) { itsContourFills.push_back(range); }
+  void add(ContourValue value) { itsContourValues.push_back(value); }
+  void add(ContourPattern value) { itsContourPatterns.push_back(value); }
   
   // This was done to replace 32700 with -1 in PrecipitationForm
   
-  bool Replace(void) const		{ return itHasReplace; }
-  float ReplaceSourceValue(void) const	{ return itsReplaceSourceValue; }
-  float ReplaceTargetValue(void) const	{ return itsReplaceTargetValue; }
+  bool replace(void) const		{ return itHasReplace; }
+  float replaceSourceValue(void) const	{ return itsReplaceSourceValue; }
+  float replaceTargetValue(void) const	{ return itsReplaceTargetValue; }
   
-  void Replace(float src, float dst)
+  void replace(float src, float dst)
   {
     itHasReplace = true;
     itsReplaceSourceValue = src;
@@ -97,24 +106,24 @@ public:
   
   // Label specific methods
   
-  const std::list<std::pair<NFmiPoint,NFmiPoint> > & LabelPoints(void) const { return itsLabelPoints; }
+  const std::list<std::pair<NFmiPoint,NFmiPoint> > & labelPoints(void) const { return itsLabelPoints; }
   
-  void Add(const NFmiPoint & point,
+  void add(const NFmiPoint & point,
 		   const NFmiPoint xy = NFmiPoint(kFloatMissing,kFloatMissing))
   { itsLabelPoints.push_back(std::make_pair(point,xy)); }
   
-  const std::vector<float> & LabelValues(void) const
+  const std::vector<float> & labelValues(void) const
   { return itsLabelValues; }
   
-  void AddLabelValue(float value)
+  void addLabelValue(float value)
   { itsLabelValues.push_back(value); }
   
-  void ClearLabelValues(void)
+  void clearLabelValues(void)
   {
     itsLabelValues.clear();
   }
   
-  void ClearLabels(void)
+  void clearLabels(void)
   {
     itsLabelPoints.clear();
     itsLabelValues.clear();
@@ -122,54 +131,56 @@ public:
 	itsLabelDY = 0;
   }
   
-  const std::string & LabelMarker(void) const	{ return itsLabelMarker; }
-  const std::string & LabelMarkerRule(void) const 	{ return itsLabelMarkerRule; }
-  float LabelMarkerAlphaFactor(void) const 	{ return itsLabelMarkerAlphaFactor; }
-  const std::string & LabelFont(void) const		{ return itsLabelFont; }
-  float LabelSize(void) const			{ return itsLabelSize; }
-  int LabelStrokeColor(void) const		{ return itsLabelStrokeColor; }
-  const std::string & LabelStrokeRule(void) const	{ return itsLabelStrokeRule; }
-  int LabelFillColor(void) const		{ return itsLabelFillColor; }
-  const std::string & LabelFillRule(void) const	{ return itsLabelFillRule; }
-  const std::string & LabelAlignment(void) const	{ return itsLabelAlignment; }
-  const std::string & LabelFormat(void) const	{ return itsLabelFormat; }
-  const std::string & LabelMissing(void) const	{ return itsLabelMissing; }
-  float LabelAngle(void) const			{ return itsLabelAngle; }
-  float LabelOffsetX(void) const		{ return itsLabelOffsetX; }
-  float LabelOffsetY(void) const		{ return itsLabelOffsetY; }
-  int LabelDX(void) const			{ return itsLabelDX; }
-  int LabelDY(void) const			{ return itsLabelDY; }
+  const std::string & labelMarker(void) const	{ return itsLabelMarker; }
+  const std::string & labelMarkerRule(void) const 	{ return itsLabelMarkerRule; }
+  float labelMarkerAlphaFactor(void) const 	{ return itsLabelMarkerAlphaFactor; }
+  const std::string & labelFont(void) const		{ return itsLabelFont; }
+  float labelSize(void) const			{ return itsLabelSize; }
+  int labelStrokeColor(void) const		{ return itsLabelStrokeColor; }
+  const std::string & labelStrokeRule(void) const	{ return itsLabelStrokeRule; }
+  int labelFillColor(void) const		{ return itsLabelFillColor; }
+  const std::string & labelFillRule(void) const	{ return itsLabelFillRule; }
+  const std::string & labelAlignment(void) const	{ return itsLabelAlignment; }
+  const std::string & labelFormat(void) const	{ return itsLabelFormat; }
+  const std::string & labelMissing(void) const	{ return itsLabelMissing; }
+  float labelAngle(void) const			{ return itsLabelAngle; }
+  float labelOffsetX(void) const		{ return itsLabelOffsetX; }
+  float labelOffsetY(void) const		{ return itsLabelOffsetY; }
+  int labelDX(void) const			{ return itsLabelDX; }
+  int labelDY(void) const			{ return itsLabelDY; }
   
-  std::string LabelCaption(void) const		{ return itsLabelCaption; }
-  float LabelCaptionDX(void) const		{ return itsLabelCaptionDX; }
-  float LabelCaptionDY(void) const		{ return itsLabelCaptionDY; }
-  std::string LabelCaptionAlignment(void) const	{ return itsLabelCaptionAlignment; }
+  std::string labelCaption(void) const		{ return itsLabelCaption; }
+  float labelCaptionDX(void) const		{ return itsLabelCaptionDX; }
+  float labelCaptionDY(void) const		{ return itsLabelCaptionDY; }
+  std::string labelCaptionAlignment(void) const	{ return itsLabelCaptionAlignment; }
   
-  void LabelMarker(const std::string & value)	{ itsLabelMarker = value; }
-  void LabelMarkerRule(const std::string & value)	{ itsLabelMarkerRule = value; }
-  void LabelMarkerAlphaFactor(float value) 	{ itsLabelMarkerAlphaFactor = value; }
-  void LabelFont(const std::string & value)		{ itsLabelFont = value; }
-  void LabelSize(float value)			{ itsLabelSize = value; }
-  void LabelStrokeColor(int value)		{ itsLabelStrokeColor = value; }
-  void LabelStrokeRule(const std::string & value)	{ itsLabelStrokeRule = value; }
-  void LabelFillColor(int value)		{ itsLabelFillColor = value; }
-  void LabelFillRule(const std::string & value)	{ itsLabelFillRule = value; }
-  void LabelAlignment(const std::string & value)	{ itsLabelAlignment = value; }
-  void LabelFormat(const std::string & value)	{ itsLabelFormat = value; }
-  void LabelMissing(const std::string & value)	{ itsLabelMissing = value; }
-  void LabelAngle(float value)			{ itsLabelAngle = value; }
-  void LabelOffsetX(float value)		{ itsLabelOffsetX = value; }
-  void LabelOffsetY(float value)		{ itsLabelOffsetY = value; }
-  void LabelDX(int value)			{ itsLabelDX = value; }
-  void LabelDY(int value)			{ itsLabelDY = value; }
+  void labelMarker(const std::string & value)	{ itsLabelMarker = value; }
+  void labelMarkerRule(const std::string & value)	{ itsLabelMarkerRule = value; }
+  void labelMarkerAlphaFactor(float value) 	{ itsLabelMarkerAlphaFactor = value; }
+  void labelFont(const std::string & value)		{ itsLabelFont = value; }
+  void labelSize(float value)			{ itsLabelSize = value; }
+  void labelStrokeColor(int value)		{ itsLabelStrokeColor = value; }
+  void labelStrokeRule(const std::string & value)	{ itsLabelStrokeRule = value; }
+  void labelFillColor(int value)		{ itsLabelFillColor = value; }
+  void labelFillRule(const std::string & value)	{ itsLabelFillRule = value; }
+  void labelAlignment(const std::string & value)	{ itsLabelAlignment = value; }
+  void labelFormat(const std::string & value)	{ itsLabelFormat = value; }
+  void labelMissing(const std::string & value)	{ itsLabelMissing = value; }
+  void labelAngle(float value)			{ itsLabelAngle = value; }
+  void labelOffsetX(float value)		{ itsLabelOffsetX = value; }
+  void labelOffsetY(float value)		{ itsLabelOffsetY = value; }
+  void labelDX(int value)			{ itsLabelDX = value; }
+  void labelDY(int value)			{ itsLabelDY = value; }
   
-  void LabelCaption(const std::string & value)	{ itsLabelCaption = value; }
-  void LabelCaptionDX(float value)		{ itsLabelCaptionDX = value; }
-  void LabelCaptionDY(float value)		{ itsLabelCaptionDY = value; }
-  void LabelCaptionAlignment(const std::string & value) { itsLabelCaptionAlignment = value; }
+  void labelCaption(const std::string & value)	{ itsLabelCaption = value; }
+  void labelCaptionDX(float value)		{ itsLabelCaptionDX = value; }
+  void labelCaptionDY(float value)		{ itsLabelCaptionDY = value; }
+  void labelCaptionAlignment(const std::string & value) { itsLabelCaptionAlignment = value; }
   
 private:
+
   ContourSpec(void);
+
   std::string itsParam;
   std::string itsContourInterpolation;
   std::string itsSmoother;
