@@ -6,6 +6,7 @@
 // ======================================================================
 
 // internal
+#include "ContourPattern.h"
 #include "ContourRange.h"
 #include "ContourValue.h"
 #include "StringTools.h"
@@ -309,40 +310,6 @@ NFmiPath MetArrow(float theSpeed)
   return path;
 
 }
-
-
-// ----------------------------------------------------------------------
-// Yksittäisen contour-patternin säilytysluokka
-// ----------------------------------------------------------------------
-
-class ContourPattern
-{
-public:
-  
-  ContourPattern(float lolimit,float hilimit,
-				 const string & thePattern,
-				 const string & theRule,
-				 float theFactor=1.0)
-    : itsLoLimit(lolimit)
-    , itsHiLimit(hilimit)
-    , itsPattern(thePattern)
-    , itsRule(theRule)
-    , itsFactor(theFactor)
-  {}
-  float LoLimit(void) const		{ return itsLoLimit; }
-  float HiLimit(void) const		{ return itsHiLimit; }
-  const string & Pattern(void) const	{ return itsPattern; }
-  const string & Rule(void) const	{ return itsRule; }
-  float Factor(void) const		{ return itsFactor; }
-  
-private:
-  ContourPattern(void);
-  float itsLoLimit;
-  float itsHiLimit;
-  string itsPattern;
-  string itsRule;
-  float itsFactor;
-};
 
 // ----------------------------------------------------------------------
 // Yksittäisen parametrin piirto-ohjeet
@@ -2623,26 +2590,26 @@ int main(int argc, const char *argv[])
 							  
 							  if(valmin==kFloatMissing || valmax==kFloatMissing)
 								{
-								  if(patiter->LoLimit()!=kFloatMissing &&
-									 patiter->HiLimit()!=kFloatMissing)
+								  if(patiter->lolimit()!=kFloatMissing &&
+									 patiter->hilimit()!=kFloatMissing)
 									continue;
 								}
 							  else
 								{
-								  if(patiter->LoLimit()!=kFloatMissing &&
-									 valmax<patiter->LoLimit())
+								  if(patiter->lolimit()!=kFloatMissing &&
+									 valmax<patiter->lolimit())
 									continue;
-								  if(patiter->HiLimit()!=kFloatMissing &&
-									 valmin>patiter->HiLimit())
+								  if(patiter->hilimit()!=kFloatMissing &&
+									 valmin>patiter->hilimit())
 									continue;
 								}
 							  
 							  bool exactlo = true;
-							  bool exacthi = (patiter->HiLimit()!=kFloatMissing &&
+							  bool exacthi = (patiter->hilimit()!=kFloatMissing &&
 											  piter->ExactHiLimit()!=kFloatMissing &&
-											  patiter->HiLimit()==piter->ExactHiLimit());
-							  NFmiContourTree tree(patiter->LoLimit(),
-												   patiter->HiLimit(),
+											  patiter->hilimit()==piter->ExactHiLimit());
+							  NFmiContourTree tree(patiter->lolimit(),
+												   patiter->hilimit(),
 												   exactlo,exacthi);
 							  
 							  if(piter->DataLoLimit()!=kFloatMissing)
@@ -2650,12 +2617,12 @@ int main(int argc, const char *argv[])
 							  if(piter->DataHiLimit()!=kFloatMissing)
 								tree.DataHiLimit(piter->DataHiLimit());
 							  
-							  NFmiColorTools::NFmiBlendRule rule = NFmiColorTools::BlendValue(patiter->Rule());
+							  NFmiColorTools::NFmiBlendRule rule = NFmiColorTools::BlendValue(patiter->rule());
 							  
 							  tree.Contour(pts[qi],vals,interp,piter->ContourDepth());
-							  NFmiImage pattern(patiter->Pattern());
+							  NFmiImage pattern(patiter->pattern());
 							  
-							  tree.Fill(theImage,pattern,rule,patiter->Factor());
+							  tree.Fill(theImage,pattern,rule,patiter->factor());
 							  
 							  // NFmiPath path = tree.Path();
 							  // path.Fill(theImage,citer->Color(),rule);
