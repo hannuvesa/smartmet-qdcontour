@@ -53,6 +53,12 @@ using namespace boost;
 using namespace Imagine;
 
 // ----------------------------------------------------------------------
+// Global instance of enum converter for speed
+// ----------------------------------------------------------------------
+
+static NFmiEnumConverter converter;
+
+// ----------------------------------------------------------------------
 // Global instance of global variables
 // ----------------------------------------------------------------------
 
@@ -693,7 +699,7 @@ void do_directionparam(istream & theInput)
 
   check_errors(theInput,"directionparam");
 
-  if(NFmiEnumConverter().ToEnum(globals.directionparam) == kFmiBadParameter)
+  if(converter.ToEnum(globals.directionparam) == kFmiBadParameter)
 	throw runtime_error("Unrecognized directionparam '"+globals.directionparam+"'");
 }
 
@@ -709,7 +715,7 @@ void do_speedparam(istream & theInput)
 
   check_errors(theInput,"speedparam");
 
-  if(NFmiEnumConverter().ToEnum(globals.speedparam) == kFmiBadParameter)
+  if(converter.ToEnum(globals.speedparam) == kFmiBadParameter)
 	throw runtime_error("Unrecognized speedparam '"+globals.speedparam+"'");
 }
 
@@ -2296,7 +2302,7 @@ int paramid(const string & theParam)
   if(MetaFunctions::isMeta(theParam))
 	return MetaFunctions::id(theParam);
   else
-	return NFmiEnumConverter().ToEnum(theParam);
+	return converter.ToEnum(theParam);
 }
 
 // ----------------------------------------------------------------------
@@ -2320,7 +2326,7 @@ unsigned int choose_queryinfo(const string & theName,
 	{
 	  // Find the proper queryinfo to be used
 	  
-	  FmiParameterName param = FmiParameterName(NFmiEnumConverter().ToEnum(theName));
+	  FmiParameterName param = FmiParameterName(converter.ToEnum(theName));
 
 	  for(unsigned int qi=0; qi<globals.querystreams.size(); qi++)
 		{
@@ -2691,13 +2697,12 @@ void draw_wind_arrows(NFmiImage & theImage,
 					  const NFmiDataMatrix<float> & theValues,
 					  const NFmiArea & theArea)
 {
-  NFmiEnumConverter converter;
   if((!globals.arrowpoints.empty() ||
 	  (globals.windarrowdx!=0 && globals.windarrowdy!=0)) &&
 	 (globals.arrowfile!=""))
 	{
 
-	  FmiParameterName param = FmiParameterName(NFmiEnumConverter().ToEnum(globals.directionparam));
+	  FmiParameterName param = FmiParameterName(converter.ToEnum(globals.directionparam));
 	  if(param==kFmiBadParameter)
 		throw runtime_error("Unknown parameter "+globals.directionparam);
 
@@ -3914,7 +3919,7 @@ void do_draw_contours(istream & theInput)
 									   image.Width()-globals.contourlabelimagexmargin,
 									   image.Height()-globals.contourlabelimageymargin);
 
-	  // Initialize symbol locator bounding box with reasonablye safety
+	  // Initialize symbol locator bounding box with reasonably safety
 	  // for large symbols
 
 	  globals.symbollocator.boundingBox(-30,-30,image.Width()+30,image.Height()+30);
