@@ -242,8 +242,6 @@ int domain(int argc, const char *argv[])
   
   LazyQueryData *theQueryInfo = 0;
   
-  string theCommandLineQueryData;
-  
   // Read command line options
   // ~~~~~~~~~~~~~~~~~~~~~~~~~
   
@@ -271,7 +269,7 @@ int domain(int argc, const char *argv[])
     globals.force = true;
 
   if(cmdline.isOption('q'))
-	theCommandLineQueryData = cmdline.OptionValue('q');
+	globals.cmdline_querydata = cmdline.OptionValue('q');
   
   // Read command filenames
   
@@ -303,11 +301,11 @@ int domain(int argc, const char *argv[])
 
 	  // Insert querydata command if option -q was used
 
-	  if(!theCommandLineQueryData.empty())
+	  if(!globals.cmdline_querydata.empty())
 		{
 		  if(globals.verbose)
-			cout << "Using querydata " << theCommandLineQueryData << endl;
-		  text = "querydata "+theCommandLineQueryData + '\n' + text;
+			cout << "Using querydata " << globals.cmdline_querydata << endl;
+		  text = "querydata "+globals.cmdline_querydata + '\n' + text;
 		}
 
 	  istringstream input(text);

@@ -14,11 +14,12 @@ struct Globals
 {
   Globals();
 
-  bool verbose;
-  bool force;
+  bool verbose;						// -v option
+  bool force;						// -f option
+  std::string cmdline_querydata;	// -q option
 
-  std::string datapath;
-  std::string mapspath;
+  std::string datapath;				// default searchpath for data
+  std::string mapspath;				// default searchpath for maps
 
 };
 
