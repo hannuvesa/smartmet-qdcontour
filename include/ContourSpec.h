@@ -2,6 +2,9 @@
 // Yksittäisen parametrin piirto-ohjeet
 // ----------------------------------------------------------------------
 
+#ifndef CONTOURSPEC_H
+#define CONTOURSPEC_H
+
 #include "ContourPattern.h"
 #include "ContourRange.h"
 #include "ContourValue.h"
@@ -178,3 +181,6 @@ private:
   
 };
 
+#endif // CONTOURSPEC_H
+
+// ======================================================================
