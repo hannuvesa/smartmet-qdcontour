@@ -429,6 +429,21 @@ void do_timestamp(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "timestampzone" command
+ */
+// ----------------------------------------------------------------------
+
+void do_timestampzone(istream & theInput)
+{
+  theInput >> globals.timestampzone;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'timestampzone' command failed");
+
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -462,7 +477,6 @@ int domain(int argc, const char *argv[])
   string theSmoother = "None";
   float theSmootherRadius = 1.0;
   int theTimeStepRoundingFlag = 1;
-  string theTimeStampZone = "local";
   int theSmootherFactor = 1;
 
   int theTimeStampImageX = 0;
@@ -565,9 +579,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "timeinterval")	do_timeinterval(input);
 		  else if(command == "timesteps")		do_timesteps(input);
 		  else if(command == "timestamp")		do_timestamp(input);
-
-		  else if(command == "timestampzone")
-			input >> theTimeStampZone;
+		  else if(command == "timestampzone")	do_timestampzone(input);
 
 		  else if(command == "timesteprounding")
 			input >> theTimeStepRoundingFlag;
@@ -1424,10 +1436,10 @@ int domain(int argc, const char *argv[])
 					  // Establish time limits
 					  globals.queryinfo->LastTime();
 					  utctime = globals.queryinfo->ValidTime();
-					  NFmiTime t2 = TimeTools::ConvertZone(utctime,theTimeStampZone);
+					  NFmiTime t2 = TimeTools::ConvertZone(utctime,globals.timestampzone);
 					  globals.queryinfo->FirstTime();
 					  utctime = globals.queryinfo->ValidTime();
-					  NFmiTime t1 = TimeTools::ConvertZone(utctime,theTimeStampZone);
+					  NFmiTime t1 = TimeTools::ConvertZone(utctime,globals.timestampzone);
 
 					  if(qi==0)
 						{
@@ -1493,12 +1505,12 @@ int domain(int argc, const char *argv[])
 						  while(globals.queryinfo->NextTime())
 							{
 							  NFmiTime utc = globals.queryinfo->ValidTime();
-							  NFmiTime loc = TimeTools::ConvertZone(utc,theTimeStampZone);
+							  NFmiTime loc = TimeTools::ConvertZone(utc,globals.timestampzone);
 							  if(!loc.IsLessThan(t))
 								break;
 							}
 						  NFmiTime utc = globals.queryinfo->ValidTime();
-						  NFmiTime tnow = TimeTools::ConvertZone(utc,theTimeStampZone);
+						  NFmiTime tnow = TimeTools::ConvertZone(utc,globals.timestampzone);
 
 						  // we wanted
 
@@ -1700,17 +1712,17 @@ int domain(int argc, const char *argv[])
 						  else if(globals.filter=="linear")
 							{
 							  NFmiTime utc = globals.queryinfo->ValidTime();
-							  NFmiTime tnow = TimeTools::ConvertZone(utc,theTimeStampZone);
+							  NFmiTime tnow = TimeTools::ConvertZone(utc,globals.timestampzone);
 							  bool isexact = t.IsEqual(tnow);
 
 							  if(!isexact)
 								{
 								  NFmiDataMatrix<float> tmpvals;
 								  NFmiTime t2utc = globals.queryinfo->ValidTime();
-								  NFmiTime t2 = TimeTools::ConvertZone(t2utc,theTimeStampZone);
+								  NFmiTime t2 = TimeTools::ConvertZone(t2utc,globals.timestampzone);
 								  globals.queryinfo->PreviousTime();
 								  NFmiTime t1utc = globals.queryinfo->ValidTime();
-								  NFmiTime t1 = TimeTools::ConvertZone(t1utc,theTimeStampZone);
+								  NFmiTime t1 = TimeTools::ConvertZone(t1utc,globals.timestampzone);
 								  if(!ismeta)
 									globals.queryinfo->Values(tmpvals);
 								  else
@@ -1741,7 +1753,7 @@ int domain(int argc, const char *argv[])
 								{
 								  globals.queryinfo->PreviousTime();
 								  NFmiTime utc = globals.queryinfo->ValidTime();
-								  NFmiTime tnow = TimeTools::ConvertZone(utc,theTimeStampZone);
+								  NFmiTime tnow = TimeTools::ConvertZone(utc,globals.timestampzone);
 								  if(tnow.IsLessThan(tprev))
 									break;
 
@@ -2413,7 +2425,7 @@ int domain(int argc, const char *argv[])
 						  {
 							globals.queryinfo = globals.querystreams[qi];
 							NFmiTime futctime = globals.queryinfo->OriginTime();
-							NFmiTime tlocal = TimeTools::ConvertZone(futctime,theTimeStampZone);
+							NFmiTime tlocal = TimeTools::ConvertZone(futctime,globals.timestampzone);
 							if(qi==0 || tlocal.IsLessThan(tfor))
 							  tfor = tlocal;
 						  }

@@ -47,6 +47,7 @@ struct Globals
   int timeinterval;					// inclusive time interval
   int timestepskip;					// initial time to skip in minutes
   int timestampflag;				// put timestamp into image name?
+  std::string timestampzone;		// timezone for the timestamp
 
   // Active storage
 

@@ -38,6 +38,7 @@ Globals::Globals()
   , timeinterval(0)
   , timestepskip(0)
   , timestampflag(1)
+  , timestampzone("local")
   , calculator()
   , querystreams()
 {
