@@ -414,7 +414,7 @@ void do_filter(istream & theInput)
 	 globals.filter != "min" &&
 	 globals.filter != "max" &&
 	 globals.filter != "mean" &&
-	 globals.filter != "msum")
+	 globals.filter != "sum")
 	{
 	  throw runtime_error("Filtering mode '"+globals.filter+"' is not recognized");
 	}
