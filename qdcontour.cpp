@@ -265,22 +265,13 @@ void do_querydata(istream & theInput)
 	  globals.clear_querystreams();
 
 	  // Split the comma separated list into a real list
-	  
-	  list<string> qnames;
-	  unsigned int pos1 = 0;
-	  while(pos1<globals.queryfilelist.size())
-		{
-		  unsigned int pos2 = globals.queryfilelist.find(',',pos1);
-		  if(pos2==std::string::npos)
-			pos2 = globals.queryfilelist.size();
-		  qnames.push_back(globals.queryfilelist.substr(pos1,pos2-pos1));
-		  pos1 = pos2 + 1;
-		}
+
+	  vector<string> qnames = NFmiStringTools::Split(globals.queryfilelist);
 	  
 	  // Read the queryfiles
 	  
 	  {
-		list<string>::const_iterator iter;
+		vector<string>::const_iterator iter;
 		for(iter=qnames.begin(); iter!=qnames.end(); ++iter)
 		  {
 			LazyQueryData * tmp = new LazyQueryData();
