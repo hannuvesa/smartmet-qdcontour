@@ -1,84 +1,5 @@
-	clear shapes
 
-	erase <color>
-
-Käskyt:
-
-	querydata <filename1,filename2,filename3>
-	querydatalevel <level>
-
-	timestep <integer>	aika-askeleen pituus minuutteina
-	timesteprounding <1|0>	pyöristetäänkö timestep monikertaan?
-	timeinterval <integer>	aito intervalli, yleensä yo, tai -1 minuutti
-	timesteps <integer>	aika-askelten lukumäärä
-	timestamp <1|0>		lisätäänkö tekoaika nimeen?
-	timestepskip <integer>	alusta skipattava lukumäärä
-
-	timestampimagexy <x> <y>
-	timestampimage <none|obs|for|forobs>
-
-	filter <none|linear|mean|sum|min|max>
-
-
-	fillrule <rulename>
-	strokerule <rulename>
-
-
-
-	contourdepth <int>	
-	contourinterpolation <Nearest|Linear>
-	smoother <None|Neighbourhood|PseudoGaussian>
-	smootherradius <float>
-	smootherfactor <int>
-
-	contourfill <lo> <hi> <color>
-	contourpattern <lo> <hi> <pattern> <rule> <alphafactor>
-	contourline <val> <color>
-
-	contourfills <lo> <hi> <step> <locolor> <hicolor>
-	contourlines <lo> <hi> <step> <locolor> <hicolor>
-
-	clear contours
-
-	background <filename>
-	foreground <filename>
-	combine <imagefile> <x> <y> <rulename> <alphafactor>
-	combine none
-
-	savepath <path>
-	prefix <string>
-	suffix <string>
-
-	param <name>
-	
-	legenderase <color>
-	draw legend <name> <lo> <hi> <width> <height>
-	draw contours
-
-
-	draw imagemap <fieldname> <filename>	(from shapelist at that moment)
-
-	directionparam <paramname>	(default WindDirection)
-	speedparam <paramname>		(default WindSpeedMS)
-	
-	arrowscale <float>
-	arrowfill <color> <rule>
-	arrowstroke <color> <rule>
-	arrowpath <filename>
-	windarrow <lon> <lat>
-	windarrows <dx> <dy>
-	windarrowscale <a> <b>         # scale = a*speed+b
-	clear arrows
-
-Rendering values:
-
-	Toistaiseksi tunnistetaan vain fontit /var/www/share/hershey/*,
-	jotka eivöt ole kovin kummoisia laadultaan.
-
-	Voi kättää pelkkää markkeria, pelkkiä labeleita, tai kumpiakin.
-	Markkerilla ei ole offsettia, labelilla on.
-
-	labels toimii vain markkereille, ei hila-arvoille (toistaiseksi)
+# labels
 
 	labelmarker <filename> <rule> <alpha>
 	labelfont <font>		(default TimesRoman)
@@ -97,10 +18,42 @@ Rendering values:
 
 	clear labels			(only latlon locations are cleared)
 
-These affect only the parameter:
+#filtering
+	timestep <integer>	aika-askeleen pituus minuutteina
+	timesteprounding <1|0>	pyöristetäänkö timestep monikertaan?
+	timeinterval <integer>	aito intervalli, yleensä yo, tai -1 minuutti
+	timesteps <integer>	aika-askelten lukumäärä
+	timestepskip <integer>	alusta skipattava lukumäärä
+	filter <none|linear|mean|sum|min|max>
 
 	hilimit <limit>
 	datareplace <sourcevalue> <targetvalue>
 	datalolimit <limit>
 	datahilimit <limit>
+
+# smoothing data
+
+	contourinterpolation <Nearest|Linear>
+	smoother <None|Neighbourhood|PseudoGaussian>
+	smootherradius <float>
+	smootherfactor <int>
+
+# timestamp
+	timestampimagexy <x> <y>
+	timestampimage <none|obs|for|forobs>
+
+	
+Rendering values:
+
+	Toistaiseksi tunnistetaan vain fontit /var/www/share/hershey/*,
+	jotka eivöt ole kovin kummoisia laadultaan.
+
+	Voi kättää pelkkää markkeria, pelkkiä labeleita, tai kumpiakin.
+	Markkerilla ei ole offsettia, labelilla on.
+
+	labels toimii vain markkereille, ei hila-arvoille (toistaiseksi)
+
+
+These affect only the parameter:
+
 

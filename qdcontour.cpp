@@ -7,8 +7,6 @@
 /*!
  * \mainpage qdcontour - A querydata contouring application
  *
- * <h1>Contents</h1>
- *
  * <ol>
  *  <li>\ref intro_section</li>
  *  <li>\ref cmdline_section</li>
@@ -25,12 +23,25 @@
  *    <li>\ref format_section</li>
  *    <li>\ref savingshape_section</li>
  *  </ol>
+ *  <li>\ref renderingcontours_section</li>
+ *  <ol>
+ *    <li>\ref querydata_section</li>
+ *    <li>\ref filename_section</li>
+ *    <li>\ref contour_section</li>
+ *    <li>\ref arrow_section</li>
+ *    <li>\ref label_section</li>
+ *    <li>\ref rendercontour_section</li>
+ *    <li>\ref filtering_section</li>
+ *    <li>\ref smoothing_section</li>
+ *    <li>\ref timestamp_section</li>
+ *  </ol>
  *  <li>\ref appendix_section</li>
  *  <ol>
  *    <li>\ref color_section</li>
  *    <li>\ref blending_section</li>
  *    <li>\ref shapesample_section</li>
  *    <li>\ref sample_section</li>
+ *    <li>\ref deprecated_section</li>
  *  </ol>
  * </ol>
  *
@@ -71,7 +82,7 @@
  * # comment
  * // comment
  * command # comment
- * command // komment
+ * command // comment
  * \endcode
  *
  *
@@ -97,7 +108,7 @@
  * \endhtmlonly
  *
  * It would be possible to implement various extra conditional
- * directives in the #if - #else - #endif style. For example,
+ * directives in the \#if - \#else - \#endif style. For example,
  * one could automatically enable seasonal contouring colors
  * this way.
  *
@@ -290,6 +301,238 @@
  * The final three clearing commands do not have to be given,
  * but act as safety in case somebody intends to draw more
  * shapes in the same control file.
+ *
+ *
+ * \section renderingcontours_section Rendering contours
+ *
+ * \subsection querydata_section Querydata control
+ *
+ * One may specify the querydata files to be used with the command
+ * \code
+ * querydata [filename1,filename2,...,filenameN]
+ * \endcode
+ * If the filenames are not absolute, and cannot be found
+ * at the given places, the fmi.conf setting qdcontour::querydata_path
+ * is used for searching for the file. As a special case, if the given
+ * name is a directory, the newest querydata in that directory is used.
+ * The time range one is able to contour is determined by the
+ * common time span of the given queryfiles.
+ *
+ * Whenever a parameter is specified to be contoured, the order
+ * of the queryfiles is the order in which the parameter is searched.
+ *
+ * Since one is only able to use one level when contouring,
+ * one may choose it using the following command.
+ * \code
+ * querydatalevel [level]
+ * \endcode
+ * The default level is 1.
+ *
+ * \subsection filename_section Controlling generated image filenames
+ *
+ * As qdcontour goes through the available times in the specified
+ * querydata, it will attempt to determine an unique filename
+ * for each image. By default each filename is of the form
+ * \code
+ * [prefix][timestamp][origintimestamp][suffix].[format]
+ * \endcode
+ * The <em>format</em> is uniquely determined by using the
+ * command
+ * \code
+ * format [format]
+ * \endcode
+ * where format is one of png, jpeg or gif.
+ *
+ * The prefix and suffix are by default null strings, but can
+ * be modified with the commands
+ * \code
+ * prefix [prefix]
+ * suffix [suffix]
+ * \endcode
+ * The <em>origintimestamp</em> is the time stamp string generated
+ * from the origin time of the query data, and is intended for
+ * distinguishing between various forecast times. Whether or not
+ * the string is used can be modified with the command
+ * \code
+ * timestamp [0/1]
+ * \endcode
+ * Finally, the files must be stored in some directory, which
+ * is controlled with
+ * \code
+ * savepath [path]
+ * \endcode
+ * The default value for <em>path</em> is ".", the current directory.
+ *
+ * For example, when contouring T2m forecasts one might use
+ * \code
+ * prefix ENN_
+ * suffix _T2M
+ * timestamp 1
+ * savepath /foo/bar
+ * \endcode
+ *
+ * \subsection contour_section Controlling the contours
+ *
+ * One is able to contour several parameters simultaneously.
+ * The specifications for each individual parameter are started
+ * by the command
+ * \code
+ * param [parametername]
+ * \endcode
+ * To draw contour lines on the parameter one can then repeatedly
+ * use
+ * \code
+ * strokerule [blendrule]
+ * contourline [value] [color]
+ * \endcode
+ * or define multiple lines simultaneously with
+ * \code
+ * contourlines [startvalue] [endvalue] [step] [startcolor] [endcolor]
+ * \endcode
+ * The colour for each individual line is interpolated linearly
+ * between <em>startcolor</em> and <em>endcolor</em> in the HSV color
+ * space, which is more likely suitable in this case than direct RGB
+ * interpolation.
+ *
+ * One should remember, that the latest defined <em>strokerule</em>
+ * is the one to be used for each <em>contourline</em>.
+ *
+ * Alternatively, one may specify some values intervals to be filled
+ * with the desired colors by repeatedly applying the command
+ * \code
+ * fillrule [blendrule]
+ * contourfill [startvalue] [endvalue] [color]
+ * \endcode
+ * As special cases, if <em>startvalue</em> is "-", it is interpreted
+ * to mean minus infinity. Similarly <em>endvalue</em> would be interpreted
+ * to be plus infinity. However, since the case
+ * \code
+ * contourfill - - [color]
+ * \endcode
+ * makes rarely sense, we define it instead to mean colouring all
+ * missing values in the data. This is especially useful for data
+ * which has limited range, such as radar data.
+ *
+ * Also, one may define multiple fills simultaneously with
+ * \code
+ * contourfills [startvalue] [endvalue] [step] [startcolor] [endcolor]
+ * \endcode
+ * which works similarly to the <em>contourlines</em> command documented
+ * earlier.
+ *
+ * As with the case of <em>strokerule</em>, the latest defined
+ * <em>blendrule</em> is the one to be used for each <em>contourfill</em>
+ * command.
+ *
+ * Finally, one may use an image pattern instead of a fixed color.
+ * This is accomplished using the command
+ * \code
+ * contourpattern [startvalue] [endvalue] [patternfile] [blendrule] [blendfactor]
+ * \endcode
+ * where <em>patternfile</em> is the path to the image file containing the
+ * pattern to be used when filling. The filling is performed using
+ * <em>blendrule</em> with the extra <em>blendfactor</em> alpha factor.
+ *
+ * There is no similar <em>patternfills</em> equivalent as before, as
+ * interpolation between the start and end patterns would rarely make
+ * sense.
+ *
+ * \subsection arrow_section Drawing arrows from querydata
+ *
+ * One may choose which parameters will be used as a direction - speed
+ * pair when rendering arrows using the commands
+ * \code
+ * directionparam [parametername]
+ * speedparam [parametername]
+ * \endcode
+ * The default values are <em>WindDirection</em> and <em>WindSpeedMS</em>
+ * respectively.
+ *
+ * The arrow to be drawn at each location is defined with the
+ * command
+ * \code
+ * arrowpath [filename]
+ * \endcode
+ * where <em>filename</em> contains an SVG-style (limited) path definition,
+ * which will be rotated according to the direction parameter. The arrow
+ * is rendered according to the rules specified by
+ * \code
+ * arrowfill [color] [blendrule]
+ * arrowstroke [color] [blendrule]
+ * \endcode
+ * The size of the arrow is principally determined by
+ * \code
+ * arrowscale [scalefactor]
+ * \endcode
+ * whose default value is 1.0. The factor is used to scale the arrow
+ * path definition uniformly. Additionally, one may also use the command
+ * \code
+ * windarrowscale [A] [B] [C]
+ * \endcode
+ * to scale the arrow nonlinearly and depending on the speed at the
+ * location. The default values for a,b and c are 0,0 and 1 respectively,
+ * and the formula applied to calculate an extra scaling factor for
+ * the arrow is
+ * \f[
+ *   A \log (B S + 1) + C
+ * \f]
+ * where S is the speed value. Note that the value is always 1
+ * for the default parameters, and no extra scaling thus occurs.
+ * A is used to control linearly how fast the arrow grows, while
+ * B is used to control it logarithmically. In general one should
+ * try to find a suitable value for B first, to represent the speed
+ * of increasing the size of the arrow, and then scale using
+ * A to find a suitable final size.
+ *
+ * The arrows themselves are put on the image using the commands
+ * \code
+ * windarrow [longitude] [latitude]
+ * windarrows [dx] [dy]
+ * \endcode
+ * The first form places the arrow at a specific location. Both the
+ * direction and the speed will be interpolated, if necessary, for
+ * the given coordinates.
+ *
+ * The second form places an arrow at each grid location, with the
+ * given steps. Using <em>dx</em>=1 and <em>dy</em>=1 an arrow would
+ * be placed at every grid point.
+ *
+ * \subsection label_section Placing text values in the images
+ *
+ * \subsection rendercontour_section Saving the results
+ *
+ * The contoured images can be saved using
+ * \code
+ * background [filename]
+ * foreground [filename]
+ * foregroundrule [blendingrule]
+ * draw contours
+ * clear contours
+ * \endcode
+ * The first command may be replaced with an <em>erase [color]</em> command,
+ * provided a foreground is given. Alternatively the foreground may be
+ * omitted, provided the background is given.
+ *
+ * The <em>clear contours</em> command is optional, and should only
+ * be applied at the end of a file, or when the contour specifications
+ * documented in the earlier sections really change.
+ *
+ * One may also modify each output image by overlaying some image on
+ * top of them, for example a logo or a legend. This is accomplished
+ * using
+ * \code
+ * combine [imagefilename] [x] [y] [blendingrule] [blendfactor]
+ * \endcode
+ * The extra image setting can be cleared using
+ * \code
+ * combine none
+ * \endcode
+ *
+ * \subsection filtering_section Filtering the querydata
+ *
+ * \subsection smoothing_section Smoothening the querydata
+ *
+ * \subsection timestamp_section Placing timestamps in the images
  *
  * \section appendix_section Appendix
  *
@@ -815,6 +1058,15 @@
  * # is contouring multiple files at once
  *
  * clear contours
+ * \endcode
+ *
+ * \subsection deprecated_section Deprecated features
+ *
+ * \code
+ * contourdepth <depth>
+ * legenderase <color>
+ * draw legend <name> <lo> <hi> <width> <height>
+ * draw imagemap <fieldname> <filename>
  * \endcode
  */
 // ======================================================================
