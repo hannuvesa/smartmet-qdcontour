@@ -656,7 +656,7 @@ The extra image setting can be cleared using
 combine none
 \endcode
 
-\subsection contourcache_section
+\subsection contourcache_section Caching contours for speed
 
 Often one will render the exact same parameters with the exact
 same contour settings on multiple backgrounds, possibly with
