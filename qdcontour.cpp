@@ -227,6 +227,28 @@ void check_errors(istream & theInput, const string & theFunction)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Print debugging information on area object
+ */
+// ----------------------------------------------------------------------
+
+void report_area(const NFmiArea & theArea)
+{
+  cout << "Area corners are"
+	   << endl
+	   << "bottomleft\t= "
+	   << theArea.BottomLeftLatLon().X()
+	   << ','
+	   << theArea.BottomLeftLatLon().Y()
+	   << endl
+	   << "topright\t= "
+	   << theArea.TopRightLatLon().X()
+	   << ','
+	   << theArea.TopRightLatLon().Y()
+	   << endl;
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Handle a comment token
  */
 // ----------------------------------------------------------------------
@@ -1712,18 +1734,7 @@ void do_draw_shapes(istream & theInput)
 	area.reset(NFmiAreaFactory::Create(globals.projection).release());
 
   if(globals.verbose)
-	cout << "Area corners are"
-		 << endl
-		 << "bottomleft\t= "
-		 << area->BottomLeftLatLon().X()
-		 << ','
-		 << area->BottomLeftLatLon().Y()
-		 << endl
-		 << "topright\t= "
-		 << area->TopRightLatLon().X()
-		 << ','
-		 << area->TopRightLatLon().Y()
-		 << endl;
+	report_area(*area);
 
   int imgwidth = static_cast<int>(area->Width()+0.5);
   int imgheight = static_cast<int>(area->Height()+0.5);
@@ -1860,18 +1871,7 @@ void do_draw_contours(istream & theInput)
 	cout << "Contouring for background " << globals.background << endl;
 
   if(globals.verbose)
-	cout << "Area corners are"
-		 << endl
-		 << "bottomleft\t= "
-		 << area->BottomLeftLatLon().X()
-		 << ','
-		 << area->BottomLeftLatLon().Y()
-		 << endl
-		 << "topright\t= "
-		 << area->TopRightLatLon().X()
-		 << ','
-		 << area->TopRightLatLon().Y()
-		 << endl;
+	report_area(*area);
 
   // Establish querydata timelimits and initialize
   // the XY-coordinates simultaneously.
