@@ -30,6 +30,7 @@
   <li>\ref multipledatas_section</li>
   <li>\ref filename_section</li>
   <li>\ref contour_section</li>
+  <li>\ref symbol_section</li>
   <li>\ref arrow_section</li>
   <li>\ref label_section</li>
   <li>\ref masking_section</li>
@@ -445,6 +446,19 @@ There is no similar <em>patternfills</em> equivalent as before, as
 interpolation between the start and end patterns would rarely make
 sense.
 
+\subsection symbol_section Drawing symbols at grid points
+
+Often for example thunder appears in such as small area that
+any attempt of using \c contourpattern for rendering the area
+is likely to fail. An alternative is to draw a symbol at any
+grid point where the value is in the desired range.
+
+The syntax for the command is
+
+\code
+contoursymbol [startvalue] [endvalue] [imagefile] [blendrule] [blendfactor]
+\endcode
+
 \subsection arrow_section Drawing arrows from querydata
 
 One may choose which parameters will be used as a direction - speed
@@ -508,6 +522,8 @@ the given coordinates.
 The second form places an arrow at each grid location, with the
 given steps. Using <em>dx</em>=1 and <em>dy</em>=1 an arrow would
 be placed at every grid point.
+
+Wind arrows are drawn after all contours have been rendered.
 
 \subsection label_section Placing text values in the images
 
