@@ -498,6 +498,79 @@ be placed at every grid point.
 
 \subsection label_section Placing text values in the images
 
+One can place numeric data values in the image using any one
+of the commands
+\code
+label [longitude] [latitude]
+labelxy [longitude] [latitude] [x] [y]
+labels [dx] [dy]
+\endcode
+The <em>label</em> command places a label at the specified geographic
+coordinates. One can place the label at a completely different
+location in the image using the <em>labelxy</em> command. Finally, one
+can place labels at the grid points themselves using the
+<em>labels</em> command. The <em>dx</em> and <em>dy</em> arguments
+specify the step size in the grid, usually one labels every grid point
+using a step size of 1.
+
+Often the coordinate from which the label value is taken is not
+convenient for placing the label itself. One can adjust the location
+of the label sligthly by using
+\code
+labeloffset [dx] [dy]
+\endcode
+where the adjustment is measured in pixels. However, when one moves
+the label one may wish to mark the actual geographic spot using
+\code
+labelmarker [imagefilename] [blendingrule] [alphafactor]
+\endcode
+The image is placed at all labeled geographic coordinates.
+
+Also, one may place a caption for each label. Usually the caption
+is the name of the parameter, and is used when several parameters
+are being drawn.
+\code
+labelcaption [captiontext] [dx] [dy] [alignment]
+\endcode
+The available alignments are
+  - Center
+  - North
+  - NorthWest
+  - West
+  - SouthWest
+  - South
+  - SouthEast
+  - East
+  - NorthEast
+
+One can modify the appearance of the label itself using the following
+commands
+\code
+labelfont [fontname]                  (default TimesRoman)
+labelsize [size]                      (default 12 pixels)
+labelstroke [color] [blendingrule]    (default black, Copy)
+labelfill [color] [blendingrule]      (default black, Copy)
+labelalign [alignment]                (default Center)
+labelformat [format]                  (default is "-", implying no output)
+labelangle [angle]                    (default 0)
+\endcode
+The <em>format</em> is the format string of a sprintf command for
+a floating point value.
+
+Note that by default there is no format. This is convenient when one
+only wishes to place markers at the grid points using the
+<em>labelmarker</em> command as follows
+\code
+labelformat -
+labels 1 1
+labelmarker [imagefilename] [blendingrule] [alphafactor]
+\endcode
+Finally, one can clear the label location definitions when beginning
+a new contouring by
+\code
+clear labels
+\endcode
+
 \subsection rendercontour_section Saving the results
 
 The contoured images can be saved using
@@ -543,6 +616,84 @@ explained in section \ref smoothing_section
 
 \subsection filtering_section Filtering the querydata
 
+By default qdcontour renders the first 24 data times in the
+given querydata. The number of images rendered can be modified
+using
+\code
+timesteps [number]
+\endcode
+To skip a specific amount of minutes from the start one can
+use
+\code
+timestepskip [minutes]
+\endcode
+This may be useful for example if one wishes to render the first
+48 hours at a 1h step, then the rest using a longer step.
+
+Also, one may skip particular times by specifying the time step
+to be used with
+\code
+timestep [minutes]
+\endcode
+The default value is 0, implying the time step defined in the
+data itself will be used.
+
+One may specify the timestep to be rounded the the nearest multiple
+of the data time using
+\code
+timesteprounding [0|1]
+\endcode
+(
+<em>
+Actually, I have no clue whether the above comment is correct.
+Can't see it directly from the code either. I'll have to
+make explicit tests later on. -Mika
+</em>
+)
+
+Note that one may define a time step which is not a multiple
+of the time step in the data itself. In such cases one should
+define how the data values from the new moment in time are
+to be calculated using the commands
+\code
+filter [none|linear|mean|sum|min|max]
+timeinterval [minutes]
+\endcode
+By default the filter is <em>none</em>, and no values can be
+calculated. The time is then considered invalid, and no image
+is produced.
+
+A new value can usually be calculated (when interpolation makes sense)
+using the <em>linear</em> filter, which interpolates the new values
+linearly from the adjacent existing data times.
+
+Alternatively, one may calculate a new derivative parameter, such as
+the <em>sum</em>, <em>min</em> or <em>max</em> of the data values.
+Typically one then chooses the <em>timestep</em> and <em>timeinterval</em>
+to be equal, although it is strictly speaking not necessary.
+
+For example, to render the daily maximum temperature one could use
+\code
+timestep 1440        # 24 hours
+timeinterval 1440
+filter max
+\endcode
+
+Finally, one may explicitly modify the data itself using
+\code
+datareplace [sourcevalue] [targetvalue]
+\endcode
+This is mostly useful when the original data uses another missing value
+indicator than 32700, which is used by newbase.
+
+The commands
+\code
+datalolimit [value]
+datahilimit [value]
+\endcode
+can be used to indicate that any value outside the limited range
+is to be considered missing data.
+
 \subsection smoothing_section Smoothening the querydata
 
 Occasionally the parameter stored in the querydata has too little
@@ -569,6 +720,29 @@ smoothed values are to the originals. A low value such as 1-4
 smoothens the data more.
 
 \subsection timestamp_section Placing timestamps in the images
+
+One can place a timestamp in the image itself using
+the commands
+\code
+timestampimage [none|obs|for|forobs]
+timestampimage [x] [y]
+\endcode
+The first command specifies what kind of a text is placed in the
+image, the second the coordinates of the text. If the coordinates
+are negative, they are considered offsets from the bottom or
+right edges.
+
+The different formats are
+<dl>
+<dt>none</dt>
+<dd>No timestamp is rendered</dd>
+<dt>obs</dt>
+<dd>The time of the data is rendered</dd>
+<dt>for</dt>
+<dd>The forecast time is rendered</dd>
+<dt>forobs</dt>
+<dd>The forecast time is rendered followed by the offset to the data time</dd>
+</dl>
 
 \section appendix_section Appendix
 
@@ -1099,10 +1273,12 @@ clear contours
 \subsection deprecated_section Deprecated features
 
 \code
-contourdepth <depth>
-legenderase <color>
-draw legend <name> <lo> <hi> <width> <height>
-draw imagemap <fieldname> <filename>
+contourdepth [depth]
+legenderase [color]
+draw legend [name] [lo] [hi] [width] [height]
+draw imagemap [fieldname] [filename]
+labelfile [filename]
+hilimit [value]
 \endcode
 
  */
