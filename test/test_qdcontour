@@ -78,6 +78,12 @@ DoTest("contourpattern",
        "contourpattern.conf",
        "contourpattern_200210140900_200210141237.png");
 
+# Test contoursymbol
+
+DoTest("contoursymbol",
+       "contoursymbol.conf",
+       "contoursymbol_200210140900_200210141237.png");
+
 # Test windarrows
 
 DoTest("windarrows at points",
