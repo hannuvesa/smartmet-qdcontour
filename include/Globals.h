@@ -46,6 +46,9 @@ struct Globals
   std::string suffix;				// filename suffix
   std::string format;				// image format name
   float gamma;						// image gamma correction
+  std::string intent;				// image rendering intent
+  int pngquality;					// png quality, -1 = default
+  int jpegquality;					// jpeg quality, -1 = default
 
   std::string projection;			// projection definition
   std::string filter;				// filtering mode

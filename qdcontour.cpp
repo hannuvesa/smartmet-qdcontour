@@ -900,7 +900,49 @@ void do_gamma(istream & theInput)
   theInput >> globals.gamma;
 
   if(theInput.fail())
-	throw runtime_error("Processing the 'gamma format' command failed");
+	throw runtime_error("Processing the 'gamma' command failed");
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "intent" command
+ */
+// ----------------------------------------------------------------------
+
+void do_intent(istream & theInput)
+{
+  theInput >> globals.intent;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'intent' command failed");
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "pngquality" command
+ */
+// ----------------------------------------------------------------------
+
+void do_pngquality(istream & theInput)
+{
+  theInput >> globals.pngquality;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'pngquality' command failed");
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "jpegquality" command
+ */
+// ----------------------------------------------------------------------
+
+void do_jpegquality(istream & theInput)
+{
+  theInput >> globals.jpegquality;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'jpegquality' command failed");
 }
 
 // ----------------------------------------------------------------------
@@ -941,10 +983,7 @@ int domain(int argc, const char *argv[])
   int theContourDepth	= 0;
   int theContourTrianglesOn = 1;
 
-  int thePngQuality = -1;
-  int theJpegQuality = -1;
   int theAlphaLimit = -1;
-  string theIntent = "";
 
   // Related variables
 
@@ -1013,15 +1052,9 @@ int domain(int argc, const char *argv[])
 		  else if(command == "suffix")				do_suffix(input);
 		  else if(command == "format")				do_format(input);
 		  else if(command == "gamma")				do_gamma(input);
-
-		  else if(command == "intent")
-			input >> theIntent;
-
-		  else if(command == "pngquality")
-			input >> thePngQuality;
-
-		  else if(command == "jpegquality")
-			input >> theJpegQuality;
+		  else if(command == "intent")				do_intent(input);
+		  else if(command == "pngquality")			do_pngquality(input);
+		  else if(command == "jpegquality")			do_jpegquality(input);
 
 		  else if(command == "savealpha")
 			input >> theSaveAlphaFlag;
@@ -1485,9 +1518,9 @@ int domain(int argc, const char *argv[])
 				  theImage.WantPalette(theWantPaletteFlag);
 				  theImage.ForcePalette(theForcePaletteFlag);
 				  if(globals.gamma>0) theImage.Gamma(globals.gamma);
-				  if(!theIntent.empty()) theImage.Intent(theIntent);
-				  if(thePngQuality>=0) theImage.PngQuality(thePngQuality);
-				  if(theJpegQuality>=0) theImage.JpegQuality(theJpegQuality);
+				  if(!globals.intent.empty()) theImage.Intent(globals.intent);
+				  if(globals.pngquality>=0) theImage.PngQuality(globals.pngquality);
+				  if(globals.jpegquality>=0) theImage.JpegQuality(globals.jpegquality);
 				  if(theAlphaLimit>=0) theImage.AlphaLimit(theAlphaLimit);
 
 				  NFmiColorTools::Color erasecolor = ColorTools::checkcolor(globals.erase);
@@ -1841,9 +1874,9 @@ int domain(int argc, const char *argv[])
 					  theImage.WantPalette(theWantPaletteFlag);
 					  theImage.ForcePalette(theForcePaletteFlag);
 					  if(globals.gamma>0) theImage.Gamma(globals.gamma);
-					  if(!theIntent.empty()) theImage.Intent(theIntent);
-					  if(thePngQuality>=0) theImage.PngQuality(thePngQuality);
-					  if(theJpegQuality>=0) theImage.JpegQuality(theJpegQuality);
+					  if(!globals.intent.empty()) theImage.Intent(globals.intent);
+					  if(globals.pngquality>=0) theImage.PngQuality(globals.pngquality);
+					  if(globals.jpegquality>=0) theImage.JpegQuality(globals.jpegquality);
 					  if(theAlphaLimit>=0) theImage.AlphaLimit(theAlphaLimit);
 
 					  NFmiColorTools::Color erasecolor = ColorTools::checkcolor(globals.erase);
