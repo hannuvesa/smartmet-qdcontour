@@ -191,6 +191,10 @@ namespace MetaFunctions
 	  return true;
 	if(theFunction == "MetaDewDifference")
 	  return true;
+	if(theFunction == "MetaN")
+	  return true;
+	if(theFunction == "MetaNN")
+	  return true;
 	return false;
   }
 
