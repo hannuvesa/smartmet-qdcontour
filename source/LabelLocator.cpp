@@ -44,6 +44,10 @@
 
 using namespace std;
 
+//! Bad parameter value
+
+const int badparameter = 0;
+
 // ----------------------------------------------------------------------
 /*!
  * \brief Destructor
@@ -69,6 +73,9 @@ LabelLocator::LabelLocator()
   , itsMinDistanceToSameValue(100)
   , itsMinDistanceToDifferentValue(50)
   , itsMinDistanceToDifferentParameter(50)
+  , itsActiveParameter(0)
+  , itsPreviousCoordinates()
+  , itsCurrentCoordinates()
 {
 }
 
@@ -93,6 +100,7 @@ bool LabelLocator::empty() const
 
 void LabelLocator::clear()
 {
+  itsActiveParameter = badparameter;
   itsPreviousCoordinates.clear();
   itsCurrentCoordinates.clear();
 }
@@ -174,6 +182,27 @@ void LabelLocator::minDistanceToDifferentParameter(float theDistance)
 	throw runtime_error("LabelLocator: Cannot change minimum distances once coordinates have been added");
 
   itsMinDistanceToDifferentParameter = theDistance;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Set the parameter id of the active parameter
+ *
+ * Parameter number 0 is reserved for indicating no active parameter.
+ * This co-incides with the newbase value kFmiBadParameter. However,
+ * one should not use this method to set parameter value 0, instead
+ * one should use the clear method.
+ *
+ * \param theParameter The parameter value
+ */
+// ----------------------------------------------------------------------
+
+void LabelLocator::parameter(int theParameter)
+{
+  if(theParameter == badparameter)
+	throw runtime_error("Cannot activate parameter number 0, must be nonnegative");
+
+  itsActiveParameter = theParameter;
 }
 
 // ----------------------------------------------------------------------

@@ -26,6 +26,7 @@ public:
   void minDistanceToDifferentValue(float theDistance);
   void minDistanceToDifferentParameter(float theDistance);
 
+  void parameter(int theParameter);
   void nextTime();
 
 private:
@@ -49,6 +50,7 @@ private:
   typedef std::list<XY> Coordinates;
   typedef std::map<int,Coordinates> ParamCoordinates;
 
+  int itsActiveParameter;
   ParamCoordinates itsPreviousCoordinates;
   ParamCoordinates itsCurrentCoordinates;
 
