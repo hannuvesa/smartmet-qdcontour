@@ -988,6 +988,20 @@ void do_forcepalette(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "alphalimit" command
+ */
+// ----------------------------------------------------------------------
+
+void do_alphalimit(istream & theInput)
+{
+  theInput >> globals.alphalimit;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'alphalimit' command failed");
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -1017,8 +1031,6 @@ int domain(int argc, const char *argv[])
 
   int theContourDepth	= 0;
   int theContourTrianglesOn = 1;
-
-  int theAlphaLimit = -1;
 
   // Related variables
 
@@ -1093,9 +1105,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "savealpha")			do_savealpha(input);
 		  else if(command == "wantpalette")			do_wantpalette(input);
 		  else if(command == "forcepalette")		do_forcepalette(input);
-
-		  else if(command == "alphalimit")
-			input >> theAlphaLimit;
+		  else if(command == "alphalimit")			do_alphalimit(input);
 
 		  else if(command == "hilimit")
 			{
@@ -1550,7 +1560,7 @@ int domain(int argc, const char *argv[])
 				  if(!globals.intent.empty()) theImage.Intent(globals.intent);
 				  if(globals.pngquality>=0) theImage.PngQuality(globals.pngquality);
 				  if(globals.jpegquality>=0) theImage.JpegQuality(globals.jpegquality);
-				  if(theAlphaLimit>=0) theImage.AlphaLimit(theAlphaLimit);
+				  if(globals.alphalimit>=0) theImage.AlphaLimit(globals.alphalimit);
 
 				  NFmiColorTools::Color erasecolor = ColorTools::checkcolor(globals.erase);
 				  theImage.Erase(erasecolor);
@@ -1906,7 +1916,7 @@ int domain(int argc, const char *argv[])
 					  if(!globals.intent.empty()) theImage.Intent(globals.intent);
 					  if(globals.pngquality>=0) theImage.PngQuality(globals.pngquality);
 					  if(globals.jpegquality>=0) theImage.JpegQuality(globals.jpegquality);
-					  if(theAlphaLimit>=0) theImage.AlphaLimit(theAlphaLimit);
+					  if(globals.alphalimit>=0) theImage.AlphaLimit(globals.alphalimit);
 
 					  NFmiColorTools::Color erasecolor = ColorTools::checkcolor(globals.erase);
 					  theImage.Erase(erasecolor);

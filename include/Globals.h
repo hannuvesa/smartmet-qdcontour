@@ -47,6 +47,7 @@ struct Globals
   std::string format;				// image format name
   float gamma;						// image gamma correction
   std::string intent;				// image rendering intent
+  int alphalimit;					// alpha limit for binary alpha conversion
   int pngquality;					// png quality, -1 = default
   int jpegquality;					// jpeg quality, -1 = default
   bool savealpha;					// save alpha channel?
