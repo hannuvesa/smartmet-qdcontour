@@ -38,6 +38,7 @@
   <li>\ref interpolation_section</li>
   <li>\ref filtering_section</li>
   <li>\ref smoothing_section</li>
+  <li>\ref timezone_section</li>
   <li>\ref timestamp_section</li>
   <li>\ref metaparams_section</li>
 </ol>
@@ -807,6 +808,15 @@ The <em>factor</em> controls the sharpness of the weighting
 function, the higher the number (say 10-20), the closer the
 smoothed values are to the originals. A low value such as 1-4
 smoothens the data more.
+
+\subsection timezone_section Selecting the time zone
+
+One can select the time zone for all time stamps using
+the command
+\code
+timestampzoe [local|utc]
+\endcode
+The default is local time.
 
 \subsection timestamp_section Placing timestamps in the images
 

@@ -15,6 +15,7 @@
 #include "ProjectionFactory.h"
 #include "ShapeSpec.h"
 #include "StringTools.h"
+#include "TimeTools.h"
 // imagine
 #include "NFmiColorTools.h"
 #include "NFmiSmoother.h"		// for smoothing data
@@ -135,11 +136,12 @@ int domain(int argc, const char *argv[])
   float theSmootherRadius = 1.0;
   int theTimeStepRoundingFlag = 1;
   int theTimeStampFlag	= 1;
+  string theTimeStampZone = "local";
   int theSmootherFactor = 1;
   int theTimeStepSkip	= 0;	// skipattava minuuttimäärä
-  int theTimeStep	= 0;	// aika-askel
+  int theTimeStep	= 0;		// aika-askel
   int theTimeInterval   = 0;	// inklusiivinen aikamäärä
-  int theTimeSteps	= 24;	// max kuvien lukumäärä
+  int theTimeSteps	= 24;		// max kuvien lukumäärä
   
   int theTimeStampImageX = 0;
   int theTimeStampImageY = 0;
@@ -395,6 +397,9 @@ int domain(int argc, const char *argv[])
 		  else if(command == "timestamp")
 			input >> theTimeStampFlag;
 		  
+		  else if(command == "timestampzone")
+			input >> theTimeStampZone;
+
 		  else if(command == "timesteprounding")
 			input >> theTimeStepRoundingFlag;
 		  
@@ -1309,10 +1314,10 @@ int domain(int argc, const char *argv[])
 					  // Establish time limits
 					  theQueryInfo->LastTime();
 					  utctime = theQueryInfo->ValidTime();
-					  NFmiTime t2 = NFmiMetTime(utctime,1).CorrectLocalTime();
+					  NFmiTime t2 = TimeTools::ConvertZone(utctime,theTimeStampZone);
 					  theQueryInfo->FirstTime();
 					  utctime = theQueryInfo->ValidTime();
-					  NFmiTime t1 = NFmiMetTime(utctime,1).CorrectLocalTime();
+					  NFmiTime t1 = TimeTools::ConvertZone(utctime,theTimeStampZone);
 					  
 					  if(qi==0)
 						{
@@ -1380,12 +1385,12 @@ int domain(int argc, const char *argv[])
 						  while(theQueryInfo->NextTime())
 							{
 							  NFmiTime utc = theQueryInfo->ValidTime();
-							  NFmiTime loc = NFmiMetTime(utc,1).CorrectLocalTime();
+							  NFmiTime loc = TimeTools::ConvertZone(utc,theTimeStampZone);
 							  if(!loc.IsLessThan(t))
 								break;
 							}
 						  NFmiTime utc = theQueryInfo->ValidTime();
-						  NFmiTime tnow = NFmiMetTime(utc,1).CorrectLocalTime();
+						  NFmiTime tnow = TimeTools::ConvertZone(utc,theTimeStampZone);
 						  
 						  // we wanted
 						  
@@ -1600,17 +1605,17 @@ int domain(int argc, const char *argv[])
 						  else if(theFilter=="linear")
 							{
 							  NFmiTime utc = theQueryInfo->ValidTime();
-							  NFmiTime tnow = NFmiMetTime(utc,1).CorrectLocalTime();
+							  NFmiTime tnow = TimeTools::ConvertZone(utc,theTimeStampZone);
 							  bool isexact = t.IsEqual(tnow);
 							  
 							  if(!isexact)
 								{
 								  NFmiDataMatrix<float> tmpvals;
 								  NFmiTime t2utc = theQueryInfo->ValidTime();
-								  NFmiTime t2 = NFmiMetTime(t2utc,1).CorrectLocalTime();
+								  NFmiTime t2 = TimeTools::ConvertZone(t2utc,theTimeStampZone);
 								  theQueryInfo->PreviousTime();
 								  NFmiTime t1utc = theQueryInfo->ValidTime();
-								  NFmiTime t1 = NFmiMetTime(t1utc,1).CorrectLocalTime();
+								  NFmiTime t1 = TimeTools::ConvertZone(t1utc,theTimeStampZone);
 								  if(!ismeta)
 									theQueryInfo->Values(tmpvals);
 								  else
@@ -1641,7 +1646,7 @@ int domain(int argc, const char *argv[])
 								{
 								  theQueryInfo->PreviousTime();
 								  NFmiTime utc = theQueryInfo->ValidTime();
-								  NFmiTime tnow = NFmiMetTime(utc,1).CorrectLocalTime();
+								  NFmiTime tnow = TimeTools::ConvertZone(utc,theTimeStampZone);
 								  if(tnow.IsLessThan(tprev))
 									break;
 								  
@@ -2307,7 +2312,7 @@ int domain(int argc, const char *argv[])
 						  {
 							theQueryInfo = theQueryStreams[qi];
 							NFmiTime futctime = theQueryInfo->OriginTime(); 
-							NFmiTime tlocal = NFmiMetTime(futctime,1).CorrectLocalTime();
+							NFmiTime tlocal = TimeTools::ConvertZone(futctime,theTimeStampZone);
 							if(qi==0 || tlocal.IsLessThan(tfor))
 							  tfor = tlocal;
 						  }
@@ -2435,4 +2440,3 @@ int main(int argc, const char* argv[])
 }
 
 // ======================================================================
-
