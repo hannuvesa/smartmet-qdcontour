@@ -37,11 +37,7 @@
 #include <stdexcept>
 #include <string>
 #include <list>
-#ifdef OLDGCC
-  #include <strstream>
-#else
-  #include <sstream>
-#endif
+#include <sstream>
 
 using namespace std;
 using namespace Imagine;
@@ -301,11 +297,7 @@ int domain(int argc, const char *argv[])
 		  text = "querydata "+theCommandLineQueryData + '\n' + text;
 		}
 
-#ifdef OLDGCC
-	  istrstream input(text.c_str());
-#else
 	  istringstream input(text);
-#endif
 	  
       // Process the commands
       string command;
