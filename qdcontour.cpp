@@ -3393,7 +3393,10 @@ void save_contour_fonts(NFmiImage & theImage,
   int id = paramid(theSpec.param());
   globals.symbollocator.parameter(id);
 
-  // Start saving candindate coordinates
+  // For speed we prefer to iterate only once through the data, and
+  // instead use a fast way to test if a given value is to be contoured
+
+  set<float> okvalues;
 
   list<ContourFont>::const_iterator it;
   list<ContourFont>::const_iterator begin;
@@ -3419,20 +3422,24 @@ void save_contour_fonts(NFmiImage & theImage,
 			continue;
 		}
 
-	  const float value = it->value();
-
-	  for(unsigned int j=0; j<theValues.NY(); j++)
-		for(unsigned int i=0; i<theValues.NX(); i++)
-		  if(value == theValues[i][j])
-			{
-			  NFmiPoint latlon = theArea.WorldXYToLatLon(thePoints[i][j]);
-			  NFmiPoint xy = theArea.ToXY(latlon);
-
-			  globals.symbollocator.add(value,
-										FmiRound(xy.X()),
-										FmiRound(xy.Y()));
-			}
+	  okvalues.insert(it->value());
 	}
+
+  // Now iterate through the data once, saving candidate points
+
+  for(unsigned int j=0; j<theValues.NY(); j++)
+	for(unsigned int i=0; i<theValues.NX(); i++)
+	  {
+		if(okvalues.find(theValues[i][j]) != okvalues.end())
+		  {
+			NFmiPoint latlon = theArea.WorldXYToLatLon(thePoints[i][j]);
+			NFmiPoint xy = theArea.ToXY(latlon);
+
+			globals.symbollocator.add(theValues[i][j],
+									  FmiRound(xy.X()),
+									  FmiRound(xy.Y()));
+		  }
+	  }
 }
 
 // ----------------------------------------------------------------------
