@@ -1199,6 +1199,48 @@ void do_param(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \bried Handle "param" command
+ */
+// ----------------------------------------------------------------------
+
+void do_shape(istream & theInput)
+{
+  string shapename, arg1;
+
+  theInput >> shapename >> arg1;
+
+  if(arg1=="mark")
+	{
+	  string marker, markerrule;
+	  float markeralpha;
+	  theInput >> marker >> markerrule >> markeralpha;
+	  
+	  ColorTools::checkrule(markerrule);
+	  ShapeSpec spec(shapename);
+	  spec.marker(marker,markerrule,markeralpha);
+	  globals.shapespecs.push_back(spec);
+	}
+  else
+	{
+	  string fillcolor = arg1;
+	  string strokecolor;
+	  theInput >> strokecolor;
+	  NFmiColorTools::Color fill = ColorTools::checkcolor(fillcolor);
+	  NFmiColorTools::Color stroke = ColorTools::checkcolor(strokecolor);
+	  
+	  globals.shapespecs.push_back(ShapeSpec(shapename,
+											 fill,stroke,
+											 globals.fillrule,
+											 globals.strokerule));
+	}
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'shape' command failed");
+
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -1211,10 +1253,6 @@ int domain(int argc, const char *argv[])
   // Parse command line
 
   parse_command_line(argc,argv);
-
-  // Komentotiedostosta luettavat optiot
-
-  string theShapeFileName = "";
 
   // Process all command files
   // ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1295,38 +1333,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "smootherradius")		do_smootherradius(input);
 		  else if(command == "smootherfactor")		do_smootherfactor(input);
 		  else if(command == "param")				do_param(input);
-
-		  else if(command == "shape")
-			{
-			  input >> theShapeFileName;
-			  string arg1;
-
-			  input >> arg1;
-
-			  if(arg1=="mark")
-				{
-				  string marker, markerrule;
-				  float markeralpha;
-				  input >> marker >> markerrule >> markeralpha;
-
-				  ColorTools::checkrule(markerrule);
-				  ShapeSpec spec(theShapeFileName);
-				  spec.marker(marker,markerrule,markeralpha);
-				  globals.shapespecs.push_back(spec);
-				}
-			  else
-				{
-				  string fillcolor = arg1;
-				  string strokecolor;
-				  input >> strokecolor;
-				  NFmiColorTools::Color fill = ColorTools::checkcolor(fillcolor);
-				  NFmiColorTools::Color stroke = ColorTools::checkcolor(strokecolor);
-
-				  globals.shapespecs.push_back(ShapeSpec(theShapeFileName,
-													fill,stroke,
-													globals.fillrule,globals.strokerule));
-				}
-			}
+		  else if(command == "shape")				do_shape(input);
 
 		  else if(command == "contourfill")
 			{
