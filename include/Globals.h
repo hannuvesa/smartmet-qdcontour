@@ -45,6 +45,7 @@ struct Globals
 
   std::string directionparam;		// direction parameter for arrows
   std::string speedparam;			// speed parameter for arrows
+  float arrowscale;					// scale factor for arrows
 
   std::string queryfilelist;		// querydata files in use
   std::vector<std::string> queryfilenames;	// querydata files in use

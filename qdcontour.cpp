@@ -597,6 +597,20 @@ void do_speedparam(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "arrowscale" command
+ */
+// ----------------------------------------------------------------------
+
+void do_arrowscale(istream & theInput)
+{
+  theInput >> globals.arrowscale;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'arrowscale' command failed");
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -647,7 +661,6 @@ int domain(int argc, const char *argv[])
   float theCombineFactor = 1.0;
 
 
-  float theArrowScale = 1.0;
 
   float theWindArrowScaleA = 0.0;	// a*log10(b*x+1)+c = 0*log10(0+1)+1 = 1
   float theWindArrowScaleB = 0.0;
@@ -723,9 +736,8 @@ int domain(int argc, const char *argv[])
 		  else if(command == "strokerule")			do_strokerule(input);
 		  else if(command == "directionparam")		do_directionparam(input);
 		  else if(command == "speedparam")			do_speedparam(input);
+		  else if(command == "arrowscale")			do_arrowscale(input);
 
-		  else if(command == "arrowscale")
-			input >> theArrowScale;
 
 		  else if(command == "windarrowscale")
 			input >> theWindArrowScaleA >> theWindArrowScaleB >> theWindArrowScaleC;
@@ -2166,7 +2178,7 @@ int domain(int argc, const char *argv[])
 
 							  if(speed>0 && speed!=kFloatMissing)
 								thispath.Scale(theWindArrowScaleA*log10(theWindArrowScaleB*speed+1)+theWindArrowScaleC);
-							  thispath.Scale(theArrowScale);
+							  thispath.Scale(globals.arrowscale);
 							  thispath.Rotate(alpha*180/pi);
 							  thispath.Translate(xy0.X(),xy0.Y());
 
@@ -2236,7 +2248,7 @@ int domain(int argc, const char *argv[])
 									  thispath.Add(arrowpath);
 									if(speed>0 && speed != kFloatMissing)
 									  thispath.Scale(theWindArrowScaleA*log10(theWindArrowScaleB*speed+1)+theWindArrowScaleC);
-									thispath.Scale(theArrowScale);
+									thispath.Scale(globals.arrowscale);
 									thispath.Rotate(alpha*180/pi);
 									thispath.Translate(xy0.X(),xy0.Y());
 
