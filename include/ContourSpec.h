@@ -6,7 +6,7 @@
 #include "ContourRange.h"
 #include "ContourValue.h"
 
-#include "NFmiPoint.h"
+#include "newbase/NFmiPoint.h"
 
 #include <list>
 #include <string>

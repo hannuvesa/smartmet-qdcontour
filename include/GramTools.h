@@ -14,7 +14,7 @@
 #ifndef GRAMTOOLS_H
 #define GRAMTOOLS_H
 
-#include "NFmiPath.h"
+#include "imagine/NFmiPath.h"
 
 namespace GramTools
 {

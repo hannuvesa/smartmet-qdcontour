@@ -7,8 +7,8 @@
 
 #include "ContourCache.h"
 #include "LazyQueryData.h"
-#include "NFmiPath.h"
-#include "NFmiMetTime.h"
+#include "imagine/NFmiPath.h"
+#include "newbase/NFmiMetTime.h"
 #include <sstream>
 
 using namespace std;

@@ -19,7 +19,7 @@
 #define CONTOURCALCULATOR_H
 
 #include <memory>
-#include "NFmiContourTree.h"
+#include "imagine/NFmiContourTree.h"
 
 template <typename T> class NFmiDataMatrix;
 

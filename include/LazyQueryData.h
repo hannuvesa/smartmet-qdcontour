@@ -21,8 +21,8 @@
 #ifndef LAZYQUERYDATA_H
 #define LAZYQUERYDATA_H
 
-#include "NFmiDataMatrix.h"
-#include "NFmiParameterName.h"
+#include "newbase/NFmiDataMatrix.h"
+#include "newbase/NFmiParameterName.h"
 #include <memory>
 #include <string>
 

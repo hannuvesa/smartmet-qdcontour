@@ -14,7 +14,7 @@
 #ifndef COLORTOOLS_H
 #define COLORTOOLS_H
 
-#include "NFmiColorTools.h"
+#include "imagine/NFmiColorTools.h"
 
 namespace ColorTools
 {

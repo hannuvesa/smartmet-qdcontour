@@ -5,7 +5,6 @@
  */
 // ======================================================================
 
-// internal
 #include "ColorTools.h"
 #include "ContourCalculator.h"
 #include "ContourSpec.h"
@@ -15,25 +14,25 @@
 #include "ProjectionFactory.h"
 #include "ShapeSpec.h"
 #include "TimeTools.h"
-// imagine
-#include "NFmiColorTools.h"
-#include "NFmiSmoother.h"		// for smoothing data
-#include "NFmiImage.h"			// for rendering
-#include "NFmiGeoShape.h"		// for esri data
-#include "NFmiText.h"			// for labels
-#include "NFmiFontHershey.h"	// for Hershey fonts
-// newbase
-#include "NFmiCmdLine.h"			// command line options
-#include "NFmiDataMatrix.h"
-#include "NFmiDataModifierClasses.h"
-#include "NFmiEnumConverter.h"		// FmiParameterName<-->string
-#include "NFmiFileSystem.h"			// FileExists()
-#include "NFmiLatLonArea.h"			// Geographic projection
-#include "NFmiSettings.h"			// Configuration
-#include "NFmiStereographicArea.h"	// Stereographic projection
-#include "NFmiStringTools.h"
-#include "NFmiPreProcessor.h"
-// system
+
+#include "imagine/NFmiColorTools.h"
+#include "imagine/NFmiImage.h"			// for rendering
+#include "imagine/NFmiGeoShape.h"		// for esri data
+#include "imagine/NFmiText.h"			// for labels
+#include "imagine/NFmiFontHershey.h"	// for Hershey fonts
+
+#include "newbase/NFmiCmdLine.h"			// command line options
+#include "newbase/NFmiDataMatrix.h"
+#include "newbase/NFmiDataModifierClasses.h"
+#include "newbase/NFmiEnumConverter.h"		// FmiParameterName<-->string
+#include "newbase/NFmiFileSystem.h"			// FileExists()
+#include "newbase/NFmiLatLonArea.h"			// Geographic projection
+#include "newbase/NFmiSettings.h"			// Configuration
+#include "newbase/NFmiSmoother.h"		// for smoothing data
+#include "newbase/NFmiStereographicArea.h"	// Stereographic projection
+#include "newbase/NFmiStringTools.h"
+#include "newbase/NFmiPreProcessor.h"
+
 #include <fstream>
 #include <stdexcept>
 #include <string>

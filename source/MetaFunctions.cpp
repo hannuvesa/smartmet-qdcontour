@@ -6,9 +6,9 @@
 // ======================================================================
 
 #include "MetaFunctions.h"
-#include "NFmiLocation.h"
-#include "NFmiMetTime.h"
-#include "NFmiPoint.h"
+#include "newbase/NFmiLocation.h"
+#include "newbase/NFmiMetTime.h"
+#include "newbase/NFmiPoint.h"
 #include <iostream>
 #include <stdexcept>
 

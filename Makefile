@@ -15,7 +15,7 @@ CFLAGS = -DUNIX -O0 -g $(MAINFLAGS) $(EXTRAFLAGS) -Werror
 CFLAGS_RELEASE = -DUNIX -O2 -DNDEBUG $(MAINFLAGS)
 LDFLAGS = -s
 ARFLAGS = -r
-INCLUDES = -I $(includedir)/newbase -I $(includedir)/imagine
+INCLUDES = -I $(includedir) -I $(includedir)/newbase -I $(includedir)/imagine
 LIBS = -L$(libdir) -limagine -lnewbase -lz -lpng -ljpeg
 
 # Common library compiling template

@@ -15,7 +15,7 @@
 #define METAFUNCTIONS_H
 
 #include "LazyQueryData.h"
-#include "NFmiDataMatrix.h"
+#include "newbase/NFmiDataMatrix.h"
 #include <string>
 
 namespace MetaFunctions

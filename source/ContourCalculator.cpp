@@ -5,15 +5,14 @@
  */
 // ======================================================================
 
-// internal
 #include "ContourCalculator.h"
 #include "ContourCache.h"
 #include "LazyQueryData.h"
-// imagine
-#include "NFmiContourTree.h"
-#include "NFmiPath.h"
-// newbase
-#include "NFmiDataMatrix.h"
+
+#include "imagine/NFmiContourTree.h"
+#include "imagine/NFmiPath.h"
+
+#include "newbase/NFmiDataMatrix.h"
 
 // ----------------------------------------------------------------------
 /*!
