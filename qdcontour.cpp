@@ -563,6 +563,23 @@ void do_strokerule(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "directionparam" command
+ */
+// ----------------------------------------------------------------------
+
+void do_directionparam(istream & theInput)
+{
+  theInput >> globals.directionparam;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'directionparam' command failed");
+
+  if(NFmiEnumConverter().ToEnum(globals.directionparam) == kFmiBadParameter)
+	throw runtime_error("Unrecognized directionparam '"+globals.directionparam+"'");
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -612,7 +629,6 @@ int domain(int argc, const char *argv[])
   string theCombineRule = "Over";
   float theCombineFactor = 1.0;
 
-  string theDirectionParameter = "WindDirection";
   string theSpeedParameter = "WindSpeedMS";
 
   float theArrowScale = 1.0;
@@ -689,9 +705,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "erase")				do_erase(input);
 		  else if(command == "fillrule")			do_fillrule(input);
 		  else if(command == "strokerule")			do_strokerule(input);
-
-		  else if(command == "directionparam")
-		    input >> theDirectionParameter;
+		  else if(command == "directionparam")		do_directionparam(input);
 
 		  else if(command == "speedparam")
 		    input >> theSpeedParameter;
@@ -2047,9 +2061,9 @@ int domain(int argc, const char *argv[])
 						 (theArrowFile!=""))
 						{
 
-						  FmiParameterName param = FmiParameterName(NFmiEnumConverter().ToEnum(theDirectionParameter));
+						  FmiParameterName param = FmiParameterName(NFmiEnumConverter().ToEnum(globals.directionparam));
 						  if(param==kFmiBadParameter)
-							throw runtime_error("Unknown parameter "+theDirectionParameter);
+							throw runtime_error("Unknown parameter "+globals.directionparam);
 
 						  // Find the proper queryinfo to be used
 						  // Note that qi will be used later on for
@@ -2065,7 +2079,7 @@ int domain(int argc, const char *argv[])
 							}
 
 						  if(!ok)
-							throw runtime_error("Parameter is not usable: " + theDirectionParameter);
+							throw runtime_error("Parameter is not usable: " + globals.directionparam);
 
 						  // Read the arrow definition
 
@@ -2109,7 +2123,7 @@ int domain(int argc, const char *argv[])
 
 							  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(theSpeedParameter))))
 								speed = globals.queryinfo->InterpolatedValue(*iter);
-							  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(theDirectionParameter)));
+							  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
 
 
 							  // Direction calculations
@@ -2160,7 +2174,7 @@ int domain(int argc, const char *argv[])
 							  NFmiDataMatrix<float> speedvalues(vals.NX(),vals.NY(),-1);
 							  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(theSpeedParameter))))
 								globals.queryinfo->Values(speedvalues);
-							  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(theDirectionParameter)));
+							  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
 
 							  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(*theArea);
 							  for(unsigned int j=0; j<worldpts->NY(); j+=theWindArrowDY)
