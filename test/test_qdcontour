@@ -58,6 +58,12 @@ DoTest("contourpattern",
        "contourpattern.conf",
        "contourpattern_200210140900_140900.png");
 
+# Test windarrows
+
+DoTest("windarrows in a grid",
+       "windarrow_grid.conf",
+       "windarrow_grid200210140900_140900.png");
+
 print "Done\n";
 
 # ----------------------------------------------------------------------
