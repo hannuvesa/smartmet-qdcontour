@@ -129,6 +129,9 @@ struct Globals
   int timestampimagex;
   int timestampimagey;
 
+  int contourlabelimagexmargin;		// minimum distance from borders
+  int contourlabelimageymargin;
+
   // Active storage
 
   LabelLocator labellocator;		// label coordinate calculator

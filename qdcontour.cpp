@@ -1627,6 +1627,20 @@ void do_contourlabelmargin(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Handle "contourlabelimagemargin" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourlabelimagemargin(istream & theInput)
+{
+  theInput >> globals.contourlabelimagexmargin
+		   >> globals.contourlabelimageymargin;
+
+  check_errors(theInput,"contourlabelimagemargin");
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \bried Handle "labelmarker" command
  */
 // ----------------------------------------------------------------------
@@ -2933,14 +2947,6 @@ void save_contour_labels(NFmiImage & theImage,
 
 	  const float accuracy = theSpec.contourLabelAccuracy();
 
-	  cout << "Saving "
-		   << theSpec.param()
-		   << " labels at value "
-		   << value
-		   << "... ";
-
-	  int count = 0;
-
 	  // Save label at each grid point where necessary
 	  for(unsigned int j=0; j<theValues.NY(); j++)
 		for(unsigned int i=0; i<theValues.NX(); i++)
@@ -2950,8 +2956,6 @@ void save_contour_labels(NFmiImage & theImage,
 			if(std::abs(z-value) > accuracy)
 			  continue;
 
-			++count;
-
 			NFmiPoint latlon = theArea.WorldXYToLatLon(thePoints[i][j]);
 			NFmiPoint xy = theArea.ToXY(latlon);
 			
@@ -2960,9 +2964,6 @@ void save_contour_labels(NFmiImage & theImage,
 
 			globals.labellocator.add(value,xx,yy);
 		  }
-
-	  cout << count << endl;
-
 	}
 }
 
@@ -3404,10 +3405,10 @@ void do_draw_contours(istream & theInput)
 
 	  // Initialize label locator bounding box
 
-	  globals.labellocator.boundingBox(0,
-									   0,
-									   image.Width(),
-									   image.Height());
+	  globals.labellocator.boundingBox(globals.contourlabelimagexmargin,
+									   globals.contourlabelimageymargin,
+									   image.Width()-globals.contourlabelimagexmargin,
+									   image.Height()-globals.contourlabelimageymargin);
 
 	  // Loop over all parameters
 	  // The loop collects all contour label information, but
@@ -3661,6 +3662,7 @@ int domain(int argc, const char *argv[])
 		  else if(cmd == "contourlabelcolor")		do_contourlabelcolor(in);
 		  else if(cmd == "contourlabelbackground")	do_contourlabelbackground(in);
 		  else if(cmd == "contourlabelmargin")		do_contourlabelmargin(in);
+		  else if(cmd == "contourlabelimagemargin")	do_contourlabelimagemargin(in);
 
 		  else if(cmd == "labelmarker")				do_labelmarker(in);
 		  else if(cmd == "labelfont")				do_labelfont(in);
