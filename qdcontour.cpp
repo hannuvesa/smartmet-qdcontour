@@ -997,7 +997,14 @@ int main(int argc, char *argv[])
 			}
 		  
 		  else if(command == "savepath")
-			input >> theSavePath;
+			{
+			  input >> theSavePath;
+			  if(!DirectoryExists(theSavePath))
+				{
+				  cerr << "savepath " << theSavePath << " does not exist!" << endl;
+				  return 1;
+				}
+			}
 		  
 		  else if(command == "prefix")
 			input >> thePrefix;
@@ -2063,7 +2070,7 @@ int main(int argc, char *argv[])
 					  
 					  if(verbose)
 						cout << "Time is " << datatimestr.CharPtr() << endl;
-					  
+
 					  string filename =
 						theSavePath
 						+ "/"
