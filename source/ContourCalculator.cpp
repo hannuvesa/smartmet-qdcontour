@@ -108,7 +108,8 @@ NFmiPath ContourCalculator::contour(const NFmiDataMatrix<float> & theValues,
 									bool theLoIsExact, bool theHiIsExact,
 									float theDataLoLimit, float theDataHiLimit,
 									int theContourDepth,
-									NFmiContourTree::NFmiContourInterpolation theInterpolation)
+									NFmiContourTree::NFmiContourInterpolation theInterpolation,
+									bool theContourTrianglesOn)
 {
   if(itsPimple->isCacheOn &&
 	 itsPimple->itsCache.contains(theLoLimit, theHiLimit, theData))
@@ -118,6 +119,7 @@ NFmiPath ContourCalculator::contour(const NFmiDataMatrix<float> & theValues,
 	}
 
   NFmiContourTree tree(theLoLimit, theHiLimit, theLoIsExact, theHiIsExact);
+  tree.SubTriangleMode(theContourTrianglesOn);
 
   if(theDataLoLimit != kFloatMissing)
 	tree.DataLoLimit(theDataLoLimit);

@@ -39,7 +39,8 @@ public:
 				   bool theLoIsExact, bool theHiIsExact,
 				   float theDataLoLimit, float theDataHiLimit,
 				   int theContourDepth,
-				   NFmiContourTree::NFmiContourInterpolation theInterpolation);
+				   NFmiContourTree::NFmiContourInterpolation theInterpolation,
+				   bool theContourTrianglesOn);
 
   void clearCache();
   void cache(bool);
