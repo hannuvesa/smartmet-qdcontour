@@ -15,10 +15,14 @@ struct Globals
 {
   Globals();
 
+  // Command line options
+
   bool verbose;								// -v option
   bool force;								// -f option
   std::string cmdline_querydata;			// -q option
   std::list<std::string> cmdline_files;		// command line parameters
+
+  // Status variables
 
   std::string datapath;				// default searchpath for data
   std::string mapspath;				// default searchpath for maps
