@@ -46,7 +46,7 @@ namespace GramTools
 	const float spot_size = 0.75;		// size of the spot at the origin
 	const float initial_length = 14;	// length of the initial line for speed 0
 	const float flag_interval = 4;		// the spacing between the speed indicators
-	const float flag_length = 10;		// the length of a full speed indicator
+	const float flag_length = 12;		// the length of a full speed indicator
 	
 	const float flag_angle_deg = 60;	// angle from the direction the wind is coming from
 	
