@@ -814,7 +814,7 @@ smoothens the data more.
 One can select the time zone for all time stamps using
 the command
 \code
-timestampzoe [local|utc]
+timestampzone [local|utc]
 \endcode
 The default is local time.
 
