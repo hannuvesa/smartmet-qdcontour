@@ -124,7 +124,6 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 											 float theLoLimit, float theHiLimit,
 											 bool theLoIsExact, bool theHiIsExact,
 											 float theDataLoLimit, float theDataHiLimit,
-											 int theContourDepth,
 											 Imagine::NFmiContourTree::NFmiContourInterpolation theInterpolation,
 											 bool theContourTrianglesOn)
 {
@@ -147,7 +146,7 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
   if(theDataHiLimit != kFloatMissing)
 	tree.DataHiLimit(theDataHiLimit);
 
-  tree.Contour(*(itsPimple->itsData), *(itsPimple->itsHelper), theInterpolation, theContourDepth);
+  tree.Contour(*(itsPimple->itsData), *(itsPimple->itsHelper), theInterpolation);
 
   Imagine::NFmiPath path = tree.Path();
   path.InvGrid(theData.Grid());

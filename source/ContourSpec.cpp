@@ -15,7 +15,6 @@
  * \param theParam The parameter
  * \param theInterpolation The interpolation method
  * \param theSmoother The smoothing method
- * \param theDepth The contouring recursion depth
  * \param theSmootherRadius The smoother search radius
  * \param theSmootherFactor The smoother sharpness factor
  * \param theHiLimit The absolute high limit of the data
@@ -25,7 +24,6 @@
 ContourSpec::ContourSpec(const std::string & theParam,
 						 const std::string & theInterpolation,
 						 const std::string & theSmoother,
-						 int theDepth,
 						 float theSmootherRadius,
 						 int theSmootherFactor,
 						 float theHiLimit)
@@ -35,7 +33,6 @@ ContourSpec::ContourSpec(const std::string & theParam,
   , itsSmootherRadius(theSmootherRadius)
   , itsSmootherFactor(theSmootherFactor)
   , itsExactHiLimit(theHiLimit)
-  , itsContourDepth(theDepth)
   , itsDataLoLimit(kFloatMissing)
   , itsDataHiLimit(kFloatMissing)
   , itHasReplace(false)
@@ -213,19 +210,6 @@ float ContourSpec::exactHiLimit(void) const
 
 // ----------------------------------------------------------------------
 /*!
- * \brief Return the contour recursion depth
- *
- * \return The depth
- */
-// ----------------------------------------------------------------------
-
-int ContourSpec::contourDepth(void) const
-{
-  return itsContourDepth;
-}
-
-// ----------------------------------------------------------------------
-/*!
  * \brief Return the data upper limit
  *
  * \return The limit
@@ -313,19 +297,6 @@ void ContourSpec::smootherFactor(int theFactor)
 void ContourSpec::exactHiLimit(float theLimit)
 {
   itsExactHiLimit = theLimit;
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Set the contouring recursion depth
- *
- * \param theDepth The recursion depth
- */
-// ----------------------------------------------------------------------
-
-void ContourSpec::contourDepth(int theDepth)
-{
-  itsContourDepth = theDepth;
 }
 
 // ----------------------------------------------------------------------

@@ -64,7 +64,6 @@ struct Globals
   bool wantpalette;					// attempt to save as palette image?
   bool forcepalette;				// force palette image?
 
-  int contourdepth;					// contouring depth
   std::string contourinterpolation;	// contouring interpolation method
   int contourtriangles;				// keep triangles in result or simplify?
 

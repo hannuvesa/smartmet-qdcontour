@@ -41,7 +41,6 @@ public:
 							float theLoLimit, float theHiLimit,
 							bool theLoIsExact, bool theHiIsExact,
 							float theDataLoLimit, float theDataHiLimit,
-							int theContourDepth,
 							Imagine::NFmiContourTree::NFmiContourInterpolation theInterpolation,
 							bool theContourTrianglesOn);
 

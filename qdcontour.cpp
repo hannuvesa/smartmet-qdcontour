@@ -1147,15 +1147,7 @@ void do_datareplace(istream & theInput)
 
 void do_contourdepth(istream & theInput)
 {
-  theInput >> globals.contourdepth;
-
-  check_errors(theInput,"contourdepth");
-
-  if(globals.contourdepth < 0)
-	throw runtime_error("Contour depth must be nonnegative");
-
-  if(!globals.specs.empty())
-	globals.specs.back().contourDepth(globals.contourdepth);
+  cerr << "Warning: contourdepth command is deprecated" << endl;
 }
 
 // ----------------------------------------------------------------------
@@ -1252,7 +1244,6 @@ void do_param(istream & theInput)
   globals.specs.push_back(ContourSpec(param,
 									  globals.contourinterpolation,
 									  globals.smoother,
-									  globals.contourdepth,
 									  globals.smootherradius,
 									  globals.smootherfactor));
 }
@@ -2885,7 +2876,6 @@ void draw_contour_fills(NFmiImage & theImage,
 								   exacthi,
 								   theSpec.dataLoLimit(),
 								   theSpec.dataHiLimit(),
-								   theSpec.contourDepth(),
 								   theInterpolation,
 								   globals.contourtriangles);
 	  
@@ -2957,7 +2947,6 @@ void draw_contour_patterns(NFmiImage & theImage,
 								   exactlo, exacthi,
 								   theSpec.dataLoLimit(),
 								   theSpec.dataHiLimit(),
-								   theSpec.contourDepth(),
 								   theInterpolation,
 								   globals.contourtriangles);
 
@@ -3018,7 +3007,6 @@ void draw_contour_strokes(NFmiImage & theImage,
 								   true, false,
 								   theSpec.dataLoLimit(),
 								   theSpec.dataHiLimit(),
-								   theSpec.contourDepth(),
 								   theInterpolation,
 								   globals.contourtriangles);
 
@@ -3080,7 +3068,6 @@ void save_contour_labels(NFmiImage & theImage,
 								   true, false,
 								   theSpec.dataLoLimit(),
 								   theSpec.dataHiLimit(),
-								   theSpec.contourDepth(),
 								   theInterpolation,
 								   globals.contourtriangles);
 
