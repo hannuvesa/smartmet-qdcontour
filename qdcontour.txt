@@ -39,6 +39,7 @@
 </ol>
 <li>\ref appendix_section</li>
 <ol>
+  <li>\ref environment_section</li>
   <li>\ref color_section</li>
   <li>\ref blending_section</li>
   <li>\ref shapesample_section</li>
@@ -755,6 +756,35 @@ The different formats are
 </dl>
 
 \section appendix_section Appendix
+
+\subsection environment_section Environment variables
+
+The qdcontour program uses either directly or indirectly the following
+environment settings in the <em>fmi.conf</em> file:
+\htmlonly
+<dl>
+<dt>qdcontour::querydata_path</dt>
+<dd>This specifies the search path for querydata files given in the
+    in the <em>querydata</em> command. The current directory is
+    always searched first though. The default value for this
+    parameter in Linux is <em>/data/fmi/querydata</em>, but this
+    may be changed to <em>/data</em> later on.
+</dd>
+<dt>qdcontour::maps_path</dt>
+<dd>This specifies the search path for the images given in the
+    <em>background</em>, <em>foreground</em> and <em>combine</em>
+    commands. The current default value in Linux is <em>/data/share/maps</em>.
+</dd>
+<dt>imagine::shapes_path</dt>
+<dd>This specifies the search path for shape files given in the <em>shape</em>
+    command. The current setting for this in Linux is <em>/data/share/shapes</em>
+</dd>
+<dt>imagine::hershey_path</dt>
+<dd>This specifies the search path for Hershey font files. The current
+    setting for this in Linux is <em>/data/share/fonts/hershey</em>.
+</dd>
+</dl>
+\endhtmlonly
 
 \subsection color_section Color
 

@@ -643,6 +643,7 @@ int main(int argc, const char *argv[])
   // Ympäristön konfigurointi
 
   string datapath = NFmiSettings::instance().value("qdcontour::querydata_path",".");
+  string mapspath = NFmiSettings::instance().value("qdcontour::maps_path",".");
 
   // Lista komentitiedostoista
   
@@ -1066,7 +1067,7 @@ int main(int argc, const char *argv[])
 			{
 			  input >> theBackground;
 			  if(theBackground != "none")
-				theBackgroundImage.Read(theBackground);
+				theBackgroundImage.Read(FileComplete(theBackground,mapspath));
 			  else
 				theBackground = "";
 			}
@@ -1075,7 +1076,7 @@ int main(int argc, const char *argv[])
 			{
 			  input >> theForeground;
 			  if(theForeground != "none")
-				theForegroundImage.Read(theForeground);
+				theForegroundImage.Read(FileComplete(theForeground,mapspath));
 			  else
 				theForeground = "";
 			}
@@ -1092,7 +1093,7 @@ int main(int argc, const char *argv[])
 					  cerr << "Error: Unknown blending rule " << theCombineRule << endl;
 					  exit(1);
 					}
-				  theCombineImage.Read(theCombine);
+				  theCombineImage.Read(FileComplete(theCombine,mapspath));
 				}
 			  else
 				theCombine = "";
