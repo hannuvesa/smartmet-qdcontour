@@ -2564,11 +2564,6 @@ void draw_label_markers(NFmiImage & theImage,
 
 	  NFmiPoint xy = theArea.ToXY(iter->first);
 
-	  // Skip rendering if the start point is masked
-
-	  if(IsMasked(xy, globals.mask, globals.maskimage))
-		continue;
-
 	  // Skip rendering if LabelMissing is "" and value is missing
 	  if(theSpec.labelMissing().empty())
 		{
@@ -2576,6 +2571,11 @@ void draw_label_markers(NFmiImage & theImage,
 		  if(value == kFloatMissing)
 			continue;
 		}
+
+	  // Skip rendering if the start point is masked
+
+	  if(IsMasked(xy, globals.mask, globals.maskimage))
+		continue;
 
 	  theImage.Composite(marker,
 						 markerrule,
@@ -2636,14 +2636,14 @@ void draw_label_texts(NFmiImage & theImage,
 		  y = iter->second.Y();
 		}
 
+	  float value = theSpec.labelValues()[pointnumber++];
+
 	  // Skip rendering if the start point is masked
 
 	  if(IsMasked(NFmiPoint(x,y),
 				  globals.mask,
 				  globals.maskimage))
 		continue;
-
-	  float value = theSpec.labelValues()[pointnumber++];
 
 	  // Convert value to string
 	  string strvalue = theSpec.labelMissing();
