@@ -1705,6 +1705,10 @@ int domain(int argc, const char *argv[])
 						  if(verbose)
 							cout << "Data range for " << name << " is " << valmin << "," << valmax << endl;
 						  
+						  // Setup the contourer with the values
+
+						  theCalculator.data(vals);
+
 						  // Save the data values at desired points for later
 						  // use, this lets us avoid using InterpolatedValue()
 						  // which does not use smoothened values.
@@ -1798,8 +1802,7 @@ int domain(int argc, const char *argv[])
 											  citer->hilimit()==piter->exactHiLimit());
 
 							  NFmiPath path =
-								theCalculator.contour(vals,
-													  *theQueryInfo,
+								theCalculator.contour(*theQueryInfo,
 													  citer->lolimit(),
 													  citer->hilimit(),
 													  exactlo,
@@ -1860,8 +1863,7 @@ int domain(int argc, const char *argv[])
 											  patiter->hilimit()==piter->exactHiLimit());
 
 							  NFmiPath path =
-								theCalculator.contour(vals,
-													  *theQueryInfo,
+								theCalculator.contour(*theQueryInfo,
 													  patiter->lolimit(),
 													  patiter->hilimit(),
 													  exactlo, exacthi,
@@ -1909,8 +1911,7 @@ int domain(int argc, const char *argv[])
 								}
 
 							  NFmiPath path =
-								theCalculator.contour(vals,
-													  *theQueryInfo,
+								theCalculator.contour(*theQueryInfo,
 													  liter->value(),
 													  kFloatMissing,
 													  true, false,

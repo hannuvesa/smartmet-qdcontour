@@ -37,8 +37,7 @@ public:
   ~ContourCalculator();
   ContourCalculator();
 
-  Imagine::NFmiPath contour(const NFmiDataMatrix<float> & theValues,
-							const LazyQueryData & theData,
+  Imagine::NFmiPath contour(const LazyQueryData & theData,
 							float theLoLimit, float theHiLimit,
 							bool theLoIsExact, bool theHiIsExact,
 							float theDataLoLimit, float theDataHiLimit,
@@ -46,6 +45,7 @@ public:
 							Imagine::NFmiContourTree::NFmiContourInterpolation theInterpolation,
 							bool theContourTrianglesOn);
 
+  void data(const NFmiDataMatrix<float> & theData);
   void clearCache();
   void cache(bool);
   bool wasCached(void) const;
