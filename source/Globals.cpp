@@ -6,6 +6,8 @@
 // ======================================================================
 
 #include "Globals.h"
+#include "LazyQueryData.h"
+
 #include "NFmiSettings.h"
 
 #include <string>
@@ -26,8 +28,41 @@ Globals::Globals()
   , cmdline_files()
   , datapath(Optional<string>("qdcontour::querydata_path","."))
   , mapspath(Optional<string>("qdcontour::maps_path","."))
+  , queryfilelist()
+  , queryfilenames()
   , calculator()
+  , querystreams()
+  , queryinfo(0)
 {
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Destructor
+ */
+// ----------------------------------------------------------------------
+
+Globals::~Globals()
+{
+  clear_querystreams();
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Delete all active querystreams
+ */
+// ----------------------------------------------------------------------
+
+void Globals::clear_querystreams()
+{
+  for(vector<LazyQueryData *>::iterator it = querystreams.begin();
+	  it != querystreams.end();
+	  ++it)
+	{
+	  delete *it;
+	}
+  querystreams.resize(0);
+  queryinfo = 0;
 }
 
 // ======================================================================

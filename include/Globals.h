@@ -12,10 +12,16 @@
 
 #include <list>
 #include <string>
+#include <vector>
+
+class LazyQueryData;
 
 struct Globals
 {
+  ~Globals();
   Globals();
+
+  void clear_querystreams();
 
   // Command line options
 
@@ -29,9 +35,14 @@ struct Globals
   std::string datapath;				// default searchpath for data
   std::string mapspath;				// default searchpath for maps
 
+  std::string queryfilelist;		// querydata files in use
+  std::vector<std::string> queryfilenames;	// querydata files in use
+
   // Active storage
 
   ContourCalculator calculator;		// data contourer
+  std::vector<LazyQueryData *> querystreams;
+  LazyQueryData * queryinfo;		// active data, does not own pointer
 
 };
 

@@ -243,6 +243,54 @@ void do_cache(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle the "querydata" command
+ */
+// ----------------------------------------------------------------------
+
+void do_querydata(istream & theInput)
+{
+  string newnames;
+  theInput >> newnames;
+
+  if(globals.queryfilelist != newnames)
+	{
+	  globals.queryfilelist = newnames;
+	  
+	  // Delete possible old infos
+	  
+	  globals.clear_querystreams();
+
+	  // Split the comma separated list into a real list
+	  
+	  list<string> qnames;
+	  unsigned int pos1 = 0;
+	  while(pos1<globals.queryfilelist.size())
+		{
+		  unsigned int pos2 = globals.queryfilelist.find(',',pos1);
+		  if(pos2==std::string::npos)
+			pos2 = globals.queryfilelist.size();
+		  qnames.push_back(globals.queryfilelist.substr(pos1,pos2-pos1));
+		  pos1 = pos2 + 1;
+		}
+	  
+	  // Read the queryfiles
+	  
+	  {
+		list<string>::const_iterator iter;
+		for(iter=qnames.begin(); iter!=qnames.end(); ++iter)
+		  {
+			LazyQueryData * tmp = new LazyQueryData();
+			string filename = NFmiFileSystem::FileComplete(*iter,globals.datapath);
+			globals.queryfilenames.push_back(filename);
+			tmp->Read(filename);
+			globals.querystreams.push_back(tmp);
+		  }
+	  }
+	}
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -353,14 +401,7 @@ int domain(int argc, const char *argv[])
 
   // This holds a vector of querydatastreams
 
-  vector<LazyQueryData *> theQueryStreams;
   int theQueryDataLevel = 1;
-  string theQueryStreamNames = "";
-  vector<string> theFullQueryFileNames;
-
-  // These will hold the querydata for the active parameter
-
-  LazyQueryData *theQueryInfo = 0;
 
 
   // Process all command files
@@ -392,49 +433,7 @@ int domain(int argc, const char *argv[])
 			do_cache(input);
 
 		  else if(command == "querydata")
-			{
-			  string newnames;
-			  input >> newnames;
-
-			  if(theQueryStreamNames != newnames)
-				{
-				  theQueryStreamNames = newnames;
-
-				  // Delete possible old infos
-
-				  for(unsigned int i=0; i<theQueryStreams.size(); i++)
-					delete theQueryStreams[i];
-				  theQueryStreams.resize(0);
-				  theQueryInfo = 0;
-
-				  // Split the comma separated list into a real list
-
-				  list<string> qnames;
-				  unsigned int pos1 = 0;
-				  while(pos1<theQueryStreamNames.size())
-					{
-					  unsigned int pos2 = theQueryStreamNames.find(',',pos1);
-					  if(pos2==std::string::npos)
-						pos2 = theQueryStreamNames.size();
-					  qnames.push_back(theQueryStreamNames.substr(pos1,pos2-pos1));
-					  pos1 = pos2 + 1;
-					}
-
-				  // Read the queryfiles
-
-				  {
-					list<string>::const_iterator iter;
-					for(iter=qnames.begin(); iter!=qnames.end(); ++iter)
-					  {
-						LazyQueryData * tmp = new LazyQueryData();
-						string filename = NFmiFileSystem::FileComplete(*iter,globals.datapath);
-						theFullQueryFileNames.push_back(filename);
-						tmp->Read(filename);
-						theQueryStreams.push_back(tmp);
-					  }
-				  }
-				}
-			}
+			do_querydata(input);
 
 		  else if(command == "querydatalevel")
 			input >> theQueryDataLevel;
@@ -1259,7 +1258,7 @@ int domain(int argc, const char *argv[])
 				  //   12. Draw arrows if requested
 				  //   13. Save the image
 
-				  if(theQueryStreams.empty())
+				  if(globals.querystreams.empty())
 					throw runtime_error("No query data has been read!");
 
 				  auto_ptr<NFmiArea> theArea;
@@ -1302,25 +1301,25 @@ int domain(int argc, const char *argv[])
 				  NFmiDataMatrix<float> vals;
 
 				  unsigned int qi;
-				  for(qi=0; qi<theQueryStreams.size(); qi++)
+				  for(qi=0; qi<globals.querystreams.size(); qi++)
 					{
 					  // Initialize the queryinfo
 
-					  theQueryInfo = theQueryStreams[qi];
-					  theQueryInfo->FirstLevel();
+					  globals.queryinfo = globals.querystreams[qi];
+					  globals.queryinfo->FirstLevel();
 					  if(theQueryDataLevel>0)
 						{
 						  int level = theQueryDataLevel;
 						  while(--level > 0)
-							theQueryInfo->NextLevel();
+							globals.queryinfo->NextLevel();
 						}
 
 					  // Establish time limits
-					  theQueryInfo->LastTime();
-					  utctime = theQueryInfo->ValidTime();
+					  globals.queryinfo->LastTime();
+					  utctime = globals.queryinfo->ValidTime();
 					  NFmiTime t2 = TimeTools::ConvertZone(utctime,theTimeStampZone);
-					  theQueryInfo->FirstTime();
-					  utctime = theQueryInfo->ValidTime();
+					  globals.queryinfo->FirstTime();
+					  utctime = globals.queryinfo->ValidTime();
 					  NFmiTime t1 = TimeTools::ConvertZone(utctime,theTimeStampZone);
 
 					  if(qi==0)
@@ -1380,18 +1379,18 @@ int domain(int argc, const char *argv[])
 					  // time.
 
 					  bool ok = true;
-					  for(qi=0; ok && qi<theQueryStreams.size(); qi++)
+					  for(qi=0; ok && qi<globals.querystreams.size(); qi++)
 						{
-						  theQueryInfo = theQueryStreams[qi];
-						  theQueryInfo->ResetTime();
-						  while(theQueryInfo->NextTime())
+						  globals.queryinfo = globals.querystreams[qi];
+						  globals.queryinfo->ResetTime();
+						  while(globals.queryinfo->NextTime())
 							{
-							  NFmiTime utc = theQueryInfo->ValidTime();
+							  NFmiTime utc = globals.queryinfo->ValidTime();
 							  NFmiTime loc = TimeTools::ConvertZone(utc,theTimeStampZone);
 							  if(!loc.IsLessThan(t))
 								break;
 							}
-						  NFmiTime utc = theQueryInfo->ValidTime();
+						  NFmiTime utc = globals.queryinfo->ValidTime();
 						  NFmiTime tnow = TimeTools::ConvertZone(utc,theTimeStampZone);
 
 						  // we wanted
@@ -1470,9 +1469,9 @@ int domain(int argc, const char *argv[])
 
 					  if(theTimeStampFlag)
 						{
-						  for(qi=0; qi<theFullQueryFileNames.size(); qi++)
+						  for(qi=0; qi<globals.queryfilenames.size(); qi++)
 							{
-							  time_t secs = NFmiFileSystem::FileModificationTime(theFullQueryFileNames[qi]);
+							  time_t secs = NFmiFileSystem::FileModificationTime(globals.queryfilenames[qi]);
 							  NFmiTime tlocal(secs);
 							  filename += "_" + tlocal.ToStr(kDDHHMM);
 							}
@@ -1540,7 +1539,7 @@ int domain(int argc, const char *argv[])
 							  ok = true;
 							  // We always assume the first querydata is ok
 							  qi = 0;
-							  theQueryInfo = theQueryStreams[0];
+							  globals.queryinfo = globals.querystreams[0];
 							}
 						  else
 							{
@@ -1548,11 +1547,11 @@ int domain(int argc, const char *argv[])
 							  // Note that qi will be used later on for
 							  // getting the coordinate matrices
 
-							  for(qi=0; qi<theQueryStreams.size(); qi++)
+							  for(qi=0; qi<globals.querystreams.size(); qi++)
 								{
-								  theQueryInfo = theQueryStreams[qi];
-								  theQueryInfo->Param(param);
-								  ok = theQueryInfo->IsParamUsable();
+								  globals.queryinfo = globals.querystreams[qi];
+								  globals.queryinfo->Param(param);
+								  ok = globals.queryinfo->IsParamUsable();
 								  if(ok) break;
 								}
 							}
@@ -1577,10 +1576,10 @@ int domain(int argc, const char *argv[])
 						  // Get the values.
 
 						  if(!ismeta)
-							theQueryInfo->Values(vals);
+							globals.queryinfo->Values(vals);
 						  else
 							vals = MetaFunctions::values(piter->param(),
-														 theQueryInfo);
+														 globals.queryinfo);
 
 						  // Replace values if so requested
 
@@ -1593,22 +1592,22 @@ int domain(int argc, const char *argv[])
 							}
 						  else if(theFilter=="linear")
 							{
-							  NFmiTime utc = theQueryInfo->ValidTime();
+							  NFmiTime utc = globals.queryinfo->ValidTime();
 							  NFmiTime tnow = TimeTools::ConvertZone(utc,theTimeStampZone);
 							  bool isexact = t.IsEqual(tnow);
 
 							  if(!isexact)
 								{
 								  NFmiDataMatrix<float> tmpvals;
-								  NFmiTime t2utc = theQueryInfo->ValidTime();
+								  NFmiTime t2utc = globals.queryinfo->ValidTime();
 								  NFmiTime t2 = TimeTools::ConvertZone(t2utc,theTimeStampZone);
-								  theQueryInfo->PreviousTime();
-								  NFmiTime t1utc = theQueryInfo->ValidTime();
+								  globals.queryinfo->PreviousTime();
+								  NFmiTime t1utc = globals.queryinfo->ValidTime();
 								  NFmiTime t1 = TimeTools::ConvertZone(t1utc,theTimeStampZone);
 								  if(!ismeta)
-									theQueryInfo->Values(tmpvals);
+									globals.queryinfo->Values(tmpvals);
 								  else
-									tmpvals = MetaFunctions::values(piter->param(), theQueryInfo);
+									tmpvals = MetaFunctions::values(piter->param(), globals.queryinfo);
 								  if(piter->replace())
 									tmpvals.Replace(piter->replaceSourceValue(),
 													piter->replaceTargetValue());
@@ -1633,17 +1632,17 @@ int domain(int argc, const char *argv[])
 							  int steps = 1;
 							  for(;;)
 								{
-								  theQueryInfo->PreviousTime();
-								  NFmiTime utc = theQueryInfo->ValidTime();
+								  globals.queryinfo->PreviousTime();
+								  NFmiTime utc = globals.queryinfo->ValidTime();
 								  NFmiTime tnow = TimeTools::ConvertZone(utc,theTimeStampZone);
 								  if(tnow.IsLessThan(tprev))
 									break;
 
 								  steps++;
 								  if(!ismeta)
-									theQueryInfo->Values(tmpvals);
+									globals.queryinfo->Values(tmpvals);
 								  else
-									tmpvals = MetaFunctions::values(piter->param(), theQueryInfo);
+									tmpvals = MetaFunctions::values(piter->param(), globals.queryinfo);
 								  if(piter->replace())
 									tmpvals.Replace(piter->replaceSourceValue(),
 													piter->replaceTargetValue());
@@ -1669,7 +1668,7 @@ int domain(int argc, const char *argv[])
 												piter->smootherFactor(),
 												piter->smootherRadius());
 
-						  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = theQueryInfo->LocationsWorldXY(*theArea);
+						  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(*theArea);
 						  vals = smoother.Smoothen(*worldpts,vals);
 
 						  // Find the minimum and maximum
@@ -1718,7 +1717,7 @@ int domain(int argc, const char *argv[])
 								  ++iter)
 								{
 								  NFmiPoint latlon = iter->first;
-								  NFmiPoint ij = theQueryInfo->LatLonToGrid(latlon);
+								  NFmiPoint ij = globals.queryinfo->LatLonToGrid(latlon);
 
 								  float value;
 
@@ -1735,7 +1734,7 @@ int domain(int argc, const char *argv[])
 									  float v10 = vals.At(i+1,j,kFloatMissing);
 									  float v01 = vals.At(i,j+1,kFloatMissing);
 									  float v11 = vals.At(i+1,j+1,kFloatMissing);
-									  if(!theQueryInfo->BiLinearInterpolation(ij.X(),
+									  if(!globals.queryinfo->BiLinearInterpolation(ij.X(),
 																			  ij.Y(),
 																			  value,
 																			  v00,v10,
@@ -1786,7 +1785,7 @@ int domain(int argc, const char *argv[])
 											  citer->hilimit()==piter->exactHiLimit());
 
 							  NFmiPath path =
-								globals.calculator.contour(*theQueryInfo,
+								globals.calculator.contour(*globals.queryinfo,
 														   citer->lolimit(),
 														   citer->hilimit(),
 														   exactlo,
@@ -1847,7 +1846,7 @@ int domain(int argc, const char *argv[])
 											  patiter->hilimit()==piter->exactHiLimit());
 
 							  NFmiPath path =
-								globals.calculator.contour(*theQueryInfo,
+								globals.calculator.contour(*globals.queryinfo,
 														   patiter->lolimit(),
 														   patiter->hilimit(),
 														   exactlo, exacthi,
@@ -1895,7 +1894,7 @@ int domain(int argc, const char *argv[])
 								}
 
 							  NFmiPath path =
-								globals.calculator.contour(*theQueryInfo,
+								globals.calculator.contour(*globals.queryinfo,
 														   liter->value(),
 														   kFloatMissing,
 														   true, false,
@@ -1939,11 +1938,11 @@ int domain(int argc, const char *argv[])
 						  // getting the coordinate matrices
 
 						  ok = false;
-						  for(qi=0; qi<theQueryStreams.size(); qi++)
+						  for(qi=0; qi<globals.querystreams.size(); qi++)
 							{
-							  theQueryInfo = theQueryStreams[qi];
-							  theQueryInfo->Param(param);
-							  ok = theQueryInfo->IsParamUsable();
+							  globals.queryinfo = globals.querystreams[qi];
+							  globals.queryinfo->Param(param);
+							  ok = globals.queryinfo->IsParamUsable();
 							  if(ok) break;
 							}
 
@@ -1984,15 +1983,15 @@ int domain(int argc, const char *argv[])
 							  if(IsMasked(xy0,theMask,theMaskImage))
 								continue;
 
-							  float dir = theQueryInfo->InterpolatedValue(*iter);
+							  float dir = globals.queryinfo->InterpolatedValue(*iter);
 							  if(dir==kFloatMissing)	// ignore missing
 								continue;
 
 							  float speed = -1;
 
-							  if(theQueryInfo->Param(FmiParameterName(converter.ToEnum(theSpeedParameter))))
-								speed = theQueryInfo->InterpolatedValue(*iter);
-							  theQueryInfo->Param(FmiParameterName(converter.ToEnum(theDirectionParameter)));
+							  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(theSpeedParameter))))
+								speed = globals.queryinfo->InterpolatedValue(*iter);
+							  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(theDirectionParameter)));
 
 
 							  // Direction calculations
@@ -2041,11 +2040,11 @@ int domain(int argc, const char *argv[])
 							{
 
 							  NFmiDataMatrix<float> speedvalues(vals.NX(),vals.NY(),-1);
-							  if(theQueryInfo->Param(FmiParameterName(converter.ToEnum(theSpeedParameter))))
-								theQueryInfo->Values(speedvalues);
-							  theQueryInfo->Param(FmiParameterName(converter.ToEnum(theDirectionParameter)));
+							  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(theSpeedParameter))))
+								globals.queryinfo->Values(speedvalues);
+							  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(theDirectionParameter)));
 
-							  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = theQueryInfo->LocationsWorldXY(*theArea);
+							  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(*theArea);
 							  for(unsigned int j=0; j<worldpts->NY(); j+=theWindArrowDY)
 								for(unsigned int i=0; i<worldpts->NX(); i+=theWindArrowDX)
 								  {
@@ -2303,10 +2302,10 @@ int domain(int argc, const char *argv[])
 						// of the oldest forecast
 
 						NFmiTime tfor;
-						for(qi=0; qi<theQueryStreams.size(); qi++)
+						for(qi=0; qi<globals.querystreams.size(); qi++)
 						  {
-							theQueryInfo = theQueryStreams[qi];
-							NFmiTime futctime = theQueryInfo->OriginTime();
+							globals.queryinfo = globals.querystreams[qi];
+							NFmiTime futctime = globals.queryinfo->OriginTime();
 							NFmiTime tlocal = TimeTools::ConvertZone(futctime,theTimeStampZone);
 							if(qi==0 || tlocal.IsLessThan(tfor))
 							  tfor = tlocal;
