@@ -1974,6 +1974,12 @@ int main(int argc, const char *argv[])
 				theShapeSpecs.back().StrokeRule(theStrokeRule);
 			}
 		  
+		  else if(command == "directionparam")
+		    input >> theDirectionParameter;
+
+		  else if(command == "speedparam")
+		    input >> theSpeedParameter;
+
 		  else if(command == "arrowscale")
 			input >> theArrowScale;
 
