@@ -300,6 +300,31 @@ void do_querydatalevel(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "filter" command
+ */
+// ----------------------------------------------------------------------
+
+void do_filter(istream & theInput)
+{
+  theInput >> globals.filter;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'filter' command failed");
+
+  if(globals.filter != "none" &&
+	 globals.filter != "linear" &&
+	 globals.filter != "min" &&
+	 globals.filter != "max" &&
+	 globals.filter != "mean" &&
+	 globals.filter != "msum")
+	{
+	  throw runtime_error("Filtering mode '"+globals.filter+"' is not recognized");
+	}
+
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -372,8 +397,6 @@ int domain(int argc, const char *argv[])
   string theCombineRule = "Over";
   float theCombineFactor = 1.0;
 
-  string theFilter = "none";
-
   string theDirectionParameter = "WindDirection";
   string theSpeedParameter = "WindSpeedMS";
 
@@ -444,7 +467,7 @@ int domain(int argc, const char *argv[])
 			do_querydatalevel(input);
 
 		  else if(command == "filter")
-			input >> theFilter;
+			do_filter(input);
 
 		  else if(command == "timestepskip")
 			input >> theTimeStepSkip;
@@ -1425,7 +1448,7 @@ int domain(int argc, const char *argv[])
 
 						  // Skip this image if we are unable to render it
 
-						  if(theFilter=="none")
+						  if(globals.filter=="none")
 							{
 							  // Cannot draw time with filter none
 							  // if time is not exact.
@@ -1433,7 +1456,7 @@ int domain(int argc, const char *argv[])
 							  ok = isexact;
 
 							}
-						  else if(theFilter=="linear")
+						  else if(globals.filter=="linear")
 							{
 							  // OK if is exact, otherwise previous step required
 
@@ -1591,11 +1614,11 @@ int domain(int argc, const char *argv[])
 						  if(piter->replace())
 							vals.Replace(piter->replaceSourceValue(),piter->replaceTargetValue());
 
-						  if(theFilter=="none")
+						  if(globals.filter=="none")
 							{
 							  // The time is known to be exact
 							}
-						  else if(theFilter=="linear")
+						  else if(globals.filter=="linear")
 							{
 							  NFmiTime utc = globals.queryinfo->ValidTime();
 							  NFmiTime tnow = TimeTools::ConvertZone(utc,theTimeStampZone);
@@ -1652,17 +1675,17 @@ int domain(int argc, const char *argv[])
 									tmpvals.Replace(piter->replaceSourceValue(),
 													piter->replaceTargetValue());
 
-								  if(theFilter=="min")
+								  if(globals.filter=="min")
 									vals.Min(tmpvals);
-								  else if(theFilter=="max")
+								  else if(globals.filter=="max")
 									vals.Max(tmpvals);
-								  else if(theFilter=="mean")
+								  else if(globals.filter=="mean")
 									vals += tmpvals;
-								  else if(theFilter=="sum")
+								  else if(globals.filter=="sum")
 									vals += tmpvals;
 								}
 
-							  if(theFilter=="mean")
+							  if(globals.filter=="mean")
 								vals /= steps;
 							}
 

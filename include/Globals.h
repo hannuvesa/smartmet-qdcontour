@@ -35,6 +35,8 @@ struct Globals
   std::string datapath;				// default searchpath for data
   std::string mapspath;				// default searchpath for maps
 
+  std::string filter;				// filtering mode
+
   std::string queryfilelist;		// querydata files in use
   std::vector<std::string> queryfilenames;	// querydata files in use
 
