@@ -475,6 +475,8 @@ public:
   {
     itsLabelPoints.clear();
     itsLabelValues.clear();
+	itsLabelDX = 0;
+	itsLabelDY = 0;
   }
   
   const string & LabelMarker(void) const	{ return itsLabelMarker; }
