@@ -168,6 +168,18 @@ void LazyQueryData::ResetTime()
  */
 // ----------------------------------------------------------------------
 
+void LazyQueryData::ResetLevel()
+{
+  requireInfo();
+  itsInfo->ResetLevel();
+}
+
+// ----------------------------------------------------------------------
+/*!
+ *
+ */
+// ----------------------------------------------------------------------
+
 bool LazyQueryData::FirstLevel()
 {
   requireInfo();
@@ -208,6 +220,18 @@ bool LazyQueryData::NextLevel()
 {
   requireInfo();
   return itsInfo->NextLevel();
+}
+
+// ----------------------------------------------------------------------
+/*!
+ *
+ */
+// ----------------------------------------------------------------------
+
+const NFmiLevel * LazyQueryData::Level() const
+{
+  requireInfo();
+  return itsInfo->Level();
 }
 
 // ----------------------------------------------------------------------

@@ -30,6 +30,7 @@
 class NFmiArea;
 class NFmiFastQueryInfo;
 class NFmiGrid;
+class NFmiLevel;
 class NFmiMetTime;
 class NFmiPoint;
 class NFmiQueryData;
@@ -50,12 +51,14 @@ public:
   void Read(const std::string & theDataFile);
 
   void ResetTime();
+  void ResetLevel();
   bool FirstLevel();
   bool FirstTime();
   bool LastTime();
   bool NextLevel();
   bool NextTime();
   bool PreviousTime();
+  const NFmiLevel * Level() const;
 
   bool Param(FmiParameterName theParam);
 
