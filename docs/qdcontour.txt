@@ -908,6 +908,16 @@ The different formats are
 <dd>The forecast time is rendered followed by the offset to the data time</dd>
 </dl>
 
+The appearance of the timestamp can be controlled with
+commands
+\code
+timestampimageformat [hour|hourdate] # default = hourdate
+timestampimagefont [font]            # default = misc/6x13B.pcf.gz:6x13
+timestampimagecolor [color]          # default = black
+timestampimagebackground [color]     # default = none
+timestampimagemargin [dx] [dy]       # default = 2 2
+\endcode
+
 \subsection metaparams_section Automatically calculated metaparameters
 
 The qdcontour program is able to recognize different meta parameters, which
