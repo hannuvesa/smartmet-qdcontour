@@ -1076,14 +1076,6 @@ int main(int argc, const char *argv[])
 					color = NFmiColorTools::Interpolate(color1,color2,i/(steps-1.0));
 				  if(!theSpecs.empty())
 					theSpecs.back().add(ContourRange(tmplo,tmphi,color,theFillRule));
-				  // if(verbose)
-				  // cout << "Interval " << tmplo << "," << tmphi
-				  // << " colour is "
-				  // << NFmiColorTools::GetRed(color) << ","
-				  // << NFmiColorTools::GetGreen(color) << ","
-				  // << NFmiColorTools::GetBlue(color) << ","
-				  // << NFmiColorTools::GetAlpha(color)
-				  // << endl;
 				}
 			}
 	      
