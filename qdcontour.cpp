@@ -96,7 +96,7 @@ bool IsMasked(const NFmiPoint & thePoint,
 // Main program.
 // ----------------------------------------------------------------------
 
-int main(int argc, const char *argv[])
+int domain(int argc, const char *argv[])
 {
   // Ympäristön konfigurointi
 
@@ -2634,6 +2634,25 @@ int main(int argc, const char *argv[])
 			}
 		}
     }
+  return 0;
+}
+
+// ----------------------------------------------------------------------
+// Main program.
+// ----------------------------------------------------------------------
+
+int main(int argc, const char* argv[])
+{
+  try
+	{
+	  return domain(argc, argv);
+	}
+  catch(const std::runtime_error & e)
+	{
+	  cerr << "Error: Unexpected exception" << endl
+		   << "--> " << e.what() << endl;
+	  return 1;
+	}
 }
 
 // ======================================================================
