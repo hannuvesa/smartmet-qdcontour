@@ -1074,6 +1074,108 @@ void do_datareplace(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "contourdepth" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourdepth(istream & theInput)
+{
+  theInput >> globals.contourdepth;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'contourdepth' command failed");
+
+  if(globals.contourdepth < 0)
+	throw runtime_error("Contour depth must be nonnegative");
+
+  if(!globals.specs.empty())
+	globals.specs.back().contourDepth(globals.contourdepth);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "contourinterpolation" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourinterpolation(istream & theInput)
+{
+  theInput >> globals.contourinterpolation;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'contourinterpolation' command failed");
+
+  if(!globals.specs.empty())
+	globals.specs.back().contourInterpolation(globals.contourinterpolation);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "contourtriangles" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourtriangles(istream & theInput)
+{
+  theInput >> globals.contourtriangles;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'contourtriangles' command failed");
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "smoother" command
+ */
+// ----------------------------------------------------------------------
+
+void do_smoother(istream & theInput)
+{
+  theInput >> globals.smoother;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'smoother' command failed");
+
+  if(!globals.specs.empty())
+	globals.specs.back().smoother(globals.smoother);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "smootherradius" command
+ */
+// ----------------------------------------------------------------------
+
+void do_smootherradius(istream & theInput)
+{
+  theInput >> globals.smootherradius;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'smootherradius' command failed");
+
+  if(!globals.specs.empty())
+	globals.specs.back().smootherRadius(globals.smootherradius);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "smootherfactor" command
+ */
+// ----------------------------------------------------------------------
+
+void do_smootherfactor(istream & theInput)
+{
+  theInput >> globals.smootherfactor;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'smootherfactor' command failed");
+
+  if(!globals.specs.empty())
+	globals.specs.back().smootherFactor(globals.smootherfactor);
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -1091,14 +1193,6 @@ int domain(int argc, const char *argv[])
 
   string theParam = "";
   string theShapeFileName = "";
-  string theContourInterpolation = "Linear";
-  string theSmoother = "None";
-  float theSmootherRadius = 1.0;
-  int theSmootherFactor = 1;
-
-
-  int theContourDepth	= 0;
-  int theContourTrianglesOn = 1;
 
   // Related variables
 
@@ -1178,52 +1272,22 @@ int domain(int argc, const char *argv[])
 		  else if(command == "datalolimit")			do_datalolimit(input);
 		  else if(command == "datahilimit")			do_datahilimit(input);
 		  else if(command == "datareplace")			do_datareplace(input);
+		  else if(command == "contourdepth")		do_contourdepth(input);
+		  else if(command == "contourinterpolation") do_contourinterpolation(input);
+		  else if(command == "contourtriangles")	do_contourtriangles(input);
+		  else if(command == "smoother")			do_smoother(input);
+		  else if(command == "smootherradius")		do_smootherradius(input);
+		  else if(command == "smootherfactor")		do_smootherfactor(input);
 
-		  else if(command == "contourdepth")
-			{
-			  input >> theContourDepth;
-			  if(!globals.specs.empty())
-				globals.specs.back().contourDepth(theContourDepth);
-			}
-
-		  else if(command == "contourinterpolation")
-			{
-			  input >> theContourInterpolation;
-			  if(!globals.specs.empty())
-				globals.specs.back().contourInterpolation(theContourInterpolation);
-			}
-		  else if(command == "contourtriangles")
-			{
-			  input >> theContourTrianglesOn;
-			}
-
-		  else if(command == "smoother")
-			{
-			  input >> theSmoother;
-			  if(!globals.specs.empty())
-				globals.specs.back().smoother(theSmoother);
-			}
-		  else if(command == "smootherradius")
-			{
-			  input >> theSmootherRadius;
-			  if(!globals.specs.empty())
-				globals.specs.back().smootherRadius(theSmootherRadius);
-			}
-		  else if(command == "smootherfactor")
-			{
-			  input >> theSmootherFactor;
-			  if(!globals.specs.empty())
-				globals.specs.back().smootherFactor(theSmootherFactor);
-			}
 		  else if(command == "param")
 			{
 			  input >> theParam;
 			  globals.specs.push_back(ContourSpec(theParam,
-												  theContourInterpolation,
-												  theSmoother,
-												  theContourDepth,
-												  theSmootherRadius,
-												  theSmootherFactor));
+												  globals.contourinterpolation,
+												  globals.smoother,
+												  globals.contourdepth,
+												  globals.smootherradius,
+												  globals.smootherfactor));
 			}
 
 		  else if(command == "shape")
@@ -2247,7 +2311,7 @@ int domain(int argc, const char *argv[])
 														   piter->dataHiLimit(),
 														   piter->contourDepth(),
 														   interp,
-														   theContourTrianglesOn);
+														   globals.contourtriangles);
 
 							  if(globals.verbose && globals.calculator.wasCached())
 								cout << "Using cached "
@@ -2307,7 +2371,7 @@ int domain(int argc, const char *argv[])
 														   piter->dataHiLimit(),
 														   piter->contourDepth(),
 														   interp,
-														   theContourTrianglesOn);
+														   globals.contourtriangles);
 
 							  if(globals.verbose && globals.calculator.wasCached())
 								cout << "Using cached "
@@ -2355,7 +2419,7 @@ int domain(int argc, const char *argv[])
 														   piter->dataHiLimit(),
 														   piter->contourDepth(),
 														   interp,
-														   theContourTrianglesOn);
+														   globals.contourtriangles);
 
 							  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(liter->rule());
 							  path.Project(theArea.get());
