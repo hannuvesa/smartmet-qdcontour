@@ -21,6 +21,7 @@
 namespace MetaFunctions
 {
   bool isMeta(const std::string & theFunction);
+  int id(const std::string & theFunction);
   NFmiDataMatrix<float> values(const std::string & theFunction,
 							   LazyQueryData * theQI);
 

@@ -138,6 +138,26 @@ namespace MetaFunctions
 
   // ----------------------------------------------------------------------
   /*!
+   * \brief Assign ID for meta functions
+   *
+   * \param theFunction The function
+   * \return The ID, or 0 for a bad parameter
+   */
+  // ----------------------------------------------------------------------
+
+  int id(const std::string & theFunction)
+  {
+	if(theFunction == "MetaElevationAngle")
+	  return 10000;
+	if(theFunction == "MetaWindChill")
+	  return 10001;
+	if(theFunction == "MetaDewDifference")
+	  return 10002;
+	return 0;
+  }
+
+  // ----------------------------------------------------------------------
+  /*!
    * \brief Return the function values for the given meta function
    *
    * An exception is thrown if the name is not recognized. One should
