@@ -64,6 +64,10 @@ DoTest("windarrows in a grid",
        "windarrow_grid.conf",
        "windarrow_grid200210140900_140900.png");
 
+DoTest("windarrows at points",
+       "windarrow_points.conf",
+       "windarrow_points200210140900_140900.png");
+
 print "Done\n";
 
 # ----------------------------------------------------------------------
