@@ -446,6 +446,23 @@ There is no similar <em>patternfills</em> equivalent as before, as
 interpolation between the start and end patterns would rarely make
 sense.
 
+To label certain contours one may use the commands
+
+\code
+contourlabel [value]
+contourlabels [startvalue] [endvalue] [step]
+\endcode
+
+The relevant settings may be controlled with
+
+\code
+contourlabelaccuracy [value]    # default = 0.25
+contourlabelfont [font]         # default = misc/6x13.pcf.gz:6x13
+contourlabelcolor [color]       # default = black
+contourlabelbackground [color]  # default = #20B4B4B4
+contourlabelmargin [dx] [dy]    # default = 2 2
+\endcode
+
 \subsection symbol_section Drawing symbols at grid points
 
 Often for example thunder appears in such as small area that
