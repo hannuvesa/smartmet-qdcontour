@@ -116,6 +116,16 @@ DoTest("labels on top of arrows",
        "labels_and_arrows.conf",
        "labels_and_arrows_200210140900_140900.png");
 
+# Meteorological arrows
+
+DoTest("meteorological arrows",
+       "meteorological_arrows.conf",
+       "meteorological_arrows_200210140900_140900.png");
+
+DoTest("meteorological arrows with labels",
+       "meteorological_arrows_and_labels.conf",
+       "meteorological_arrows_and_labels_200210140900_140900.png");
+
 print "Done\n";
 
 # ----------------------------------------------------------------------
