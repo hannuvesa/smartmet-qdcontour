@@ -337,7 +337,7 @@ void LabelLocator::add(float theContour, int theX, int theY)
  */
 // ----------------------------------------------------------------------
 
-void LabelLocator::chooseLabels()
+const LabelLocator::ParamCoordinates & LabelLocator::chooseLabels()
 {
   // Make a duplicate for the final choices
 
@@ -388,6 +388,8 @@ void LabelLocator::chooseLabels()
 	}
 
   swap(itsCurrentCoordinates,choices);
+
+  return itsCurrentCoordinates;
 
 }
 

@@ -31,7 +31,12 @@ public:
 
   void add(float theContour, int theX, int theY);
 
-  void chooseLabels();
+  typedef std::pair<int,int> XY;
+  typedef std::list<XY> Coordinates;
+  typedef std::map<float,Coordinates> ContourCoordinates;
+  typedef std::map<int,ContourCoordinates> ParamCoordinates;
+
+  const ParamCoordinates & chooseLabels();
 
 private:
 
@@ -49,11 +54,6 @@ private:
   float itsMinDistanceToSameValue;
   float itsMinDistanceToDifferentValue;
   float itsMinDistanceToDifferentParameter;
-
-  typedef std::pair<int,int> XY;
-  typedef std::list<XY> Coordinates;
-  typedef std::map<float,Coordinates> ContourCoordinates;
-  typedef std::map<int,ContourCoordinates> ParamCoordinates;
 
   int itsActiveParameter;
   ParamCoordinates itsPreviousCoordinates;
