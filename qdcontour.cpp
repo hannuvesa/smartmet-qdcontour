@@ -21,6 +21,8 @@
 #include "TimeTools.h"
 
 #include "imagine/NFmiColorTools.h"
+#include "imagine/NFmiFace.h"
+#include "imagine/NFmiFreeType.h"
 #include "imagine/NFmiFontHershey.h"	// for Hershey fonts
 #include "imagine/NFmiImage.h"			// for rendering
 #include "imagine/NFmiGeoShape.h"		// for esri data
@@ -1473,6 +1475,158 @@ void do_contourlines(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \bried Handle "contourlabel" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourlabel(istream & theInput)
+{
+  float value;
+  theInput >> value;
+
+  check_errors(theInput,"contourlabel");
+
+  if(globals.specs.empty())
+	throw runtime_error("Must define parameter before contourlabel");
+
+  globals.specs.back().add(ContourLabel(value));
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "contourlabels" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourlabels(istream & theInput)
+{
+  float lo,hi,step;
+  theInput >> lo >> hi >> step;
+
+  check_errors(theInput,"contourlabels");
+
+  if(globals.specs.empty())
+	throw runtime_error("Must define parameter before contourlabels");
+
+  int steps = static_cast<int>((hi-lo)/step);
+
+  for(int i=0; i<=steps; i++)
+	{
+	  float tmplo=lo+i*step;
+	  globals.specs.back().add(ContourLabel(tmplo));
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "contourlabelaccuracy" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourlabelaccuracy(istream & theInput)
+{
+  float accuracy;
+
+  theInput >> accuracy;
+
+  check_errors(theInput,"contourlabelaccuracy");
+
+  if(accuracy < 0)
+	throw runtime_error("contourlabelaccuracy must be nonnegative");
+
+  if(globals.specs.empty())
+	throw runtime_error("Must define parameter before contourlabelaccuracy");
+
+  globals.specs.back().contourLabelAccuracy(accuracy);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "contourlabelfont" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourlabelfont(istream & theInput)
+{
+  string font;
+
+  theInput >> font;
+
+  check_errors(theInput,"contourlabelfont");
+
+  if(globals.specs.empty())
+	throw runtime_error("Must define parameter before contourlabelfont");
+
+  globals.specs.back().contourLabelFont(font);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "contourlabelcolor" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourlabelcolor(istream & theInput)
+{
+  string scolor;
+
+  theInput >> scolor;
+
+  check_errors(theInput,"contourlabelcolor");
+
+  if(globals.specs.empty())
+	throw runtime_error("Must define parameter before contourlabelcolor");
+
+  NFmiColorTools::Color color = ColorTools::checkcolor(scolor);
+
+  globals.specs.back().contourLabelColor(color);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "contourlabelbackground" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourlabelbackground(istream & theInput)
+{
+  string scolor;
+
+  theInput >> scolor;
+
+  check_errors(theInput,"contourlabelbackground");
+
+  if(globals.specs.empty())
+	throw runtime_error("Must define parameter before contourlabelbackground");
+
+  NFmiColorTools::Color color = ColorTools::checkcolor(scolor);
+
+  globals.specs.back().contourLabelBackgroundColor(color);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "contourlabelmargin" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourlabelmargin(istream & theInput)
+{
+  int dx, dy;
+
+  theInput >> dx >> dy;
+
+  check_errors(theInput,"contourlabelmargin");
+
+  if(globals.specs.empty())
+	throw runtime_error("Must define parameter before contourlabelmargin");
+
+  globals.specs.back().contourLabelBackgroundXMargin(dx);
+  globals.specs.back().contourLabelBackgroundYMargin(dy);
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \bried Handle "labelmarker" command
  */
 // ----------------------------------------------------------------------
@@ -2716,6 +2870,97 @@ void draw_contour_strokes(NFmiImage & theImage,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Draw contour labels
+ */
+// ----------------------------------------------------------------------
+
+void draw_contour_labels(NFmiImage & theImage,
+						 const NFmiArea & theArea,
+						 const ContourSpec & theSpec,
+						 const NFmiDataMatrix<NFmiPoint> & thePoints,
+						 const NFmiDataMatrix<float> & theValues,
+						 float theMinimum,
+						 float theMaximum)
+{
+  list<ContourLabel>::const_iterator it;
+  list<ContourLabel>::const_iterator begin;
+  list<ContourLabel>::const_iterator end;
+  
+  begin = theSpec.contourLabels().begin();
+  end   = theSpec.contourLabels().end();
+  
+  for(it=begin ; it!=end; ++it)
+	{
+	  // Skip to next label if this one is outside the value range.
+
+	  if(theMinimum==kFloatMissing || theMaximum==kFloatMissing)
+		continue;
+	  
+	  const float value = it->value();
+
+	  if(value < theMinimum || value > theMaximum)
+		continue;
+
+	  const float accuracy = theSpec.contourLabelAccuracy();
+	  const std::string & fontspec = theSpec.contourLabelFont();
+	  const int fontcolor = theSpec.contourLabelColor();
+	  const int backcolor = theSpec.contourLabelBackgroundColor();
+	  const int xmargin = theSpec.contourLabelBackgroundXMargin();
+	  const int ymargin = theSpec.contourLabelBackgroundYMargin();
+
+	  cout << "Rendering labels at value " << value << "... ";
+
+	  vector<string> fontparts = NFmiStringTools::Split(fontspec,":");
+	  if(fontparts.size() != 2)
+		throw runtime_error("Invalid font specification '"+fontspec+"'");
+	  const string font = fontparts[0];
+	  fontparts = NFmiStringTools::Split(fontparts[1],"x");
+	  if(fontparts.size() != 2)
+		throw runtime_error("Invalid font size specification in '"+fontspec+"'");
+	  const int width = NFmiStringTools::Convert<int>(fontparts[0]);
+	  const int height = NFmiStringTools::Convert<int>(fontparts[1]);
+
+	  int count = 0;
+
+	  // Draw label at each grid point where necessary
+	  for(unsigned int j=0; j<theValues.NY(); j++)
+		for(unsigned int i=0; i<theValues.NX(); i++)
+		  {
+			const float z = theValues[i][j];
+
+			if(std::abs(z-value) > accuracy)
+			  continue;
+
+			++count;
+
+			NFmiPoint latlon = theArea.WorldXYToLatLon(thePoints[i][j]);
+			NFmiPoint xy = theArea.ToXY(latlon);
+			
+			int xx = FmiRound(xy.X());
+			int yy = FmiRound(xy.Y());
+
+			Imagine::NFmiFace face = Imagine::NFmiFreeType::Instance().Face(font,width,height);
+			face.Background(true);
+			face.BackgroundColor(backcolor);
+			face.BackgroundMargin(xmargin,ymargin);
+
+			const string text = NFmiStringTools::Convert(value);
+
+			face.Draw(theImage,
+					  xx,
+					  yy,
+					  text,
+					  Imagine::kFmiAlignCenter,
+					  fontcolor);
+		  }
+
+	  cout << count << endl;
+
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Draw contour symbols
  */
 // ----------------------------------------------------------------------
@@ -3161,6 +3406,10 @@ void do_draw_contours(istream & theInput)
 
 		  draw_contour_strokes(image,*area,*piter,interp,min_value,max_value);
 
+		  // Label the contours
+
+		  draw_contour_labels(image,*area,*piter,*worldpts,vals,min_value,max_value);
+
 		  // Symbol fill the contours
 
 		  draw_contour_symbols(image,*area,*piter,*worldpts,vals,min_value,max_value);
@@ -3234,105 +3483,114 @@ int domain(int argc, const char *argv[])
 
       // Process the commands
 
-	  istringstream input(text);
-      string command;
-      while( input >> command)
+	  istringstream in(text);
+      string cmd;
+      while( in >> cmd)
 		{
 		  // Handle comments
 
-		  if(command == "#")						do_comment(input);
-		  else if(command[0] == '#')				do_comment(input);
-		  else if(command == "//")					do_comment(input);
-		  else if(command == "cache")				do_cache(input);
-		  else if(command == "querydata")			do_querydata(input);
-		  else if(command == "querydatalevel")		do_querydatalevel(input);
-		  else if(command == "filter")				do_filter(input);
-		  else if(command == "timestepskip")		do_timestepskip(input);
-		  else if(command == "timestep")			do_timestep(input);
-		  else if(command == "timeinterval")		do_timeinterval(input);
-		  else if(command == "timesteps")			do_timesteps(input);
-		  else if(command == "timestamp")			do_timestamp(input);
-		  else if(command == "timestampzone")		do_timestampzone(input);
-		  else if(command == "timesteprounding")	do_timesteprounding(input);
-		  else if(command == "timestampimage")		do_timestampimage(input);
-		  else if(command == "timestampimagexy")	do_timestampimagexy(input);
-		  else if(command == "projection")			do_projection(input);
-		  else if(command == "erase")				do_erase(input);
-		  else if(command == "fillrule")			do_fillrule(input);
-		  else if(command == "strokerule")			do_strokerule(input);
-		  else if(command == "directionparam")		do_directionparam(input);
-		  else if(command == "speedparam")			do_speedparam(input);
-		  else if(command == "arrowscale")			do_arrowscale(input);
-		  else if(command == "windarrowscale")		do_windarrowscale(input);
-		  else if(command == "arrowfill")			do_arrowfill(input);
-		  else if(command == "arrowstroke")			do_arrowstroke(input);
-		  else if(command == "arrowpath")			do_arrowpath(input);
-		  else if(command == "windarrow")			do_windarrow(input);
-		  else if(command == "windarrows")			do_windarrows(input);
-		  else if(command == "background")			do_background(input);
-		  else if(command == "foreground")			do_foreground(input);
-		  else if(command == "mask")				do_mask(input);
-		  else if(command == "combine")				do_combine(input);
-		  else if(command == "foregroundrule")		do_foregroundrule(input);
-		  else if(command == "savepath")			do_savepath(input);
-		  else if(command == "prefix")				do_prefix(input);
-		  else if(command == "suffix")				do_suffix(input);
-		  else if(command == "format")				do_format(input);
-		  else if(command == "gamma")				do_gamma(input);
-		  else if(command == "intent")				do_intent(input);
-		  else if(command == "pngquality")			do_pngquality(input);
-		  else if(command == "jpegquality")			do_jpegquality(input);
-		  else if(command == "savealpha")			do_savealpha(input);
-		  else if(command == "wantpalette")			do_wantpalette(input);
-		  else if(command == "forcepalette")		do_forcepalette(input);
-		  else if(command == "alphalimit")			do_alphalimit(input);
-		  else if(command == "hilimit")				do_hilimit(input);
-		  else if(command == "datalolimit")			do_datalolimit(input);
-		  else if(command == "datahilimit")			do_datahilimit(input);
-		  else if(command == "datareplace")			do_datareplace(input);
-		  else if(command == "contourdepth")		do_contourdepth(input);
-		  else if(command == "contourinterpolation") do_contourinterpolation(input);
-		  else if(command == "contourtriangles")	do_contourtriangles(input);
-		  else if(command == "smoother")			do_smoother(input);
-		  else if(command == "smootherradius")		do_smootherradius(input);
-		  else if(command == "smootherfactor")		do_smootherfactor(input);
-		  else if(command == "param")				do_param(input);
-		  else if(command == "shape")				do_shape(input);
-		  else if(command == "contourfill")			do_contourfill(input);
-		  else if(command == "contourpattern")		do_contourpattern(input);
-		  else if(command == "contoursymbol")		do_contoursymbol(input);
-		  else if(command == "contourline")			do_contourline(input);
-		  else if(command == "contourfills")		do_contourfills(input);
-		  else if(command == "contourlines")		do_contourlines(input);
-		  else if(command == "labelmarker")			do_labelmarker(input);
-		  else if(command == "labelfont")			do_labelfont(input);
-		  else if(command == "labelsize")			do_labelsize(input);
-		  else if(command == "labelstroke")			do_labelstroke(input);
-		  else if(command == "labelfill")			do_labelfill(input);
-		  else if(command == "labelalign")			do_labelalign(input);
-		  else if(command == "labelformat")			do_labelformat(input);
-		  else if(command == "labelmissing")		do_labelmissing(input);
-		  else if(command == "labelangle")			do_labelangle(input);
-		  else if(command == "labeloffset")			do_labeloffset(input);
-		  else if(command == "labelcaption")		do_labelcaption(input);
-		  else if(command == "label")				do_label(input);
-		  else if(command == "labelxy")				do_labelxy(input);
-		  else if(command == "labels")				do_labels(input);
-		  else if(command == "labelfile")			do_labelfile(input);
-		  else if(command == "clear")				do_clear(input);
+		  if(cmd == "#")							do_comment(in);
+		  else if(cmd[0] == '#')					do_comment(in);
+		  else if(cmd == "//")						do_comment(in);
+		  else if(cmd == "cache")					do_cache(in);
+		  else if(cmd == "querydata")				do_querydata(in);
+		  else if(cmd == "querydatalevel")			do_querydatalevel(in);
+		  else if(cmd == "filter")					do_filter(in);
+		  else if(cmd == "timestepskip")			do_timestepskip(in);
+		  else if(cmd == "timestep")				do_timestep(in);
+		  else if(cmd == "timeinterval")			do_timeinterval(in);
+		  else if(cmd == "timesteps")				do_timesteps(in);
+		  else if(cmd == "timestamp")				do_timestamp(in);
+		  else if(cmd == "timestampzone")			do_timestampzone(in);
+		  else if(cmd == "timesteprounding")		do_timesteprounding(in);
+		  else if(cmd == "timestampimage")			do_timestampimage(in);
+		  else if(cmd == "timestampimagexy")		do_timestampimagexy(in);
+		  else if(cmd == "projection")				do_projection(in);
+		  else if(cmd == "erase")					do_erase(in);
+		  else if(cmd == "fillrule")				do_fillrule(in);
+		  else if(cmd == "strokerule")				do_strokerule(in);
+		  else if(cmd == "directionparam")			do_directionparam(in);
+		  else if(cmd == "speedparam")				do_speedparam(in);
+		  else if(cmd == "arrowscale")				do_arrowscale(in);
+		  else if(cmd == "windarrowscale")			do_windarrowscale(in);
+		  else if(cmd == "arrowfill")				do_arrowfill(in);
+		  else if(cmd == "arrowstroke")				do_arrowstroke(in);
+		  else if(cmd == "arrowpath")				do_arrowpath(in);
+		  else if(cmd == "windarrow")				do_windarrow(in);
+		  else if(cmd == "windarrows")				do_windarrows(in);
+		  else if(cmd == "background")				do_background(in);
+		  else if(cmd == "foreground")				do_foreground(in);
+		  else if(cmd == "mask")					do_mask(in);
+		  else if(cmd == "combine")					do_combine(in);
+		  else if(cmd == "foregroundrule")			do_foregroundrule(in);
+		  else if(cmd == "savepath")				do_savepath(in);
+		  else if(cmd == "prefix")					do_prefix(in);
+		  else if(cmd == "suffix")					do_suffix(in);
+		  else if(cmd == "format")					do_format(in);
+		  else if(cmd == "gamma")					do_gamma(in);
+		  else if(cmd == "intent")					do_intent(in);
+		  else if(cmd == "pngquality")				do_pngquality(in);
+		  else if(cmd == "jpegquality")				do_jpegquality(in);
+		  else if(cmd == "savealpha")				do_savealpha(in);
+		  else if(cmd == "wantpalette")				do_wantpalette(in);
+		  else if(cmd == "forcepalette")			do_forcepalette(in);
+		  else if(cmd == "alphalimit")				do_alphalimit(in);
+		  else if(cmd == "hilimit")					do_hilimit(in);
+		  else if(cmd == "datalolimit")				do_datalolimit(in);
+		  else if(cmd == "datahilimit")				do_datahilimit(in);
+		  else if(cmd == "datareplace")				do_datareplace(in);
+		  else if(cmd == "contourdepth")			do_contourdepth(in);
+		  else if(cmd == "contourinterpolation")	do_contourinterpolation(in);
+		  else if(cmd == "contourtriangles")		do_contourtriangles(in);
+		  else if(cmd == "smoother")				do_smoother(in);
+		  else if(cmd == "smootherradius")			do_smootherradius(in);
+		  else if(cmd == "smootherfactor")			do_smootherfactor(in);
+		  else if(cmd == "param")					do_param(in);
+		  else if(cmd == "shape")					do_shape(in);
+		  else if(cmd == "contourfill")				do_contourfill(in);
+		  else if(cmd == "contourpattern")			do_contourpattern(in);
+		  else if(cmd == "contoursymbol")			do_contoursymbol(in);
+		  else if(cmd == "contourline")				do_contourline(in);
+		  else if(cmd == "contourfills")			do_contourfills(in);
+		  else if(cmd == "contourlines")			do_contourlines(in);
+		  	
+		  else if(cmd == "contourlabel")			do_contourlabel(in);
+		  else if(cmd == "contourlabels")			do_contourlabels(in);
+		  else if(cmd == "contourlabelaccuracy")	do_contourlabelaccuracy(in);
+		  else if(cmd == "contourlabelfont")		do_contourlabelfont(in);
+		  else if(cmd == "contourlabelcolor")		do_contourlabelcolor(in);
+		  else if(cmd == "contourlabelbackground")	do_contourlabelbackground(in);
+		  else if(cmd == "contourlabelmargin")		do_contourlabelmargin(in);
 
-		  else if(command == "draw")
+		  else if(cmd == "labelmarker")				do_labelmarker(in);
+		  else if(cmd == "labelfont")				do_labelfont(in);
+		  else if(cmd == "labelsize")				do_labelsize(in);
+		  else if(cmd == "labelstroke")				do_labelstroke(in);
+		  else if(cmd == "labelfill")				do_labelfill(in);
+		  else if(cmd == "labelalign")				do_labelalign(in);
+		  else if(cmd == "labelformat")				do_labelformat(in);
+		  else if(cmd == "labelmissing")			do_labelmissing(in);
+		  else if(cmd == "labelangle")				do_labelangle(in);
+		  else if(cmd == "labeloffset")				do_labeloffset(in);
+		  else if(cmd == "labelcaption")			do_labelcaption(in);
+		  else if(cmd == "label")					do_label(in);
+		  else if(cmd == "labelxy")					do_labelxy(in);
+		  else if(cmd == "labels")					do_labels(in);
+		  else if(cmd == "labelfile")				do_labelfile(in);
+		  else if(cmd == "clear")					do_clear(in);
+
+		  else if(cmd == "draw")
 			{
-			  input >> command;
+			  in >> cmd;
 
-			  if(command == "shapes")				do_draw_shapes(input);
-			  else if(command == "imagemap")		do_draw_imagemap(input);
-			  else if(command == "contours")		do_draw_contours(input);
+			  if(cmd == "shapes")				do_draw_shapes(in);
+			  else if(cmd == "imagemap")		do_draw_imagemap(in);
+			  else if(cmd == "contours")		do_draw_contours(in);
 			  else
-				throw runtime_error("draw " + command + " not implemented");
+				throw runtime_error("draw " + cmd + " not implemented");
 			}
 		  else
-			throw runtime_error("Unknown command " + command);
+			throw runtime_error("Unknown command " + cmd);
 		}
     }
   return 0;
