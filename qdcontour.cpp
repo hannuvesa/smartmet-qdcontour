@@ -31,6 +31,7 @@
  *    <li>\ref arrow_section</li>
  *    <li>\ref label_section</li>
  *    <li>\ref rendercontour_section</li>
+ *    <li>\ref interpolation_section</li>
  *    <li>\ref filtering_section</li>
  *    <li>\ref smoothing_section</li>
  *    <li>\ref timestamp_section</li>
@@ -528,9 +529,46 @@
  * combine none
  * \endcode
  *
+ * \subsection interpolation_section Interpolation of the querydata
+ *
+ * One can choose how the querydata is to be interpolated using
+ * \code
+ * contourinterpolation [Nearest|Linear]
+ * \endcode
+ * The default value is <em>Linear</em>. <em>Nearest</em> is needed
+ * when the data is of discrete nature and cannot be interpolated
+ * naturally as floating point numbers.
+ *
+ * There is no <em>Cubic</em> interpolation at the moment. To obtain
+ * smoother appearance one should smoothen the data instead, as 
+ * explained in section \ref smoothing_section
+ *
  * \subsection filtering_section Filtering the querydata
  *
  * \subsection smoothing_section Smoothening the querydata
+ *
+ * Occasionally the parameter stored in the querydata has too little
+ * resolution for contouring purposes. This demonstrates itself
+ * in the jaggedness of the rendered contour lines.
+ *
+ * To alleviate the problem, qdcontour is able to smoothen the
+ * data by calculating a moving weighted average. The commands
+ * available for doing this are
+ * \code
+ * smoother [None|Neighbourhood|PseudoGaussian]
+ * smootherradius [radius]
+ * smootherfactor [factor]
+ * \endcode
+ * The default smoother is <em>None</em>. The recommended smoother
+ * when smoothing becomes necessary is <em>PseudoGaussian</em>.
+ *
+ * The <em>radius</em> controls the radius of the moving average
+ * calculation. Typically uses a radius 2-3 times the grid spacing.
+ *
+ * The <em>factor</em> controls the sharpness of the weighting
+ * function, the higher the number (say 10-20), the closer the
+ * smoothed values are to the originals. A low value such as 1-4
+ * smoothens the data more.
  *
  * \subsection timestamp_section Placing timestamps in the images
  *
@@ -3867,7 +3905,7 @@ int main(int argc, const char *argv[])
 							  
 							  float speed = -1;
 							  
-							  if(theQueryInfo->Param(FmiParameterName(converter.ToEnum(theSpeedParameter))));
+							  if(theQueryInfo->Param(FmiParameterName(converter.ToEnum(theSpeedParameter))))
 								speed = theQueryInfo->InterpolatedValue(*iter);
 							  theQueryInfo->Param(FmiParameterName(converter.ToEnum(theDirectionParameter)));
 							  
@@ -3918,9 +3956,9 @@ int main(int argc, const char *argv[])
 							  theQueryInfo->Locations(latlons);
 
 							  NFmiDataMatrix<float> speedvalues(vals.NX(),vals.NY(),-1);
-							  if(theQueryInfo->Param(kFmiWindSpeedMS))
+							  if(theQueryInfo->Param(FmiParameterName(converter.ToEnum(theSpeedParameter))))
 								theQueryInfo->Values(speedvalues);
-							  theQueryInfo->Param(kFmiWindDirection);
+							  theQueryInfo->Param(FmiParameterName(converter.ToEnum(theDirectionParameter)));
 							  
 							  for(unsigned int j=0; j<pts[qi].NY(); j+=theWindArrowDY)
 								for(unsigned int i=0; i<pts[qi].NX(); i+=theWindArrowDX)
