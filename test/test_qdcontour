@@ -10,6 +10,12 @@ DoTest("trivial contour",
        "trivial.conf",
        "trivial_200210140900_140900.png");
 
+# Test contourline
+
+DoTest("contourline",
+       "contourline.conf",
+       "contourline_200210140900_140900.png");
+
 print "Done\n";
 
 # ----------------------------------------------------------------------
