@@ -353,19 +353,7 @@ void write_image(const NFmiImage & theImage,
 
 Imagine::NFmiFace make_face(const string & theSpec)
 {
-  vector<string> fontparts = NFmiStringTools::Split(theSpec,":");
-  if(fontparts.size() != 2)
-	throw runtime_error("Invalid font specification '"+theSpec+"'");
-
-  const string font = fontparts[0];
-  fontparts = NFmiStringTools::Split(fontparts[1],"x");
-  if(fontparts.size() != 2)
-	throw runtime_error("Invalid font size specification in '"+theSpec+"'");
-
-  const int width = NFmiStringTools::Convert<int>(fontparts[0]);
-  const int height = NFmiStringTools::Convert<int>(fontparts[1]);
-
-  return Imagine::NFmiFreeType::Instance().Face(font,width,height);
+  return NFmiFace(theSpec);
 }
 
 // ----------------------------------------------------------------------

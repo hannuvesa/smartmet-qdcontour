@@ -264,7 +264,7 @@ void Globals::drawImageStampText(NFmiImage & theImage,
   if(theText.empty())
 	return;
 
-  NFmiFace face = Imagine::NFmiFreeType::Instance().Face("misc/6x13B.pcf.gz",6,13);
+  NFmiFace face("misc/6x13B.pcf.gz",6,13);
   face.Background(true);
   
   int x = timestampimagex;
