@@ -1882,41 +1882,1220 @@ void do_draw_imagemap(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "draw contours" command
+ */
+// ----------------------------------------------------------------------
+
+void do_draw_contours(istream & theInput)
+{
+  // 1. Make sure query data has been read
+  // 2. Make sure image has been initialized
+  // 3. Loop over all times
+  //   4. If the time is acceptable,
+  //   5. Loop over all parameters
+  //     6. Fill all specified intervals
+  //     7. Patternfill all specified intervals
+  //     8. Stroke all specified contours
+  //   9. Overwrite with foreground if so desired
+  //   10. Loop over all parameters
+  //     11. Label all specified points
+  //   12. Draw arrows if requested
+  //   13. Save the image
+  
+  if(globals.querystreams.empty())
+	throw runtime_error("No query data has been read!");
+  
+  auto_ptr<NFmiArea> area;
+  
+  if(globals.projection.empty())
+	throw runtime_error("No projection has been specified for rendering shapes");
+  else
+	area.reset(NFmiAreaFactory::Create(globals.projection).release());
+  
+  // This message intentionally ignores globals.verbose
+  
+  if(!globals.background.empty())
+	cout << "Contouring for background " << globals.background << endl;
+  
+  if(globals.verbose)
+	cout << "Area corners are"
+		 << endl
+		 << "bottomleft\t= "
+		 << area->BottomLeftLatLon().X()
+		 << ','
+		 << area->BottomLeftLatLon().Y()
+		 << endl
+		 << "topright\t= "
+		 << area->TopRightLatLon().X()
+		 << ','
+		 << area->TopRightLatLon().Y()
+		 << endl;
+  
+  // Establish querydata timelimits and initialize
+  // the XY-coordinates simultaneously.
+  
+  // Note that we use world-coordinates when smoothing
+  // so that we can use meters as the smoothing radius.
+  // Also, this means the contours are independent of
+  // the image size.
+  
+  NFmiTime utctime, time1, time2;
+  
+  NFmiDataMatrix<float> vals;
+  
+  unsigned int qi;
+  for(qi=0; qi<globals.querystreams.size(); qi++)
+	{
+	  // Initialize the queryinfo
+	  
+	  globals.queryinfo = globals.querystreams[qi];
+	  globals.queryinfo->FirstLevel();
+	  if(globals.querydatalevel>0)
+		{
+		  int level = globals.querydatalevel;
+		  while(--level > 0)
+			globals.queryinfo->NextLevel();
+		}
+	  
+	  // Establish time limits
+	  globals.queryinfo->LastTime();
+	  utctime = globals.queryinfo->ValidTime();
+	  NFmiTime t2 = TimeTools::ConvertZone(utctime,globals.timestampzone);
+	  globals.queryinfo->FirstTime();
+	  utctime = globals.queryinfo->ValidTime();
+	  NFmiTime t1 = TimeTools::ConvertZone(utctime,globals.timestampzone);
+	  
+	  if(qi==0)
+		{
+		  time1 = t1;
+		  time2 = t2;
+		}
+	  else
+		{
+		  if(time1.IsLessThan(t1))
+			time1 = t1;
+		  if(!time2.IsLessThan(t2))
+			time2 = t2;
+		}
+	  
+	}
+  
+  if(globals.verbose)
+	{
+	  cout << "Data start time " << time1 << endl
+		   << "Data end time " << time2 << endl;
+	}
+  
+  // Skip to first time
+  
+  NFmiMetTime tmptime(time1,
+					  globals.timesteprounding ?
+					  (globals.timestep>0 ? globals.timestep : 1) :
+					  1);
+  
+  tmptime.ChangeByMinutes(globals.timestepskip);
+  if(globals.timesteprounding)
+	tmptime.PreviousMetTime();
+  NFmiTime t = tmptime;
+  
+  // Loop over all times
+  
+  int imagesdone = 0;
+  bool labeldxdydone = false;
+  for(;;)
+	{
+	  if(imagesdone>=globals.timesteps)
+		break;
+	  
+	  // Skip to next time to be drawn
+	  
+	  t.ChangeByMinutes(globals.timestep > 0 ? globals.timestep : 1);
+	  
+	  // If the time is after time2, we're done
+	  
+	  if(time2.IsLessThan(t))
+		break;
+	  
+	  // Search first time >= the desired time
+	  // This is quaranteed to succeed since we've
+	  // already tested against time2, the last available
+	  // time.
+	  
+	  bool ok = true;
+	  for(qi=0; ok && qi<globals.querystreams.size(); qi++)
+		{
+		  globals.queryinfo = globals.querystreams[qi];
+		  globals.queryinfo->ResetTime();
+		  while(globals.queryinfo->NextTime())
+			{
+			  NFmiTime utc = globals.queryinfo->ValidTime();
+			  NFmiTime loc = TimeTools::ConvertZone(utc,globals.timestampzone);
+			  if(!loc.IsLessThan(t))
+				break;
+			}
+		  NFmiTime utc = globals.queryinfo->ValidTime();
+		  NFmiTime tnow = TimeTools::ConvertZone(utc,globals.timestampzone);
+		  
+		  // we wanted
+		  
+		  if(globals.timestep==0)
+			t = tnow;
+		  
+		  // If time is before time1, ignore it
+		  
+		  if(t.IsLessThan(time1))
+			{
+			  ok = false;
+			  break;
+			}
+		  
+		  // Is the time exact?
+		  
+		  bool isexact = t.IsEqual(tnow);
+		  
+		  // The previous acceptable time step in calculations
+		  // Use NFmiTime, not NFmiMetTime to avoid rounding up!
+		  
+		  NFmiTime tprev = t;
+		  tprev.ChangeByMinutes(-globals.timeinterval);
+		  
+		  bool hasprevious = !tprev.IsLessThan(time1);
+		  
+		  // Skip this image if we are unable to render it
+		  
+		  if(globals.filter=="none")
+			{
+			  // Cannot draw time with filter none
+			  // if time is not exact.
+			  
+			  ok = isexact;
+			  
+			}
+		  else if(globals.filter=="linear")
+			{
+			  // OK if is exact, otherwise previous step required
+			  
+			  ok = !(!isexact && !hasprevious);
+			}
+		  else
+			{
+			  // Time must be exact, and previous steps
+			  // are required
+			  
+			  ok = !(!isexact || !hasprevious);
+			}
+		}
+	  
+	  if(!ok)
+		continue;
+	  
+	  // The image is accepted for rendering, but
+	  // we might not overwrite an existing one.
+	  // Hence we update the counter here already.
+	  
+	  imagesdone++;
+	  
+	  // Create the filename
+	  
+	  // The timestamp as a string
+	  
+	  NFmiString datatimestr = t.ToStr(kYYYYMMDDHHMM);
+	  
+	  if(globals.verbose)
+		cout << "Time is " << datatimestr.CharPtr() << endl;
+	  
+	  string filename =
+		globals.savepath
+		+ "/"
+		+ globals.prefix
+		+ datatimestr.CharPtr();
+	  
+	  if(globals.timestampflag)
+		{
+		  for(qi=0; qi<globals.queryfilenames.size(); qi++)
+			{
+			  time_t secs = NFmiFileSystem::FileModificationTime(globals.queryfilenames[qi]);
+			  NFmiTime tlocal(secs);
+			  filename += "_" + tlocal.ToStr(kDDHHMM);
+			}
+		}
+	  
+	  filename +=
+		globals.suffix
+		+ "."
+		+ globals.format;
+	  
+	  // In force-mode we always write, but otherwise
+	  // we first check if the output image already
+	  // exists. If so, we assume it is up to date
+	  // and skip to the next time stamp.
+	  
+	  if(!globals.force && !NFmiFileSystem::FileEmpty(filename))
+		{
+		  if(globals.verbose)
+			cout << "Not overwriting " << filename << endl;
+		  continue;
+		}
+	  
+	  // Initialize the background
+	  
+	  int imgwidth = static_cast<int>(area->Width()+0.5);
+	  int imgheight = static_cast<int>(area->Height()+0.5);
+	  
+	  NFmiImage theImage(imgwidth,imgheight);
+	  theImage.SaveAlpha(globals.savealpha);
+	  theImage.WantPalette(globals.wantpalette);
+	  theImage.ForcePalette(globals.forcepalette);
+	  if(globals.gamma>0) theImage.Gamma(globals.gamma);
+	  if(!globals.intent.empty()) theImage.Intent(globals.intent);
+	  if(globals.pngquality>=0) theImage.PngQuality(globals.pngquality);
+	  if(globals.jpegquality>=0) theImage.JpegQuality(globals.jpegquality);
+	  if(globals.alphalimit>=0) theImage.AlphaLimit(globals.alphalimit);
+	  
+	  NFmiColorTools::Color erasecolor = ColorTools::checkcolor(globals.erase);
+	  theImage.Erase(erasecolor);
+	  
+	  if(!globals.background.empty())
+		theImage = globals.backgroundimage;
+	  
+	  // Loop over all parameters
+	  
+	  list<ContourSpec>::iterator piter;
+	  list<ContourSpec>::iterator pbegin = globals.specs.begin();
+	  list<ContourSpec>::iterator pend   = globals.specs.end();
+	  
+	  for(piter=pbegin; piter!=pend; ++piter)
+		{
+		  // Establish the parameter
+		  
+		  string name = piter->param();
+		  
+		  bool ismeta = false;
+		  ok = false;
+		  FmiParameterName param = FmiParameterName(NFmiEnumConverter().ToEnum(name));
+		  
+		  if(param==kFmiBadParameter)
+			{
+			  if(!MetaFunctions::isMeta(name))
+				throw runtime_error("Unknown parameter "+name);
+			  ismeta = true;
+			  ok = true;
+			  // We always assume the first querydata is ok
+			  qi = 0;
+			  globals.queryinfo = globals.querystreams[0];
+			}
+		  else
+			{
+			  // Find the proper queryinfo to be used
+			  // Note that qi will be used later on for
+			  // getting the coordinate matrices
+			  
+			  for(qi=0; qi<globals.querystreams.size(); qi++)
+				{
+				  globals.queryinfo = globals.querystreams[qi];
+				  globals.queryinfo->Param(param);
+				  ok = globals.queryinfo->IsParamUsable();
+				  if(ok) break;
+				}
+			}
+		  
+		  if(!ok)
+			throw runtime_error("The parameter is not usable: " + name);
+		  
+		  if(globals.verbose)
+			{
+			  cout << "Param " << name << " from queryfile number "
+				   << (qi+1) << endl;
+			}
+		  
+		  // Establish the contour method
+		  
+		  string interpname = piter->contourInterpolation();
+		  NFmiContourTree::NFmiContourInterpolation interp
+			= NFmiContourTree::ContourInterpolationValue(interpname);
+		  if(interp==NFmiContourTree::kFmiContourMissingInterpolation)
+			throw runtime_error("Unknown contour interpolation method " + interpname);
+		  
+		  // Get the values.
+		  
+		  if(!ismeta)
+			globals.queryinfo->Values(vals);
+		  else
+			vals = MetaFunctions::values(piter->param(),
+										 globals.queryinfo);
+		  
+		  // Replace values if so requested
+		  
+		  if(piter->replace())
+			vals.Replace(piter->replaceSourceValue(),piter->replaceTargetValue());
+		  
+		  if(globals.filter=="none")
+			{
+			  // The time is known to be exact
+			}
+		  else if(globals.filter=="linear")
+			{
+			  NFmiTime utc = globals.queryinfo->ValidTime();
+			  NFmiTime tnow = TimeTools::ConvertZone(utc,globals.timestampzone);
+			  bool isexact = t.IsEqual(tnow);
+			  
+			  if(!isexact)
+				{
+				  NFmiDataMatrix<float> tmpvals;
+				  NFmiTime t2utc = globals.queryinfo->ValidTime();
+				  NFmiTime t2 = TimeTools::ConvertZone(t2utc,globals.timestampzone);
+				  globals.queryinfo->PreviousTime();
+				  NFmiTime t1utc = globals.queryinfo->ValidTime();
+				  NFmiTime t1 = TimeTools::ConvertZone(t1utc,globals.timestampzone);
+				  if(!ismeta)
+					globals.queryinfo->Values(tmpvals);
+				  else
+					tmpvals = MetaFunctions::values(piter->param(), globals.queryinfo);
+				  if(piter->replace())
+					tmpvals.Replace(piter->replaceSourceValue(),
+									piter->replaceTargetValue());
+				  
+				  // Data from t1,t2, we want t
+				  
+				  long offset = t.DifferenceInMinutes(t1);
+				  long range = t2.DifferenceInMinutes(t1);
+				  
+				  float weight = (static_cast<float>(offset))/range;
+				  
+				  vals.LinearCombination(tmpvals,weight,1-weight);
+				  
+				}
+			}
+		  else
+			{
+			  NFmiTime tprev = t;
+			  tprev.ChangeByMinutes(-globals.timeinterval);
+			  
+			  NFmiDataMatrix<float> tmpvals;
+			  int steps = 1;
+			  for(;;)
+				{
+				  globals.queryinfo->PreviousTime();
+				  NFmiTime utc = globals.queryinfo->ValidTime();
+				  NFmiTime tnow = TimeTools::ConvertZone(utc,globals.timestampzone);
+				  if(tnow.IsLessThan(tprev))
+					break;
+				  
+				  steps++;
+				  if(!ismeta)
+					globals.queryinfo->Values(tmpvals);
+				  else
+					tmpvals = MetaFunctions::values(piter->param(), globals.queryinfo);
+				  if(piter->replace())
+					tmpvals.Replace(piter->replaceSourceValue(),
+									piter->replaceTargetValue());
+				  
+				  if(globals.filter=="min")
+					vals.Min(tmpvals);
+				  else if(globals.filter=="max")
+					vals.Max(tmpvals);
+				  else if(globals.filter=="mean")
+					vals += tmpvals;
+				  else if(globals.filter=="sum")
+					vals += tmpvals;
+				}
+			  
+			  if(globals.filter=="mean")
+				vals /= steps;
+			}
+		  
+		  
+		  // Smoothen the values
+		  
+		  NFmiSmoother smoother(piter->smoother(),
+								piter->smootherFactor(),
+								piter->smootherRadius());
+		  
+		  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(*area);
+		  vals = smoother.Smoothen(*worldpts,vals);
+		  
+		  // Find the minimum and maximum
+		  
+		  float valmin = kFloatMissing;
+		  float valmax = kFloatMissing;
+		  for(unsigned int j=0; j<vals.NY(); j++)
+			for(unsigned int i=0; i<vals.NX(); i++)
+			  if(vals[i][j]!=kFloatMissing)
+				{
+				  if(valmin==kFloatMissing || vals[i][j]<valmin)
+					valmin = vals[i][j];
+				  if(valmax==kFloatMissing || vals[i][j]>valmax)
+					valmax = vals[i][j];
+				}
+		  
+		  if(globals.verbose)
+			cout << "Data range for " << name << " is " << valmin << "," << valmax << endl;
+		  
+		  // Setup the contourer with the values
+		  
+		  globals.calculator.data(vals);
+		  
+		  // Save the data values at desired points for later
+		  // use, this lets us avoid using InterpolatedValue()
+		  // which does not use smoothened values.
+		  
+		  // First, however, if this is the first image, we add
+		  // the grid points to the set of points, if so requested
+		  
+		  if(!labeldxdydone && piter->labelDX() > 0 && piter->labelDY() > 0)
+			{
+			  for(unsigned int j=0; j<worldpts->NY(); j+=piter->labelDY())
+				for(unsigned int i=0; i<worldpts->NX(); i+=piter->labelDX())
+				  piter->add(area->WorldXYToLatLon((*worldpts)[i][j]));
+			}
+		  
+		  piter->clearLabelValues();
+		  if((piter->labelFormat() != "") &&
+			 !piter->labelPoints().empty() )
+			{
+			  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
+			  
+			  for(iter=piter->labelPoints().begin();
+				  iter!=piter->labelPoints().end();
+				  ++iter)
+				{
+				  NFmiPoint latlon = iter->first;
+				  NFmiPoint ij = globals.queryinfo->LatLonToGrid(latlon);
+				  
+				  float value;
+				  
+				  if(fabs(ij.X()-FmiRound(ij.X()))<0.00001 &&
+					 fabs(ij.Y()-FmiRound(ij.Y()))<0.00001)
+					{
+					  value = vals[FmiRound(ij.X())][FmiRound(ij.Y())];
+					}
+				  else
+					{
+					  int i = static_cast<int>(ij.X()); // rounds down
+					  int j = static_cast<int>(ij.Y());
+					  float v00 = vals.At(i,j,kFloatMissing);
+					  float v10 = vals.At(i+1,j,kFloatMissing);
+					  float v01 = vals.At(i,j+1,kFloatMissing);
+					  float v11 = vals.At(i+1,j+1,kFloatMissing);
+					  if(!globals.queryinfo->BiLinearInterpolation(ij.X(),
+																   ij.Y(),
+																   value,
+																   v00,v10,
+																   v01,v11))
+						value = kFloatMissing;
+					  
+					}
+				  piter->addLabelValue(value);
+				}
+			}
+		  
+		  // Fill the contours
+		  
+		  list<ContourRange>::const_iterator citer;
+		  list<ContourRange>::const_iterator cbegin;
+		  list<ContourRange>::const_iterator cend;
+		  
+		  cbegin = piter->contourFills().begin();
+		  cend   = piter->contourFills().end();
+		  
+		  for(citer=cbegin ; citer!=cend; ++citer)
+			{
+			  // Skip to next contour if this one is outside
+			  // the value range. As a special case
+			  // min=max=missing is ok, if both the limits
+			  // are missing too. That is, when we are
+			  // contouring missing values.
+			  
+			  if(valmin==kFloatMissing || valmax==kFloatMissing)
+				{
+				  if(citer->lolimit()!=kFloatMissing &&
+					 citer->hilimit()!=kFloatMissing)
+					continue;
+				}
+			  else
+				{
+				  if(citer->lolimit()!=kFloatMissing &&
+					 valmax<citer->lolimit())
+					continue;
+				  if(citer->hilimit()!=kFloatMissing &&
+					 valmin>citer->hilimit())
+					continue;
+				}
+			  
+			  bool exactlo = true;
+			  bool exacthi = (citer->hilimit()!=kFloatMissing &&
+							  piter->exactHiLimit()!=kFloatMissing &&
+							  citer->hilimit()==piter->exactHiLimit());
+			  
+			  NFmiPath path =
+				globals.calculator.contour(*globals.queryinfo,
+										   citer->lolimit(),
+										   citer->hilimit(),
+										   exactlo,
+										   exacthi,
+										   piter->dataLoLimit(),
+										   piter->dataHiLimit(),
+										   piter->contourDepth(),
+										   interp,
+										   globals.contourtriangles);
+			  
+			  if(globals.verbose && globals.calculator.wasCached())
+				cout << "Using cached "
+					 << citer->lolimit() << " - "
+					 << citer->hilimit() << endl;
+			  
+			  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(citer->rule());
+			  path.Project(area.get());
+			  path.Fill(theImage,citer->color(),rule);
+			  
+			}
+		  
+		  // Fill the contours with patterns
+		  
+		  list<ContourPattern>::const_iterator patiter;
+		  list<ContourPattern>::const_iterator patbegin;
+		  list<ContourPattern>::const_iterator patend;
+		  
+		  patbegin = piter->contourPatterns().begin();
+		  patend   = piter->contourPatterns().end();
+		  
+		  for(patiter=patbegin ; patiter!=patend; ++patiter)
+			{
+			  // Skip to next contour if this one is outside
+			  // the value range. As a special case
+			  // min=max=missing is ok, if both the limits
+			  // are missing too. That is, when we are
+			  // contouring missing values.
+			  
+			  if(valmin==kFloatMissing || valmax==kFloatMissing)
+				{
+				  if(patiter->lolimit()!=kFloatMissing &&
+					 patiter->hilimit()!=kFloatMissing)
+					continue;
+				}
+			  else
+				{
+				  if(patiter->lolimit()!=kFloatMissing &&
+					 valmax<patiter->lolimit())
+					continue;
+				  if(patiter->hilimit()!=kFloatMissing &&
+					 valmin>patiter->hilimit())
+					continue;
+				}
+			  
+			  bool exactlo = true;
+			  bool exacthi = (patiter->hilimit()!=kFloatMissing &&
+							  piter->exactHiLimit()!=kFloatMissing &&
+							  patiter->hilimit()==piter->exactHiLimit());
+			  
+			  NFmiPath path =
+				globals.calculator.contour(*globals.queryinfo,
+										   patiter->lolimit(),
+										   patiter->hilimit(),
+										   exactlo, exacthi,
+										   piter->dataLoLimit(),
+										   piter->dataHiLimit(),
+										   piter->contourDepth(),
+										   interp,
+										   globals.contourtriangles);
+			  
+			  if(globals.verbose && globals.calculator.wasCached())
+				cout << "Using cached "
+					 << patiter->lolimit() << " - "
+					 << patiter->hilimit() << endl;
+			  
+			  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(patiter->rule());
+			  NFmiImage pattern(patiter->pattern());
+			  
+			  path.Project(area.get());
+			  path.Fill(theImage,pattern,rule,patiter->factor());
+			  
+			}
+		  
+		  // Stroke the contours
+		  
+		  list<ContourValue>::const_iterator liter;
+		  list<ContourValue>::const_iterator lbegin;
+		  list<ContourValue>::const_iterator lend;
+		  
+		  lbegin = piter->contourValues().begin();
+		  lend   = piter->contourValues().end();
+		  
+		  for(liter=lbegin ; liter!=lend; ++liter)
+			{
+			  // Skip to next contour if this one is outside
+			  // the value range.
+			  
+			  if(valmin!=kFloatMissing && valmax!=kFloatMissing)
+				{
+				  if(liter->value()!=kFloatMissing &&
+					 valmax<liter->value())
+					continue;
+				  if(liter->value()!=kFloatMissing &&
+					 valmin>liter->value())
+					continue;
+				}
+			  
+			  NFmiPath path =
+				globals.calculator.contour(*globals.queryinfo,
+										   liter->value(),
+										   kFloatMissing,
+										   true, false,
+										   piter->dataLoLimit(),
+										   piter->dataHiLimit(),
+										   piter->contourDepth(),
+										   interp,
+										   globals.contourtriangles);
+			  
+			  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(liter->rule());
+			  path.Project(area.get());
+			  path.SimplifyLines(10);
+			  path.Stroke(theImage,liter->color(),rule);
+			  
+			}
+		}
+	  
+	  // Bang the foreground
+	  
+	  if(!globals.foreground.empty())
+		{
+		  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(globals.foregroundrule);
+		  
+		  theImage.Composite(globals.foregroundimage,rule,kFmiAlignNorthWest,0,0,1);
+		  
+		}
+	  
+	  // Draw wind arrows if so requested
+	  
+	  NFmiEnumConverter converter;
+	  if((!globals.arrowpoints.empty() ||
+		  (globals.windarrowdx!=0 && globals.windarrowdy!=0)) &&
+		 (globals.arrowfile!=""))
+		{
+		  
+		  FmiParameterName param = FmiParameterName(NFmiEnumConverter().ToEnum(globals.directionparam));
+		  if(param==kFmiBadParameter)
+			throw runtime_error("Unknown parameter "+globals.directionparam);
+		  
+		  // Find the proper queryinfo to be used
+		  // Note that qi will be used later on for
+		  // getting the coordinate matrices
+		  
+		  ok = false;
+		  for(qi=0; qi<globals.querystreams.size(); qi++)
+			{
+			  globals.queryinfo = globals.querystreams[qi];
+			  globals.queryinfo->Param(param);
+			  ok = globals.queryinfo->IsParamUsable();
+			  if(ok) break;
+			}
+		  
+		  if(!ok)
+			throw runtime_error("Parameter is not usable: " + globals.directionparam);
+		  
+		  // Read the arrow definition
+		  
+		  NFmiPath arrowpath;
+		  if(globals.arrowfile != "meteorological")
+			{
+			  ifstream arrow(globals.arrowfile.c_str());
+			  if(!arrow)
+				throw runtime_error("Could not open " + globals.arrowfile);
+			  // Read in the entire file
+			  string pathstring = NFmiStringTools::ReadFile(arrow);
+			  arrow.close();
+			  
+			  // Convert to a path
+			  
+			  arrowpath.Add(pathstring);
+			}
+		  
+		  // Handle all given coordinates
+		  
+		  list<NFmiPoint>::const_iterator iter;
+		  
+		  for(iter=globals.arrowpoints.begin();
+			  iter!=globals.arrowpoints.end();
+			  ++iter)
+			{
+			  
+			  // The start point
+			  NFmiPoint xy0 = area->ToXY(*iter);
+			  
+			  // Skip rendering if the start point is masked
+			  
+			  if(IsMasked(xy0,globals.mask,globals.maskimage))
+				continue;
+			  
+			  float dir = globals.queryinfo->InterpolatedValue(*iter);
+			  if(dir==kFloatMissing)	// ignore missing
+				continue;
+			  
+			  float speed = -1;
+			  
+			  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
+				speed = globals.queryinfo->InterpolatedValue(*iter);
+			  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
+			  
+			  
+			  // Direction calculations
+			  
+			  const float pi = 3.141592658979323;
+			  const float length = 0.1;	// degrees
+			  
+			  float x1 = iter->X()+sin(dir*pi/180)*length;
+			  float y1 = iter->Y()+cos(dir*pi/180)*length;
+			  
+			  NFmiPoint xy1 = area->ToXY(NFmiPoint(x1,y1));
+			  
+			  // Calculate the actual angle
+			  
+			  float alpha = atan2(xy1.X()-xy0.X(),
+								  xy1.Y()-xy0.Y());
+			  
+			  // Create a new path
+			  
+			  NFmiPath thispath;
+			  
+			  if(globals.arrowfile == "meteorological")
+				thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
+			  else
+				thispath.Add(arrowpath);
+			  
+			  if(speed>0 && speed!=kFloatMissing)
+				thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
+			  thispath.Scale(globals.arrowscale);
+			  thispath.Rotate(alpha*180/pi);
+			  thispath.Translate(xy0.X(),xy0.Y());
+			  
+			  // And render it
+			  
+			  thispath.Fill(theImage,
+							ColorTools::checkcolor(globals.arrowfillcolor),
+							ColorTools::checkrule(globals.arrowfillrule));
+			  thispath.Stroke(theImage,
+							  ColorTools::checkcolor(globals.arrowstrokecolor),
+							  ColorTools::checkrule(globals.arrowstrokerule));
+			}
+		  
+		  // Draw the full grid if so desired
+		  
+		  if(globals.windarrowdx!=0 && globals.windarrowdy!=0)
+			{
+			  
+			  NFmiDataMatrix<float> speedvalues(vals.NX(),vals.NY(),-1);
+			  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
+				globals.queryinfo->Values(speedvalues);
+			  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
+			  
+			  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(*area);
+			  for(unsigned int j=0; j<worldpts->NY(); j+=globals.windarrowdy)
+				for(unsigned int i=0; i<worldpts->NX(); i+=globals.windarrowdx)
+				  {
+					// The start point
+					
+					NFmiPoint latlon = area->WorldXYToLatLon((*worldpts)[i][j]);
+					NFmiPoint xy0 = area->ToXY(latlon);
+					
+					// Skip rendering if the start point is masked
+					if(IsMasked(xy0,
+								globals.mask,
+								globals.maskimage))
+					  continue;
+					
+					float dir = vals[i][j];
+					if(dir==kFloatMissing)	// ignore missing
+					  continue;
+					
+					float speed = speedvalues[i][j];
+					
+					// Direction calculations
+					
+					const float pi = 3.141592658979323;
+					const float length = 0.1;	// degrees
+					
+					float x0 = latlon.X();
+					float y0 = latlon.Y();
+					
+					float x1 = x0+sin(dir*pi/180)*length;
+					float y1 = y0+cos(dir*pi/180)*length;
+					
+					NFmiPoint xy1 = area->ToXY(NFmiPoint(x1,y1));
+					
+					// Calculate the actual angle
+					
+					float alpha = atan2(xy1.X()-xy0.X(),
+										xy1.Y()-xy0.Y());
+					
+					// Create a new path
+					
+					NFmiPath thispath;
+					if(globals.arrowfile == "meteorological")
+					  thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
+					else
+					  thispath.Add(arrowpath);
+					if(speed>0 && speed != kFloatMissing)
+					  thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
+					thispath.Scale(globals.arrowscale);
+					thispath.Rotate(alpha*180/pi);
+					thispath.Translate(xy0.X(),xy0.Y());
+					
+					// And render it
+					
+					thispath.Fill(theImage,
+								  ColorTools::checkcolor(globals.arrowfillcolor),
+								  ColorTools::checkrule(globals.arrowfillrule));
+					thispath.Stroke(theImage,
+									ColorTools::checkcolor(globals.arrowstrokecolor),
+									ColorTools::checkrule(globals.arrowstrokerule));
+				  }
+			}
+		}
+	  
+	  // Draw labels
+	  
+	  for(piter=pbegin; piter!=pend; ++piter)
+		{
+		  
+		  // Draw label markers first
+		  
+		  if(!piter->labelMarker().empty())
+			{
+			  // Establish that something is to be done
+			  
+			  if(piter->labelPoints().empty())
+				continue;
+			  
+			  // Establish the marker specs
+			  
+			  NFmiImage marker;
+			  marker.Read(piter->labelMarker());
+			  
+			  NFmiColorTools::NFmiBlendRule markerrule = ColorTools::checkrule(piter->labelMarkerRule());
+			  
+			  float markeralpha = piter->labelMarkerAlphaFactor();
+			  
+			  // Draw individual points
+			  
+			  unsigned int pointnumber = 0;
+			  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
+			  for(iter=piter->labelPoints().begin();
+				  iter!=piter->labelPoints().end();
+				  ++iter)
+				{
+				  // The point in question
+				  
+				  NFmiPoint xy = area->ToXY(iter->first);
+				  
+				  // Skip rendering if the start point is masked
+				  
+				  if(IsMasked(xy,
+							  globals.mask,
+							  globals.maskimage))
+					continue;
+				  
+				  // Skip rendering if LabelMissing is "" and value is missing
+				  if(piter->labelMissing().empty())
+					{
+					  float value = piter->labelValues()[pointnumber++];
+					  if(value == kFloatMissing)
+						continue;
+					}
+				  
+				  theImage.Composite(marker,
+									 markerrule,
+									 kFmiAlignCenter,
+									 FmiRound(xy.X()),
+									 FmiRound(xy.Y()),
+									 markeralpha);
+				}
+			  
+			}
+		  
+		  // Label markers now drawn, only label texts remain
+		  
+		  // Quick exit from loop if no labels are
+		  // desired for this parameter
+		  
+		  if(piter->labelFormat() == "")
+			continue;
+		  
+		  // Create the font object to be used
+		  
+		  NFmiFontHershey font(piter->labelFont());
+		  
+		  // Create the text object to be used
+		  
+		  NFmiText text("",
+						font,
+						piter->labelSize(),
+						0.0,	// x
+						0.0,	// y
+						AlignmentValue(piter->labelAlignment()),
+						piter->labelAngle());
+		  
+		  
+		  NFmiText caption(piter->labelCaption(),
+						   font,
+						   piter->labelSize(),
+						   0.0,
+						   0.0,
+						   AlignmentValue(piter->labelCaptionAlignment()),
+						   piter->labelAngle());
+		  
+		  // The rules
+		  
+		  NFmiColorTools::NFmiBlendRule fillrule
+			= ColorTools::checkrule(piter->labelFillRule());
+		  
+		  NFmiColorTools::NFmiBlendRule strokerule
+			= ColorTools::checkrule(piter->labelStrokeRule());
+		  
+		  // Draw labels at specifing latlon points if requested
+		  
+		  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
+		  
+		  int pointnumber = 0;
+		  for(iter=piter->labelPoints().begin();
+			  iter!=piter->labelPoints().end();
+			  ++iter)
+			{
+			  
+			  // The point in question
+			  
+			  float x,y;
+			  if(iter->second.X() == kFloatMissing)
+				{
+				  NFmiPoint xy = area->ToXY(iter->first);
+				  x = xy.X();
+				  y = xy.Y();
+				}
+			  else
+				{
+				  x = iter->second.X();
+				  y = iter->second.Y();
+				}
+			  
+			  // Skip rendering if the start point is masked
+			  
+			  if(IsMasked(NFmiPoint(x,y),
+						  globals.mask,
+						  globals.maskimage))
+				continue;
+			  
+			  float value = piter->labelValues()[pointnumber++];
+			  
+			  // Convert value to string
+			  string strvalue = piter->labelMissing();
+			  
+			  if(value!=kFloatMissing)
+				{
+				  char tmp[20];
+				  sprintf(tmp,piter->labelFormat().c_str(),value);
+				  strvalue = tmp;
+				}
+			  
+			  // Don't bother drawing empty strings
+			  if(strvalue.empty())
+				continue;
+			  
+			  // Set new text properties
+			  
+			  text.Text(strvalue);
+			  text.X(x + piter->labelOffsetX());
+			  text.Y(y + piter->labelOffsetY());
+			  
+			  // And render the text
+			  
+			  text.Fill(theImage,piter->labelFillColor(),fillrule);
+			  text.Stroke(theImage,piter->labelStrokeColor(),strokerule);
+			  
+			  // Then the label caption
+			  
+			  if(!piter->labelCaption().empty())
+				{
+				  caption.X(text.X() + piter->labelCaptionDX());
+				  caption.Y(text.Y() + piter->labelCaptionDY());
+				  caption.Fill(theImage,piter->labelFillColor(),fillrule);
+				  caption.Stroke(theImage,piter->labelStrokeColor(),strokerule);
+				}
+			  
+			}
+		  
+		}
+	  
+	  
+	  
+	  // Bang the combine image (legend, logo, whatever)
+	  
+	  if(!globals.combine.empty())
+		{
+		  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(globals.combinerule);
+		  
+		  theImage.Composite(globals.combineimage,
+							 rule,
+							 kFmiAlignNorthWest,
+							 globals.combinex,
+							 globals.combiney,
+							 globals.combinefactor);
+		  
+		}
+	  
+	  // Finally, draw a time stamp on the image if so
+	  // requested
+	  
+	  string thestamp = "";
+	  
+	  {
+		int obsyy = t.GetYear();
+		int obsmm = t.GetMonth();
+		int obsdd = t.GetDay();
+		int obshh = t.GetHour();
+		int obsmi = t.GetMin();
+		
+		// Interpretation: The age of the forecast is the age
+		// of the oldest forecast
+		
+		NFmiTime tfor;
+		for(qi=0; qi<globals.querystreams.size(); qi++)
+		  {
+			globals.queryinfo = globals.querystreams[qi];
+			NFmiTime futctime = globals.queryinfo->OriginTime();
+			NFmiTime tlocal = TimeTools::ConvertZone(futctime,globals.timestampzone);
+			if(qi==0 || tlocal.IsLessThan(tfor))
+			  tfor = tlocal;
+		  }
+		
+		int foryy = tfor.GetYear();
+		int formm = tfor.GetMonth();
+		int fordd = tfor.GetDay();
+		int forhh = tfor.GetHour();
+		int formi = tfor.GetMin();
+		
+		char buffer[100];
+		
+		if(globals.timestampimage == "obs")
+		  {
+			// hh:mi dd.mm.yyyy
+			sprintf(buffer,"%02d:%02d %02d.%02d.%04d",
+					obshh,obsmi,obsdd,obsmm,obsyy);
+			thestamp = buffer;
+		  }
+		else if(globals.timestampimage == "for")
+		  {
+			// hh:mi dd.mm.yyyy
+			sprintf(buffer,"%02d:%02d %02d.%02d.%04d",
+					forhh,formi,fordd,formm,foryy);
+			thestamp = buffer;
+		  }
+		else if(globals.timestampimage == "forobs")
+		  {
+			// hh:mi dd.mm.yyyy +hh
+			long diff = t.DifferenceInMinutes(tfor);
+			if(diff%60==0 && globals.timestep%60==0)
+			  sprintf(buffer,"%02d.%02d.%04d %02d:%02d %s%ldh",
+					  fordd,formm,foryy,forhh,formi,
+					  (diff<0 ? "" : "+"), diff/60);
+			else
+			  sprintf(buffer,"%02d.%02d.%04d %02d:%02d %s%ldm",
+					  fordd,formm,foryy,forhh,formi,
+					  (diff<0 ? "" : "+"), diff);
+			thestamp = buffer;
+		  }
+	  }
+	  
+	  if(!thestamp.empty())
+		{
+		  NFmiFontHershey font("TimesRoman-Bold");
+		  
+		  int x = globals.timestampimagex;
+		  int y = globals.timestampimagey;
+		  
+		  if(x<0) x+= theImage.Width();
+		  if(y<0) y+= theImage.Height();
+		  
+		  NFmiText text(thestamp,font,14,x,y,kFmiAlignNorthWest,0.0);
+		  
+		  // And render the text
+		  
+		  NFmiPath path = text.Path();
+		  
+		  NFmiEsriBox box = path.BoundingBox();
+		  
+		  NFmiPath rect;
+		  int w = 4;
+		  rect.MoveTo(box.Xmin()-w,box.Ymin()-w);
+		  rect.LineTo(box.Xmax()+w,box.Ymin()-w);
+		  rect.LineTo(box.Xmax()+w,box.Ymax()+w);
+		  rect.LineTo(box.Xmin()-w,box.Ymax()+w);
+		  rect.CloseLineTo();
+		  
+		  rect.Fill(theImage,
+					NFmiColorTools::MakeColor(180,180,180,32),
+					NFmiColorTools::kFmiColorOver);
+		  
+		  path.Stroke(theImage,
+					  NFmiColorTools::Black,
+					  NFmiColorTools::kFmiColorCopy);
+		  
+		}
+	  
+	  // dx and dy labels have now been extracted into a list,
+	  // disable adding them again and again and again..
+	  
+	  labeldxdydone = true;
+	  
+	  // Save
+	  
+	  if(globals.verbose)
+		cout << "Writing " << filename << endl;
+	  if(globals.format=="png")
+		theImage.WritePng(filename);
+	  else if(globals.format=="jpg" || globals.format=="jpeg")
+		theImage.WriteJpeg(filename);
+	  else if(globals.format=="gif")
+		theImage.WriteGif(filename);
+	}
+}
+
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
 int domain(int argc, const char *argv[])
 {
   // Initialize configuration variables
-
+  
   NFmiSettings::Init();
-
+  
   // Parse command line
-
+  
   parse_command_line(argc,argv);
-
+  
   // Process all command files
   // ~~~~~~~~~~~~~~~~~~~~~~~~~
-
+  
   list<string>::const_iterator fileiter = globals.cmdline_files.begin();
   for( ; fileiter!=globals.cmdline_files.end(); ++fileiter)
     {
       // Get the script to be executed
-
+	  
       if(globals.verbose)
 		cout << "Processing file: " << *fileiter << endl;
-
+	  
 	  string text = read_script(*fileiter);
 	  text = preprocess_script(text);
-
+	  
       // Process the commands
-
+	  
 	  istringstream input(text);
       string command;
       while( input >> command)
 		{
 		  // Handle comments
-
+		  
 		  if(command == "#")						do_comment(input);
 		  else if(command[0] == '#')				do_comment(input);
 		  else if(command == "//")					do_comment(input);
@@ -2003,1184 +3182,7 @@ int domain(int argc, const char *argv[])
 
 			  if(command == "shapes")				do_draw_shapes(input);
 			  else if(command == "imagemap")		do_draw_imagemap(input);
-
-			  // --------------------------------------------------
-			  // Draw contours
-			  // --------------------------------------------------
-
-			  else if(command == "contours")
-				{
-				  // 1. Make sure query data has been read
-				  // 2. Make sure image has been initialized
-				  // 3. Loop over all times
-				  //   4. If the time is acceptable,
-				  //   5. Loop over all parameters
-				  //     6. Fill all specified intervals
-				  //     7. Patternfill all specified intervals
-				  //     8. Stroke all specified contours
-				  //   9. Overwrite with foreground if so desired
-				  //   10. Loop over all parameters
-				  //     11. Label all specified points
-				  //   12. Draw arrows if requested
-				  //   13. Save the image
-
-				  if(globals.querystreams.empty())
-					throw runtime_error("No query data has been read!");
-
-				  auto_ptr<NFmiArea> theArea;
-
-				  if(globals.projection.empty())
-					throw runtime_error("No projection has been specified for rendering shapes");
-				  else
-					theArea.reset(NFmiAreaFactory::Create(globals.projection).release());
-
-				  // This message intentionally ignores globals.verbose
-
-				  if(!globals.background.empty())
-					cout << "Contouring for background " << globals.background << endl;
-
-
-				  if(globals.verbose)
-					cout << "Area corners are"
-						 << endl
-						 << "bottomleft\t= "
-						 << theArea->BottomLeftLatLon().X()
-						 << ','
-						 << theArea->BottomLeftLatLon().Y()
-						 << endl
-						 << "topright\t= "
-						 << theArea->TopRightLatLon().X()
-						 << ','
-						 << theArea->TopRightLatLon().Y()
-						 << endl;
-
-				  // Establish querydata timelimits and initialize
-				  // the XY-coordinates simultaneously.
-
-				  // Note that we use world-coordinates when smoothing
-				  // so that we can use meters as the smoothing radius.
-				  // Also, this means the contours are independent of
-				  // the image size.
-
-				  NFmiTime utctime, time1, time2;
-
-				  NFmiDataMatrix<float> vals;
-
-				  unsigned int qi;
-				  for(qi=0; qi<globals.querystreams.size(); qi++)
-					{
-					  // Initialize the queryinfo
-
-					  globals.queryinfo = globals.querystreams[qi];
-					  globals.queryinfo->FirstLevel();
-					  if(globals.querydatalevel>0)
-						{
-						  int level = globals.querydatalevel;
-						  while(--level > 0)
-							globals.queryinfo->NextLevel();
-						}
-
-					  // Establish time limits
-					  globals.queryinfo->LastTime();
-					  utctime = globals.queryinfo->ValidTime();
-					  NFmiTime t2 = TimeTools::ConvertZone(utctime,globals.timestampzone);
-					  globals.queryinfo->FirstTime();
-					  utctime = globals.queryinfo->ValidTime();
-					  NFmiTime t1 = TimeTools::ConvertZone(utctime,globals.timestampzone);
-
-					  if(qi==0)
-						{
-						  time1 = t1;
-						  time2 = t2;
-						}
-					  else
-						{
-						  if(time1.IsLessThan(t1))
-							time1 = t1;
-						  if(!time2.IsLessThan(t2))
-							time2 = t2;
-						}
-
-					}
-
-				  if(globals.verbose)
-					{
-					  cout << "Data start time " << time1 << endl
-						   << "Data end time " << time2 << endl;
-					}
-
-				  // Skip to first time
-
-				  NFmiMetTime tmptime(time1,
-									  globals.timesteprounding ?
-									  (globals.timestep>0 ? globals.timestep : 1) :
-									  1);
-
-				  tmptime.ChangeByMinutes(globals.timestepskip);
-				  if(globals.timesteprounding)
-					tmptime.PreviousMetTime();
-				  NFmiTime t = tmptime;
-
-				  // Loop over all times
-
-				  int imagesdone = 0;
-				  bool labeldxdydone = false;
-				  for(;;)
-					{
-					  if(imagesdone>=globals.timesteps)
-						break;
-
-					  // Skip to next time to be drawn
-
-					  t.ChangeByMinutes(globals.timestep > 0 ? globals.timestep : 1);
-
-					  // If the time is after time2, we're done
-
-					  if(time2.IsLessThan(t))
-						break;
-
-					  // Search first time >= the desired time
-					  // This is quaranteed to succeed since we've
-					  // already tested against time2, the last available
-					  // time.
-
-					  bool ok = true;
-					  for(qi=0; ok && qi<globals.querystreams.size(); qi++)
-						{
-						  globals.queryinfo = globals.querystreams[qi];
-						  globals.queryinfo->ResetTime();
-						  while(globals.queryinfo->NextTime())
-							{
-							  NFmiTime utc = globals.queryinfo->ValidTime();
-							  NFmiTime loc = TimeTools::ConvertZone(utc,globals.timestampzone);
-							  if(!loc.IsLessThan(t))
-								break;
-							}
-						  NFmiTime utc = globals.queryinfo->ValidTime();
-						  NFmiTime tnow = TimeTools::ConvertZone(utc,globals.timestampzone);
-
-						  // we wanted
-
-						  if(globals.timestep==0)
-							t = tnow;
-
-						  // If time is before time1, ignore it
-
-						  if(t.IsLessThan(time1))
-							{
-							  ok = false;
-							  break;
-							}
-
-						  // Is the time exact?
-
-						  bool isexact = t.IsEqual(tnow);
-
-						  // The previous acceptable time step in calculations
-						  // Use NFmiTime, not NFmiMetTime to avoid rounding up!
-
-						  NFmiTime tprev = t;
-						  tprev.ChangeByMinutes(-globals.timeinterval);
-
-						  bool hasprevious = !tprev.IsLessThan(time1);
-
-						  // Skip this image if we are unable to render it
-
-						  if(globals.filter=="none")
-							{
-							  // Cannot draw time with filter none
-							  // if time is not exact.
-
-							  ok = isexact;
-
-							}
-						  else if(globals.filter=="linear")
-							{
-							  // OK if is exact, otherwise previous step required
-
-							  ok = !(!isexact && !hasprevious);
-							}
-						  else
-							{
-							  // Time must be exact, and previous steps
-							  // are required
-
-							  ok = !(!isexact || !hasprevious);
-							}
-						}
-
-					  if(!ok)
-						continue;
-
-					  // The image is accepted for rendering, but
-					  // we might not overwrite an existing one.
-					  // Hence we update the counter here already.
-
-					  imagesdone++;
-
-					  // Create the filename
-
-					  // The timestamp as a string
-
-					  NFmiString datatimestr = t.ToStr(kYYYYMMDDHHMM);
-
-					  if(globals.verbose)
-						cout << "Time is " << datatimestr.CharPtr() << endl;
-
-					  string filename =
-						globals.savepath
-						+ "/"
-						+ globals.prefix
-						+ datatimestr.CharPtr();
-
-					  if(globals.timestampflag)
-						{
-						  for(qi=0; qi<globals.queryfilenames.size(); qi++)
-							{
-							  time_t secs = NFmiFileSystem::FileModificationTime(globals.queryfilenames[qi]);
-							  NFmiTime tlocal(secs);
-							  filename += "_" + tlocal.ToStr(kDDHHMM);
-							}
-						}
-
-					  filename +=
-						globals.suffix
-						+ "."
-						+ globals.format;
-
-					  // In force-mode we always write, but otherwise
-					  // we first check if the output image already
-					  // exists. If so, we assume it is up to date
-					  // and skip to the next time stamp.
-
-					  if(!globals.force && !NFmiFileSystem::FileEmpty(filename))
-						{
-						  if(globals.verbose)
-							cout << "Not overwriting " << filename << endl;
-						  continue;
-						}
-
-					  // Initialize the background
-
-					  int imgwidth = static_cast<int>(theArea->Width()+0.5);
-					  int imgheight = static_cast<int>(theArea->Height()+0.5);
-
-					  NFmiImage theImage(imgwidth,imgheight);
-					  theImage.SaveAlpha(globals.savealpha);
-					  theImage.WantPalette(globals.wantpalette);
-					  theImage.ForcePalette(globals.forcepalette);
-					  if(globals.gamma>0) theImage.Gamma(globals.gamma);
-					  if(!globals.intent.empty()) theImage.Intent(globals.intent);
-					  if(globals.pngquality>=0) theImage.PngQuality(globals.pngquality);
-					  if(globals.jpegquality>=0) theImage.JpegQuality(globals.jpegquality);
-					  if(globals.alphalimit>=0) theImage.AlphaLimit(globals.alphalimit);
-
-					  NFmiColorTools::Color erasecolor = ColorTools::checkcolor(globals.erase);
-					  theImage.Erase(erasecolor);
-
-					  if(!globals.background.empty())
-						theImage = globals.backgroundimage;
-
-					  // Loop over all parameters
-
-					  list<ContourSpec>::iterator piter;
-					  list<ContourSpec>::iterator pbegin = globals.specs.begin();
-					  list<ContourSpec>::iterator pend   = globals.specs.end();
-
-					  for(piter=pbegin; piter!=pend; ++piter)
-						{
-						  // Establish the parameter
-
-						  string name = piter->param();
-
-						  bool ismeta = false;
-						  ok = false;
-						  FmiParameterName param = FmiParameterName(NFmiEnumConverter().ToEnum(name));
-
-						  if(param==kFmiBadParameter)
-							{
-							  if(!MetaFunctions::isMeta(name))
-								throw runtime_error("Unknown parameter "+name);
-							  ismeta = true;
-							  ok = true;
-							  // We always assume the first querydata is ok
-							  qi = 0;
-							  globals.queryinfo = globals.querystreams[0];
-							}
-						  else
-							{
-							  // Find the proper queryinfo to be used
-							  // Note that qi will be used later on for
-							  // getting the coordinate matrices
-
-							  for(qi=0; qi<globals.querystreams.size(); qi++)
-								{
-								  globals.queryinfo = globals.querystreams[qi];
-								  globals.queryinfo->Param(param);
-								  ok = globals.queryinfo->IsParamUsable();
-								  if(ok) break;
-								}
-							}
-
-						  if(!ok)
-							throw runtime_error("The parameter is not usable: " + name);
-
-						  if(globals.verbose)
-							{
-							  cout << "Param " << name << " from queryfile number "
-								   << (qi+1) << endl;
-							}
-
-						  // Establish the contour method
-
-						  string interpname = piter->contourInterpolation();
-						  NFmiContourTree::NFmiContourInterpolation interp
-							= NFmiContourTree::ContourInterpolationValue(interpname);
-						  if(interp==NFmiContourTree::kFmiContourMissingInterpolation)
-							throw runtime_error("Unknown contour interpolation method " + interpname);
-
-						  // Get the values.
-
-						  if(!ismeta)
-							globals.queryinfo->Values(vals);
-						  else
-							vals = MetaFunctions::values(piter->param(),
-														 globals.queryinfo);
-
-						  // Replace values if so requested
-
-						  if(piter->replace())
-							vals.Replace(piter->replaceSourceValue(),piter->replaceTargetValue());
-
-						  if(globals.filter=="none")
-							{
-							  // The time is known to be exact
-							}
-						  else if(globals.filter=="linear")
-							{
-							  NFmiTime utc = globals.queryinfo->ValidTime();
-							  NFmiTime tnow = TimeTools::ConvertZone(utc,globals.timestampzone);
-							  bool isexact = t.IsEqual(tnow);
-
-							  if(!isexact)
-								{
-								  NFmiDataMatrix<float> tmpvals;
-								  NFmiTime t2utc = globals.queryinfo->ValidTime();
-								  NFmiTime t2 = TimeTools::ConvertZone(t2utc,globals.timestampzone);
-								  globals.queryinfo->PreviousTime();
-								  NFmiTime t1utc = globals.queryinfo->ValidTime();
-								  NFmiTime t1 = TimeTools::ConvertZone(t1utc,globals.timestampzone);
-								  if(!ismeta)
-									globals.queryinfo->Values(tmpvals);
-								  else
-									tmpvals = MetaFunctions::values(piter->param(), globals.queryinfo);
-								  if(piter->replace())
-									tmpvals.Replace(piter->replaceSourceValue(),
-													piter->replaceTargetValue());
-
-								  // Data from t1,t2, we want t
-
-								  long offset = t.DifferenceInMinutes(t1);
-								  long range = t2.DifferenceInMinutes(t1);
-
-								  float weight = (static_cast<float>(offset))/range;
-
-								  vals.LinearCombination(tmpvals,weight,1-weight);
-
-								}
-							}
-						  else
-							{
-							  NFmiTime tprev = t;
-							  tprev.ChangeByMinutes(-globals.timeinterval);
-
-							  NFmiDataMatrix<float> tmpvals;
-							  int steps = 1;
-							  for(;;)
-								{
-								  globals.queryinfo->PreviousTime();
-								  NFmiTime utc = globals.queryinfo->ValidTime();
-								  NFmiTime tnow = TimeTools::ConvertZone(utc,globals.timestampzone);
-								  if(tnow.IsLessThan(tprev))
-									break;
-
-								  steps++;
-								  if(!ismeta)
-									globals.queryinfo->Values(tmpvals);
-								  else
-									tmpvals = MetaFunctions::values(piter->param(), globals.queryinfo);
-								  if(piter->replace())
-									tmpvals.Replace(piter->replaceSourceValue(),
-													piter->replaceTargetValue());
-
-								  if(globals.filter=="min")
-									vals.Min(tmpvals);
-								  else if(globals.filter=="max")
-									vals.Max(tmpvals);
-								  else if(globals.filter=="mean")
-									vals += tmpvals;
-								  else if(globals.filter=="sum")
-									vals += tmpvals;
-								}
-
-							  if(globals.filter=="mean")
-								vals /= steps;
-							}
-
-
-						  // Smoothen the values
-
-						  NFmiSmoother smoother(piter->smoother(),
-												piter->smootherFactor(),
-												piter->smootherRadius());
-
-						  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(*theArea);
-						  vals = smoother.Smoothen(*worldpts,vals);
-
-						  // Find the minimum and maximum
-
-						  float valmin = kFloatMissing;
-						  float valmax = kFloatMissing;
-						  for(unsigned int j=0; j<vals.NY(); j++)
-							for(unsigned int i=0; i<vals.NX(); i++)
-							  if(vals[i][j]!=kFloatMissing)
-								{
-								  if(valmin==kFloatMissing || vals[i][j]<valmin)
-									valmin = vals[i][j];
-								  if(valmax==kFloatMissing || vals[i][j]>valmax)
-									valmax = vals[i][j];
-								}
-
-						  if(globals.verbose)
-							cout << "Data range for " << name << " is " << valmin << "," << valmax << endl;
-
-						  // Setup the contourer with the values
-
-						  globals.calculator.data(vals);
-
-						  // Save the data values at desired points for later
-						  // use, this lets us avoid using InterpolatedValue()
-						  // which does not use smoothened values.
-
-						  // First, however, if this is the first image, we add
-						  // the grid points to the set of points, if so requested
-
-						  if(!labeldxdydone && piter->labelDX() > 0 && piter->labelDY() > 0)
-							{
-							  for(unsigned int j=0; j<worldpts->NY(); j+=piter->labelDY())
-								for(unsigned int i=0; i<worldpts->NX(); i+=piter->labelDX())
-								  piter->add(theArea->WorldXYToLatLon((*worldpts)[i][j]));
-							}
-
-						  piter->clearLabelValues();
-						  if((piter->labelFormat() != "") &&
-							 !piter->labelPoints().empty() )
-							{
-							  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
-
-							  for(iter=piter->labelPoints().begin();
-								  iter!=piter->labelPoints().end();
-								  ++iter)
-								{
-								  NFmiPoint latlon = iter->first;
-								  NFmiPoint ij = globals.queryinfo->LatLonToGrid(latlon);
-
-								  float value;
-
-								  if(fabs(ij.X()-FmiRound(ij.X()))<0.00001 &&
-									 fabs(ij.Y()-FmiRound(ij.Y()))<0.00001)
-									{
-									  value = vals[FmiRound(ij.X())][FmiRound(ij.Y())];
-									}
-								  else
-									{
-									  int i = static_cast<int>(ij.X()); // rounds down
-									  int j = static_cast<int>(ij.Y());
-									  float v00 = vals.At(i,j,kFloatMissing);
-									  float v10 = vals.At(i+1,j,kFloatMissing);
-									  float v01 = vals.At(i,j+1,kFloatMissing);
-									  float v11 = vals.At(i+1,j+1,kFloatMissing);
-									  if(!globals.queryinfo->BiLinearInterpolation(ij.X(),
-																			  ij.Y(),
-																			  value,
-																			  v00,v10,
-																			  v01,v11))
-										value = kFloatMissing;
-
-									}
-								  piter->addLabelValue(value);
-								}
-							}
-
-						  // Fill the contours
-
-						  list<ContourRange>::const_iterator citer;
-						  list<ContourRange>::const_iterator cbegin;
-						  list<ContourRange>::const_iterator cend;
-
-						  cbegin = piter->contourFills().begin();
-						  cend   = piter->contourFills().end();
-
-						  for(citer=cbegin ; citer!=cend; ++citer)
-							{
-							  // Skip to next contour if this one is outside
-							  // the value range. As a special case
-							  // min=max=missing is ok, if both the limits
-							  // are missing too. That is, when we are
-							  // contouring missing values.
-
-							  if(valmin==kFloatMissing || valmax==kFloatMissing)
-								{
-								  if(citer->lolimit()!=kFloatMissing &&
-									 citer->hilimit()!=kFloatMissing)
-									continue;
-								}
-							  else
-								{
-								  if(citer->lolimit()!=kFloatMissing &&
-									 valmax<citer->lolimit())
-									continue;
-								  if(citer->hilimit()!=kFloatMissing &&
-									 valmin>citer->hilimit())
-									continue;
-								}
-
-							  bool exactlo = true;
-							  bool exacthi = (citer->hilimit()!=kFloatMissing &&
-											  piter->exactHiLimit()!=kFloatMissing &&
-											  citer->hilimit()==piter->exactHiLimit());
-
-							  NFmiPath path =
-								globals.calculator.contour(*globals.queryinfo,
-														   citer->lolimit(),
-														   citer->hilimit(),
-														   exactlo,
-														   exacthi,
-														   piter->dataLoLimit(),
-														   piter->dataHiLimit(),
-														   piter->contourDepth(),
-														   interp,
-														   globals.contourtriangles);
-
-							  if(globals.verbose && globals.calculator.wasCached())
-								cout << "Using cached "
-									 << citer->lolimit() << " - "
-									 << citer->hilimit() << endl;
-
-							  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(citer->rule());
-							  path.Project(theArea.get());
-							  path.Fill(theImage,citer->color(),rule);
-
-							}
-
-						  // Fill the contours with patterns
-
-						  list<ContourPattern>::const_iterator patiter;
-						  list<ContourPattern>::const_iterator patbegin;
-						  list<ContourPattern>::const_iterator patend;
-
-						  patbegin = piter->contourPatterns().begin();
-						  patend   = piter->contourPatterns().end();
-
-						  for(patiter=patbegin ; patiter!=patend; ++patiter)
-							{
-							  // Skip to next contour if this one is outside
-							  // the value range. As a special case
-							  // min=max=missing is ok, if both the limits
-							  // are missing too. That is, when we are
-							  // contouring missing values.
-
-							  if(valmin==kFloatMissing || valmax==kFloatMissing)
-								{
-								  if(patiter->lolimit()!=kFloatMissing &&
-									 patiter->hilimit()!=kFloatMissing)
-									continue;
-								}
-							  else
-								{
-								  if(patiter->lolimit()!=kFloatMissing &&
-									 valmax<patiter->lolimit())
-									continue;
-								  if(patiter->hilimit()!=kFloatMissing &&
-									 valmin>patiter->hilimit())
-									continue;
-								}
-
-							  bool exactlo = true;
-							  bool exacthi = (patiter->hilimit()!=kFloatMissing &&
-											  piter->exactHiLimit()!=kFloatMissing &&
-											  patiter->hilimit()==piter->exactHiLimit());
-
-							  NFmiPath path =
-								globals.calculator.contour(*globals.queryinfo,
-														   patiter->lolimit(),
-														   patiter->hilimit(),
-														   exactlo, exacthi,
-														   piter->dataLoLimit(),
-														   piter->dataHiLimit(),
-														   piter->contourDepth(),
-														   interp,
-														   globals.contourtriangles);
-
-							  if(globals.verbose && globals.calculator.wasCached())
-								cout << "Using cached "
-									 << patiter->lolimit() << " - "
-									 << patiter->hilimit() << endl;
-
-							  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(patiter->rule());
-							  NFmiImage pattern(patiter->pattern());
-
-							  path.Project(theArea.get());
-							  path.Fill(theImage,pattern,rule,patiter->factor());
-
-							}
-
-						  // Stroke the contours
-
-						  list<ContourValue>::const_iterator liter;
-						  list<ContourValue>::const_iterator lbegin;
-						  list<ContourValue>::const_iterator lend;
-
-						  lbegin = piter->contourValues().begin();
-						  lend   = piter->contourValues().end();
-
-						  for(liter=lbegin ; liter!=lend; ++liter)
-							{
-							  // Skip to next contour if this one is outside
-							  // the value range.
-
-							  if(valmin!=kFloatMissing && valmax!=kFloatMissing)
-								{
-								  if(liter->value()!=kFloatMissing &&
-									 valmax<liter->value())
-									continue;
-								  if(liter->value()!=kFloatMissing &&
-									 valmin>liter->value())
-									continue;
-								}
-
-							  NFmiPath path =
-								globals.calculator.contour(*globals.queryinfo,
-														   liter->value(),
-														   kFloatMissing,
-														   true, false,
-														   piter->dataLoLimit(),
-														   piter->dataHiLimit(),
-														   piter->contourDepth(),
-														   interp,
-														   globals.contourtriangles);
-
-							  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(liter->rule());
-							  path.Project(theArea.get());
-							  path.SimplifyLines(10);
-							  path.Stroke(theImage,liter->color(),rule);
-
-							}
-						}
-
-					  // Bang the foreground
-
-					  if(!globals.foreground.empty())
-						{
-						  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(globals.foregroundrule);
-
-						  theImage.Composite(globals.foregroundimage,rule,kFmiAlignNorthWest,0,0,1);
-
-						}
-
-					  // Draw wind arrows if so requested
-
-					  NFmiEnumConverter converter;
-					  if((!globals.arrowpoints.empty() ||
-						  (globals.windarrowdx!=0 && globals.windarrowdy!=0)) &&
-						 (globals.arrowfile!=""))
-						{
-
-						  FmiParameterName param = FmiParameterName(NFmiEnumConverter().ToEnum(globals.directionparam));
-						  if(param==kFmiBadParameter)
-							throw runtime_error("Unknown parameter "+globals.directionparam);
-
-						  // Find the proper queryinfo to be used
-						  // Note that qi will be used later on for
-						  // getting the coordinate matrices
-
-						  ok = false;
-						  for(qi=0; qi<globals.querystreams.size(); qi++)
-							{
-							  globals.queryinfo = globals.querystreams[qi];
-							  globals.queryinfo->Param(param);
-							  ok = globals.queryinfo->IsParamUsable();
-							  if(ok) break;
-							}
-
-						  if(!ok)
-							throw runtime_error("Parameter is not usable: " + globals.directionparam);
-
-						  // Read the arrow definition
-
-						  NFmiPath arrowpath;
-						  if(globals.arrowfile != "meteorological")
-							{
-							  ifstream arrow(globals.arrowfile.c_str());
-							  if(!arrow)
-								throw runtime_error("Could not open " + globals.arrowfile);
-							  // Read in the entire file
-							  string pathstring = NFmiStringTools::ReadFile(arrow);
-							  arrow.close();
-
-							  // Convert to a path
-
-							  arrowpath.Add(pathstring);
-							}
-
-						  // Handle all given coordinates
-
-						  list<NFmiPoint>::const_iterator iter;
-
-						  for(iter=globals.arrowpoints.begin();
-							  iter!=globals.arrowpoints.end();
-							  ++iter)
-							{
-
-							  // The start point
-							  NFmiPoint xy0 = theArea->ToXY(*iter);
-
-							  // Skip rendering if the start point is masked
-
-							  if(IsMasked(xy0,globals.mask,globals.maskimage))
-								continue;
-
-							  float dir = globals.queryinfo->InterpolatedValue(*iter);
-							  if(dir==kFloatMissing)	// ignore missing
-								continue;
-
-							  float speed = -1;
-
-							  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
-								speed = globals.queryinfo->InterpolatedValue(*iter);
-							  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
-
-
-							  // Direction calculations
-
-							  const float pi = 3.141592658979323;
-							  const float length = 0.1;	// degrees
-
-							  float x1 = iter->X()+sin(dir*pi/180)*length;
-							  float y1 = iter->Y()+cos(dir*pi/180)*length;
-
-							  NFmiPoint xy1 = theArea->ToXY(NFmiPoint(x1,y1));
-
-							  // Calculate the actual angle
-
-							  float alpha = atan2(xy1.X()-xy0.X(),
-												  xy1.Y()-xy0.Y());
-
-							  // Create a new path
-
-							  NFmiPath thispath;
-
-							  if(globals.arrowfile == "meteorological")
-								thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
-							  else
-								thispath.Add(arrowpath);
-
-							  if(speed>0 && speed!=kFloatMissing)
-								thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
-							  thispath.Scale(globals.arrowscale);
-							  thispath.Rotate(alpha*180/pi);
-							  thispath.Translate(xy0.X(),xy0.Y());
-
-							  // And render it
-
-							  thispath.Fill(theImage,
-											ColorTools::checkcolor(globals.arrowfillcolor),
-											ColorTools::checkrule(globals.arrowfillrule));
-							  thispath.Stroke(theImage,
-											  ColorTools::checkcolor(globals.arrowstrokecolor),
-											  ColorTools::checkrule(globals.arrowstrokerule));
-							}
-
-						  // Draw the full grid if so desired
-
-						  if(globals.windarrowdx!=0 && globals.windarrowdy!=0)
-							{
-
-							  NFmiDataMatrix<float> speedvalues(vals.NX(),vals.NY(),-1);
-							  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
-								globals.queryinfo->Values(speedvalues);
-							  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
-
-							  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(*theArea);
-							  for(unsigned int j=0; j<worldpts->NY(); j+=globals.windarrowdy)
-								for(unsigned int i=0; i<worldpts->NX(); i+=globals.windarrowdx)
-								  {
-									// The start point
-
-									NFmiPoint latlon = theArea->WorldXYToLatLon((*worldpts)[i][j]);
-									NFmiPoint xy0 = theArea->ToXY(latlon);
-
-									// Skip rendering if the start point is masked
-									if(IsMasked(xy0,
-												globals.mask,
-												globals.maskimage))
-									  continue;
-
-									float dir = vals[i][j];
-									if(dir==kFloatMissing)	// ignore missing
-									  continue;
-
-									float speed = speedvalues[i][j];
-
-									// Direction calculations
-
-									const float pi = 3.141592658979323;
-									const float length = 0.1;	// degrees
-
-									float x0 = latlon.X();
-									float y0 = latlon.Y();
-
-									float x1 = x0+sin(dir*pi/180)*length;
-									float y1 = y0+cos(dir*pi/180)*length;
-
-									NFmiPoint xy1 = theArea->ToXY(NFmiPoint(x1,y1));
-
-									// Calculate the actual angle
-
-									float alpha = atan2(xy1.X()-xy0.X(),
-														xy1.Y()-xy0.Y());
-
-									// Create a new path
-
-									NFmiPath thispath;
-									if(globals.arrowfile == "meteorological")
-									  thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
-									else
-									  thispath.Add(arrowpath);
-									if(speed>0 && speed != kFloatMissing)
-									  thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
-									thispath.Scale(globals.arrowscale);
-									thispath.Rotate(alpha*180/pi);
-									thispath.Translate(xy0.X(),xy0.Y());
-
-									// And render it
-
-									thispath.Fill(theImage,
-												  ColorTools::checkcolor(globals.arrowfillcolor),
-												  ColorTools::checkrule(globals.arrowfillrule));
-									thispath.Stroke(theImage,
-													ColorTools::checkcolor(globals.arrowstrokecolor),
-													ColorTools::checkrule(globals.arrowstrokerule));
-								  }
-							}
-						}
-
-					  // Draw labels
-
-					  for(piter=pbegin; piter!=pend; ++piter)
-						{
-
-						  // Draw label markers first
-
-						  if(!piter->labelMarker().empty())
-							{
-							  // Establish that something is to be done
-
-							  if(piter->labelPoints().empty())
-								continue;
-
-							  // Establish the marker specs
-
-							  NFmiImage marker;
-							  marker.Read(piter->labelMarker());
-
-							  NFmiColorTools::NFmiBlendRule markerrule = ColorTools::checkrule(piter->labelMarkerRule());
-
-							  float markeralpha = piter->labelMarkerAlphaFactor();
-
-							  // Draw individual points
-
-							  unsigned int pointnumber = 0;
-							  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
-							  for(iter=piter->labelPoints().begin();
-								  iter!=piter->labelPoints().end();
-								  ++iter)
-								{
-								  // The point in question
-
-								  NFmiPoint xy = theArea->ToXY(iter->first);
-
-								  // Skip rendering if the start point is masked
-
-								  if(IsMasked(xy,
-											  globals.mask,
-											  globals.maskimage))
-									continue;
-
-								  // Skip rendering if LabelMissing is "" and value is missing
-								  if(piter->labelMissing().empty())
-									{
-									  float value = piter->labelValues()[pointnumber++];
-									  if(value == kFloatMissing)
-										continue;
-									}
-
-								  theImage.Composite(marker,
-													 markerrule,
-													 kFmiAlignCenter,
-													 FmiRound(xy.X()),
-													 FmiRound(xy.Y()),
-													 markeralpha);
-								}
-
-							}
-
-						  // Label markers now drawn, only label texts remain
-
-						  // Quick exit from loop if no labels are
-						  // desired for this parameter
-
-						  if(piter->labelFormat() == "")
-							continue;
-
-						  // Create the font object to be used
-
-						  NFmiFontHershey font(piter->labelFont());
-
-						  // Create the text object to be used
-
-						  NFmiText text("",
-										font,
-										piter->labelSize(),
-										0.0,	// x
-										0.0,	// y
-										AlignmentValue(piter->labelAlignment()),
-										piter->labelAngle());
-
-
-						  NFmiText caption(piter->labelCaption(),
-										   font,
-										   piter->labelSize(),
-										   0.0,
-										   0.0,
-										   AlignmentValue(piter->labelCaptionAlignment()),
-										   piter->labelAngle());
-
-						  // The rules
-
-						  NFmiColorTools::NFmiBlendRule fillrule
-							= ColorTools::checkrule(piter->labelFillRule());
-
-						  NFmiColorTools::NFmiBlendRule strokerule
-							= ColorTools::checkrule(piter->labelStrokeRule());
-
-						  // Draw labels at specifing latlon points if requested
-
-						  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
-
-						  int pointnumber = 0;
-						  for(iter=piter->labelPoints().begin();
-							  iter!=piter->labelPoints().end();
-							  ++iter)
-							{
-
-							  // The point in question
-
-							  float x,y;
-							  if(iter->second.X() == kFloatMissing)
-								{
-								  NFmiPoint xy = theArea->ToXY(iter->first);
-								  x = xy.X();
-								  y = xy.Y();
-								}
-							  else
-								{
-								  x = iter->second.X();
-								  y = iter->second.Y();
-								}
-
-							  // Skip rendering if the start point is masked
-
-							  if(IsMasked(NFmiPoint(x,y),
-										  globals.mask,
-										  globals.maskimage))
-								continue;
-
-							  float value = piter->labelValues()[pointnumber++];
-
-							  // Convert value to string
-							  string strvalue = piter->labelMissing();
-
-							  if(value!=kFloatMissing)
-								{
-								  char tmp[20];
-								  sprintf(tmp,piter->labelFormat().c_str(),value);
-								  strvalue = tmp;
-								}
-
-							  // Don't bother drawing empty strings
-							  if(strvalue.empty())
-								continue;
-
-							  // Set new text properties
-
-							  text.Text(strvalue);
-							  text.X(x + piter->labelOffsetX());
-							  text.Y(y + piter->labelOffsetY());
-
-							  // And render the text
-
-							  text.Fill(theImage,piter->labelFillColor(),fillrule);
-							  text.Stroke(theImage,piter->labelStrokeColor(),strokerule);
-
-							  // Then the label caption
-
-							  if(!piter->labelCaption().empty())
-								{
-								  caption.X(text.X() + piter->labelCaptionDX());
-								  caption.Y(text.Y() + piter->labelCaptionDY());
-								  caption.Fill(theImage,piter->labelFillColor(),fillrule);
-								  caption.Stroke(theImage,piter->labelStrokeColor(),strokerule);
-								}
-
-							}
-
-						}
-
-
-
-					  // Bang the combine image (legend, logo, whatever)
-
-					  if(!globals.combine.empty())
-						{
-						  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(globals.combinerule);
-
-						  theImage.Composite(globals.combineimage,
-											 rule,
-											 kFmiAlignNorthWest,
-											 globals.combinex,
-											 globals.combiney,
-											 globals.combinefactor);
-
-						}
-
-					  // Finally, draw a time stamp on the image if so
-					  // requested
-
-					  string thestamp = "";
-
-					  {
-						int obsyy = t.GetYear();
-						int obsmm = t.GetMonth();
-						int obsdd = t.GetDay();
-						int obshh = t.GetHour();
-						int obsmi = t.GetMin();
-
-						// Interpretation: The age of the forecast is the age
-						// of the oldest forecast
-
-						NFmiTime tfor;
-						for(qi=0; qi<globals.querystreams.size(); qi++)
-						  {
-							globals.queryinfo = globals.querystreams[qi];
-							NFmiTime futctime = globals.queryinfo->OriginTime();
-							NFmiTime tlocal = TimeTools::ConvertZone(futctime,globals.timestampzone);
-							if(qi==0 || tlocal.IsLessThan(tfor))
-							  tfor = tlocal;
-						  }
-
-						int foryy = tfor.GetYear();
-						int formm = tfor.GetMonth();
-						int fordd = tfor.GetDay();
-						int forhh = tfor.GetHour();
-						int formi = tfor.GetMin();
-
-						char buffer[100];
-
-						if(globals.timestampimage == "obs")
-						  {
-							// hh:mi dd.mm.yyyy
-							sprintf(buffer,"%02d:%02d %02d.%02d.%04d",
-									obshh,obsmi,obsdd,obsmm,obsyy);
-							thestamp = buffer;
-						  }
-						else if(globals.timestampimage == "for")
-						  {
-							// hh:mi dd.mm.yyyy
-							sprintf(buffer,"%02d:%02d %02d.%02d.%04d",
-									forhh,formi,fordd,formm,foryy);
-							thestamp = buffer;
-						  }
-						else if(globals.timestampimage == "forobs")
-						  {
-							// hh:mi dd.mm.yyyy +hh
-							long diff = t.DifferenceInMinutes(tfor);
-							if(diff%60==0 && globals.timestep%60==0)
-							  sprintf(buffer,"%02d.%02d.%04d %02d:%02d %s%ldh",
-									  fordd,formm,foryy,forhh,formi,
-									  (diff<0 ? "" : "+"), diff/60);
-							else
-							  sprintf(buffer,"%02d.%02d.%04d %02d:%02d %s%ldm",
-									  fordd,formm,foryy,forhh,formi,
-									  (diff<0 ? "" : "+"), diff);
-							thestamp = buffer;
-						  }
-					  }
-
-					  if(!thestamp.empty())
-						{
-						  NFmiFontHershey font("TimesRoman-Bold");
-
-						  int x = globals.timestampimagex;
-						  int y = globals.timestampimagey;
-
-						  if(x<0) x+= theImage.Width();
-						  if(y<0) y+= theImage.Height();
-
-						  NFmiText text(thestamp,font,14,x,y,kFmiAlignNorthWest,0.0);
-
-						  // And render the text
-
-						  NFmiPath path = text.Path();
-
-						  NFmiEsriBox box = path.BoundingBox();
-
-						  NFmiPath rect;
-						  int w = 4;
-						  rect.MoveTo(box.Xmin()-w,box.Ymin()-w);
-						  rect.LineTo(box.Xmax()+w,box.Ymin()-w);
-						  rect.LineTo(box.Xmax()+w,box.Ymax()+w);
-						  rect.LineTo(box.Xmin()-w,box.Ymax()+w);
-						  rect.CloseLineTo();
-
-						  rect.Fill(theImage,
-									NFmiColorTools::MakeColor(180,180,180,32),
-									NFmiColorTools::kFmiColorOver);
-
-						  path.Stroke(theImage,
-									  NFmiColorTools::Black,
-									  NFmiColorTools::kFmiColorCopy);
-
-						}
-
-					  // dx and dy labels have now been extracted into a list,
-					  // disable adding them again and again and again..
-
-					  labeldxdydone = true;
-
-					  // Save
-
-					  if(globals.verbose)
-						cout << "Writing " << filename << endl;
-					  if(globals.format=="png")
-						theImage.WritePng(filename);
-					  else if(globals.format=="jpg" || globals.format=="jpeg")
-						theImage.WriteJpeg(filename);
-					  else if(globals.format=="gif")
-						theImage.WriteGif(filename);
-					}
-				}
-
+			  else if(command == "contours")		do_draw_contours(input);
 			  else
 				throw runtime_error("draw " + command + " not implemented");
 			}
