@@ -7,6 +7,7 @@
 
 // internal
 #include "ColorTools.h"
+#include "ContourCache.h"
 #include "ContourSpec.h"
 #include "GramTools.h"
 #include "LazyQueryData.h"
@@ -104,6 +105,11 @@ int domain(int argc, const char *argv[])
   string datapath = NFmiSettings::instance().value("qdcontour::querydata_path",".");
   string mapspath = NFmiSettings::instance().value("qdcontour::maps_path",".");
 
+  // Tallennetut kontuurit
+
+  ContourCache theCache;
+  int theCacheFlag = 0;
+
   // Lista komentitiedostoista
   
   list<string> theFiles;
@@ -145,9 +151,9 @@ int domain(int argc, const char *argv[])
   NFmiPoint theTopRight		= NFmiPoint(kFloatMissing,kFloatMissing);
   NFmiPoint theCenter		= NFmiPoint(kFloatMissing,kFloatMissing);
 
-  float theCentralLongitude	= 25.0;
-  float theCentralLatitude	= 90.0;
-  float theTrueLatitude		= 60.0;
+  double theCentralLongitude	= 25.0;
+  double theCentralLatitude	= 90.0;
+  double theTrueLatitude		= 60.0;
   
   int theWidth		= -1;
   int theHeight		= -1;
@@ -313,6 +319,9 @@ int domain(int argc, const char *argv[])
 			  input.ignore(1000000,'\n');
 			}
 		  
+		  else if(command == "cache")
+			input >> theCacheFlag;
+
 		  else if(command == "querydata")
 			{
 			  string newnames;
@@ -393,29 +402,29 @@ int domain(int argc, const char *argv[])
 		  
 		  else if(command == "bottomleft")
 			{
-			  float lon,lat;
+			  double lon,lat;
 			  input >> lon >> lat;
 			  theBottomLeft.Set(lon,lat);
 			}
 		  
 		  else if(command == "topright")
 			{
-			  float lon,lat;
+			  double lon,lat;
 			  input >> lon >> lat;
 			  theTopRight.Set(lon,lat);
 			}
 		  
 		  else if(command == "center")
 			{
-			  float lon,lat;
+			  double lon,lat;
 			  input >> lon >> lat;
 			  theCenter.Set(lon,lat);
 			}
 
 		  else if(command == "stereographic")
 			input >> theCentralLongitude
-				   >> theCentralLatitude
-				   >> theTrueLatitude;
+				  >> theCentralLatitude
+				  >> theTrueLatitude;
 		  
 		  else if(command == "size")
 			{
@@ -794,6 +803,8 @@ int domain(int argc, const char *argv[])
 				theSpecs.clear();
 			  else if(command=="shapes")
 				theShapeSpecs.clear();
+			  else if(command=="cache")
+				theCache.clear();
 			  else if(command=="arrows")
 				{
 				  theArrowPoints.clear();
@@ -1397,7 +1408,6 @@ int domain(int argc, const char *argv[])
 				  NFmiTime utctime, time1, time2;
 				  
 				  vector<NFmiDataMatrix<NFmiPoint> > worldpts(theQueryStreams.size());
-				  vector<NFmiDataMatrix<NFmiPoint> > pts(theQueryStreams.size());
 				  NFmiDataMatrix<float> vals;
 				  
 				  unsigned int qi;
@@ -1623,8 +1633,6 @@ int domain(int argc, const char *argv[])
 						  {
 							if(worldpts[i].NX()==0 || worldpts[i].NY()==0)
 							  theQueryStreams[i]->LocationsWorldXY(worldpts[i],theArea);
-							if(pts[i].NX()==0 || pts[i].NY()==0)
-							  theQueryStreams[i]->LocationsXY(pts[i],theArea);
 						  }
 					  }
 
@@ -1809,8 +1817,8 @@ int domain(int argc, const char *argv[])
 
 						  if(piter->labelDX() > 0 && piter->labelDY() > 0)
 							{
-							  for(unsigned int j=0; j<pts[qi].NY(); j+=piter->labelDY())
-								for(unsigned int i=0; i<pts[qi].NX(); i+=piter->labelDX())
+							  for(unsigned int j=0; j<worldpts[qi].NY(); j+=piter->labelDY())
+								for(unsigned int i=0; i<worldpts[qi].NX(); i+=piter->labelDX())
 								  piter->add(area.WorldXYToLatLon(worldpts[qi][i][j]));
 							}
 
@@ -1891,19 +1899,50 @@ int domain(int argc, const char *argv[])
 							  bool exacthi = (citer->hilimit()!=kFloatMissing &&
 											  piter->exactHiLimit()!=kFloatMissing &&
 											  citer->hilimit()==piter->exactHiLimit());
-							  NFmiContourTree tree(citer->lolimit(),
+
+							  NFmiPath path;
+							  if(theCacheFlag &&
+								 theCache.contains(citer->lolimit(),
 												   citer->hilimit(),
-												   exactlo,exacthi);
+												   *theQueryInfo))
+								{
+								  if(verbose)
+									cout << "Using cached "
+										 << citer->lolimit() << " - "
+										 << citer->hilimit() << endl;
+
+								  path = theCache.find(citer->lolimit(),
+													   citer->hilimit(),
+													   *theQueryInfo);
+								}
+							  else
+								{
+								  NFmiContourTree tree(citer->lolimit(),
+													   citer->hilimit(),
+													   exactlo,exacthi);
 							  
-							  if(piter->dataLoLimit()!=kFloatMissing)
-								tree.DataLoLimit(piter->dataLoLimit());
-							  if(piter->dataHiLimit()!=kFloatMissing)
-								tree.DataHiLimit(piter->dataHiLimit());
+								  if(piter->dataLoLimit()!=kFloatMissing)
+									tree.DataLoLimit(piter->dataLoLimit());
+								  if(piter->dataHiLimit()!=kFloatMissing)
+									tree.DataHiLimit(piter->dataHiLimit());
 							  
+								  tree.Contour(vals,interp,piter->contourDepth());
+								  path = tree.Path();
+
+								  path.InvGrid(theQueryInfo->Grid());
+
+								  if(theCacheFlag)
+									theCache.insert(path,
+													citer->lolimit(),
+													citer->hilimit(),
+													*theQueryInfo);
+
+								}
+
+							  path.Project(&theArea);
+
 							  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(citer->rule());
-							  
-							  tree.Contour(pts[qi],vals,interp,piter->contourDepth());
-							  tree.Fill(theImage,citer->color(),rule);
+							  path.Fill(theImage,citer->color(),rule);
 							  
 							}
 						  
@@ -1944,21 +1983,52 @@ int domain(int argc, const char *argv[])
 							  bool exacthi = (patiter->hilimit()!=kFloatMissing &&
 											  piter->exactHiLimit()!=kFloatMissing &&
 											  patiter->hilimit()==piter->exactHiLimit());
-							  NFmiContourTree tree(patiter->lolimit(),
+
+							  NFmiPath path;
+							  if(theCacheFlag &&
+								 theCache.contains(patiter->lolimit(),
 												   patiter->hilimit(),
-												   exactlo,exacthi);
+												   *theQueryInfo))
+								{
+								  if(verbose)
+									cout << "Using cached "
+										 << patiter->lolimit() << " - "
+										 << patiter->hilimit() << endl;
+
+								  path = theCache.find(patiter->lolimit(),
+													   patiter->hilimit(),
+													   *theQueryInfo);
+								}
+							  else
+								{
 							  
-							  if(piter->dataLoLimit()!=kFloatMissing)
-								tree.DataLoLimit(piter->dataLoLimit());
-							  if(piter->dataHiLimit()!=kFloatMissing)
-								tree.DataHiLimit(piter->dataHiLimit());
+								  NFmiContourTree tree(patiter->lolimit(),
+													   patiter->hilimit(),
+													   exactlo,exacthi);
 							  
+								  if(piter->dataLoLimit()!=kFloatMissing)
+									tree.DataLoLimit(piter->dataLoLimit());
+								  if(piter->dataHiLimit()!=kFloatMissing)
+									tree.DataHiLimit(piter->dataHiLimit());
+								  
+								  tree.Contour(vals,interp,piter->contourDepth());
+
+								  path = tree.Path();
+								  path.InvGrid(theQueryInfo->Grid());
+
+								  if(theCacheFlag)
+									theCache.insert(path,
+													patiter->lolimit(),
+													patiter->hilimit(),
+													*theQueryInfo);
+
+								}
+
 							  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(patiter->rule());
+							  path.Project(&theArea);
 							  
-							  tree.Contour(pts[qi],vals,interp,piter->contourDepth());
 							  NFmiImage pattern(patiter->pattern());
-							  
-							  tree.Fill(theImage,pattern,rule,patiter->factor());
+							  path.Fill(theImage,pattern,rule,patiter->factor());
 							  
 							}
 						  
@@ -1985,25 +2055,48 @@ int domain(int argc, const char *argv[])
 									 valmin>liter->value())
 									continue;
 								}
-							  
-							  NFmiContourTree tree(liter->value(),kFloatMissing);
-							  if(piter->dataLoLimit()!=kFloatMissing)
-								tree.DataLoLimit(piter->dataLoLimit());
-							  if(piter->dataHiLimit()!=kFloatMissing)
-								tree.DataHiLimit(piter->dataHiLimit());
+
+							  NFmiPath path;
+
+							  if(theCacheFlag &&
+								 theCache.contains(liter->value(),
+												   kFloatMissing,
+												   *theQueryInfo))
+								{
+								  if(verbose)
+									cout << "Using cached " << liter->value() << endl;
+								  path = theCache.find(liter->value(),
+													   kFloatMissing,
+													   *theQueryInfo);
+								}
+							  else
+								{
+								  NFmiContourTree tree(liter->value(),kFloatMissing);
+								  if(piter->dataLoLimit()!=kFloatMissing)
+									tree.DataLoLimit(piter->dataLoLimit());
+								  if(piter->dataHiLimit()!=kFloatMissing)
+									tree.DataHiLimit(piter->dataHiLimit());
+								  
+								  tree.Contour(vals,interp,piter->contourDepth());
+								  path = tree.Path();
+								  path.InvGrid(theQueryInfo->Grid());
+
+								  if(theCacheFlag)
+									theCache.insert(path,
+													liter->value(),
+													kFloatMissing,
+													*theQueryInfo);
+
+								}
+
+							  path.Project(&theArea);
 							  
 							  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(liter->rule());
-							  tree.Contour(pts[qi],vals,interp,piter->contourDepth());
-							  NFmiPath path = tree.Path();
 							  path.SimplifyLines(10);
 							  path.Stroke(theImage,liter->color(),rule);
 							  
-							  
 							}
-						  
 						}
-					  
-					  
 					  
 					  // Bang the foreground
 					  
@@ -2131,23 +2224,21 @@ int domain(int argc, const char *argv[])
 						  
 						  if(theWindArrowDX!=0 && theWindArrowDY!=0)
 							{
-							  NFmiDataMatrix<NFmiPoint> latlons;
-							  theQueryInfo->Locations(latlons);
 
 							  NFmiDataMatrix<float> speedvalues(vals.NX(),vals.NY(),-1);
 							  if(theQueryInfo->Param(FmiParameterName(converter.ToEnum(theSpeedParameter))))
 								theQueryInfo->Values(speedvalues);
 							  theQueryInfo->Param(FmiParameterName(converter.ToEnum(theDirectionParameter)));
 							  
-							  for(unsigned int j=0; j<pts[qi].NY(); j+=theWindArrowDY)
-								for(unsigned int i=0; i<pts[qi].NX(); i+=theWindArrowDX)
+							  for(unsigned int j=0; j<worldpts[qi].NY(); j+=theWindArrowDY)
+								for(unsigned int i=0; i<worldpts[qi].NX(); i+=theWindArrowDX)
 								  {
 									// The start point
 									
-									NFmiPoint xy0 = theArea.ToXY(latlons[i][j]);
+									NFmiPoint latlon = theArea.WorldXYToLatLon(worldpts[qi][i][j]);
+									NFmiPoint xy0 = theArea.ToXY(latlon);
 
 									// Skip rendering if the start point is masked
-
 									if(IsMasked(xy0,theMask,theMaskImage))
 									  continue;
 
@@ -2162,8 +2253,8 @@ int domain(int argc, const char *argv[])
 									const float pi = 3.141592658979323;
 									const float length = 0.1;	// degrees
 									
-									float x0 = latlons[i][j].X();
-									float y0 = latlons[i][j].Y();
+									float x0 = latlon.X();
+									float y0 = latlon.Y();
 									
 									float x1 = x0+sin(dir*pi/180)*length;
 									float y1 = y0+cos(dir*pi/180)*length;
