@@ -553,6 +553,7 @@ labelfill [color] [blendingrule]      (default none, Copy)
 labelalign [alignment]                (default Center)
 labelformat [format]                  (default is "%.1f", - implies no output)
 labelangle [angle]                    (default 0)
+labelmissing [label]                  (default is -, disable with none)
 \endcode
 The <em>format</em> is the format string of a sprintf command for
 a floating point value.

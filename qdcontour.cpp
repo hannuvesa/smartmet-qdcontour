@@ -305,6 +305,7 @@ public:
     , itsLabelFillRule("Copy")
     , itsLabelAlignment("Center")
     , itsLabelFormat("%.1f")
+    , itsLabelMissing("-")
     , itsLabelAngle(0)
     , itsLabelOffsetX(0)
     , itsLabelOffsetY(0)
@@ -393,6 +394,7 @@ public:
   const string & LabelFillRule(void) const	{ return itsLabelFillRule; }
   const string & LabelAlignment(void) const	{ return itsLabelAlignment; }
   const string & LabelFormat(void) const	{ return itsLabelFormat; }
+  const string & LabelMissing(void) const	{ return itsLabelMissing; }
   float LabelAngle(void) const			{ return itsLabelAngle; }
   float LabelOffsetX(void) const		{ return itsLabelOffsetX; }
   float LabelOffsetY(void) const		{ return itsLabelOffsetY; }
@@ -415,6 +417,7 @@ public:
   void LabelFillRule(const string & value)	{ itsLabelFillRule = value; }
   void LabelAlignment(const string & value)	{ itsLabelAlignment = value; }
   void LabelFormat(const string & value)	{ itsLabelFormat = value; }
+  void LabelMissing(const string & value)	{ itsLabelMissing = value; }
   void LabelAngle(float value)			{ itsLabelAngle = value; }
   void LabelOffsetX(float value)		{ itsLabelOffsetX = value; }
   void LabelOffsetY(float value)		{ itsLabelOffsetY = value; }
@@ -463,6 +466,7 @@ private:
   string itsLabelFillRule;
   string itsLabelAlignment;
   string itsLabelFormat;
+  string itsLabelMissing;
   float itsLabelAngle;
   float itsLabelOffsetX;
   float itsLabelOffsetY;
@@ -1384,6 +1388,15 @@ int main(int argc, const char *argv[])
 			  if(format == "-") format = "";
 			  if(!theSpecs.empty())
 				theSpecs.back().LabelFormat(format);
+			}
+		  
+		  else if(command == "labelmissing")
+			{
+			  string label;
+			  input >> label;
+			  if(label == "none") label = "";
+			  if(!theSpecs.empty())
+				theSpecs.back().LabelMissing(label);
 			}
 		  
 		  else if(command == "labelangle")
@@ -2716,8 +2729,7 @@ int main(int argc, const char *argv[])
 							  float value = piter->LabelValues()[pointnumber++];
 							  
 							  // Convert value to string
-							  
-							  string strvalue("-");
+							  string strvalue = piter->LabelMissing();
 							  
 							  if(value!=kFloatMissing)
 								{
@@ -2725,6 +2737,10 @@ int main(int argc, const char *argv[])
 								  sprintf(tmp,piter->LabelFormat().c_str(),value);
 								  strvalue = tmp;
 								}
+
+							  // Don't bother drawing empty strings
+							  if(strvalue.empty())
+								continue;
 							  
 							  // The point in question
 							  
