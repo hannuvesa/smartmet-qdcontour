@@ -347,6 +347,19 @@ NFmiPoint LazyQueryData::LatLonToGrid(const NFmiPoint & theLatLonPoint)
   return itsInfo->Grid()->LatLonToGrid(theLatLonPoint);
 }
 
+
+// ----------------------------------------------------------------------
+/*!
+ *
+ */
+// ----------------------------------------------------------------------
+
+const NFmiGrid * LazyQueryData::Grid(void) const
+{
+  requireInfo();
+  return itsInfo->Grid();
+}
+
 // ----------------------------------------------------------------------
 /*!
  *

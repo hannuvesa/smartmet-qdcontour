@@ -28,6 +28,7 @@
 
 class NFmiArea;
 class NFmiFastQueryInfo;
+class NFmiGrid;
 class NFmiMetTime;
 class NFmiPoint;
 class NFmiQueryData;
@@ -74,6 +75,7 @@ public:
   // Grid()
 
   NFmiPoint LatLonToGrid(const NFmiPoint & theLatLonPoint);
+  const NFmiGrid * Grid(void) const;
 
   // These require the data values
 
