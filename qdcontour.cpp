@@ -1425,7 +1425,7 @@ void do_contourfont(istream & theInput)
   NFmiColorTools::Color color = ColorTools::checkcolor(scolor);
 
   if(!globals.specs.empty())
-	globals.specs.back().add(ContourFont(value,symbol,color,font));
+	globals.specs.back().add(ContourFont(value,color,symbol,font));
 }
 
 // ----------------------------------------------------------------------
@@ -3349,6 +3349,8 @@ void draw_contour_fonts(NFmiImage & theImage,
 	  const int symbol = it->symbol();
 	  const string fontspec = it->font();
 
+	  const string text(1,symbol);
+
 	  // Parse the font specification
 
 	  vector<string> fontparts = NFmiStringTools::Split(fontspec,":");
@@ -3364,6 +3366,8 @@ void draw_contour_fonts(NFmiImage & theImage,
 	  Imagine::NFmiFace face = Imagine::NFmiFreeType::Instance().Face(font,width,height);
 	  face.Background(false);
 
+	  cout << value << ' ' << symbol << ' ' << text << endl;
+
 	  // Draw symbol at each grid point where necessary
 	  for(unsigned int j=0; j<theValues.NY(); j++)
 		for(unsigned int i=0; i<theValues.NX(); i++)
@@ -3375,7 +3379,7 @@ void draw_contour_fonts(NFmiImage & theImage,
 			  face.Draw(theImage,
 						FmiRound(xy.X()),
 						FmiRound(xy.Y()),
-						string(1,symbol),
+						text,
 						Imagine::kFmiAlignCenter,
 						color);
 			}
