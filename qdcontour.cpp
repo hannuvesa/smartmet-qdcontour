@@ -1843,6 +1843,39 @@ void do_draw_imagemap(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Choose the queryinfo from the set of available datas
+ */
+// ----------------------------------------------------------------------
+
+unsigned int choose_queryinfo(const string & theName)
+{
+  if(globals.querystreams.size() == 0)
+	throw runtime_error("No querydata has been specified");
+
+  if(MetaFunctions::isMeta(theName))
+	{
+	  globals.queryinfo = globals.querystreams[0];
+	  return 0;
+	}
+  else
+	{
+	  // Find the proper queryinfo to be used
+	  
+	  FmiParameterName param = FmiParameterName(NFmiEnumConverter().ToEnum(theName));
+
+	  for(unsigned int qi=0; qi<globals.querystreams.size(); qi++)
+		{
+		  globals.queryinfo = globals.querystreams[qi];
+		  globals.queryinfo->Param(param);
+		  if(globals.queryinfo->IsParamUsable())
+			return qi;
+		}
+	  throw runtime_error("Parameter '"+theName+"' is not available in the query files");
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Save grid values for later labelling
  */
 // ----------------------------------------------------------------------
@@ -2782,37 +2815,9 @@ void do_draw_contours(istream & theInput)
 
 		  string name = piter->param();
 
-		  bool ismeta = false;
-		  ok = false;
-		  FmiParameterName param = FmiParameterName(NFmiEnumConverter().ToEnum(name));
+		  bool ismeta = MetaFunctions::isMeta(name);
 
-		  if(param==kFmiBadParameter)
-			{
-			  if(!MetaFunctions::isMeta(name))
-				throw runtime_error("Unknown parameter "+name);
-			  ismeta = true;
-			  ok = true;
-			  // We always assume the first querydata is ok
-			  qi = 0;
-			  globals.queryinfo = globals.querystreams[0];
-			}
-		  else
-			{
-			  // Find the proper queryinfo to be used
-			  // Note that qi will be used later on for
-			  // getting the coordinate matrices
-
-			  for(qi=0; qi<globals.querystreams.size(); qi++)
-				{
-				  globals.queryinfo = globals.querystreams[qi];
-				  globals.queryinfo->Param(param);
-				  ok = globals.queryinfo->IsParamUsable();
-				  if(ok) break;
-				}
-			}
-
-		  if(!ok)
-			throw runtime_error("The parameter is not usable: " + name);
+		  qi = choose_queryinfo(name);
 
 		  if(globals.verbose)
 			{
