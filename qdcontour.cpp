@@ -6,10 +6,7 @@
 // ======================================================================
 
 // internal
-#include "ContourPattern.h"
-#include "ContourRange.h"
 #include "ContourSpec.h"
-#include "ContourValue.h"
 #include "ShapeSpec.h"
 #include "StringTools.h"
 // imagine
