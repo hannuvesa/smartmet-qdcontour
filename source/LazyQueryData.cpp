@@ -8,6 +8,7 @@
 #include "LazyQueryData.h"
 #include "NFmiFastQueryInfo.h"
 #include "NFmiFileSystem.h"
+#include "NFmiGrid.h"
 #include "NFmiQueryData.h"
 #include <fstream>
 #include <stdexcept>
@@ -327,7 +328,7 @@ bool LazyQueryData::BiLinearInterpolation(double x, double y, float & theValue,
 NFmiPoint LazyQueryData::LatLonToGrid(const NFmiPoint & theLatLonPoint)
 {
   requireInfo();
-  throw runtime_error("LatLonToGrid not implemented yet");
+  return itsInfo->Grid()->LatLonToGrid(theLatLonPoint);
 }
 
 // ----------------------------------------------------------------------
