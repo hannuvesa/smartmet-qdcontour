@@ -510,6 +510,22 @@ void do_projection(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "erase" command
+ */
+// ----------------------------------------------------------------------
+
+void do_erase(istream & theInput)
+{
+  theInput >> globals.erase;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'erase' command failed");
+
+  ColorTools::checkcolor(globals.erase);
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -552,7 +568,6 @@ int domain(int argc, const char *argv[])
   bool   theWantPaletteFlag = false;
   bool   theForcePaletteFlag = false;
   string theLegendErase = "white";
-  string theErase	= "#7F000000";
   string theBackground	= "";
   string theForeground	= "";
   string theMask = "";
@@ -641,12 +656,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "timestampimage")		do_timestampimage(input);
 		  else if(command == "timestampimagexy")	do_timestampimagexy(input);
 		  else if(command == "projection")			do_projection(input);
-
-		  else if(command == "erase")
-			{
-			  input >> theErase;
-			  ColorTools::checkcolor(theErase);
-			}
+		  else if(command == "erase")				do_erase(input);
 
 		  else if(command == "legenderase")
 			{
@@ -1317,7 +1327,7 @@ int domain(int argc, const char *argv[])
 				  if(theJpegQuality>=0) theImage.JpegQuality(theJpegQuality);
 				  if(theAlphaLimit>=0) theImage.AlphaLimit(theAlphaLimit);
 
-				  NFmiColorTools::Color erasecolor = ColorTools::checkcolor(theErase);
+				  NFmiColorTools::Color erasecolor = ColorTools::checkcolor(globals.erase);
 				  theImage.Erase(erasecolor);
 
 				  // Draw all the shapes
@@ -1675,7 +1685,7 @@ int domain(int argc, const char *argv[])
 					  if(theJpegQuality>=0) theImage.JpegQuality(theJpegQuality);
 					  if(theAlphaLimit>=0) theImage.AlphaLimit(theAlphaLimit);
 
-					  NFmiColorTools::Color erasecolor = ColorTools::checkcolor(theErase);
+					  NFmiColorTools::Color erasecolor = ColorTools::checkcolor(globals.erase);
 					  theImage.Erase(erasecolor);
 
 					  if(theBackground != "")

@@ -38,6 +38,8 @@ struct Globals
   std::string projection;			// projection definition
   std::string filter;				// filtering mode
 
+  std::string erase;				// background color
+
   std::string queryfilelist;		// querydata files in use
   std::vector<std::string> queryfilenames;	// querydata files in use
 
