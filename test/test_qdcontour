@@ -96,6 +96,10 @@ DoTest("contourfont",
        "contourfont.conf",
        "contourfont_200210140600_200210140937.png");
 
+DoTest("contourfont2",
+       "contourfont2.conf",
+       "contourfont2_200210140600_200210140937.png");
+
 # Test contourlabels
 
 DoTest("contourlabels",
