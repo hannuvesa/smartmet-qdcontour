@@ -344,6 +344,33 @@ void write_image(const NFmiImage & theImage,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Create a face from a font specification string
+ *
+ * The string is of the form <fontname>:<width>x<height>
+ * If width or height is zero, Freetype will calculate it
+ * so that proper aspect ratio is preserved.
+ */
+// ----------------------------------------------------------------------
+
+Imagine::NFmiFace make_face(const string & theSpec)
+{
+  vector<string> fontparts = NFmiStringTools::Split(theSpec,":");
+  if(fontparts.size() != 2)
+	throw runtime_error("Invalid font specification '"+theSpec+"'");
+
+  const string font = fontparts[0];
+  fontparts = NFmiStringTools::Split(fontparts[1],"x");
+  if(fontparts.size() != 2)
+	throw runtime_error("Invalid font size specification in '"+theSpec+"'");
+
+  const int width = NFmiStringTools::Convert<int>(fontparts[0]);
+  const int height = NFmiStringTools::Convert<int>(fontparts[1]);
+
+  return Imagine::NFmiFreeType::Instance().Face(font,width,height);
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Handle a comment token
  */
 // ----------------------------------------------------------------------
@@ -3236,17 +3263,7 @@ void draw_contour_labels(NFmiImage & theImage)
 	  const int xmargin = piter->contourLabelBackgroundXMargin();
 	  const int ymargin = piter->contourLabelBackgroundYMargin();
 
-	  vector<string> fontparts = NFmiStringTools::Split(fontspec,":");
-	  if(fontparts.size() != 2)
-		throw runtime_error("Invalid font specification '"+fontspec+"'");
-	  const string font = fontparts[0];
-	  fontparts = NFmiStringTools::Split(fontparts[1],"x");
-	  if(fontparts.size() != 2)
-		throw runtime_error("Invalid font size specification in '"+fontspec+"'");
-	  const int width = NFmiStringTools::Convert<int>(fontparts[0]);
-	  const int height = NFmiStringTools::Convert<int>(fontparts[1]);
-
-	  Imagine::NFmiFace face = Imagine::NFmiFreeType::Instance().Face(font,width,height);
+	  Imagine::NFmiFace face = make_face(fontspec);
 	  face.Background(true);
 	  face.BackgroundColor(backcolor);
 	  face.BackgroundMargin(xmargin,ymargin);
@@ -3421,17 +3438,7 @@ void draw_contour_fonts(NFmiImage & theImage)
 		  string text = "";
 		  text += symbol;
 		  
-		  vector<string> fontparts = NFmiStringTools::Split(fontspec,":");
-		  if(fontparts.size() != 2)
-			throw runtime_error("Invalid font specification '"+fontspec+"'");
-		  const string font = fontparts[0];
-		  fontparts = NFmiStringTools::Split(fontparts[1],"x");
-		  if(fontparts.size() != 2)
-			throw runtime_error("Invalid font size specification in '"+fontspec+"'");
-		  const int width = NFmiStringTools::Convert<int>(fontparts[0]);
-		  const int height = NFmiStringTools::Convert<int>(fontparts[1]);
-		  
-		  Imagine::NFmiFace face = Imagine::NFmiFreeType::Instance().Face(font,width,height);
+		  Imagine::NFmiFace face = make_face(fontspec);
 		  face.Background(false);
 		  
 		  for(LabelLocator::Coordinates::const_iterator it = cit->second.begin();
