@@ -2681,10 +2681,36 @@ int main(int argc, const char *argv[])
 					  // Draw wind arrows if so requested
 					  
 					  NFmiEnumConverter converter;
-					  if(converter.ToString(theQueryInfo->Param().GetParamIdent()) == theDirectionParameter &&
-						 (!theArrowPoints.empty() || (theWindArrowDX!=0 && theWindArrowDY!=0)) &&
+					  if((!theArrowPoints.empty() || (theWindArrowDX!=0 && theWindArrowDY!=0)) &&
 						 (theArrowFile!=""))
 						{
+						  
+						  FmiParameterName param = FmiParameterName(NFmiEnumConverter().ToEnum(theDirectionParameter));
+						  if(param==kFmiBadParameter)
+							{
+							  cerr << "Error: Unknown parameter " << theDirectionParameter << endl;
+							  return 1;
+							}
+						  
+						  // Find the proper queryinfo to be used
+						  // Note that qi will be used later on for
+						  // getting the coordinate matrices
+						  
+						  ok = false;
+						  for(qi=0; qi<theQueryStreams.size(); qi++)
+							{
+							  theQueryInfo = theQueryStreams[qi]->QueryInfoIter();
+							  theQueryInfo->Param(param);
+							  ok = theQueryInfo->IsParamUsable();
+							  if(ok) break;
+							}
+						  
+						  if(!ok)
+							{
+							  cerr << "Error: The parameter is not usable: " << theDirectionParameter << endl;
+							  exit(1);
+							}
+
 						  // Read the arrow definition
 						  
 						  NFmiPath arrowpath;

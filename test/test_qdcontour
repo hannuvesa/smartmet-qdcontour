@@ -116,6 +116,10 @@ DoTest("labels on top of arrows",
        "labels_and_arrows.conf",
        "labels_and_arrows_200210140900_140900.png");
 
+DoTest("labels on top of arrows regardless of definition order",
+       "arrows_and_labels.conf",
+       "arrows_and_labels_200210140900_140900.png");
+
 # Meteorological arrows
 
 DoTest("meteorological arrows",
