@@ -718,7 +718,7 @@ int main(int argc, const char *argv[])
 				  exit(1);
 				}
 			  if(!theShapeSpecs.empty())
-				theShapeSpecs.back().FillRule(theFillRule);
+				theShapeSpecs.back().fillrule(theFillRule);
 			}
 		  else if(command == "strokerule")
 			{
@@ -729,7 +729,7 @@ int main(int argc, const char *argv[])
 				  exit(1);
 				}
 			  if(!theShapeSpecs.empty())
-				theShapeSpecs.back().StrokeRule(theStrokeRule);
+				theShapeSpecs.back().strokerule(theStrokeRule);
 			}
 		  
 		  else if(command == "directionparam")
@@ -973,7 +973,7 @@ int main(int argc, const char *argv[])
 					  exit(1);
 					}
 				  ShapeSpec spec(theShapeFileName);
-				  spec.Marker(marker,markerrule,markeralpha);
+				  spec.marker(marker,markerrule,markeralpha);
 				  theShapeSpecs.push_back(spec);
 				}
 			  else
@@ -1516,25 +1516,25 @@ int main(int argc, const char *argv[])
 				  
 				  for(iter=begin; iter!=end; ++iter)
 					{
-					  NFmiGeoShape geo(iter->FileName(),kFmiGeoShapeEsri);
+					  NFmiGeoShape geo(iter->filename(),kFmiGeoShapeEsri);
 					  geo.ProjectXY(theArea);
 					  
-					  if(iter->Marker()=="")
+					  if(iter->marker()=="")
 						{
-						  NFmiColorTools::NFmiBlendRule fillrule = NFmiColorTools::BlendValue(iter->FillRule());
-						  NFmiColorTools::NFmiBlendRule strokerule = NFmiColorTools::BlendValue(iter->StrokeRule());
-						  geo.Fill(theImage,iter->FillColor(),fillrule);
-						  geo.Stroke(theImage,iter->StrokeColor(),strokerule);
+						  NFmiColorTools::NFmiBlendRule fillrule = NFmiColorTools::BlendValue(iter->fillrule());
+						  NFmiColorTools::NFmiBlendRule strokerule = NFmiColorTools::BlendValue(iter->strokerule());
+						  geo.Fill(theImage,iter->fillcolor(),fillrule);
+						  geo.Stroke(theImage,iter->strokecolor(),strokerule);
 						}
 					  else
 						{
-						  NFmiColorTools::NFmiBlendRule markerrule = NFmiColorTools::BlendValue(iter->MarkerRule());
+						  NFmiColorTools::NFmiBlendRule markerrule = NFmiColorTools::BlendValue(iter->markerrule());
 						  
 						  NFmiImage marker;
-						  marker.Read(iter->Marker());
+						  marker.Read(iter->marker());
 						  geo.Mark(theImage,marker,markerrule,
 								   kFmiAlignCenter,
-								   iter->MarkerAlpha());
+								   iter->markeralpha());
 						}
 					}
 				  
@@ -1640,7 +1640,7 @@ int main(int argc, const char *argv[])
 				  
 				  for(iter=begin; iter!=end; ++iter)
 					{
-					  NFmiGeoShape geo(iter->FileName(),kFmiGeoShapeEsri);
+					  NFmiGeoShape geo(iter->filename(),kFmiGeoShapeEsri);
 					  geo.ProjectXY(theArea);
 					  geo.WriteImageMap(out,fieldname);
 					}

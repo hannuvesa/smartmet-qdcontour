@@ -1,52 +1,62 @@
-// ----------------------------------------------------------------------
-// Yksittäisen shapen piirto-ohjeet
-// ----------------------------------------------------------------------
+// ======================================================================
+/*!
+ * \file
+ * \brief Interface of class ShapeSpec
+ */
+// ======================================================================
+/*!
+ * \class ShapeSpec
+ * \brief The specifications for rendering a shapefile
+ *
+ */
+// ======================================================================
 
-#include <string>
+#ifndef SHAPESPEC_H
+#define SHAPESPEC_H
+
+#include "NFmiColorTools.h"
 
 class ShapeSpec
 {
 public:
-  ShapeSpec(const std::string & shapefile,
-			NFmiColorTools::Color fill = NFmiColorTools::MakeColor(0,0,0,127),
-			NFmiColorTools::Color stroke = NFmiColorTools::MakeColor(0,0,0,127),
-			const std::string & fillrule = "Copy",
-			const std::string & strokerule = "Copy")
-    : itsShapeFileName(shapefile)
-    , itsFillRule(fillrule)
-    , itsStrokeRule(strokerule)
-    , itsFillColor(fill)
-    , itsStrokeColor(stroke)
-    , itsMarker("")
-    , itsMarkerRule("Over")
-    , itsMarkerAlpha(1.0)
-  {}
+
+#ifdef COMPILER_GENERATED
+  ~ShapeSpec();
+  ShapeSpec(const ShapeSpec & theValue);
+  ShapeSpec & operator=(const ShapeSpec & theValue);
+#endif
+
+  ShapeSpec(const std::string & theShapeFile,
+			NFmiColorTools::Color theFill = NFmiColorTools::MakeColor(0,0,0,127),
+			NFmiColorTools::Color theStroke = NFmiColorTools::MakeColor(0,0,0,127),
+			const std::string & theFillRule = "Copy",
+			const std::string & theStrokeRule = "Copy");
   
   // Data-access
   
-  const std::string & FileName(void) const		{ return itsShapeFileName; }
-  const std::string & FillRule(void) const		{ return itsFillRule; }
-  const std::string & StrokeRule(void) const		{ return itsStrokeRule; }
-  NFmiColorTools::Color FillColor(void) const	{ return itsFillColor; }
-  NFmiColorTools::Color StrokeColor(void) const	{ return itsStrokeColor; }
+  const std::string & filename(void) const;
+  const std::string & fillrule(void) const;
+  const std::string & strokerule(void) const;
+  NFmiColorTools::Color fillcolor(void) const;
+  NFmiColorTools::Color strokecolor(void) const;
   
-  void FillRule(const std::string & rule)		{ itsFillRule = rule; }
-  void StrokeRule(const std::string & rule)		{ itsStrokeRule = rule; }
-  void FillColor(NFmiColorTools::Color color)	{ itsFillColor = color; }
-  void StrokeColor(NFmiColorTools::Color color)	{ itsStrokeColor = color; }
+  void fillrule(const std::string & theRule);
+  void strokerule(const std::string & theRule);
+  void fillcolor(NFmiColorTools::Color theColor);
+  void strokecolor(NFmiColorTools::Color theColor);
   
-  void Marker(const std::string & marker, const std::string & rule, float alpha)
-  {
-    itsMarker = marker;
-    itsMarkerRule = rule;
-    itsMarkerAlpha = alpha;
-  }
+  void marker(const std::string & theMarker,
+			  const std::string & theRule,
+			  float theAlpha);
   
-  const std::string & Marker(void) const		{ return itsMarker; }
-  const std::string & MarkerRule(void) const		{ return itsMarkerRule; }
-  float MarkerAlpha(void) const			{ return itsMarkerAlpha; }
+  const std::string & marker(void) const;
+  const std::string & markerrule(void) const;
+  float markeralpha(void) const;
+
 private:
+
   ShapeSpec(void);
+
   std::string	itsShapeFileName;
   std::string	itsFillRule;
   std::string	itsStrokeRule;
@@ -56,4 +66,8 @@ private:
   std::string	itsMarkerRule;
   float		itsMarkerAlpha;
   
-};
+}; // class ShapeSpec
+
+#endif // SHAPESPEC_H
+
+// ======================================================================
