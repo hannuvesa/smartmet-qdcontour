@@ -8,7 +8,8 @@
 #include "Globals.h"
 #include "LazyQueryData.h"
 
-#include "NFmiSettings.h"
+#include "newbase/NFmiAreaFactory.h"
+#include "newbase/NFmiSettings.h"
 
 #include <string>
 
@@ -144,4 +145,19 @@ void Globals::setImageModes(NFmiImage & theImage) const
   if(jpegquality>=0) theImage.JpegQuality(jpegquality);
   if(alphalimit>=0) theImage.AlphaLimit(alphalimit);
 }
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return the area object
+ */
+// ----------------------------------------------------------------------
+
+std::auto_ptr<NFmiArea> Globals::createArea() const
+{
+  if(projection.empty())
+	throw runtime_error("A projection specification is required");
+
+  return NFmiAreaFactory::Create(projection);
+}
+
 // ======================================================================

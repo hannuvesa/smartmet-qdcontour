@@ -20,7 +20,6 @@
 #include "imagine/NFmiText.h"			// for labels
 #include "imagine/NFmiFontHershey.h"	// for Hershey fonts
 
-#include "newbase/NFmiAreaFactory.h"
 #include "newbase/NFmiCmdLine.h"			// command line options
 #include "newbase/NFmiDataMatrix.h"
 #include "newbase/NFmiDataModifierClasses.h"
@@ -1751,12 +1750,7 @@ void do_draw_shapes(istream & theInput)
 
   check_errors(theInput,"draw shapes");
 
-  auto_ptr<NFmiArea> area;
-
-  if(globals.projection.empty())
-	throw runtime_error("No projection has been specified for rendering shapes");
-  else
-	area.reset(NFmiAreaFactory::Create(globals.projection).release());
+  auto_ptr<NFmiArea> area = globals.createArea();
 
   if(globals.verbose)
 	report_area(*area);
@@ -1822,12 +1816,7 @@ void do_draw_imagemap(istream & theInput)
 
   check_errors(theInput,"draw imagemap");
 
-  auto_ptr<NFmiArea> area;
-
-  if(globals.projection.empty())
-	throw runtime_error("No projection has been specified for rendering shapes");
-  else
-	area.reset(NFmiAreaFactory::Create(globals.projection).release());
+  auto_ptr<NFmiArea> area = globals.createArea();
 
   // Generate map from all shapes in the list
 
@@ -1877,12 +1866,7 @@ void do_draw_contours(istream & theInput)
   if(globals.querystreams.empty())
 	throw runtime_error("No query data has been read!");
 
-  auto_ptr<NFmiArea> area;
-
-  if(globals.projection.empty())
-	throw runtime_error("No projection has been specified for rendering shapes");
-  else
-	area.reset(NFmiAreaFactory::Create(globals.projection).release());
+  auto_ptr<NFmiArea> area = globals.createArea();
 
   // This message intentionally ignores globals.verbose
 

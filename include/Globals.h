@@ -16,6 +16,7 @@
 #include "NFmiPoint.h"
 
 #include <list>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -30,6 +31,7 @@ struct Globals
 
   void clear_querystreams();
   void setImageModes(NFmiImage & theImage) const;
+  std::auto_ptr<NFmiArea> createArea() const;
 
   // Command line options
 
