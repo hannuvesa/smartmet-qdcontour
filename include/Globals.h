@@ -50,6 +50,8 @@ struct Globals
   int pngquality;					// png quality, -1 = default
   int jpegquality;					// jpeg quality, -1 = default
   bool savealpha;					// save alpha channel?
+  bool wantpalette;					// attempt to save as palette image?
+  bool forcepalette;				// force palette image?
 
   std::string projection;			// projection definition
   std::string filter;				// filtering mode

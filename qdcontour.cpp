@@ -960,6 +960,34 @@ void do_savealpha(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "wantpalette" command
+ */
+// ----------------------------------------------------------------------
+
+void do_wantpalette(istream & theInput)
+{
+  theInput >> globals.wantpalette;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'wantpalette' command failed");
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "forcepalette" command
+ */
+// ----------------------------------------------------------------------
+
+void do_forcepalette(istream & theInput)
+{
+  theInput >> globals.forcepalette;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'forcepalette' command failed");
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -985,12 +1013,6 @@ int domain(int argc, const char *argv[])
   string theSmoother = "None";
   float theSmootherRadius = 1.0;
   int theSmootherFactor = 1;
-
-
-  bool   theWantPaletteFlag = false;
-  bool   theForcePaletteFlag = false;
-
-
 
 
   int theContourDepth	= 0;
@@ -1069,12 +1091,8 @@ int domain(int argc, const char *argv[])
 		  else if(command == "pngquality")			do_pngquality(input);
 		  else if(command == "jpegquality")			do_jpegquality(input);
 		  else if(command == "savealpha")			do_savealpha(input);
-
-		  else if(command == "wantpalette")
-			input >> theWantPaletteFlag;
-
-		  else if(command == "forcepalette")
-			input >> theForcePaletteFlag;
+		  else if(command == "wantpalette")			do_wantpalette(input);
+		  else if(command == "forcepalette")		do_forcepalette(input);
 
 		  else if(command == "alphalimit")
 			input >> theAlphaLimit;
@@ -1526,8 +1544,8 @@ int domain(int argc, const char *argv[])
 
 				  NFmiImage theImage(imgwidth, imgheight);
 				  theImage.SaveAlpha(globals.savealpha);
-				  theImage.WantPalette(theWantPaletteFlag);
-				  theImage.ForcePalette(theForcePaletteFlag);
+				  theImage.WantPalette(globals.wantpalette);
+				  theImage.ForcePalette(globals.forcepalette);
 				  if(globals.gamma>0) theImage.Gamma(globals.gamma);
 				  if(!globals.intent.empty()) theImage.Intent(globals.intent);
 				  if(globals.pngquality>=0) theImage.PngQuality(globals.pngquality);
@@ -1882,8 +1900,8 @@ int domain(int argc, const char *argv[])
 
 					  NFmiImage theImage(imgwidth,imgheight);
 					  theImage.SaveAlpha(globals.savealpha);
-					  theImage.WantPalette(theWantPaletteFlag);
-					  theImage.ForcePalette(theForcePaletteFlag);
+					  theImage.WantPalette(globals.wantpalette);
+					  theImage.ForcePalette(globals.forcepalette);
 					  if(globals.gamma>0) theImage.Gamma(globals.gamma);
 					  if(!globals.intent.empty()) theImage.Intent(globals.intent);
 					  if(globals.pngquality>=0) theImage.PngQuality(globals.pngquality);
