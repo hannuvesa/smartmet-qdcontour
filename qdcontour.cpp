@@ -1519,29 +1519,6 @@ void do_contourlabels(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \brief Handle "contourlabelaccuracy" command
- */
-// ----------------------------------------------------------------------
-
-void do_contourlabelaccuracy(istream & theInput)
-{
-  float accuracy;
-
-  theInput >> accuracy;
-
-  check_errors(theInput,"contourlabelaccuracy");
-
-  if(accuracy < 0)
-	throw runtime_error("contourlabelaccuracy must be nonnegative");
-
-  if(globals.specs.empty())
-	throw runtime_error("Must define parameter before contourlabelaccuracy");
-
-  globals.specs.back().contourLabelAccuracy(accuracy);
-}
-
-// ----------------------------------------------------------------------
-/*!
  * \brief Handle "contourlabelfont" command
  */
 // ----------------------------------------------------------------------
@@ -2964,12 +2941,10 @@ void draw_contour_strokes(NFmiImage & theImage,
 void save_contour_labels(NFmiImage & theImage,
 						 const NFmiArea & theArea,
 						 const ContourSpec & theSpec,
-						 const NFmiDataMatrix<NFmiPoint> & thePoints,
-						 const NFmiDataMatrix<float> & theValues,
+						 NFmiContourTree::NFmiContourInterpolation theInterpolation,
 						 float theMinimum,
 						 float theMaximum)
 {
-
   // The ID under which the coordinates will be stored
 
   int id = paramid(theSpec.param());
@@ -2983,38 +2958,47 @@ void save_contour_labels(NFmiImage & theImage,
   
   begin = theSpec.contourLabels().begin();
   end   = theSpec.contourLabels().end();
-  
+
   for(it=begin ; it!=end; ++it)
 	{
-	  // Skip to next label if this one is outside the value range.
+	  // Skip to next contour if this one is outside
+	  // the value range.
 
-	  if(theMinimum==kFloatMissing || theMaximum==kFloatMissing)
-		continue;
-	  
-	  const float value = it->value();
+	  if(theMinimum!=kFloatMissing &&
+		 theMaximum!=kFloatMissing)
+		{
+		  if(it->value()!=kFloatMissing &&
+			 theMaximum<it->value())
+			continue;
+		  if(it->value()!=kFloatMissing &&
+			 theMinimum>it->value())
+			continue;
+		}
 
-	  if(value < theMinimum || value > theMaximum)
-		continue;
+	  NFmiPath path =
+		globals.calculator.contour(*globals.queryinfo,
+								   it->value(),
+								   kFloatMissing,
+								   true, false,
+								   theSpec.dataLoLimit(),
+								   theSpec.dataHiLimit(),
+								   theSpec.contourDepth(),
+								   theInterpolation,
+								   globals.contourtriangles);
 
-	  const float accuracy = theSpec.contourLabelAccuracy();
+	  path.Project(&theArea);
 
-	  // Save label at each grid point where necessary
-	  for(unsigned int j=0; j<theValues.NY(); j++)
-		for(unsigned int i=0; i<theValues.NX(); i++)
-		  {
-			const float z = theValues[i][j];
-
-			if(std::abs(z-value) > accuracy)
-			  continue;
-
-			NFmiPoint latlon = theArea.WorldXYToLatLon(thePoints[i][j]);
-			NFmiPoint xy = theArea.ToXY(latlon);
-			
-			int xx = FmiRound(xy.X());
-			int yy = FmiRound(xy.Y());
-
-			globals.labellocator.add(value,xx,yy);
-		  }
+	  for(NFmiPathData::const_iterator pit = path.Elements().begin();
+		  pit != path.Elements().end();
+		  ++pit)
+		{
+		  if((*pit).Oper() == kFmiLineTo)
+			{
+			  globals.labellocator.add(it->value(),
+									   FmiRound((*pit).X()),
+									   FmiRound((*pit).Y()));
+			}
+		}
 	}
 }
 
@@ -3555,7 +3539,7 @@ void do_draw_contours(istream & theInput)
 		  draw_contour_symbols(image,*area,*piter,*worldpts,vals,min_value,max_value);
 		  // Save contour label coordinates
 
-		  save_contour_labels(image,*area,*piter,*worldpts,vals,min_value,max_value);
+		  save_contour_labels(image,*area,*piter,interp,min_value,max_value);
 
 		}
 
@@ -3708,7 +3692,6 @@ int domain(int argc, const char *argv[])
 		  	
 		  else if(cmd == "contourlabel")			do_contourlabel(in);
 		  else if(cmd == "contourlabels")			do_contourlabels(in);
-		  else if(cmd == "contourlabelaccuracy")	do_contourlabelaccuracy(in);
 		  else if(cmd == "contourlabelfont")		do_contourlabelfont(in);
 		  else if(cmd == "contourlabelcolor")		do_contourlabelcolor(in);
 		  else if(cmd == "contourlabelbackground")	do_contourlabelbackground(in);

@@ -135,14 +135,12 @@ public:
   void labelCaptionDY(float theValue);
   void labelCaptionAlignment(const std::string & theValue);
 
-  float contourLabelAccuracy() const;
   const std::string & contourLabelFont() const;
   int contourLabelColor() const;
   int contourLabelBackgroundColor() const;
   int contourLabelBackgroundXMargin() const;
   int contourLabelBackgroundYMargin() const;
 
-  void contourLabelAccuracy(float theValue);
   void contourLabelFont(const std::string & theValue);
   void contourLabelColor(int theValue);
   void contourLabelBackgroundColor(int theValue);
@@ -203,7 +201,6 @@ private:
   float itsLabelCaptionDY;
   std::string itsLabelCaptionAlignment;
 
-  float itsContourLabelAccuracy;
   std::string itsContourLabelFont;
   int itsContourLabelColor;
   int itsContourLabelBackgroundColor;

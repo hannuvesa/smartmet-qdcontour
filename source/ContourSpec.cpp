@@ -60,7 +60,6 @@ ContourSpec::ContourSpec(const std::string & theParam,
   , itsLabelCaptionDX(0)
   , itsLabelCaptionDY(0)
   , itsLabelCaptionAlignment("West")
-  , itsContourLabelAccuracy(0.25)
   , itsContourLabelFont("misc/5x8.pcf.gz:5x8")
   , itsContourLabelColor(Imagine::NFmiColorTools::Black)
   , itsContourLabelBackgroundColor(Imagine::NFmiColorTools::MakeColor(180,180,180,32))
@@ -1104,19 +1103,6 @@ void ContourSpec::labelCaptionAlignment(const std::string & theValue)
 
 // ----------------------------------------------------------------------
 /*!
- * \brief Set the contour label accuracy
- *
- * \param theValue The required accuracy
- */
-// ----------------------------------------------------------------------
-
-void ContourSpec::contourLabelAccuracy(float theValue)
-{
-  itsContourLabelAccuracy = theValue;
-}
-
-// ----------------------------------------------------------------------
-/*!
  * \brief Set the contour label font
  *
  * \param theValue The font description
@@ -1178,19 +1164,6 @@ void ContourSpec::contourLabelBackgroundXMargin(int theValue)
 void ContourSpec::contourLabelBackgroundYMargin(int theValue)
 {
   itsContourLabelBackgroundYMargin = theValue;
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Get the contour label accuracy
- *
- * \return The required accuracy
- */
-// ----------------------------------------------------------------------
-
-float ContourSpec::contourLabelAccuracy() const
-{
-  return itsContourLabelAccuracy;
 }
 
 // ----------------------------------------------------------------------
