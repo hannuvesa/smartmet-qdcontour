@@ -584,6 +584,7 @@ background [filename]
 foreground [filename]
 foregroundrule [blendingrule]
 draw contours
+clear params
 clear contours
 \endcode
 The first command may be replaced with an <em>erase [color]</em> command,
@@ -593,6 +594,10 @@ omitted, provided the background is given.
 The <em>clear contours</em> command is optional, and should only
 be applied at the end of a file, or when the contour specifications
 documented in the earlier sections really change.
+
+The <em>clear params</em> may be needed when starting a new
+image with different settings, otherwise the old parameters
+will be remembered when rendering the new image.
 
 One may also modify each output image by overlaying some image on
 top of them, for example a logo or a legend. This is accomplished
