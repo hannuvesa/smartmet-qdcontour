@@ -667,7 +667,7 @@ slow since the contours are recalculated for each background.
 By using the command
 \code
 cache 1
-\endcoce
+\endcode
 one can turn on an internal cache for all calculated contours.
 The contours will be stored in an internal hash, whose key
 is formed by the time, file, parameter etc information for
