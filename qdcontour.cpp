@@ -2222,6 +2222,25 @@ void draw_wind_arrows(NFmiImage & theImage,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Draw the foreground onto the image
+ */
+// ----------------------------------------------------------------------
+
+void draw_foreground(NFmiImage & theImage)
+{
+  if(globals.foreground.empty())
+	return;
+
+  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(globals.foregroundrule);
+	  
+  theImage.Composite(globals.foregroundimage,
+					 rule,
+					 kFmiAlignNorthWest,
+					 0,0,1);
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Handle "draw contours" command
  */
 // ----------------------------------------------------------------------
@@ -2874,13 +2893,7 @@ void do_draw_contours(istream & theInput)
 
 	  // Bang the foreground
 
-	  if(!globals.foreground.empty())
-		{
-		  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(globals.foregroundrule);
-
-		  image.Composite(globals.foregroundimage,rule,kFmiAlignNorthWest,0,0,1);
-
-		}
+	  draw_foreground(image);
 
 	  // Draw wind arrows if so requested
 
