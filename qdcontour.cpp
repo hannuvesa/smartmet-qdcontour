@@ -2263,7 +2263,7 @@ int main(int argc, char *argv[])
 												piter->SmootherFactor(),
 												piter->SmootherRadius());
 						  
-						  smoother.Smoothen(worldpts[qi],vals);
+						  vals = smoother.Smoothen(worldpts[qi],vals);
 						  
 						  // ofstream out("values.dat");
 						  // out << vals;
