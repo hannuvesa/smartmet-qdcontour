@@ -59,7 +59,7 @@ from querydata, or maps from shapefiles.
 
 The program is used as follows:
 \code
-qdcontour [-v] [-f] [controlfile]
+qdcontour [-v] [-f] [-q querydata] [controlfile]
 \endcode
 
 The options are
@@ -73,6 +73,10 @@ The options are
     unnecessary redrawing. However, occasionally one
     changes the control file somehow, and a redraw must be
     done by using the -f option.
+<dt>-q querydata</dt>
+<dd>Use the given querydata file as if the respective "querydata"
+    command was given in the control file.
+</dd>
 </dd>
 </dl>
 
@@ -329,6 +333,23 @@ one may choose it using the following command.
 querydatalevel [level]
 \endcode
 The default level is 1.
+
+\subsection multipledatas_section Rendering many queryfiles
+
+In general one cannot render multiple queryfiles simultaneously.
+However, one may simulate this behaviour by dropping the "querydata"
+command from the control file, and using the command line option "-q"
+instead. For example,
+\code
+find /data/pal/querydata/tuliset/suomi/dbz_osat/ -name '*.sqd' -exec qdcontour -q {} \;
+\endcode
+or
+\code
+DIR=/data/pal/querydata/tuliset/suomi/dbz_osat
+for FILE in `ls -1 $DIR`; do
+  qdcontour -q $DIR/$FILE
+done
+\endcode
 
 \subsection filename_section Controlling generated image filenames
 
