@@ -2960,8 +2960,6 @@ void do_draw_contours(istream & theInput)
 
 		  string name = piter->param();
 
-		  bool ismeta = MetaFunctions::isMeta(name);
-
 		  qi = choose_queryinfo(name);
 
 		  if(globals.verbose)
@@ -2977,7 +2975,7 @@ void do_draw_contours(istream & theInput)
 
 		  // Get the values.
 
-		  if(!ismeta)
+		  if(!MetaFunctions::isMeta(name))
 			globals.queryinfo->Values(vals);
 		  else
 			vals = MetaFunctions::values(piter->param(),
