@@ -36,6 +36,8 @@ private:
   LabelLocator(const LabelLocator & theLocator);
   LabelLocator & operator=(const LabelLocator & theLocator);
 
+  bool inside(int theX1, int theY1) const;
+
   bool itHasBBox;
   int itsBBoxX1;
   int itsBBoxY1;

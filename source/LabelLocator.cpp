@@ -222,5 +222,29 @@ void LabelLocator::nextTime()
   swap(itsPreviousCoordinates,itsCurrentCoordinates);
 }
 
+// ----------------------------------------------------------------------
+/*!
+ * \brief Test if the point is within the bounding box
+ *
+ * Note that the bounding box may not be set, in which case all
+ * points are considered inside.
+ *
+ * \param theX The X-coordinate
+ * \param theY The Y-coordinate
+ * \return True, if the point is inside the bounding box
+ */
+// ----------------------------------------------------------------------
+
+bool LabelLocator::inside(int theX, int theY) const
+{
+  if(!itHasBBox)
+	return true;
+
+  return (theX >= itsBBoxX1 &&
+		  theX < itsBBoxX2 &&
+		  theY >= itsBBoxY1 &&
+		  theY < itsBBoxY2);
+}
+
 
 // ======================================================================
