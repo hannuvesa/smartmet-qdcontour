@@ -12,6 +12,8 @@
 // imagine
 #include "NFmiContourTree.h"
 #include "NFmiPath.h"
+// newbase
+#include "NFmiDataMatrix.h"
 
 // ----------------------------------------------------------------------
 /*!

@@ -20,7 +20,8 @@
 
 #include <memory>
 #include "NFmiContourTree.h"
-#include "NFmiDataMatrix.h"
+
+template <typename T> class NFmiDataMatrix;
 
 class NFmiPath;
 class ContourCalculatorPimple;
