@@ -104,6 +104,19 @@ const std::list<ContourValue> & ContourSpec::contourValues(void) const
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Return ContourSymbol specifications
+ *
+ * \return Reference to the internal list of ContourSymbol objects
+ */
+// ----------------------------------------------------------------------
+
+const std::list<ContourSymbol> & ContourSpec::contourSymbols(void) const
+{
+  return itsContourSymbols;
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Return the parameter name
  *
  * \return The parameter name
@@ -360,6 +373,19 @@ void ContourSpec::add(ContourValue theValue)
 void ContourSpec::add(ContourPattern theValue)
 {
   itsContourPatterns.push_back(theValue);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Add a new ContourSymbol specification
+ *
+ * \param theValue The specification to add
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::add(ContourSymbol theValue)
+{
+  itsContourSymbols.push_back(theValue);
 }
 
 // ----------------------------------------------------------------------

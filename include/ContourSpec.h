@@ -7,6 +7,7 @@
 
 #include "ContourPattern.h"
 #include "ContourRange.h"
+#include "ContourSymbol.h"
 #include "ContourValue.h"
 
 #include "newbase/NFmiPoint.h"
@@ -36,6 +37,7 @@ public:
   const std::list<ContourRange> & contourFills(void) const;
   const std::list<ContourPattern> & contourPatterns(void) const;
   const std::list<ContourValue> & contourValues(void) const;
+  const std::list<ContourSymbol> & contourSymbols(void) const;
   
   const std::string & param(void) const;
   const std::string & contourInterpolation(void) const;
@@ -60,6 +62,7 @@ public:
   void add(ContourRange theRange);
   void add(ContourValue theValue);
   void add(ContourPattern theValue);
+  void add(ContourSymbol theValue);
   
   // This was done to replace 32700 with -1 in PrecipitationForm
   
@@ -141,6 +144,7 @@ private:
   std::list<ContourRange> itsContourFills;
   std::list<ContourValue> itsContourValues;
   std::list<ContourPattern> itsContourPatterns;
+  std::list<ContourSymbol> itsContourSymbols;
   
   float itsExactHiLimit;
   int itsContourDepth;

@@ -1355,6 +1355,34 @@ void do_contourpattern(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \bried Handle "contoursymbol" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contoursymbol(istream & theInput)
+{
+  string slo,shi,spattern,srule;
+  float alpha;
+  theInput >> slo >> shi >> spattern >> srule >> alpha;
+
+  check_errors(theInput,"contoursymbol");
+
+  float lo,hi;
+  if(slo == "-")
+	lo = kFloatMissing;
+  else
+	lo = NFmiStringTools::Convert<float>(slo);
+  if(shi == "-")
+	hi = kFloatMissing;
+  else
+	hi = NFmiStringTools::Convert<float>(shi);
+
+  if(!globals.specs.empty())
+	globals.specs.back().add(ContourSymbol(lo,hi,spattern,srule,alpha));
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \bried Handle "contourline" command
  */
 // ----------------------------------------------------------------------
@@ -2688,6 +2716,91 @@ void draw_contour_strokes(NFmiImage & theImage,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Draw contour symbols
+ */
+// ----------------------------------------------------------------------
+
+void draw_contour_symbols(NFmiImage & theImage,
+						  const NFmiArea & theArea,
+						  const ContourSpec & theSpec,
+						  const NFmiDataMatrix<NFmiPoint> & thePoints,
+						  const NFmiDataMatrix<float> & theValues,
+						  float theMinimum,
+						  float theMaximum)
+{
+  list<ContourSymbol>::const_iterator it;
+  list<ContourSymbol>::const_iterator begin;
+  list<ContourSymbol>::const_iterator end;
+  
+  begin = theSpec.contourSymbols().begin();
+  end   = theSpec.contourSymbols().end();
+  
+  for(it=begin ; it!=end; ++it)
+	{
+	  // Skip to next contour if this one is outside
+	  // the value range. As a special case
+	  // min=max=missing is ok, if both the limits
+	  // are missing too. That is, when we are
+	  // contouring missing values.
+	  
+	  if(theMinimum==kFloatMissing || theMaximum==kFloatMissing)
+		{
+		  if(it->lolimit()!=kFloatMissing &&
+			 it->hilimit()!=kFloatMissing)
+			continue;
+		}
+	  else
+		{
+		  if(it->lolimit()!=kFloatMissing &&
+			 theMaximum<it->lolimit())
+			continue;
+		  if(it->hilimit()!=kFloatMissing &&
+			 theMinimum>it->hilimit())
+			continue;
+		}
+
+	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
+	  NFmiImage symbol(it->pattern());
+	  const float factor = it->factor();
+	  const float lo = it->lolimit();
+	  const float hi = it->hilimit();
+
+	  // Draw symbol at each grid point where necessary
+	  for(unsigned int j=0; j<theValues.NY(); j++)
+		for(unsigned int i=0; i<theValues.NX(); i++)
+		  {
+			const float z = theValues[i][j];
+			bool inside = false;
+			if(lo!=kFloatMissing && z<lo)
+			  inside = false;
+			else if(hi!=kFloatMissing && z>=hi)
+			  inside = false;
+			else if(lo==kFloatMissing && hi==kFloatMissing)
+			  inside = (z == kFloatMissing);
+			else
+			  inside = true;
+
+
+
+			if(inside)
+			  {
+				NFmiPoint latlon = theArea.WorldXYToLatLon(thePoints[i][j]);
+				NFmiPoint xy = theArea.ToXY(latlon);
+
+				theImage.Composite(symbol,
+								   rule,
+								   kFmiAlignCenter,
+								   FmiRound(xy.X()),
+								   FmiRound(xy.Y()),
+								   factor);
+			  }
+			
+		  }
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Draw the foreground onto the image
  */
 // ----------------------------------------------------------------------
@@ -3048,6 +3161,10 @@ void do_draw_contours(istream & theInput)
 
 		  draw_contour_strokes(image,*area,*piter,interp,min_value,max_value);
 
+		  // Symbol fill the contours
+
+		  draw_contour_symbols(image,*area,*piter,*worldpts,vals,min_value,max_value);
+
 		}
 
 	  // Bang the foreground
@@ -3183,6 +3300,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "shape")				do_shape(input);
 		  else if(command == "contourfill")			do_contourfill(input);
 		  else if(command == "contourpattern")		do_contourpattern(input);
+		  else if(command == "contoursymbol")		do_contoursymbol(input);
 		  else if(command == "contourline")			do_contourline(input);
 		  else if(command == "contourfills")		do_contourfills(input);
 		  else if(command == "contourlines")		do_contourlines(input);
