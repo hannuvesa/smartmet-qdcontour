@@ -4,6 +4,36 @@ $program = "../qdcontour";
 
 %usednames = ();
 
+# Shape filling
+
+DoTest("shape filling",
+       "shape_fill.conf",
+       "shape_fill.png");
+
+# Shape stroking
+
+DoTest("shape stroking",
+       "shape_stroke.conf",
+       "shape_stroke.png");
+
+# Shape marking
+
+DoTest("shape marking",
+       "shape_mark.conf",
+       "shape_mark.png");
+
+# Shape marking with alpha factor
+
+DoTest("shape marking with alpha factor",
+       "shape_mark_alpha_factor.conf",
+       "shape_mark_alpha_factor.png");
+
+# Combination of above tests
+
+DoTest("shape rendering, all combined",
+       "shape_combined.conf",
+       "shape_combined.png");
+
 # A trivial test
 
 DoTest("trivial contour",
