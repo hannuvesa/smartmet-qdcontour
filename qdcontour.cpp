@@ -248,6 +248,41 @@ void report_area(const NFmiArea & theArea)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Print debugging information on chosen querydata
+ */
+// ----------------------------------------------------------------------
+
+void report_queryinfo(const string & theParam,
+					  unsigned int theIndex)
+{
+  cout << "Param "
+	   << theParam
+	   << " from queryfile number "
+	   << theIndex+1
+	   << endl;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Print debugging information on data extrema
+ */
+// ----------------------------------------------------------------------
+
+void report_extrema(const string & theParam,
+					float theMin,
+					float theMax)
+{
+  cout << "Data range for "
+	   << theParam
+	   << " is "
+	   << theMin
+	   << "..."
+	   << theMax
+	   << endl;
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Write image to file with desired format
  */
 // ----------------------------------------------------------------------
@@ -2930,10 +2965,7 @@ void do_draw_contours(istream & theInput)
 		  qi = choose_queryinfo(name);
 
 		  if(globals.verbose)
-			{
-			  cout << "Param " << name << " from queryfile number "
-				   << (qi+1) << endl;
-			}
+			report_queryinfo(name,qi);
 
 		  // Establish the contour method
 
@@ -2975,13 +3007,7 @@ void do_draw_contours(istream & theInput)
 		  find_extrema(vals,min_value,max_value);
 
 		  if(globals.verbose)
-			cout << "Data range for "
-				 << name
-				 << " is "
-				 << min_value
-				 << ','
-				 << max_value
-				 << endl;
+			report_extrema(name,min_value,max_value);
 
 		  // Setup the contourer with the values
 
