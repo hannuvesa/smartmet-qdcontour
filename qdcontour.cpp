@@ -3375,7 +3375,7 @@ void draw_pressure_markers(NFmiImage & theImage,
 
   const int DX = 10; // ceil(500*1000/dx/2);	// 500km radius required
   const int DY = 10; // ceil(500*1000/dx/2);
-  const float required_gradient = 8;
+  const float required_gradient = 4;
 
   for(unsigned int j=DY; j<vals.NY()-DY; j++)
 	for(unsigned int i=DX; i<vals.NX()-DX; i++)
