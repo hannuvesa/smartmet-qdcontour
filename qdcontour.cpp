@@ -2333,26 +2333,23 @@ void filter_values(NFmiDataMatrix<float> & theValues,
 	{
 	  NFmiTime tprev = theTime;
 	  tprev.ChangeByMinutes(-globals.timeinterval);
+
+	  if(MetaFunctions::isMeta(theSpec.param()))
+		throw runtime_error("Unable to filter metafunctions - use newbase parameters only");
 	  
+
+	  NFmiMetTime tnow(theTime,60);
 	  NFmiDataMatrix<float> tmpvals;
 	  int steps = 1;
 	  for(;;)
 		{
-		  globals.queryinfo->PreviousTime();
-		  NFmiTime tnow = globals.queryinfo->ValidTime();
 
-		  if(tnow.IsLessThan(tprev))
-			break;
-		  
-		  steps++;
-		  if(!MetaFunctions::isMeta(theSpec.param()))
-			globals.queryinfo->Values(tmpvals);
-		  else
-			tmpvals = MetaFunctions::values(theSpec.param(), globals.queryinfo);
+		  globals.queryinfo->Values(tmpvals,tnow);
+
 		  if(theSpec.replace())
 			tmpvals.Replace(theSpec.replaceSourceValue(),
 							theSpec.replaceTargetValue());
-		  
+
 		  if(globals.filter=="min")
 			theValues.Min(tmpvals);
 		  else if(globals.filter=="max")
@@ -2361,6 +2358,13 @@ void filter_values(NFmiDataMatrix<float> & theValues,
 			theValues += tmpvals;
 		  else if(globals.filter=="sum")
 			theValues += tmpvals;
+		  
+		  ++steps;
+		  --tnow;
+
+		  if(tnow.IsLessThan(tprev))
+			break;
+
 		}
 	  
 	  if(globals.filter=="mean")

@@ -85,6 +85,7 @@ public:
   float InterpolatedValue(const NFmiPoint & theLatLonPoint);
 
   void Values(NFmiDataMatrix<float> & theValues);
+  void Values(NFmiDataMatrix<float> & theValues, const NFmiMetTime & theTime);
 
 private:
 

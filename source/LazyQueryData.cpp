@@ -411,5 +411,18 @@ void LazyQueryData::Values(NFmiDataMatrix<float> & theValues)
   itsInfo->Values(theValues);
 }
 
+// ----------------------------------------------------------------------
+/*!
+ *
+ */
+// ----------------------------------------------------------------------
+
+void LazyQueryData::Values(NFmiDataMatrix<float> & theValues,
+						   const NFmiMetTime & theTime)
+{
+  requireData();
+  itsInfo->Values(theValues,theTime);
+}
+
 // ======================================================================
 
