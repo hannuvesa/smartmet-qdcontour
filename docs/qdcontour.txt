@@ -931,6 +931,12 @@ Wind chill index
 <dd>
 Road temperature minus dew point at 2 meters.
 </dd>
+<dt>MetaT2mAdvection</dt>
+<dd>
+Temperature advection in degrees per hour
+</dd>
+<dt>MetaThermalFront</dt>
+<dd>Thermal front parameter</dd>
 </dl>
 \endhtmlonly
 

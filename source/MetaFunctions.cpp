@@ -172,6 +172,91 @@ namespace
 
   // ----------------------------------------------------------------------
   /*!
+   * \brief Calculate nabla of the given parameter
+   *
+   * \param theF The data to nabla
+   * \param theDX The grid x-resolution
+   * \param theDY The grid y-resolution
+   * \param theNablaX The X-part of the nabla
+   * \param theNablaY The Y-part of the nabla
+   */
+  // ----------------------------------------------------------------------
+
+  void matrix_nabla(const NFmiDataMatrix<float> & theF,
+					float theDX,
+					float theDY,
+					NFmiDataMatrix<float> & theNablaX,
+					NFmiDataMatrix<float> & theNablaY)
+  {
+	theNablaX.Resize(theF.NX(),theF.NY(),kFloatMissing);
+	theNablaY.Resize(theF.NX(),theF.NY(),kFloatMissing);
+
+	for(unsigned int j=0; j<theF.NY(); j++)
+	  for(unsigned int i=0; i<theF.NX(); i++)
+		{
+		  bool allok = theF[i][j] != kFloatMissing;
+		  if(i>0)           allok &= theF[i-1][j] != kFloatMissing;
+		  if(i<theF.NX()-1) allok &= theF[i+1][j] != kFloatMissing;
+		  if(j>0)           allok &= theF[i][j-1] != kFloatMissing;
+		  if(j<theF.NY()-1) allok &= theF[i][j+1] != kFloatMissing;
+		  
+		  if(allok)
+			{
+			  if(i==0)
+				theNablaX[i][j] = (theF[i+1][j]-theF[i][j])/theDX;		// forward difference
+			  else if(i==theF.NX()-1)
+				theNablaX[i][j] = (theF[i][j]-theF[i-1][j])/theDX;		// backward difference
+			  else
+				theNablaX[i][j] = (theF[i+1][j]-theF[i-1][j])/(2*theDX);	// centered difference
+			  
+			  if(j==0)
+				theNablaY[i][j] = (theF[i][j+1]-theF[i][j])/theDY;
+			  else if(j==theF.NY()-1)
+				theNablaY[i][j] = (theF[i][j]-theF[i][j-1])/theDY;
+			  else
+				theNablaY[i][j] = (theF[i][j+1]-theF[i][j-1])/(2*theDY);
+			  
+			}
+		  else
+			{
+			  theNablaX[i][j] = kFloatMissing;
+			  theNablaY[i][j] = kFloatMissing;
+			}
+		}
+  }
+
+  // ----------------------------------------------------------------------
+  /*!
+   * \brief Calculate absolute value of a vector
+   *
+   * \param theFX The X-part of the data
+   * \param theFY The Y-part of the data
+   * \param theResult The absolute value
+   */
+  // ----------------------------------------------------------------------
+
+  void matrix_abs(const NFmiDataMatrix<float> & theX,
+				  const NFmiDataMatrix<float> & theY,
+				  NFmiDataMatrix<float> & theResult)
+  {
+	theResult.Resize(theX.NX(),theY.NY(),kFloatMissing);
+
+	for(unsigned int j=0; j<theX.NY(); j++)
+	  for(unsigned int i=0; i<theX.NX(); i++)
+		{
+		  const float x = theX[i][j];
+		  const float y = theY[i][j];
+
+		  if(x == kFloatMissing || y == kFloatMissing)
+			theResult[i][j] = kFloatMissing;
+		  else
+			theResult[i][j] = sqrt(x*x+y*y);
+		}
+  }
+
+
+  // ----------------------------------------------------------------------
+  /*!
    * \brief Return T2m advection field
    *
    * \param theQI The query info
@@ -244,6 +329,63 @@ namespace
 	return wspd;
   }
 
+  // ----------------------------------------------------------------------
+  /*!
+   * \brief Return Thermal Front Parameter
+   *
+   * \param theQI The query info
+   * \return The values in a matrix
+   */
+  // ----------------------------------------------------------------------
+
+  NFmiDataMatrix<float> thermal_front(LazyQueryData * theQI)
+  {
+	NFmiDataMatrix<float> t2m;
+	theQI->Param(kFmiTemperature);
+	theQI->Values(t2m);
+
+	NFmiDataMatrix<float> tfp;
+	tfp.Resize(t2m.NX(),t2m.NY(),kFloatMissing);
+
+	// thermal front parameter = (-nabla |nabla T|) dot (nabla T /|nabla T|)
+
+	// grid resolution in meters for difference formulas
+	const float dx = (theQI->Area()->WorldXYWidth()) / (theQI->Grid()->XNumber());
+	const float dy = (theQI->Area()->WorldXYHeight()) / (theQI->Grid()->YNumber());
+
+	NFmiDataMatrix<float> nablatx, nablaty;
+	matrix_nabla(t2m,dx,dy,nablatx,nablaty);
+
+	NFmiDataMatrix<float> nablat;
+	matrix_abs(nablatx,nablaty,nablat);
+
+	NFmiDataMatrix<float> nablanablatx,nablanablaty;
+	matrix_nabla(nablat,dx,dy,nablanablatx,nablanablaty);
+
+	for(unsigned int j=0; j<t2m.NY(); j++)
+ 	  for(unsigned int i=0; i<t2m.NX(); i++)
+		{
+		  const float nntx = nablanablatx[i][j];
+		  const float nnty = nablanablaty[i][j];
+		  const float ntx = nablatx[i][j];
+		  const float nty = nablaty[i][j];
+		  const float nt = nablat[i][j];
+
+		  if(nntx != kFloatMissing && nnty != kFloatMissing &&
+			 ntx != kFloatMissing && nty != kFloatMissing &&
+			 nt != kFloatMissing)
+			{
+			  // The 1e9 factor is there just to get a convenient scale
+
+			  if(nt != 0)
+				tfp[i][j] = - 1e9 * (nntx*ntx+nnty*nty)/nt;
+			  else
+				tfp[i][j] = 0;
+			}
+		}
+	return tfp;
+  }
+
 } // namespace anonymous
 
 
@@ -287,6 +429,8 @@ namespace MetaFunctions
 	  return 10004;
 	if(theFunction == "MetaT2mAdvection")
 	  return 10005;
+	if(theFunction == "MetaThermalFront")
+	  return 10006;
 	return 0;
   }
 
@@ -318,6 +462,8 @@ namespace MetaFunctions
 	  return nn_cloudiness(theQI);
 	if(theFunction == "MetaT2mAdvection")
 	  return t2m_advection(theQI);
+	if(theFunction == "MetaThermalFront")
+	  return thermal_front(theQI);
 
 	throw runtime_error("Unrecognized meta function " + theFunction);
 
