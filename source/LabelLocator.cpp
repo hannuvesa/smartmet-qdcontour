@@ -246,5 +246,37 @@ bool LabelLocator::inside(int theX, int theY) const
 		  theY < itsBBoxY2);
 }
 
+// ----------------------------------------------------------------------
+/*!
+ * \brief Add a new coordinate for the active parameter
+ *
+ * \param theContour The contour value
+ * \param theX The X-coordinate
+ * \param theY The Y-coordinate
+ */
+// ----------------------------------------------------------------------
+
+void LabelLocator::add(float theContour, int theX, int theY)
+{
+  // Ignore the point if it is not within the bounding box
+
+  if(!inside(theX,theY))
+	return;
+
+  // Cannot add any coordinates for non-existent parameter
+
+  if(itsActiveParameter == badparameter)
+	throw runtime_error("LabelLocator: Cannot add label location before setting the parameter");
+
+
+  // Default constructed values are a desired side-effect in here
+  // This is much simpler than using find + insert with checking
+
+  ContourCoordinates & cc = itsCurrentCoordinates[itsActiveParameter];
+  Coordinates & c = cc[theContour];
+
+  c.push_back(Coordinates::value_type(theX,theY));
+
+}
 
 // ======================================================================

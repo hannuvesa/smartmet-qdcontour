@@ -29,6 +29,8 @@ public:
   void parameter(int theParameter);
   void nextTime();
 
+  void add(float theContour, int theX, int theY);
+
 private:
 
   // Intentionally disabled:
