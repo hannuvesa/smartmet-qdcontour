@@ -30,6 +30,7 @@ public:
   ContourSpec(const std::string & theParam,
 			  const std::string & theInterpolation,
 			  const std::string & theSmoother,
+			  int theLevel=-1,
 			  float theSmootherRadius=1.0,
 			  int theSmootherFactor=1,
 			  float theHiLimit=kFloatMissing);
@@ -41,6 +42,7 @@ public:
   const std::list<ContourLabel> & contourLabels(void) const;
 
   const std::string & param(void) const;
+  int level() const;
   const std::string & contourInterpolation(void) const;
   const std::string & smoother(void) const;
   float smootherRadius(void) const;
@@ -49,6 +51,7 @@ public:
   float dataHiLimit(void) const;
   float dataLoLimit(void) const;
   
+  void level(int theValue);
   void contourInterpolation(const std::string & theValue);
   void smoother(const std::string & theValue);
   void smootherRadius(float theRadius);
@@ -150,6 +153,7 @@ private:
   ContourSpec(void);
 
   std::string itsParam;
+  int itsLevel;
   std::string itsContourInterpolation;
   std::string itsSmoother;
   float itsSmootherRadius;

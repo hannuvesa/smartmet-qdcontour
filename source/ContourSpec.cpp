@@ -15,6 +15,7 @@
  * \param theParam The parameter
  * \param theInterpolation The interpolation method
  * \param theSmoother The smoothing method
+ * \param theLevel The level
  * \param theSmootherRadius The smoother search radius
  * \param theSmootherFactor The smoother sharpness factor
  * \param theHiLimit The absolute high limit of the data
@@ -24,10 +25,12 @@
 ContourSpec::ContourSpec(const std::string & theParam,
 						 const std::string & theInterpolation,
 						 const std::string & theSmoother,
+						 int theLevel,
 						 float theSmootherRadius,
 						 int theSmootherFactor,
 						 float theHiLimit)
   : itsParam(theParam)
+  , itsLevel(theLevel)
   , itsContourInterpolation(theInterpolation)
   , itsSmoother(theSmoother)
   , itsSmootherRadius(theSmootherRadius)
@@ -145,6 +148,19 @@ const std::string & ContourSpec::param(void) const
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Return the level
+ *
+ * \return The level value
+ */
+// ----------------------------------------------------------------------
+
+int ContourSpec::level(void) const
+{
+  return itsLevel;
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Return the interpolation method
  *
  * \return The interpolation method
@@ -232,6 +248,19 @@ float ContourSpec::dataHiLimit(void) const
 float ContourSpec::dataLoLimit(void) const
 {
   return itsDataLoLimit;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Set the level
+ *
+ * \param theValue The level value
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::level(int theValue)
+{
+  itsLevel = theValue;
 }
 
 // ----------------------------------------------------------------------
