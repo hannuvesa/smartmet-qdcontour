@@ -105,14 +105,57 @@ bool IsMasked(const NFmiPoint & thePoint,
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Parse the command line options
+ */
+// ----------------------------------------------------------------------
+
+void parse_command_line(int argc, const char * argv[])
+{
+
+  NFmiCmdLine cmdline(argc,argv,"vfq!");
+  
+  if(cmdline.NumberofParameters() == 0)
+	throw runtime_error("Atleast one command line parameter is required");
+  
+  // Check for parsing errors
+  
+  if(cmdline.Status().IsError())
+	throw runtime_error(cmdline.Status().ErrorLog().CharPtr());
+  
+  // Read -v option
+  
+  if(cmdline.isOption('v'))
+    globals.verbose = true;
+  
+  // Read -f option
+  
+  if(cmdline.isOption('f'))
+    globals.force = true;
+  
+  if(cmdline.isOption('q'))
+	globals.cmdline_querydata = cmdline.OptionValue('q');
+  
+  // Read command filenames
+  
+  for(int i=1; i<=cmdline.NumberofParameters(); i++)
+	globals.cmdline_files.push_back(cmdline.Parameter(i));
+
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
 int domain(int argc, const char *argv[])
 {
-  // Ympäristön konfigurointi
+  // Initialize configuration variables
   
   NFmiSettings::Init();
+
+  // Parse command line
+
+  parse_command_line(argc,argv);
 
   // Tallennetut kontuurit
 
@@ -224,40 +267,7 @@ int domain(int argc, const char *argv[])
   
   LazyQueryData *theQueryInfo = 0;
   
-  // Read command line options
-  // ~~~~~~~~~~~~~~~~~~~~~~~~~
-  
-  NFmiCmdLine cmdline(argc,argv,"vfq!");
 
-  if(cmdline.NumberofParameters() == 0)
-	{
-	  Usage();
-	  return 1;
-	}
-  
-  // Check for parsing errors
-  
-  if(cmdline.Status().IsError())
-	throw runtime_error(cmdline.Status().ErrorLog().CharPtr());
-  
-  // Read -v option
-  
-  if(cmdline.isOption('v'))
-    globals.verbose = true;
-  
-  // Read -f option
-  
-  if(cmdline.isOption('f'))
-    globals.force = true;
-
-  if(cmdline.isOption('q'))
-	globals.cmdline_querydata = cmdline.OptionValue('q');
-  
-  // Read command filenames
-  
-  for(int i=1; i<=cmdline.NumberofParameters(); i++)
-	globals.cmdline_files.push_back(cmdline.Parameter(i));
-  
   // Process all command files
   // ~~~~~~~~~~~~~~~~~~~~~~~~~
   
