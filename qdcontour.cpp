@@ -775,19 +775,54 @@ int main(int argc, char *argv[])
 					  pos1 = pos2 + 1;
 					}
 				  
+				  // Transform directories into actual filenames based on latest
+				  // modification time
+
+				  {
+					list<string>::iterator iter;
+					for(iter=qnames.begin(); iter!=qnames.end(); ++iter)
+					  {
+						if(DirectoryExists(*iter))
+						  {
+							list<string> files = DirectoryFiles(*iter);
+							if(files.empty())
+							  continue;
+							string newestfile;
+							time_t newesttime = 0;
+							for(list<string>::const_iterator f=files.begin(); f!=files.end(); ++f)
+							  {
+								string filename = *iter + '/' + *f;
+								if(FileReadable(filename))
+								  {
+									time_t modtime = FileModificationTime(filename);
+									if(modtime > newesttime)
+									  {
+										newesttime = modtime;
+										newestfile = filename;
+									  }
+								  }
+							  }
+							*iter = newestfile;
+						  }
+					  }
+				  }
+				  
 				  // Read the queryfiles
 				  
-				  list<string>::const_iterator iter;
-				  for(iter=qnames.begin(); iter!=qnames.end(); ++iter)
 					{
-					  string filename = *iter;
-					  if(!FileExists(filename))
-						filename = datapath + filename;
-					  NFmiStreamQueryData * tmp = new NFmiStreamQueryData();
-					  if(!tmp->ReadData(filename))
-						exit(1);
-					  theQueryStreams.push_back(tmp);
+					  list<string>::const_iterator iter;
+					  for(iter=qnames.begin(); iter!=qnames.end(); ++iter)
+						{
+						  string filename = *iter;
+						  if(!FileExists(filename))
+							filename = datapath + filename;
+						  NFmiStreamQueryData * tmp = new NFmiStreamQueryData();
+						  if(!tmp->ReadData(filename))
+							exit(1);
+						  theQueryStreams.push_back(tmp);
+						}
 					}
+
 				}
 			}
 		  
