@@ -2064,10 +2064,10 @@ int main(int argc, const char *argv[])
 					  // Establish time limits
 					  theQueryInfo->LastTime();
 					  utctime = theQueryInfo->ValidTime();
-					  NFmiTime t2 = NFmiMetTime(utctime,1).LocalTime();
+					  NFmiTime t2 = NFmiMetTime(utctime,1).CorrectLocalTime();
 					  theQueryInfo->FirstTime();
 					  utctime = theQueryInfo->ValidTime();
-					  NFmiTime t1 = NFmiMetTime(utctime,1).LocalTime();
+					  NFmiTime t1 = NFmiMetTime(utctime,1).CorrectLocalTime();
 					  
 					  if(qi==0)
 						{
@@ -2140,12 +2140,12 @@ int main(int argc, const char *argv[])
 						  while(theQueryInfo->NextTime())
 							{
 							  NFmiTime utc = theQueryInfo->ValidTime();
-							  NFmiTime loc = NFmiMetTime(utc,1).LocalTime();
+							  NFmiTime loc = NFmiMetTime(utc,1).CorrectLocalTime();
 							  if(!loc.IsLessThan(t))
 								break;
 							}
 						  NFmiTime utc = theQueryInfo->ValidTime();
-						  NFmiTime tnow = NFmiMetTime(utc,1).LocalTime();
+						  NFmiTime tnow = NFmiMetTime(utc,1).CorrectLocalTime();
 						  
 						  // we wanted
 						  
@@ -2227,7 +2227,7 @@ int main(int argc, const char *argv[])
 							{
 							  theQueryInfo = theQueryStreams[qi]->QueryInfoIter();
 							  NFmiTime futctime = theQueryInfo->OriginTime(); 
-							  NFmiTime tfor = NFmiMetTime(futctime,1).LocalTime();
+							  NFmiTime tfor = NFmiMetTime(futctime,1).CorrectLocalTime();
 							  filename += "_" + tfor.ToStr(kDDHHMM);
 							}
 						}
@@ -2338,17 +2338,17 @@ int main(int argc, const char *argv[])
 						  else if(theFilter=="linear")
 							{
 							  NFmiTime utc = theQueryInfo->ValidTime();
-							  NFmiTime tnow = NFmiMetTime(utc,1).LocalTime();
+							  NFmiTime tnow = NFmiMetTime(utc,1).CorrectLocalTime();
 							  bool isexact = t.IsEqual(tnow);
 							  
 							  if(!isexact)
 								{
 								  NFmiDataMatrix<float> tmpvals;
 								  NFmiTime t2utc = theQueryInfo->ValidTime();
-								  NFmiTime t2 = NFmiMetTime(t2utc,1).LocalTime();
+								  NFmiTime t2 = NFmiMetTime(t2utc,1).CorrectLocalTime();
 								  theQueryInfo->PreviousTime();
 								  NFmiTime t1utc = theQueryInfo->ValidTime();
-								  NFmiTime t1 = NFmiMetTime(t1utc,1).LocalTime();
+								  NFmiTime t1 = NFmiMetTime(t1utc,1).CorrectLocalTime();
 								  theQueryInfo->Values(tmpvals);
 								  if(piter->Replace())
 									tmpvals.Replace(piter->ReplaceSourceValue(),
@@ -2376,7 +2376,7 @@ int main(int argc, const char *argv[])
 								{
 								  theQueryInfo->PreviousTime();
 								  NFmiTime utc = theQueryInfo->ValidTime();
-								  NFmiTime tnow = NFmiMetTime(utc,1).LocalTime();
+								  NFmiTime tnow = NFmiMetTime(utc,1).CorrectLocalTime();
 								  if(tnow.IsLessThan(tprev))
 									break;
 								  
@@ -3095,7 +3095,7 @@ int main(int argc, const char *argv[])
 						  {
 							theQueryInfo = theQueryStreams[qi]->QueryInfoIter();
 							NFmiTime futctime = theQueryInfo->OriginTime(); 
-							NFmiTime tlocal = NFmiMetTime(futctime,1).LocalTime();
+							NFmiTime tlocal = NFmiMetTime(futctime,1).CorrectLocalTime();
 							if(qi==0 || tlocal.IsLessThan(tfor))
 							  tfor = tlocal;
 						  }
