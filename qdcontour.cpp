@@ -344,16 +344,7 @@ int domain(int argc, const char *argv[])
 				  
 				  // Split the comma separated list into a real list
 				  
-				  list<string> qnames;
-				  unsigned int pos1 = 0;
-				  while(pos1<theQueryStreamNames.size())
-					{
-					  unsigned int pos2 = theQueryStreamNames.find(',',pos1);
-					  if(pos2==std::string::npos)
-						pos2 = theQueryStreamNames.size();
-					  qnames.push_back(theQueryStreamNames.substr(pos1,pos2-pos1));
-					  pos1 = pos2 + 1;
-					}
+				  list<string> qnames = StringTools::splitwords(theQueryStreamNames,',');
 			  
 				  // Read the queryfiles
 				  

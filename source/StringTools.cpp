@@ -34,6 +34,34 @@ namespace StringTools
 	return ret;
   }
 
+  // ----------------------------------------------------------------------
+  /*!
+   * \brief Split string into list of strings
+   *
+   * \param theString The string to split into parts
+   * \param theSeparator The separator character
+   * \return List of strings
+   */
+  // ----------------------------------------------------------------------
+
+  std::list<std::string> splitwords(const std::string & theString,
+									char theSeparator)
+  {
+	std::list<std::string> ret;
+	unsigned int pos1 = 0;
+	while(pos1<theString.size())
+	  {
+		unsigned int pos2 = theString.find(theSeparator,pos1);
+		if(pos2==std::string::npos)
+		  pos2 = theString.size();
+		ret.push_back(theString.substr(pos1,pos2-pos1));
+		pos1 = pos2 + 1;
+	  }
+	return ret;
+  }
+
+
 } // namespace StringTools
 
 // ======================================================================
+
