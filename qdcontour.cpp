@@ -3349,8 +3349,6 @@ void draw_contour_fonts(NFmiImage & theImage,
 	  const int symbol = it->symbol();
 	  const string fontspec = it->font();
 
-	  const string text(1,symbol);
-
 	  // Parse the font specification
 
 	  vector<string> fontparts = NFmiStringTools::Split(fontspec,":");
@@ -3366,8 +3364,6 @@ void draw_contour_fonts(NFmiImage & theImage,
 	  Imagine::NFmiFace face = Imagine::NFmiFreeType::Instance().Face(font,width,height);
 	  face.Background(false);
 
-	  cout << value << ' ' << symbol << ' ' << text << endl;
-
 	  // Draw symbol at each grid point where necessary
 	  for(unsigned int j=0; j<theValues.NY(); j++)
 		for(unsigned int i=0; i<theValues.NX(); i++)
@@ -3375,6 +3371,9 @@ void draw_contour_fonts(NFmiImage & theImage,
 			{
 			  NFmiPoint latlon = theArea.WorldXYToLatLon(thePoints[i][j]);
 			  NFmiPoint xy = theArea.ToXY(latlon);
+
+			  string text = "";
+			  text += symbol;
 
 			  face.Draw(theImage,
 						FmiRound(xy.X()),
