@@ -62,6 +62,48 @@ void StringReader(std::istream & is, string & theString)
 }
 
 // ----------------------------------------------------------------------
+// Return true if the given name is a recognized meta function
+// ----------------------------------------------------------------------
+
+bool is_meta_parameter(const string & name)
+{
+  if(name == "MetaElevationAngle")
+	return true;
+  else
+	return false;
+}
+
+// ----------------------------------------------------------------------
+// Return meta function values
+// ----------------------------------------------------------------------
+
+void meta_values(const string & name,
+				 NFmiFastQueryInfo * theQI,
+				 NFmiDataMatrix<float> & vals)
+{
+  if(name == "MetaElevationAngle")
+	{
+	  NFmiDataMatrix<NFmiPoint> pts;
+	  theQI->Locations(pts);
+	  vals.Resize(pts.NX(),pts.NY(),kFloatMissing);
+
+	  for(unsigned int j=0; j<pts.NY(); j++)
+		for(unsigned int i=0; i<pts.NX(); i++)
+		  {
+			NFmiLocation loc(pts[i][j]);
+			NFmiMetTime t(theQI->ValidTime());
+			double angle = loc.ElevationAngle(t);
+			vals[i][j] = static_cast<float>(angle);
+		  }
+	}
+  else
+	{
+	  cerr << "Error: Unrecognized parameter name " << name << endl;
+	  exit(1);
+	}
+}
+
+// ----------------------------------------------------------------------
 // Convert textual description of color to internal color value.
 // Accepted formats:
 //
@@ -2332,25 +2374,37 @@ int main(int argc, const char *argv[])
 						  // Establish the parameter
 						  
 						  string name = piter->Param();
+
+						  bool ismeta = false;
+						  ok = false;
 						  FmiParameterName param = FmiParameterName(NFmiEnumConverter().ToEnum(name));
 						  
 						  if(param==kFmiBadParameter)
 							{
-							  cerr << "Error: Unknown parameter " << name << endl;
-							  return 1;
+							  if(!is_meta_parameter(name))
+								{
+								  cerr << "Error: Unknown parameter " << name << endl;
+								  return 1;
+								}
+							  ismeta = true;
+							  ok = true;
+							  // We always assume the first querydata is ok
+							  qi = 0;
+							  theQueryInfo = theQueryStreams[0]->QueryInfoIter();
 							}
-						  
-						  // Find the proper queryinfo to be used
-						  // Note that qi will be used later on for
-						  // getting the coordinate matrices
-						  
-						  ok = false;
-						  for(qi=0; qi<theQueryStreams.size(); qi++)
+						  else
 							{
-							  theQueryInfo = theQueryStreams[qi]->QueryInfoIter();
-							  theQueryInfo->Param(param);
-							  ok = theQueryInfo->IsParamUsable();
-							  if(ok) break;
+							  // Find the proper queryinfo to be used
+							  // Note that qi will be used later on for
+							  // getting the coordinate matrices
+							  
+							  for(qi=0; qi<theQueryStreams.size(); qi++)
+								{
+								  theQueryInfo = theQueryStreams[qi]->QueryInfoIter();
+								  theQueryInfo->Param(param);
+								  ok = theQueryInfo->IsParamUsable();
+								  if(ok) break;
+								}
 							}
 						  
 						  if(!ok)
@@ -2378,7 +2432,10 @@ int main(int argc, const char *argv[])
 						  
 						  // Get the values. 
 						  
-						  theQueryInfo->Values(vals);
+						  if(!ismeta)
+							theQueryInfo->Values(vals);
+						  else
+							meta_values(piter->Param(), theQueryInfo, vals);
 						  
 						  // Replace values if so requested
 						  
@@ -2403,7 +2460,10 @@ int main(int argc, const char *argv[])
 								  theQueryInfo->PreviousTime();
 								  NFmiTime t1utc = theQueryInfo->ValidTime();
 								  NFmiTime t1 = NFmiMetTime(t1utc,1).CorrectLocalTime();
-								  theQueryInfo->Values(tmpvals);
+								  if(!ismeta)
+									theQueryInfo->Values(tmpvals);
+								  else
+									meta_values(piter->Param(), theQueryInfo, tmpvals);
 								  if(piter->Replace())
 									tmpvals.Replace(piter->ReplaceSourceValue(),
 													piter->ReplaceTargetValue());
@@ -2435,7 +2495,10 @@ int main(int argc, const char *argv[])
 									break;
 								  
 								  steps++;
-								  theQueryInfo->Values(tmpvals);
+								  if(!ismeta)
+									theQueryInfo->Values(tmpvals);
+								  else
+									meta_values(piter->Param(), theQueryInfo, tmpvals);
 								  if(piter->Replace())
 									tmpvals.Replace(piter->ReplaceSourceValue(),
 													piter->ReplaceTargetValue());
@@ -2931,35 +2994,6 @@ int main(int argc, const char *argv[])
 					  
 					  for(piter=pbegin; piter!=pend; ++piter)
 						{
-						  // Establish the parameter
-						  
-						  string name = piter->Param();
-						  FmiParameterName param = FmiParameterName(NFmiEnumConverter().ToEnum(name));
-						  
-						  if(param==kFmiBadParameter)
-							{
-							  cerr << "Error: Unknown parameter " << name << endl;
-							  return 1;
-							}
-						  
-						  // Find the proper queryinfo to be used
-						  // Note that qi will be used later on for
-						  // getting the coordinate matrices
-						  
-						  ok = false;
-						  for(qi=0; qi<theQueryStreams.size(); qi++)
-							{
-							  theQueryInfo = theQueryStreams[qi]->QueryInfoIter();
-							  theQueryInfo->Param(param);
-							  ok = theQueryInfo->IsParamUsable();
-							  if(ok) break;
-							}
-						  
-						  if(!ok)
-							{
-							  cerr << "Error: The parameter is not usable: " << name << endl;
-							  exit(1);
-							}
 						  
 						  // Draw label markers first
 						  

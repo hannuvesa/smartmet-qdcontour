@@ -37,6 +37,7 @@
   <li>\ref filtering_section</li>
   <li>\ref smoothing_section</li>
   <li>\ref timestamp_section</li>
+  <li>\ref metaparams_section</li>
 </ol>
 <li>\ref appendix_section</li>
 <ol>
@@ -47,7 +48,7 @@
   <li>\ref sample_section</li>
   <li>\ref deprecated_section</li>
 </ol>
-/ol>
+</ol>
 
 \section intro_section Introduction
 The qdcontour program takes as input a control file, and depending
@@ -775,6 +776,23 @@ The different formats are
 <dt>forobs</dt>
 <dd>The forecast time is rendered followed by the offset to the data time</dd>
 </dl>
+
+\subsection metaparams_section Automatically calculated metaparameters
+
+The qdcontour program is able to recognize different meta parameters, which
+correspond to parameter values calculatable from actual parameter values.
+
+The available meta parameters are
+\htmlonly
+<dl>
+<dt>MetaElevationAngle</dt>
+<dd>
+This is the elevation of the sun angle in degrees for each geographic location.
+This value can be used to render night time areas dark. Note that angle -0.83
+is considered dark and angle +0.83 is considered daylight.
+</dd>
+</dl>
+\endhtmlonly
 
 \section appendix_section Appendix
 

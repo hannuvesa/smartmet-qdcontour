@@ -138,6 +138,12 @@ DoTest("meteorological arrows with labels",
        "meteorological_arrows_and_labels.conf",
        "meteorological_arrows_and_labels_200210140900_140900.png");
 
+# MetaElevationAngle
+
+DoTest("MetaElevationAngle",
+       "meta_elevation_angle.conf",
+       "meta_elevation_angle_200210141800_140900.png");
+
 print "Done\n";
 
 # ----------------------------------------------------------------------
