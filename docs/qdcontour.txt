@@ -136,64 +136,47 @@ projection and the bounding box of the area to be rendered.
 There are multiple ways to do this, each one automatically
 calculating the missing information.
 
-At the moment qdcontour supports only one projection,
-the stereographic one. It is specified using the command
+In the future qdcontour will support only one way to describe
+projections - the one used by newbase NFmiAreaFactory class.
+The respective command is
 \code
-stereographic [centrallongitude] [centrallatitude] [truelatitude]
+projection [description]
 \endcode
-where <em>centrallongitude</em> is usually 25 when rendering Finland,
-20 for Skandinavia and 10 for Europe. <em>centrallatitude</em>
-is almost always 90 to indicate the polar stereographic projection.
-The true latitude is often chosen to be 60, so that the distortion
-would be minimal at the latitudes of Finland.
-
-Once the projection has been specified, one must specify the
-geographic bounding box as well as the image size. Below
-we go through various ways of doing this.
-
+The description is of the form
 \code
-bottomleft [longitude] [latitude]
-topright [longitude] [latitude]
-size [width] [height]
+[projectiondetals]:[areadetails]:[xycoordinates]
 \endcode
-In above we specify the bounding box of the geographic area
-by giving the corner coordinates in geographic units (degrees).
-Then we fix the size of the produced image in both X and Y
-directions. In effect this means we can force a geographic
-area to be rendered at some fixed size, which may distort
-the map.
-
-A better alternative is
+where projection details is one of
 \code
-bottomleft [longitude] [latitude]
-topright [longitude] [latitude]
-width [width]
+latlon
+ykj
+mercator
+rotlatlon,polelatitude=-90,polelongitude=0
+stereographic,centrallongitude=0,centrallatitude=90,truelatitude=60
+gnomonic,centrallongitude=0,centrallatitude=90,truelatitude=60
+equidist,centrallongitude=0,centrallatitude=90
 \endcode
-or
-\code
-bottomleft [longitude] [latitude]
-topright [longitude] [latitude]
-height [height]
-\endcode
-In these cases the missing image dimension is calculated
-automatically so that the map will not be distorted.
+Default values are indicated when omitting a particular value
+is possible.
 
-Often however specifying the corner points is very
-inconvenient, one may have to perform several trials
-before finding a reasonable area. Overall the best
-strategy may be to use
+The area details is of one of the following forms
 \code
-center [longitude] [latitude]
-scale [scale]
-size [width] [height]
+x1,y1,x2,y2
+cx,cy,scale
 \endcode
-In this case one specifies the location to be placed
-at the center of the map, the desired size of the image
-and then adjusts the scale so that the desired area
-is completely covered.
+where the first form requires the bottom left and top right
+longitude and latitude. The latter form requires the center
 
-The scale can be approximately interpreted to mean
-how many kilometers one pixel is, but only roughly.
+The possible values for the xy-coordinates are
+\code
+x1,y1,x2,y2
+x2,y2
+\endcode
+In qdcontour one usually uses only the latter form, since
+only the size of the image is of interest. If either coordinate
+is negative, qdcontour will recalculate the value so that
+aspect ratio is preserved. Naturally this means both x2 and
+y2 cannot be negative at the same time.
 
 \subsection shape_section Drawing a single shapefile
 
@@ -1368,16 +1351,11 @@ contourlines 4 60 2 #30444444 #30444444
 
 # Then we start the actual rendering
 
-# The projection is polar stereographic, 25 central longitude
-
-stereographic 25 90 60
-
 ####### Suomi
 
 # The area of the background and foreground images
 
-bottomleft 19.0 58.0
-topright 40.0 71.0
+projection stereographic,25:19,58,40,71:296,500
 
 # The actual background and foreground images
 
@@ -1400,8 +1378,7 @@ draw contours
 
 # Specifications like for Suomi in above follow for Etelä-Suomi
 
-bottomleft 20.0 58.7
-topright 34.0 64.9
+projection stereographic,25:20,58.7,34,64.9:500,500
 background /var/www/share/anim/maps/etelasuomi_tiehallinto_500x500/background.png
 foreground /var/www/share/anim/maps/etelasuomi_tiehallinto_500x500/foreground.png
 foregroundrule Over
