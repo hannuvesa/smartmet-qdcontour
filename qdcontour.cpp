@@ -225,11 +225,13 @@ int domain(int argc, const char *argv[])
   
   bool verbose	= false;	// verbose mode off
   bool force	= false;	// overwrite disabled
+
+  string theCommandLineQueryData;
   
   // Read command line options
   // ~~~~~~~~~~~~~~~~~~~~~~~~~
   
-  NFmiCmdLine cmdline(argc,argv,"vf");
+  NFmiCmdLine cmdline(argc,argv,"vfq!");
 
   if(cmdline.NumberofParameters() == 0)
 	{
@@ -251,6 +253,9 @@ int domain(int argc, const char *argv[])
   
   if(cmdline.isOption('f'))
     force = true;
+
+  if(cmdline.isOption('q'))
+	theCommandLineQueryData = cmdline.OptionValue('q');
   
   // Read command filenames
   
@@ -278,6 +283,11 @@ int domain(int argc, const char *argv[])
 
 	  // Extract the assignments
 	  string text = processor.GetString();
+
+	  // Insert querydata command if option -q was used
+
+	  if(!theCommandLineQueryData.empty())
+		text = "querydata "+theCommandLineQueryData + '\n' + text;
 
 #ifdef OLDGCC
 	  istrstream input(text.c_str());
