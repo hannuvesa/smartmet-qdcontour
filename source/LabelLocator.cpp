@@ -36,6 +36,17 @@
  *      -# remove those too close to same value labels chosen earlier
  *      -# choose the first label (the one closest to the earlier timestep)
  *
+ * The algorithm for choosing the label positions for the first
+ * timestep \b when a bounding box has been specified is the same,
+ * but the candidate coordinates are sorted based on their distances
+ * to the bounding box instead of the previous timestep. Points
+ * closest to the bounding box are preferred.
+ *
+ * If there is no bounding box, we measure the distances from
+ * an imaginary bounding box determined from the bounding box
+ * of the candidate coordinates themselves. That is, we prefer
+ * the outmost coordinates.
+ *
  */
 // ======================================================================
 
