@@ -347,6 +347,51 @@ void do_timestepskip(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "timestep" command
+ */
+// ----------------------------------------------------------------------
+
+void do_timestep(istream & theInput)
+{
+  theInput >> globals.timestep;
+  globals.timeinterval = globals.timestep;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'timestep' command failed");
+
+  if(globals.timestep < 0)
+	throw runtime_error("timestep cannot be negative");
+
+  const int ludicruous = 30*24*60;	// 1 month
+  if(globals.timestep > ludicruous)
+	throw runtime_error("timestep "+NFmiStringTools::Convert(globals.timestep)+" is ridiculously large");
+
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "timeinterval" command
+ */
+// ----------------------------------------------------------------------
+
+void do_timeinterval(istream & theInput)
+{
+  theInput >> globals.timeinterval;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'timeinterval' command failed");
+
+  if(globals.timeinterval < 0)
+	throw runtime_error("timeinterval cannot be negative");
+
+  const int ludicruous = 30*24*60;	// 1 month
+  if(globals.timeinterval > ludicruous)
+	throw runtime_error("timestep "+NFmiStringTools::Convert(globals.timeinterval)+" is ridiculously large");
+
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -383,8 +428,6 @@ int domain(int argc, const char *argv[])
   int theTimeStampFlag	= 1;
   string theTimeStampZone = "local";
   int theSmootherFactor = 1;
-  int theTimeStep	= 0;		// aika-askel
-  int theTimeInterval   = 0;	// inklusiivinen aikamäärä
   int theTimeSteps	= 24;		// max kuvien lukumäärä
 
   int theTimeStampImageX = 0;
@@ -494,13 +537,10 @@ int domain(int argc, const char *argv[])
 			do_timestepskip(input);
 
 		  else if(command == "timestep")
-			{
-			  input >> theTimeStep;
-			  theTimeInterval = theTimeStep;
-			}
+			do_timestep(input);
 
 		  else if(command == "timeinterval")
-			input >> theTimeInterval;
+			do_timeinterval(input);
 
 		  else if(command == "timesteps")
 			input >> theTimeSteps;
@@ -1396,7 +1436,7 @@ int domain(int argc, const char *argv[])
 
 				  NFmiMetTime tmptime(time1,
 									  theTimeStepRoundingFlag ?
-									  (theTimeStep>0 ? theTimeStep : 1) :
+									  (globals.timestep>0 ? globals.timestep : 1) :
 									  1);
 
 				  tmptime.ChangeByMinutes(globals.timestepskip);
@@ -1415,7 +1455,7 @@ int domain(int argc, const char *argv[])
 
 					  // Skip to next time to be drawn
 
-					  t.ChangeByMinutes(theTimeStep > 0 ? theTimeStep : 1);
+					  t.ChangeByMinutes(globals.timestep > 0 ? globals.timestep : 1);
 
 					  // If the time is after time2, we're done
 
@@ -1444,7 +1484,7 @@ int domain(int argc, const char *argv[])
 
 						  // we wanted
 
-						  if(theTimeStep==0)
+						  if(globals.timestep==0)
 							t = tnow;
 
 						  // If time is before time1, ignore it
@@ -1463,7 +1503,7 @@ int domain(int argc, const char *argv[])
 						  // Use NFmiTime, not NFmiMetTime to avoid rounding up!
 
 						  NFmiTime tprev = t;
-						  tprev.ChangeByMinutes(-theTimeInterval);
+						  tprev.ChangeByMinutes(-globals.timeinterval);
 
 						  bool hasprevious = !tprev.IsLessThan(time1);
 
@@ -1675,7 +1715,7 @@ int domain(int argc, const char *argv[])
 						  else
 							{
 							  NFmiTime tprev = t;
-							  tprev.ChangeByMinutes(-theTimeInterval);
+							  tprev.ChangeByMinutes(-globals.timeinterval);
 
 							  NFmiDataMatrix<float> tmpvals;
 							  int steps = 1;
@@ -2386,7 +2426,7 @@ int domain(int argc, const char *argv[])
 						  {
 							// hh:mi dd.mm.yyyy +hh
 							long diff = t.DifferenceInMinutes(tfor);
-							if(diff%60==0 && theTimeStep%60==0)
+							if(diff%60==0 && globals.timestep%60==0)
 							  sprintf(buffer,"%02d.%02d.%04d %02d:%02d %s%ldh",
 									  fordd,formm,foryy,forhh,formi,
 									  (diff<0 ? "" : "+"), diff/60);
