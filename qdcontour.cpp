@@ -84,8 +84,10 @@ void Usage(void)
 /*!
  * Test whether the given pixel coordinate is masked. This by definition
  * means the respective pixel in the given mask is not fully transparent.
- * Also, we define all pixels outside the mask image to be masked similarly
- * as pixel(0,0).
+ *
+ * Any pixel outside the mask image is considered to be masker similarly
+ * to the mask pixel nearest to it. This "extends" sea and land as is
+ * usually expected when masking wind arrows etc.
  *
  * \param thePoint The pixel coordinate
  * \param theMask The mask filename
@@ -100,19 +102,14 @@ bool IsMasked(const NFmiPoint & thePoint,
 {
   if(theMask.empty())
 	return false;
+  
+  int x = static_cast<int>(FmiRound(thePoint.X()));
+  int y = static_cast<int>(FmiRound(thePoint.Y()));
 
-  long x = static_cast<int>(FmiRound(thePoint.X()));
-  long y = static_cast<int>(FmiRound(thePoint.Y()));
+  // Clip outside pixels
 
-  // Handle outside pixels the same way as pixel 0,0
-  if( x<0 ||
-	  y<0 ||
-	  x>=theMaskImage.Width() ||
-	  y>=theMaskImage.Height())
-	{
-	  x = 0;
-	  y = 0;
-	}
+  x = min(max(x,0),theMaskImage.Width()-1);
+  y = min(max(y,0),theMaskImage.Height()-1);
 
   const NFmiColorTools::Color c = theMaskImage(x,y);
   const int alpha = NFmiColorTools::GetAlpha(c);
