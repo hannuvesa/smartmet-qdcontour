@@ -30,41 +30,28 @@
 // Kun dt > DT, tulee käytää interpolointifunktiota tai aika-askeleesta
 //              dt riippuvaista funktiota (max,min,mean,sum jne)
 //
-// History:
-//
-// 15.08.2001 Mika Heiskanen
-//
-//	Draft version
-//
 // ======================================================================
 
 #include <fstream>
 #include <string>
 #include <list>
 
-#include "NFmiCmdLine.h"		// command line options
+#include "NFmiCmdLine.h"			// command line options
 #include "NFmiDataModifierClasses.h"
 #include "NFmiEnumConverter.h"		// FmiParameterName<-->string
-#include "NFmiFileSystem.h"		// FileExists()
-#include "NFmiLatLonArea.h"		// Geographic projection
+#include "NFmiFileSystem.h"			// FileExists()
+#include "NFmiLatLonArea.h"			// Geographic projection
+#include "NFmiSettings.h"			// Configuration
 #include "NFmiStereographicArea.h"	// Stereographic projection
 #include "NFmiStreamQueryData.h"
 
 #include "NFmiColorTools.h"
-#include "NFmiSmoother.h"	// for smoothing data
+#include "NFmiSmoother.h"		// for smoothing data
 #include "NFmiContourTree.h"	// for contouring
-#include "NFmiImage.h"		// for rendering
-#include "NFmiGeoShape.h"	// for esri data
-#include "NFmiText.h"		// for labels
+#include "NFmiImage.h"			// for rendering
+#include "NFmiGeoShape.h"		// for esri data
+#include "NFmiText.h"			// for labels
 #include "NFmiFontHershey.h"	// for Hershey fonts
-
-// Vakioita
-
-#ifdef UNIX
-  const string datapath("/var/www/share/querydata/");
-#else
-  const string datapath("\\VESPA\\EDIT_DATA\\");
-#endif
 
 // ----------------------------------------------------------------------
 // Usage
@@ -572,6 +559,10 @@ private:
 
 int main(int argc, char *argv[])
 {
+  // Ympäristön konfigurointi
+
+  string datapath = NFmiSettings::instance().value("qdcontour::querydata_path",".");
+
   // Lista komentitiedostoista
   
   list<string> theFiles;
@@ -782,16 +773,20 @@ int main(int argc, char *argv[])
 					list<string>::iterator iter;
 					for(iter=qnames.begin(); iter!=qnames.end(); ++iter)
 					  {
-						if(DirectoryExists(*iter))
+						string name = *iter;
+						if(!FileExists(name))
+						  name = datapath + '/' + name;
+
+						if(DirectoryExists(name))
 						  {
-							list<string> files = DirectoryFiles(*iter);
+							list<string> files = DirectoryFiles(name);
 							if(files.empty())
 							  continue;
 							string newestfile;
 							time_t newesttime = 0;
 							for(list<string>::const_iterator f=files.begin(); f!=files.end(); ++f)
 							  {
-								string filename = *iter + '/' + *f;
+								string filename = name + '/' + *f;
 								if(FileReadable(filename))
 								  {
 									time_t modtime = FileModificationTime(filename);
@@ -813,11 +808,8 @@ int main(int argc, char *argv[])
 					  list<string>::const_iterator iter;
 					  for(iter=qnames.begin(); iter!=qnames.end(); ++iter)
 						{
-						  string filename = *iter;
-						  if(!FileExists(filename))
-							filename = datapath + filename;
 						  NFmiStreamQueryData * tmp = new NFmiStreamQueryData();
-						  if(!tmp->ReadData(filename))
+						  if(!tmp->ReadData(*iter))
 							exit(1);
 						  theQueryStreams.push_back(tmp);
 						}
