@@ -6,6 +6,7 @@
 // ======================================================================
 
 // internal
+#include "ContourRange.h"
 #include "ContourValue.h"
 #include "StringTools.h"
 // imagine
@@ -309,32 +310,6 @@ NFmiPath MetArrow(float theSpeed)
 
 }
 
-// ----------------------------------------------------------------------
-// Yksittäisen contour-intervallin säilytysluokka
-// ----------------------------------------------------------------------
-
-class ContourRange
-{
-public:
-  
-  ContourRange(float lolimit,float hilimit,int color, string rule="Atop")
-    : itsLoLimit(lolimit)
-    , itsHiLimit(hilimit)
-    , itsColor(color)
-    , itsRule(rule)
-  {}
-  float LoLimit(void) const { return itsLoLimit; }
-  float HiLimit(void) const { return itsHiLimit; }
-  int   Color(void)   const { return itsColor; }
-  const string & Rule(void) const { return itsRule; }
-  
-private:
-  ContourRange(void);
-  float itsLoLimit;
-  float itsHiLimit;
-  int   itsColor;
-  string itsRule;
-};
 
 // ----------------------------------------------------------------------
 // Yksittäisen contour-patternin säilytysluokka
@@ -1681,9 +1656,9 @@ int main(int argc, const char *argv[])
 					  
 					  for(citer=cbegin ; citer!=cend; ++citer)
 						{
-						  float thelo = citer->LoLimit();
-						  float thehi = citer->HiLimit();
-						  NFmiColorTools::NFmiBlendRule rule = NFmiColorTools::BlendValue(citer->Rule());
+						  float thelo = citer->lolimit();
+						  float thehi = citer->hilimit();
+						  NFmiColorTools::NFmiBlendRule rule = NFmiColorTools::BlendValue(citer->rule());
 						  
 						  if(thelo==kFloatMissing) thelo=-1e6;
 						  if(thehi==kFloatMissing) thehi= 1e6;
@@ -1695,7 +1670,7 @@ int main(int argc, const char *argv[])
 						  path.LineTo(0,height*(1-(thehi-lolimit)/(hilimit-lolimit)));
 						  path.CloseLineTo();
 						  
-						  path.Fill(legend,citer->Color(),rule);
+						  path.Fill(legend,citer->color(),rule);
 						}
 					  
 					  list<ContourValue>::const_iterator liter;
@@ -2584,26 +2559,26 @@ int main(int argc, const char *argv[])
 							  
 							  if(valmin==kFloatMissing || valmax==kFloatMissing)
 								{
-								  if(citer->LoLimit()!=kFloatMissing &&
-									 citer->HiLimit()!=kFloatMissing)
+								  if(citer->lolimit()!=kFloatMissing &&
+									 citer->hilimit()!=kFloatMissing)
 									continue;
 								}
 							  else
 								{
-								  if(citer->LoLimit()!=kFloatMissing &&
-									 valmax<citer->LoLimit())
+								  if(citer->lolimit()!=kFloatMissing &&
+									 valmax<citer->lolimit())
 									continue;
-								  if(citer->HiLimit()!=kFloatMissing &&
-									 valmin>citer->HiLimit())
+								  if(citer->hilimit()!=kFloatMissing &&
+									 valmin>citer->hilimit())
 									continue;
 								}
 							  
 							  bool exactlo = true;
-							  bool exacthi = (citer->HiLimit()!=kFloatMissing &&
+							  bool exacthi = (citer->hilimit()!=kFloatMissing &&
 											  piter->ExactHiLimit()!=kFloatMissing &&
-											  citer->HiLimit()==piter->ExactHiLimit());
-							  NFmiContourTree tree(citer->LoLimit(),
-												   citer->HiLimit(),
+											  citer->hilimit()==piter->ExactHiLimit());
+							  NFmiContourTree tree(citer->lolimit(),
+												   citer->hilimit(),
 												   exactlo,exacthi);
 							  
 							  if(piter->DataLoLimit()!=kFloatMissing)
@@ -2611,10 +2586,10 @@ int main(int argc, const char *argv[])
 							  if(piter->DataHiLimit()!=kFloatMissing)
 								tree.DataHiLimit(piter->DataHiLimit());
 							  
-							  NFmiColorTools::NFmiBlendRule rule = NFmiColorTools::BlendValue(citer->Rule());
+							  NFmiColorTools::NFmiBlendRule rule = NFmiColorTools::BlendValue(citer->rule());
 							  
 							  tree.Contour(pts[qi],vals,interp,piter->ContourDepth());
-							  tree.Fill(theImage,citer->Color(),rule);
+							  tree.Fill(theImage,citer->color(),rule);
 							  
 							  // NFmiPath path = tree.Path();
 							  // path.Fill(theImage,citer->Color(),rule);
