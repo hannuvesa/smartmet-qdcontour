@@ -757,6 +757,56 @@ void do_foreground(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "mask" command
+ */
+// ----------------------------------------------------------------------
+
+void do_mask(istream & theInput)
+{
+  using NFmiFileSystem::FileComplete;
+
+  theInput >> globals.mask;
+
+  if(globals.mask == "none")
+	globals.mask = "";
+  else
+	globals.maskimage.Read(FileComplete(globals.mask,
+										globals.mapspath));
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "combine" command
+ */
+// ----------------------------------------------------------------------
+
+void do_combine(istream & theInput)
+{
+  using NFmiFileSystem::FileComplete;
+
+  theInput >> globals.combine;
+
+  if(globals.combine == "none")
+	globals.combine = "";
+  else
+	{
+	  theInput >> globals.combinex
+			   >> globals.combiney
+			   >> globals.combinerule
+			   >> globals.combinefactor;
+
+	  ColorTools::checkrule(globals.combinerule);
+	  
+	  if(globals.combinefactor < 0 || globals.combinefactor > 1)
+		throw runtime_error("combine blending factor must be in range 0-1");
+
+	  globals.combineimage.Read(FileComplete(globals.combine,
+											 globals.mapspath));
+	}
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -791,15 +841,8 @@ int domain(int argc, const char *argv[])
   bool   theWantPaletteFlag = false;
   bool   theForcePaletteFlag = false;
 
-  string theMask = "";
-
   string theForegroundRule = "Over";
 
-  string theCombine = "";
-  int theCombineX;
-  int theCombineY;
-  string theCombineRule = "Over";
-  float theCombineFactor = 1.0;
 
 
   int theContourDepth	= 0;
@@ -870,29 +913,9 @@ int domain(int argc, const char *argv[])
 		  else if(command == "windarrows")			do_windarrows(input);
 		  else if(command == "background")			do_background(input);
 		  else if(command == "foreground")			do_foreground(input);
+		  else if(command == "mask")				do_mask(input);
+		  else if(command == "combine")				do_combine(input);
 
-
-		  else if(command == "mask")
-			{
-			  input >> theMask;
-			  if(theMask != "none")
-				theMaskImage.Read(NFmiFileSystem::FileComplete(theMask,globals.mapspath));
-			  else
-				theMask = "";
-			}
-		  else if(command == "combine")
-			{
-			  input >> theCombine;
-			  if(theCombine != "none")
-				{
-				  input >> theCombineX >> theCombineY;
-				  input >> theCombineRule >> theCombineFactor;
-				  ColorTools::checkrule(theCombineRule);
-				  theCombineImage.Read(NFmiFileSystem::FileComplete(theCombine,globals.mapspath));
-				}
-			  else
-				theCombine = "";
-			}
 
 		  else if(command == "foregroundrule")
 			{
@@ -2225,7 +2248,7 @@ int domain(int argc, const char *argv[])
 
 							  // Skip rendering if the start point is masked
 
-							  if(IsMasked(xy0,theMask,theMaskImage))
+							  if(IsMasked(xy0,globals.mask,globals.maskimage))
 								continue;
 
 							  float dir = globals.queryinfo->InterpolatedValue(*iter);
@@ -2299,7 +2322,9 @@ int domain(int argc, const char *argv[])
 									NFmiPoint xy0 = theArea->ToXY(latlon);
 
 									// Skip rendering if the start point is masked
-									if(IsMasked(xy0,theMask,theMaskImage))
+									if(IsMasked(xy0,
+												globals.mask,
+												globals.maskimage))
 									  continue;
 
 									float dir = vals[i][j];
@@ -2388,7 +2413,9 @@ int domain(int argc, const char *argv[])
 
 								  // Skip rendering if the start point is masked
 
-								  if(IsMasked(xy,theMask,theMaskImage))
+								  if(IsMasked(xy,
+											  globals.mask,
+											  globals.maskimage))
 									continue;
 
 								  // Skip rendering if LabelMissing is "" and value is missing
@@ -2475,7 +2502,9 @@ int domain(int argc, const char *argv[])
 
 							  // Skip rendering if the start point is masked
 
-							  if(IsMasked(NFmiPoint(x,y),theMask,theMaskImage))
+							  if(IsMasked(NFmiPoint(x,y),
+										  globals.mask,
+										  globals.maskimage))
 								continue;
 
 							  float value = piter->labelValues()[pointnumber++];
@@ -2523,11 +2552,16 @@ int domain(int argc, const char *argv[])
 
 					  // Bang the combine image (legend, logo, whatever)
 
-					  if(theCombine != "")
+					  if(!globals.combine.empty())
 						{
-						  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(theCombineRule);
+						  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(globals.combinerule);
 
-						  theImage.Composite(theCombineImage,rule,kFmiAlignNorthWest,theCombineX,theCombineY,theCombineFactor);
+						  theImage.Composite(globals.combineimage,
+											 rule,
+											 kFmiAlignNorthWest,
+											 globals.combinex,
+											 globals.combiney,
+											 globals.combinefactor);
 
 						}
 

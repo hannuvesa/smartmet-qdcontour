@@ -20,6 +20,8 @@
 
 class LazyQueryData;
 
+using Imagine::NFmiImage;
+
 struct Globals
 {
   ~Globals();
@@ -44,9 +46,19 @@ struct Globals
 
   std::string background;			// background image name
   std::string foreground;			// foreground image name
-  Imagine::NFmiImage backgroundimage;		// background image, if name nonempty
-  Imagine::NFmiImage foregroundimage;		// foreground image, if name nonempty
+  std::string mask;					// mask image name
+  std::string combine;				// combine image name
+  NFmiImage backgroundimage;		// background image, if name nonempty
+  NFmiImage foregroundimage;		// foreground image, if name nonempty
+  NFmiImage maskimage;				// mask image, if name nonempty
+  NFmiImage combineimage;			// combine image, if name nonempty
 
+  int combinex;
+  int combiney;
+  std::string combinerule;
+  float combinefactor;
+
+  
   std::string erase;				// background color
   std::string fillrule;				// normal filling rule
   std::string strokerule;			// normal stroking rule
