@@ -414,6 +414,21 @@ void do_timesteps(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "timestamp" command
+ */
+// ----------------------------------------------------------------------
+
+void do_timestamp(istream & theInput)
+{
+  theInput >> globals.timestampflag;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'timestamp' command failed");
+
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -447,7 +462,6 @@ int domain(int argc, const char *argv[])
   string theSmoother = "None";
   float theSmootherRadius = 1.0;
   int theTimeStepRoundingFlag = 1;
-  int theTimeStampFlag	= 1;
   string theTimeStampZone = "local";
   int theSmootherFactor = 1;
 
@@ -550,9 +564,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "timestep")		do_timestep(input);
 		  else if(command == "timeinterval")	do_timeinterval(input);
 		  else if(command == "timesteps")		do_timesteps(input);
-
-		  else if(command == "timestamp")
-			input >> theTimeStampFlag;
+		  else if(command == "timestamp")		do_timestamp(input);
 
 		  else if(command == "timestampzone")
 			input >> theTimeStampZone;
@@ -1562,7 +1574,7 @@ int domain(int argc, const char *argv[])
 						+ thePrefix
 						+ datatimestr.CharPtr();
 
-					  if(theTimeStampFlag)
+					  if(globals.timestampflag)
 						{
 						  for(qi=0; qi<globals.queryfilenames.size(); qi++)
 							{

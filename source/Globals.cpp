@@ -37,6 +37,7 @@ Globals::Globals()
   , timestep(0)
   , timeinterval(0)
   , timestepskip(0)
+  , timestampflag(1)
   , calculator()
   , querystreams()
 {
