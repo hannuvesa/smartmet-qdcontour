@@ -144,7 +144,7 @@ private:
   float itsDataLoLimit;
   float itsDataHiLimit;
   
-  bool itHasReplace;;
+  bool itHasReplace;
   float itsReplaceSourceValue;
   float itsReplaceTargetValue;
   
