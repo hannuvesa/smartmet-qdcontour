@@ -418,7 +418,7 @@ int domain(int argc, const char *argv[])
 
 		  else if(command == "bottomleft")
 			{
-			  // cerr << "Warning: 'bottomleft' command is deprecated, use 'projection' instead" << endl;
+			  cerr << "Warning: 'bottomleft' command is deprecated, use 'projection' instead" << endl;
 			  double lon,lat;
 			  input >> lon >> lat;
 			  theBottomLeft.Set(lon,lat);
@@ -428,7 +428,7 @@ int domain(int argc, const char *argv[])
 		  
 		  else if(command == "topright")
 			{
-			  // cerr << "Warning: 'topright' command is deprecated, use 'projection' instead" << endl;
+			  cerr << "Warning: 'topright' command is deprecated, use 'projection' instead" << endl;
 			  double lon,lat;
 			  input >> lon >> lat;
 			  theTopRight.Set(lon,lat);
@@ -438,7 +438,7 @@ int domain(int argc, const char *argv[])
 		  
 		  else if(command == "center")
 			{
-			  // cerr << "Warning: 'center' command is deprecated, use 'projection' instead" << endl;
+			  cerr << "Warning: 'center' command is deprecated, use 'projection' instead" << endl;
 			  double lon,lat;
 			  input >> lon >> lat;
 			  theCenter.Set(lon,lat);
@@ -448,7 +448,7 @@ int domain(int argc, const char *argv[])
 
 		  else if(command == "scale")
 			{
-			  // cerr << "Warning: 'scale' command is deprecated, use 'projection' instead" << endl;
+			  cerr << "Warning: 'scale' command is deprecated, use 'projection' instead" << endl;
 			  input >> theScale;
 			  theBottomLeft.Set(kFloatMissing, kFloatMissing);
 			  theTopRight.Set(kFloatMissing, kFloatMissing);
@@ -456,7 +456,7 @@ int domain(int argc, const char *argv[])
 
 		  else if(command == "stereographic")
 			{
-			  // cerr << "Warning: 'stereographic' command is deprecated, use 'projection' instead" << endl;
+			  cerr << "Warning: 'stereographic' command is deprecated, use 'projection' instead" << endl;
 			  input >> theCentralLongitude
 					>> theCentralLatitude
 					>> theTrueLatitude;
@@ -464,21 +464,21 @@ int domain(int argc, const char *argv[])
 		  
 		  else if(command == "size")
 			{
-			  // cerr << "Warning: 'size' command is deprecated, use 'projection' instead" << endl;
+			  cerr << "Warning: 'size' command is deprecated, use 'projection' instead" << endl;
 			  input >> theWidth >> theHeight;
 			  theBackground = "";
 			}
 		  
 		  else if(command == "width")
 			{
-			  // cerr << "Warning: 'width' command is deprecated, use 'projection' instead" << endl;
+			  cerr << "Warning: 'width' command is deprecated, use 'projection' instead" << endl;
 
 			  input >> theWidth;
 			}
 		  
 		  else if(command == "height")
 			{
-			  // cerr << "Warning: 'height' command is deprecated, use 'projection' instead" << endl;
+			  cerr << "Warning: 'height' command is deprecated, use 'projection' instead" << endl;
 			  input >> theHeight;
 			}
 		  
