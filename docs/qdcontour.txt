@@ -232,6 +232,11 @@ The available commands are
     the alpha channel, unless the image intentionally contains
     transparent areas. The default is to save alpha channel.
 </dd>
+<dt>reducecolors [0/1]</dt>
+<dd>If set to 1, the number of colors in the image will be adaptively
+    reduced until the error is small enough. This is often used
+    with the wantpalette option.
+</dd>
 <dt>wantpalette [0/1]</dt>
 <dd>This option is relevant only to the png format, which is
     the only one that allows both palette and truecolor storage.
@@ -270,6 +275,7 @@ Perhaps the set of most typical image format related commands is
 \code
 format png
 savealpha 0
+reducecolors 1
 wantpalette 1
 \endcode
 
@@ -1307,6 +1313,7 @@ savealpha 0
 # If possible, we want to store a palette version since
 # it is usually smaller than a true color version
 
+reducecolors 1
 wantpalette 1
 
 # We want each image filename to contain the data timestamp

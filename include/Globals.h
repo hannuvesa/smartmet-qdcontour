@@ -63,6 +63,7 @@ struct Globals
   int pngquality;					// png quality, -1 = default
   int jpegquality;					// jpeg quality, -1 = default
   bool savealpha;					// save alpha channel?
+  bool reducecolors;				// reduce colors before saving?
   bool wantpalette;					// attempt to save as palette image?
   bool forcepalette;				// force palette image?
 

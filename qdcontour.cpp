@@ -319,12 +319,15 @@ void report_extrema(const string & theParam,
  */
 // ----------------------------------------------------------------------
 
-void write_image(const NFmiImage & theImage,
+void write_image(NFmiImage & theImage,
 				 const string & theName,
 				 const string & theFormat)
 {
   if(globals.verbose)
 	cout << "Writing '" << theName << "'" << endl;
+
+  if(globals.reducecolors)
+	theImage.ReduceColors();
 
   theImage.Write(theName,theFormat);
 }
@@ -1063,6 +1066,19 @@ void do_savealpha(istream & theInput)
   theInput >> globals.savealpha;
 
   check_errors(theInput,"savealpha");
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "reducecolors" command
+ */
+// ----------------------------------------------------------------------
+
+void do_reducecolors(istream & theInput)
+{
+  theInput >> globals.reducecolors;
+
+  check_errors(theInput,"reducecolors");
 }
 
 // ----------------------------------------------------------------------
@@ -4170,6 +4186,7 @@ int domain(int argc, const char *argv[])
 		  else if(cmd == "pngquality")				do_pngquality(in);
 		  else if(cmd == "jpegquality")				do_jpegquality(in);
 		  else if(cmd == "savealpha")				do_savealpha(in);
+		  else if(cmd == "reducecolors")			do_reducecolors(in);
 		  else if(cmd == "wantpalette")				do_wantpalette(in);
 		  else if(cmd == "forcepalette")			do_forcepalette(in);
 		  else if(cmd == "alphalimit")				do_alphalimit(in);
