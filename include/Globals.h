@@ -11,6 +11,7 @@
 #include "ContourCalculator.h"
 #include "ShapeSpec.h"
 
+#include "NFmiImage.h"
 #include "NFmiPoint.h"
 
 #include <list>
@@ -41,6 +42,11 @@ struct Globals
   std::string projection;			// projection definition
   std::string filter;				// filtering mode
 
+  std::string background;			// background image name
+  std::string foreground;			// foreground image name
+  Imagine::NFmiImage backgroundimage;		// background image, if name nonempty
+  Imagine::NFmiImage foregroundimage;		// foreground image, if name nonempty
+
   std::string erase;				// background color
   std::string fillrule;				// normal filling rule
   std::string strokerule;			// normal stroking rule
@@ -58,6 +64,9 @@ struct Globals
   float windarrowscaleA;			// a*log10(b*x+1)
   float windarrowscaleB;			// default:
   float windarrowscaleC;			// 0*log10(0+1)+1 = 1
+
+  int windarrowdx;					// wind arrow grid spacing
+  int windarrowdy;
 
   std::list<NFmiPoint> arrowpoints;	// Active wind arrows
 

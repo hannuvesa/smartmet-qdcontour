@@ -685,7 +685,7 @@ void do_arrowpath(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \brief Handle command "windarrow"
+ * \brief Handle "windarrow" command
  */
 // ----------------------------------------------------------------------
 
@@ -699,6 +699,61 @@ void do_windarrow(istream & theInput)
 
   globals.arrowpoints.push_back(NFmiPoint(lon,lat));
 
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "windarrows" command
+ */
+// ----------------------------------------------------------------------
+
+void do_windarrows(istream & theInput)
+{
+  theInput >> globals.windarrowdx >> globals.windarrowdy;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'windarrow' command failed");
+
+  if(globals.windarrowdx < 0 || globals.windarrowdy < 0)
+	throw runtime_error("windarrows parameters must be nonnegative");
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "background" command
+ */
+// ----------------------------------------------------------------------
+
+void do_background(istream & theInput)
+{
+  using NFmiFileSystem::FileComplete;
+
+  theInput >> globals.background;
+
+  if(globals.background == "none")
+	globals.background = "";
+  else
+	globals.backgroundimage.Read(FileComplete(globals.background,
+											  globals.mapspath));
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "foreground" command
+ */
+// ----------------------------------------------------------------------
+
+void do_foreground(istream & theInput)
+{
+  using NFmiFileSystem::FileComplete;
+
+  theInput >> globals.foreground;
+
+  if(globals.foreground == "none")
+	globals.foreground = "";
+  else
+	globals.foregroundimage.Read(FileComplete(globals.foreground,
+											  globals.mapspath));
 }
 
 // ----------------------------------------------------------------------
@@ -735,8 +790,7 @@ int domain(int argc, const char *argv[])
   bool   theSaveAlphaFlag = true;
   bool   theWantPaletteFlag = false;
   bool   theForcePaletteFlag = false;
-  string theBackground	= "";
-  string theForeground	= "";
+
   string theMask = "";
 
   string theForegroundRule = "Over";
@@ -747,13 +801,6 @@ int domain(int argc, const char *argv[])
   string theCombineRule = "Over";
   float theCombineFactor = 1.0;
 
-
-
-
-
-
-  unsigned int theWindArrowDX = 0;
-  unsigned int theWindArrowDY = 0;
 
   int theContourDepth	= 0;
   int theContourTrianglesOn = 1;
@@ -766,8 +813,6 @@ int domain(int argc, const char *argv[])
 
   // Related variables
 
-  NFmiImage theBackgroundImage;
-  NFmiImage theForegroundImage;
   NFmiImage theMaskImage;
   NFmiImage theCombineImage;
 
@@ -822,28 +867,10 @@ int domain(int argc, const char *argv[])
 		  else if(command == "arrowstroke")			do_arrowstroke(input);
 		  else if(command == "arrowpath")			do_arrowpath(input);
 		  else if(command == "windarrow")			do_windarrow(input);
+		  else if(command == "windarrows")			do_windarrows(input);
+		  else if(command == "background")			do_background(input);
+		  else if(command == "foreground")			do_foreground(input);
 
-
-		  else if(command == "windarrows")
-			input >> theWindArrowDX >> theWindArrowDY;
-
-		  else if(command == "background")
-			{
-			  input >> theBackground;
-			  if(theBackground != "none")
-				theBackgroundImage.Read(NFmiFileSystem::FileComplete(theBackground,globals.mapspath));
-			  else
-				theBackground = "";
-			}
-
-		  else if(command == "foreground")
-			{
-			  input >> theForeground;
-			  if(theForeground != "none")
-				theForegroundImage.Read(NFmiFileSystem::FileComplete(theForeground,globals.mapspath));
-			  else
-				theForeground = "";
-			}
 
 		  else if(command == "mask")
 			{
@@ -1134,8 +1161,8 @@ int domain(int argc, const char *argv[])
 			  else if(command=="arrows")
 				{
 				  globals.arrowpoints.clear();
-				  theWindArrowDX = 0;
-				  theWindArrowDY = 0;
+				  globals.windarrowdx = 0;
+				  globals.windarrowdy = 0;
 				}
 			  else if(command=="labels")
 				{
@@ -1487,8 +1514,8 @@ int domain(int argc, const char *argv[])
 
 				  // This message intentionally ignores globals.verbose
 
-				  if(theBackground != "")
-					cout << "Contouring for background " << theBackground << endl;
+				  if(!globals.background.empty())
+					cout << "Contouring for background " << globals.background << endl;
 
 
 				  if(globals.verbose)
@@ -1729,8 +1756,8 @@ int domain(int argc, const char *argv[])
 					  NFmiColorTools::Color erasecolor = ColorTools::checkcolor(globals.erase);
 					  theImage.Erase(erasecolor);
 
-					  if(theBackground != "")
-						theImage = theBackgroundImage;
+					  if(!globals.background.empty())
+						theImage = globals.backgroundimage;
 
 					  // Loop over all parameters
 
@@ -2131,18 +2158,19 @@ int domain(int argc, const char *argv[])
 
 					  // Bang the foreground
 
-					  if(theForeground != "")
+					  if(!globals.foreground.empty())
 						{
 						  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(theForegroundRule);
 
-						  theImage.Composite(theForegroundImage,rule,kFmiAlignNorthWest,0,0,1);
+						  theImage.Composite(globals.foregroundimage,rule,kFmiAlignNorthWest,0,0,1);
 
 						}
 
 					  // Draw wind arrows if so requested
 
 					  NFmiEnumConverter converter;
-					  if((!globals.arrowpoints.empty() || (theWindArrowDX!=0 && theWindArrowDY!=0)) &&
+					  if((!globals.arrowpoints.empty() ||
+						  (globals.windarrowdx!=0 && globals.windarrowdy!=0)) &&
 						 (globals.arrowfile!=""))
 						{
 
@@ -2253,7 +2281,7 @@ int domain(int argc, const char *argv[])
 
 						  // Draw the full grid if so desired
 
-						  if(theWindArrowDX!=0 && theWindArrowDY!=0)
+						  if(globals.windarrowdx!=0 && globals.windarrowdy!=0)
 							{
 
 							  NFmiDataMatrix<float> speedvalues(vals.NX(),vals.NY(),-1);
@@ -2262,8 +2290,8 @@ int domain(int argc, const char *argv[])
 							  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
 
 							  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(*theArea);
-							  for(unsigned int j=0; j<worldpts->NY(); j+=theWindArrowDY)
-								for(unsigned int i=0; i<worldpts->NX(); i+=theWindArrowDX)
+							  for(unsigned int j=0; j<worldpts->NY(); j+=globals.windarrowdy)
+								for(unsigned int i=0; i<worldpts->NX(); i+=globals.windarrowdx)
 								  {
 									// The start point
 
