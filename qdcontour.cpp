@@ -12,6 +12,7 @@
 #include "GramTools.h"
 #include "LazyQueryData.h"
 #include "MetaFunctions.h"
+#include "ProjectionFactory.h"
 #include "ShapeSpec.h"
 #include "StringTools.h"
 // imagine
@@ -1081,90 +1082,34 @@ int domain(int argc, const char *argv[])
 				  
 				  string filename;
 				  input >> filename;
-				  
-				  if(theBottomLeft.X()==kFloatMissing ||
-					 theBottomLeft.Y()==kFloatMissing ||
-					 theTopRight.X()==kFloatMissing ||
-					 theTopRight.Y()==kFloatMissing)
+
+				  NFmiStereographicArea theArea =
+					ProjectionFactory::createStereographic(theCentralLongitude,
+														   theCentralLatitude,
+														   theTrueLatitude,
+														   theCenter,
+														   theScale,
+														   theBottomLeft,
+														   theTopRight,
+														   theWidth,
+														   theHeight);
+
+				  if(verbose)
 					{
-
-					  if(theCenter.X()==kFloatMissing || theCenter.Y()==kFloatMissing)
-						throw runtime_error("Area corner coordinates not given");
-					  
-					  if(theScale<0 || theWidth<0 || theHeight<0)
-						throw runtime_error("scale, width and height must be given along with center coordinates");
-
-					  NFmiStereographicArea area(theCenter,theCenter,
-												 theCentralLongitude,
-												 NFmiPoint(0,0),
-												 NFmiPoint(1,1),
-												 theCentralLatitude,
-												 theTrueLatitude);
-
-					  NFmiPoint c = area.LatLonToWorldXY(theCenter);
-					  
-					  NFmiPoint bl(c.X()-theScale*1000*theWidth, c.Y()-theScale*1000*theHeight);
-					  NFmiPoint tr(c.X()+theScale*1000*theWidth, c.Y()+theScale*1000*theHeight);
-
-					  theBottomLeft = area.WorldXYToLatLon(bl);
-					  theTopRight = area.WorldXYToLatLon(tr);
-
-					  if(verbose)
-						{
-						  cout << "Calculated corner points to be"
-							   << endl
-							   << "bottomleft\t= " 
-							   << theBottomLeft.X()
-							   << ','
-							   << theBottomLeft.Y()
-							   << endl
-							   << "topright\t= "
-							   << theTopRight.X()
-							   << ','
-							   << theTopRight.Y()
-							   << endl;
-						}
-
+					  cout << "Area corner are"
+						   << endl
+						   << "bottomleft\t= " 
+						   << theBottomLeft.X()
+						   << ','
+						   << theBottomLeft.Y()
+						   << endl
+						   << "topright\t= "
+						   << theTopRight.X()
+						   << ','
+						   << theTopRight.Y()
+						   << endl;
 					}
 
-				  
-				  // Initialize XY-coordinates
-				  
-				  NFmiStereographicArea area(theBottomLeft,
-											 theTopRight,
-											 theCentralLongitude,
-											 NFmiPoint(0,0),
-											 NFmiPoint(1,1),
-											 theCentralLatitude,
-											 theTrueLatitude);
-				  
-				  // Calculate world coordinates
-				  
-				  NFmiPoint bl = area.LatLonToWorldXY(theBottomLeft);
-				  NFmiPoint tr = area.LatLonToWorldXY(theTopRight);
-				  
-				  if(theWidth<=0 && theHeight>0)
-					{
-					  // Calculate width from height
-					  theWidth = static_cast<int>((tr.X()-bl.X())/(tr.Y()-bl.Y())*theHeight);
-					}
-				  else if(theHeight<=0 && theWidth>0)
-					{
-					  // Calculate height from width
-					  theHeight = static_cast<int>((tr.Y()-bl.Y())/(tr.X()-bl.X())*theWidth);
-					}
-				  else if(theWidth<=0 && theHeight<=0)
-					throw runtime_error("Image width & height unspecified");
-				  
-				  // The actual area we wanted
-				  
-				  NFmiStereographicArea theArea(theBottomLeft,
-												theTopRight,
-												theCentralLongitude,
-												NFmiPoint(0,0),
-												NFmiPoint(theWidth,theHeight),
-												theCentralLatitude,
-												theTrueLatitude);
 				  
 				  // Initialize the background
 				  
@@ -1235,49 +1180,16 @@ int domain(int argc, const char *argv[])
 				  string fieldname, filename;
 				  input >> fieldname >> filename;
 				  
-				  if(theBottomLeft.X()==kFloatMissing ||
-					 theBottomLeft.Y()==kFloatMissing ||
-					 theTopRight.X()==kFloatMissing ||
-					 theTopRight.Y()==kFloatMissing)
-					throw runtime_error("Area corner coordinates not given");
-				  
-				  // Initialize XY-coordinates
-				  
-				  NFmiStereographicArea area(theBottomLeft,
-											 theTopRight,
-											 theCentralLongitude,
-											 NFmiPoint(0,0),
-											 NFmiPoint(1,1),
-											 theCentralLatitude,
-											 theTrueLatitude);
-				  
-				  // Calculate world coordinates
-				  
-				  NFmiPoint bl = area.LatLonToWorldXY(theBottomLeft);
-				  NFmiPoint tr = area.LatLonToWorldXY(theTopRight);
-				  
-				  if(theWidth<=0 && theHeight>0)
-					{
-					  // Calculate width from height
-					  theWidth = static_cast<int>((tr.X()-bl.X())/(tr.Y()-bl.Y())*theHeight);
-					}
-				  else if(theHeight<=0 && theWidth>0)
-					{
-					  // Calculate height from width
-					  theHeight = static_cast<int>((tr.Y()-bl.Y())/(tr.X()-bl.X())*theWidth);
-					}
-				  else if(theWidth<=0 && theHeight<=0)
-					throw runtime_error("Image width & height unspecified");
-				  
-				  // The actual area we wanted
-				  
-				  NFmiStereographicArea theArea(theBottomLeft,
-												theTopRight,
-												theCentralLongitude,
-												NFmiPoint(0,0),
-												NFmiPoint(theWidth,theHeight),
-												theCentralLatitude,
-												theTrueLatitude);
+				  NFmiStereographicArea theArea =
+					ProjectionFactory::createStereographic(theCentralLongitude,
+														   theCentralLatitude,
+														   theTrueLatitude,
+														   theCenter,
+														   theScale,
+														   theBottomLeft,
+														   theTopRight,
+														   theWidth,
+														   theHeight);
 				  
 				  // Generate map from all shapes in the list
 				  
@@ -1331,75 +1243,18 @@ int domain(int argc, const char *argv[])
 					  theWidth = theBackgroundImage.Width();
 					  theHeight = theBackgroundImage.Height();
 					}
-				  
-				  if(theBottomLeft.X()==kFloatMissing ||
-					 theBottomLeft.Y()==kFloatMissing ||
-					 theTopRight.X()==kFloatMissing ||
-					 theTopRight.Y()==kFloatMissing)
-					{
 
-					  // Duplicate code as in "draw shapes"
-					  if(theCenter.X()==kFloatMissing || theCenter.Y()==kFloatMissing)
-						throw runtime_error("Area corner coordinates not given");
-					  
-					  if(theScale<0 || theWidth<0 || theHeight<0)
-						throw runtime_error("scale, width and height must be given along with center coordinates");
+				  NFmiStereographicArea theArea =
+					ProjectionFactory::createStereographic(theCentralLongitude,
+														   theCentralLatitude,
+														   theTrueLatitude,
+														   theCenter,
+														   theScale,
+														   theBottomLeft,
+														   theTopRight,
+														   theWidth,
+														   theHeight);
 
-					  NFmiStereographicArea area(theCenter,theCenter,
-												 theCentralLongitude,
-												 NFmiPoint(0,0),
-												 NFmiPoint(1,1),
-												 theCentralLatitude,
-												 theTrueLatitude);
-
-					  NFmiPoint c = area.LatLonToWorldXY(theCenter);
-					  
-					  NFmiPoint bl(c.X()-theScale*1000*theWidth, c.Y()-theScale*1000*theHeight);
-					  NFmiPoint tr(c.X()+theScale*1000*theWidth, c.Y()+theScale*1000*theHeight);
-
-					  theBottomLeft = area.WorldXYToLatLon(bl);
-					  theTopRight = area.WorldXYToLatLon(tr);
-					  
-					}
-				  
-				  // Initialize XY-coordinates
-				  
-				  NFmiStereographicArea area(theBottomLeft,
-											 theTopRight,
-											 theCentralLongitude,
-											 NFmiPoint(0,0),
-											 NFmiPoint(1,1),
-											 theCentralLatitude,
-											 theTrueLatitude);
-				  
-				  // Calculate world coordinates
-				  
-				  NFmiPoint bl = area.LatLonToWorldXY(theBottomLeft);
-				  NFmiPoint tr = area.LatLonToWorldXY(theTopRight);
-				  
-				  if(theWidth<=0 && theHeight>0)
-					{
-					  // Calculate width from height
-					  theWidth = static_cast<int>((tr.X()-bl.X())/(tr.Y()-bl.Y())*theHeight);
-					}
-				  else if(theHeight<=0 && theWidth>0)
-					{
-					  // Calculate height from width
-					  theHeight = static_cast<int>((tr.Y()-bl.Y())/(tr.X()-bl.X())*theWidth);
-					}
-				  else if(theWidth<=0 && theHeight<=0)
-					throw runtime_error("Image width & height unspecified");
-				  
-				  // The actual area we wanted
-				  
-				  NFmiStereographicArea theArea(theBottomLeft,
-												theTopRight,
-												theCentralLongitude,
-												NFmiPoint(0,0),
-												NFmiPoint(theWidth,theHeight),
-												theCentralLatitude,
-												theTrueLatitude);
-				  
 				  // Establish querydata timelimits and initialize
 				  // the XY-coordinates simultaneously.
 				  
@@ -1822,7 +1677,7 @@ int domain(int argc, const char *argv[])
 							{
 							  for(unsigned int j=0; j<worldpts[qi].NY(); j+=piter->labelDY())
 								for(unsigned int i=0; i<worldpts[qi].NX(); i+=piter->labelDX())
-								  piter->add(area.WorldXYToLatLon(worldpts[qi][i][j]));
+								  piter->add(theArea.WorldXYToLatLon(worldpts[qi][i][j]));
 							}
 
 						  piter->clearLabelValues();
