@@ -96,14 +96,20 @@ sub DoTest
 	$expected = "results/$outputfile.ok";
 	$actual = "results/$outputfile";
 
-	if(equalimage($expected,$actual))
+	$diff = imagedifference($expected,$actual);
+	if($diff == 0)
 	{
 	    unlink($actual);
+	}
+	elsif($diff == -1)
+	{
+	    $failed++;
+	    $extratext .= "(files $expected and $actual differ in size)\n";
 	}
 	else
 	{
 	    $failed++;
-	    $extratext .= "(files $expected and $actual differ)\n";
+	    $extratext .= "(files $expected and $actual differ in $diff pixels)\n";
 	}
     }
     
@@ -133,24 +139,37 @@ sub padname
 }
 
 # ----------------------------------------------------------------------
-# Compare two image files
+# Compare two image files. The returned number is zero for
+# equal images, -1 for images of different size. Otherwise the
+# images are of equal size, and N is returned, indicating the
+# number of different pixels.
 # ----------------------------------------------------------------------
 
-sub equalimage
+sub imagedifference
 {
     my($file1,$file2) = @_;
 
     # Files must exits
 
     if(!(-e $file1) || !(-e $file2))
-    { return 0; }
+    { return -1; }
 
     # Use the system imagecompare command
 
-    $result = `imagecompare $file1 $file2`;
+    my($result) = `imagecompare $file1 $file2`;
     chomp($result);
+    my(@out) = split(" ",$result);
 
-    return ($result eq "equal");
+    if(scalar(@out) == 1 && $result eq "equal")
+    { return 0; }
+
+    if(scalar(@out) == 2 && $result eq "different size")
+    { return -1; }
+
+    if(scalar(@out) == 3 && $out[0] eq "different" && $out eq "pixels:")
+    { return $out[3]; }
+
+    return -1;
 }
 
 # ----------------------------------------------------------------------
