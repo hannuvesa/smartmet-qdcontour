@@ -8,6 +8,8 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include "ContourCalculator.h"
+
 #include <list>
 #include <string>
 
@@ -26,6 +28,10 @@ struct Globals
 
   std::string datapath;				// default searchpath for data
   std::string mapspath;				// default searchpath for maps
+
+  // Active storage
+
+  ContourCalculator calculator;		// data contourer
 
 };
 

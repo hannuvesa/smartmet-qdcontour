@@ -26,6 +26,7 @@ Globals::Globals()
   , cmdline_files()
   , datapath(Optional<string>("qdcontour::querydata_path","."))
   , mapspath(Optional<string>("qdcontour::maps_path","."))
+  , calculator()
 {
 }
 
