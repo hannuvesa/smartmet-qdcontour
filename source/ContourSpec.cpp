@@ -61,7 +61,7 @@ ContourSpec::ContourSpec(const std::string & theParam,
   , itsLabelCaptionDY(0)
   , itsLabelCaptionAlignment("West")
   , itsContourLabelAccuracy(0.25)
-  , itsContourLabelFont("misc/6x13.pcf.gz:6x13")
+  , itsContourLabelFont("misc/5x8.pcf.gz:5x8")
   , itsContourLabelColor(Imagine::NFmiColorTools::Black)
   , itsContourLabelBackgroundColor(Imagine::NFmiColorTools::MakeColor(180,180,180,32))
   , itsContourLabelBackgroundXMargin(2)
