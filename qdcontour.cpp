@@ -1409,6 +1409,27 @@ void do_contoursymbol(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \bried Handle "contourfont" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourfont(istream & theInput)
+{
+  float value;
+  int symbol;
+  string scolor, font;
+  theInput >> value >> symbol >> scolor >> font;
+
+  check_errors(theInput,"contourfont");
+
+  NFmiColorTools::Color color = ColorTools::checkcolor(scolor);
+
+  if(!globals.specs.empty())
+	globals.specs.back().add(ContourFont(value,symbol,color,font));
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \bried Handle "contourline" command
  */
 // ----------------------------------------------------------------------
@@ -3287,6 +3308,82 @@ void draw_contour_symbols(NFmiImage & theImage,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Draw contour fonts
+ */
+// ----------------------------------------------------------------------
+
+void draw_contour_fonts(NFmiImage & theImage,
+						const NFmiArea & theArea,
+						const ContourSpec & theSpec,
+						const NFmiDataMatrix<NFmiPoint> & thePoints,
+						const NFmiDataMatrix<float> & theValues,
+						float theMinimum,
+						float theMaximum)
+{
+  list<ContourFont>::const_iterator it;
+  list<ContourFont>::const_iterator begin;
+  list<ContourFont>::const_iterator end;
+  
+  begin = theSpec.contourFonts().begin();
+  end   = theSpec.contourFonts().end();
+  
+  for(it=begin ; it!=end; ++it)
+	{
+	  // Skip to next contour if this one is outside
+	  // the value range.
+	  
+	  if(theMinimum==kFloatMissing || theMaximum==kFloatMissing)
+		{
+		  continue;
+		}
+	  else
+		{
+		  if(it->value() < theMinimum)
+			continue;
+		  if(it->value() > theMaximum)
+			continue;
+		}
+
+	  const float value = it->value();
+	  const int color = it->color();
+	  const int symbol = it->symbol();
+	  const string fontspec = it->font();
+
+	  // Parse the font specification
+
+	  vector<string> fontparts = NFmiStringTools::Split(fontspec,":");
+	  if(fontparts.size() != 2)
+		throw runtime_error("Invalid font specification '"+fontspec+"'");
+	  const string font = fontparts[0];
+	  fontparts = NFmiStringTools::Split(fontparts[1],"x");
+	  if(fontparts.size() != 2)
+		throw runtime_error("Invalid font size specification in '"+fontspec+"'");
+	  const int width = NFmiStringTools::Convert<int>(fontparts[0]);
+	  const int height = NFmiStringTools::Convert<int>(fontparts[1]);
+
+	  Imagine::NFmiFace face = Imagine::NFmiFreeType::Instance().Face(font,width,height);
+	  face.Background(false);
+
+	  // Draw symbol at each grid point where necessary
+	  for(unsigned int j=0; j<theValues.NY(); j++)
+		for(unsigned int i=0; i<theValues.NX(); i++)
+		  if(value == theValues[i][j])
+			{
+			  NFmiPoint latlon = theArea.WorldXYToLatLon(thePoints[i][j]);
+			  NFmiPoint xy = theArea.ToXY(latlon);
+
+			  face.Draw(theImage,
+						FmiRound(xy.X()),
+						FmiRound(xy.Y()),
+						string(1,symbol),
+						Imagine::kFmiAlignCenter,
+						color);
+			}
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Establish the type of extremum at the given point
  *
  * \param theValues The matrix of values
@@ -3842,6 +3939,10 @@ void do_draw_contours(istream & theInput)
 		  // Symbol fill the contours
 
 		  draw_contour_symbols(image,*area,*piter,*worldpts,vals,min_value,max_value);
+		  // Font fill the contours
+
+		  draw_contour_fonts(image,*area,*piter,*worldpts,vals,min_value,max_value);
+		  
 		  // Save contour label coordinates
 
 		  save_contour_labels(image,*area,*piter,interp,min_value,max_value);
@@ -3996,6 +4097,7 @@ int domain(int argc, const char *argv[])
 		  else if(cmd == "contourfill")				do_contourfill(in);
 		  else if(cmd == "contourpattern")			do_contourpattern(in);
 		  else if(cmd == "contoursymbol")			do_contoursymbol(in);
+		  else if(cmd == "contourfont")				do_contourfont(in);
 		  else if(cmd == "contourline")				do_contourline(in);
 		  else if(cmd == "contourfills")			do_contourfills(in);
 		  else if(cmd == "contourlines")			do_contourlines(in);
