@@ -50,7 +50,8 @@ private:
 
   typedef std::pair<int,int> XY;
   typedef std::list<XY> Coordinates;
-  typedef std::map<int,Coordinates> ParamCoordinates;
+  typedef std::map<float,Coordinates> ContourCoordinates;
+  typedef std::map<int,ContourCoordinates> ParamCoordinates;
 
   int itsActiveParameter;
   ParamCoordinates itsPreviousCoordinates;
