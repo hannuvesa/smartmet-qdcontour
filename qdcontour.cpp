@@ -6,6 +6,7 @@
 // ======================================================================
 
 // internal
+#include "ColorTools.h"
 #include "ContourSpec.h"
 #include "MetaFunctions.h"
 #include "ShapeSpec.h"
@@ -50,131 +51,6 @@ void Usage(void)
   cout << "Commands in configuration files:" << endl << endl;
 }
 
-
-// ----------------------------------------------------------------------
-// Convert textual description of color to internal color value.
-// Accepted formats:
-//
-// none			--> 127,0,0,0
-// transparent		--> 127,0,0,0
-// #rrggbb		-->   0,r,g,b
-// #aarrggbb		-->   a,r,g,b
-// r,g,b		-->   0,r,g,b
-// a,r,g,b		-->   a,r,g,b
-//
-// Returns MissingColor for invalid colors.
-// ----------------------------------------------------------------------
-
-// Utility for parsing hex strings
-
-int HexToInt(const string & theHex)
-{
-  int value=0;
-  for(unsigned int i=0; i<theHex.length(); i++)
-    {
-      value *= 16;
-      if(theHex[i]>='0' && theHex[i]<='9')
-		value += theHex[i]-'0';
-      else if(theHex[i]>='A' && theHex[i]<='F')
-		value += 10+theHex[i]-'A';
-      else if(theHex[i]>='a' && theHex[i]<='f')
-		value += 10+theHex[i]-'a';
-      else
-		return -1;
-    }
-  return value;
-}
-
-NFmiColorTools::Color ToColor(const string & theColor)
-{
-  // Handle hex format number
-  
-  if(theColor[0]=='#')
-    {
-      int a,r,g,b;
-      if(theColor.length()==7)
-		{
-		  a = 0;
-		  r = HexToInt(theColor.substr(1,2));
-		  g = HexToInt(theColor.substr(3,2));
-		  b = HexToInt(theColor.substr(5,2));
-		}
-      else if(theColor.length()==9)
-		{
-		  a = HexToInt(theColor.substr(1,2));
-		  r = HexToInt(theColor.substr(3,2));
-		  g = HexToInt(theColor.substr(5,2));
-		  b = HexToInt(theColor.substr(7,2));
-		}
-      if(r>=0 && g>=0 && b>=0 && a>=0)
-		return NFmiColorTools::MakeColor(r,g,b,a);
-      else
-		return NFmiColorTools::MissingColor;
-    }
-  
-  // Handle ascii format
-  
-  else if(theColor[0]<'0' || theColor[0]>'9')
-    {
-      unsigned int pos = theColor.find(",");
-      if(pos == string::npos)
-		return NFmiColorTools::ColorValue(theColor);
-      else
-		{
-		  int value = -1;
-		  for(unsigned int i=pos+1; i<theColor.length(); i++)
-			{
-			  if(theColor[i]>='0' && theColor[i]<='9')
-				{
-				  if(value<0)
-					value = theColor[i]-'0';
-				  else
-					value = value*10+theColor[i]-'0';
-				}
-			  else
-				return NFmiColorTools::MissingColor;
-			}
-		  if(value<0)
-			return NFmiColorTools::MissingColor;
-		  NFmiColorTools::Color tmp = NFmiColorTools::ColorValue(theColor.substr(0,pos));
-		  return NFmiColorTools::ReplaceAlpha(tmp,value);
-		}
-    }
-  
-  
-  // Handle decimal format number
-  else
-    {
-      vector<int> tmp;
-      int value=-1;
-      for(unsigned int i=0; i<theColor.length(); i++)
-		{
-		  if(theColor[i]>='0' && theColor[i]<='9')
-			{
-			  if(value<0)
-				value = theColor[i]-'0';
-			  else
-				value = value*10+theColor[i]-'0';
-			}
-		  else if(theColor[i]==',')
-			{
-			  tmp.push_back(value);
-			  value = -1;
-			}
-		  else
-			return NFmiColorTools::MissingColor;
-		}
-      if(value>=0)
-		tmp.push_back(value);
-	  
-      if(tmp.size()==3)
-		return NFmiColorTools::MakeColor(tmp[0],tmp[1],tmp[2],0);
-      else if(tmp.size()==4)
-		return NFmiColorTools::MakeColor(tmp[0],tmp[1],tmp[2],tmp[3]);
-      else
-		return NFmiColorTools::MissingColor;
-    }
-}
 
 // ----------------------------------------------------------------------
 /*!
@@ -649,7 +525,7 @@ int main(int argc, const char *argv[])
 		  else if(command == "erase")
 			{
 			  input >> theErase;
-			  if(ToColor(theErase)==NFmiColorTools::MissingColor)
+			  if(ColorTools::parsecolor(theErase)==NFmiColorTools::MissingColor)
 				{
 				  cerr << "Error: Invalid color " << theErase << endl;
 				  exit(1);
@@ -659,7 +535,7 @@ int main(int argc, const char *argv[])
 		  else if(command == "legenderase")
 			{
 			  input >> theLegendErase;
-			  if(ToColor(theLegendErase)==NFmiColorTools::MissingColor)
+			  if(ColorTools::parsecolor(theLegendErase)==NFmiColorTools::MissingColor)
 				{
 				  cerr << "Error: Invalid color " << theLegendErase << endl;
 				  exit(1);
@@ -704,7 +580,7 @@ int main(int argc, const char *argv[])
 		  else if(command == "arrowfill")
 			{
 			  input >> theArrowFillColor >> theArrowFillRule;
-			  if(ToColor(theArrowFillColor)==NFmiColorTools::MissingColor)
+			  if(ColorTools::parsecolor(theArrowFillColor)==NFmiColorTools::MissingColor)
 				{
 				  cerr << "Error: Invalid color " << theArrowFillColor << endl;
 				  exit(1);
@@ -718,7 +594,7 @@ int main(int argc, const char *argv[])
 		  else if(command == "arrowstroke")
 			{
 			  input >> theArrowStrokeColor >> theArrowStrokeRule;
-			  if(ToColor(theArrowStrokeColor)==NFmiColorTools::MissingColor)
+			  if(ColorTools::parsecolor(theArrowStrokeColor)==NFmiColorTools::MissingColor)
 				{
 				  cerr << "Error: Invalid color " << theArrowStrokeColor << endl;
 				  exit(1);
@@ -938,8 +814,8 @@ int main(int argc, const char *argv[])
 				  string fillcolor = arg1;
 				  string strokecolor;
 				  input >> strokecolor;
-				  NFmiColorTools::Color fill = ToColor(fillcolor);
-				  NFmiColorTools::Color stroke = ToColor(strokecolor);
+				  NFmiColorTools::Color fill = ColorTools::parsecolor(fillcolor);
+				  NFmiColorTools::Color stroke = ColorTools::parsecolor(strokecolor);
 				  if(fill == NFmiColorTools::MissingColor)
 					{
 					  cerr << "Error: fillcolor " << fillcolor << " unrecognized" << endl;
@@ -971,7 +847,7 @@ int main(int argc, const char *argv[])
 			  else
 				hi = atof(shi.c_str());
 			  
-			  NFmiColorTools::Color color = ToColor(scolor);
+			  NFmiColorTools::Color color = ColorTools::parsecolor(scolor);
 			  
 			  if(!theSpecs.empty())
 				theSpecs.back().add(ContourRange(lo,hi,color,theFillRule));
@@ -1008,7 +884,7 @@ int main(int argc, const char *argv[])
 			  else
 				value = atof(svalue.c_str());
 			  
-			  NFmiColorTools::Color color = ToColor(scolor);
+			  NFmiColorTools::Color color = ColorTools::parsecolor(scolor);
 			  if(!theSpecs.empty())
 				theSpecs.back().add(ContourValue(value,color,theStrokeRule));
 			}
@@ -1019,8 +895,8 @@ int main(int argc, const char *argv[])
 			  string scolor1,scolor2;
 			  input >> lo >> hi >> step >> scolor1 >> scolor2;
 			  
-			  int color1 = ToColor(scolor1);
-			  int color2 = ToColor(scolor2);
+			  int color1 = ColorTools::parsecolor(scolor1);
+			  int color2 = ColorTools::parsecolor(scolor2);
 			  
 			  int steps = static_cast<int>((hi-lo)/step);
 			  
@@ -1042,8 +918,8 @@ int main(int argc, const char *argv[])
 			  string scolor1,scolor2;
 			  input >> lo >> hi >> step >> scolor1 >> scolor2;
 			  
-			  int color1 = ToColor(scolor1);
-			  int color2 = ToColor(scolor2);
+			  int color1 = ColorTools::parsecolor(scolor1);
+			  int color2 = ColorTools::parsecolor(scolor2);
 			  
 			  int steps = static_cast<int>((hi-lo)/step);
 			  
@@ -1126,7 +1002,7 @@ int main(int argc, const char *argv[])
 			  input >> color >> rule;
 			  if(!theSpecs.empty())
 				{
-				  theSpecs.back().labelStrokeColor(ToColor(color));
+				  theSpecs.back().labelStrokeColor(ColorTools::parsecolor(color));
 				  theSpecs.back().labelStrokeRule(rule);
 				}
 			}
@@ -1137,7 +1013,7 @@ int main(int argc, const char *argv[])
 			  input >> color >> rule;
 			  if(!theSpecs.empty())
 				{
-				  theSpecs.back().labelFillColor(ToColor(color));
+				  theSpecs.back().labelFillColor(ColorTools::parsecolor(color));
 				  theSpecs.back().labelFillRule(rule);
 				}
 			}
@@ -1283,7 +1159,7 @@ int main(int argc, const char *argv[])
 					{
 					  NFmiImage legend(width,height);
 					  
-					  NFmiColorTools::Color color = ToColor(theLegendErase);
+					  NFmiColorTools::Color color = ColorTools::parsecolor(theLegendErase);
 					  legend.Erase(color);
 					  
 					  list<ContourRange>::const_iterator citer;
@@ -1454,7 +1330,7 @@ int main(int argc, const char *argv[])
 				  if(theJpegQuality>=0) theImage.JpegQuality(theJpegQuality);
 				  if(theAlphaLimit>=0) theImage.AlphaLimit(theAlphaLimit);
 				  
-				  NFmiColorTools::Color erasecolor = ToColor(theErase);
+				  NFmiColorTools::Color erasecolor = ColorTools::parsecolor(theErase);
 				  theImage.Erase(erasecolor);
 				  
 				  // Draw all the shapes
@@ -1935,7 +1811,7 @@ int main(int argc, const char *argv[])
 					  if(theJpegQuality>=0) theImage.JpegQuality(theJpegQuality);
 					  if(theAlphaLimit>=0) theImage.AlphaLimit(theAlphaLimit);
 					  
-					  NFmiColorTools::Color erasecolor = ToColor(theErase);
+					  NFmiColorTools::Color erasecolor = ColorTools::parsecolor(theErase);
 					  theImage.Erase(erasecolor);
 					  
 					  if(theBackground != "")
@@ -2451,10 +2327,10 @@ int main(int argc, const char *argv[])
 							  // And render it
 							  
 							  thispath.Fill(theImage,
-											ToColor(theArrowFillColor),
+											ColorTools::parsecolor(theArrowFillColor),
 											NFmiColorTools::BlendValue(theArrowFillRule));
 							  thispath.Stroke(theImage,
-											  ToColor(theArrowStrokeColor),
+											  ColorTools::parsecolor(theArrowStrokeColor),
 											  NFmiColorTools::BlendValue(theArrowStrokeRule));
 							}
 						  
@@ -2522,10 +2398,10 @@ int main(int argc, const char *argv[])
 									// And render it
 									
 									thispath.Fill(theImage,
-												  ToColor(theArrowFillColor),
+												  ColorTools::parsecolor(theArrowFillColor),
 												  NFmiColorTools::BlendValue(theArrowFillRule));
 									thispath.Stroke(theImage,
-													ToColor(theArrowStrokeColor),
+													ColorTools::parsecolor(theArrowStrokeColor),
 													NFmiColorTools::BlendValue(theArrowStrokeRule));
 								  }
 							}
