@@ -21,11 +21,11 @@ class ContourPattern
 public:
 
 #ifdef COMPILER_GENERATED
-  ~ContourPattern();
   ContourPattern(const ContourPattern & theValue);
   ContourPattern & operator=(const ContourPattern & theValue);
 #endif
   
+  virtual ~ContourPattern() { }
   ContourPattern(float theLoLimit,
 				 float theHiLimit,
 				 const std::string & thePattern,
