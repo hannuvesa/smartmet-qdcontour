@@ -58,97 +58,97 @@ DoTest("scale",
 
 DoTest("trivial contour",
        "trivial.conf",
-       "trivial_200210140900_141237.png");
+       "trivial_200210140900_200210141237.png");
 
 # Test contourline
 
 DoTest("contourline",
        "contourline.conf",
-       "contourline_200210140900_141237.png");
+       "contourline_200210140900_200210141237.png");
 
 # Test contourfill
 
 DoTest("contourfill",
        "contourfill.conf",
-       "contourfill_200210140900_141237.png");
+       "contourfill_200210140900_200210141237.png");
 
 # Test contourpattern
 
 DoTest("contourpattern",
        "contourpattern.conf",
-       "contourpattern_200210140900_141237.png");
+       "contourpattern_200210140900_200210141237.png");
 
 # Test windarrows
 
 DoTest("windarrows at points",
        "windarrow_points.conf",
-       "windarrow_points200210140900_141237.png");
+       "windarrow_points200210140900_200210141237.png");
 
 DoTest("windarrows in a grid",
        "windarrow_grid.conf",
-       "windarrow_grid200210140900_141237.png");
+       "windarrow_grid200210140900_200210141237.png");
 
 DoTest("windarrows in a grid masked",
        "windarrow_grid_masked.conf",
-       "windarrow_grid_masked_200210140900_141237.png");
+       "windarrow_grid_masked_200210140900_200210141237.png");
 
 DoTest("windarrowscale",
        "windarrowscale.conf",
-       "windarrowscale_200210140900_141237.png");
+       "windarrowscale_200210140900_200210141237.png");
 
 DoTest("directionparam",
        "directionparam.conf",
-       "directionparam_200210150900_151618.png");
+       "directionparam_200210150900_200210151618.png");
 
 DoTest("speedparam",
        "speedparam.conf",
-       "speedparam_200210150900_151618.png");
+       "speedparam_200210150900_200210151618.png");
 
 # Test labels
 
 DoTest("labels at points",
        "labels_points.conf",
-       "labels_points_200210140900_141237.png");
+       "labels_points_200210140900_200210141237.png");
 
 DoTest("labels at gridpoints",
        "labels_grid.conf",
-       "labels_grid_200210140900_141237.png");
+       "labels_grid_200210140900_200210141237.png");
 
 DoTest("labels at masked gridpoints",
        "labels_grid_masked.conf",
-       "labels_grid_masked_200210140900_141237.png");
+       "labels_grid_masked_200210140900_200210141237.png");
 
 # Labels must be on top of arrows
 
 DoTest("labels on top of arrows",
        "labels_and_arrows.conf",
-       "labels_and_arrows_200210140900_141237.png");
+       "labels_and_arrows_200210140900_200210141237.png");
 
 DoTest("labels on top of arrows regardless of definition order",
        "arrows_and_labels.conf",
-       "arrows_and_labels_200210140900_141237.png");
+       "arrows_and_labels_200210140900_200210141237.png");
 
 # Meteorological arrows
 
 DoTest("meteorological arrows",
        "meteorological_arrows.conf",
-       "meteorological_arrows_200210140900_141237.png");
+       "meteorological_arrows_200210140900_200210141237.png");
 
 DoTest("meteorological arrows with labels",
        "meteorological_arrows_and_labels.conf",
-       "meteorological_arrows_and_labels_200210140900_141237.png");
+       "meteorological_arrows_and_labels_200210140900_200210141237.png");
 
 # MetaElevationAngle
 
 DoTest("MetaElevationAngle",
        "meta_elevation_angle.conf",
-       "meta_elevation_angle_200210141800_141237.png");
+       "meta_elevation_angle_200210141800_200210141237.png");
 
 # MetaWindChill
 
 DoTest("MetaWindChill",
        "meta_wind_chill.conf",
-       "meta_wind_chill_200210141800_141237.png");
+       "meta_wind_chill_200210141800_200210141237.png");
 
 print "Done\n";
 
