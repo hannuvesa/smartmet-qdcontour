@@ -99,6 +99,8 @@ namespace GramTools
 		  path.LineTo(flag_length*::sin(flag_angle),y+flag_length*::cos(flag_angle));
 		  y += flag_interval;
 		}
+
+	path.Scale(-1);
 	
 	return path;
   }
