@@ -17,7 +17,6 @@
 // imagine
 #include "NFmiColorTools.h"
 #include "NFmiSmoother.h"		// for smoothing data
-#include "NFmiContourTree.h"	// for contouring
 #include "NFmiImage.h"			// for rendering
 #include "NFmiGeoShape.h"		// for esri data
 #include "NFmiText.h"			// for labels
