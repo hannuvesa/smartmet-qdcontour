@@ -765,43 +765,7 @@ int main(int argc, char *argv[])
 					  qnames.push_back(theQueryStreamNames.substr(pos1,pos2-pos1));
 					  pos1 = pos2 + 1;
 					}
-				  
-				  // Transform directories into actual filenames based on latest
-				  // modification time
-
-				  {
-					list<string>::iterator iter;
-					for(iter=qnames.begin(); iter!=qnames.end(); ++iter)
-					  {
-						string name = *iter;
-						if(!FileExists(name))
-						  name = datapath + '/' + name;
-
-						if(DirectoryExists(name))
-						  {
-							list<string> files = DirectoryFiles(name);
-							if(files.empty())
-							  continue;
-							string newestfile;
-							time_t newesttime = 0;
-							for(list<string>::const_iterator f=files.begin(); f!=files.end(); ++f)
-							  {
-								string filename = name + '/' + *f;
-								if(FileReadable(filename))
-								  {
-									time_t modtime = FileModificationTime(filename);
-									if(modtime > newesttime)
-									  {
-										newesttime = modtime;
-										newestfile = filename;
-									  }
-								  }
-							  }
-							*iter = newestfile;
-						  }
-					  }
-				  }
-				  
+			  
 				  // Read the queryfiles
 				  
 					{
@@ -809,12 +773,14 @@ int main(int argc, char *argv[])
 					  for(iter=qnames.begin(); iter!=qnames.end(); ++iter)
 						{
 						  NFmiStreamQueryData * tmp = new NFmiStreamQueryData();
-						  if(!tmp->ReadData(*iter))
+						  string filename = *iter;
+						  if(!FileExists(filename))
+							filename = datapath + '/' + filename;
+						  if(!tmp->ReadLatestData(filename))
 							exit(1);
 						  theQueryStreams.push_back(tmp);
 						}
 					}
-
 				}
 			}
 		  
