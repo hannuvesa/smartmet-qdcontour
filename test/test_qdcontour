@@ -96,7 +96,7 @@ sub DoTest
 	$expected = "results/$outputfile.ok";
 	$actual = "results/$outputfile";
 
-	if(equalcontent($expected,$actual))
+	if(equalimage($expected,$actual))
 	{
 	    unlink($actual);
 	}
@@ -133,10 +133,10 @@ sub padname
 }
 
 # ----------------------------------------------------------------------
-# Compare two files
+# Compare two image files
 # ----------------------------------------------------------------------
 
-sub equalcontent
+sub equalimage
 {
     my($file1,$file2) = @_;
 
@@ -145,19 +145,12 @@ sub equalcontent
     if(!(-e $file1) || !(-e $file2))
     { return 0; }
 
-    # Read binary file and compare results
+    # Use the system imagecompare command
 
-    my($buffer1,$buffer2);
+    $result = `imagecompare $file1 $file2`;
+    chomp($result);
 
-    open(FILE1,"$file1");
-    open(FILE2,"$file2");
-    binmode(FILE1);
-    binmode(FILE2);
-    read(FILE1,$buffer1,(stat(FILE1))[7]);
-    read(FILE2,$buffer2,(stat(FILE2))[7]);
-    close(FILE1);
-    close(FILE2);
-    return ($buffer1 eq $buffer2);
+    return ($result eq "equal");
 }
 
 # ----------------------------------------------------------------------
