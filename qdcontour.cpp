@@ -736,7 +736,7 @@ int main(int argc, char *argv[])
 		{
 		  // Handle comments
 		  
-		  if(command == "#" || command == "//")
+		  if(command == "#" || command == "//" || command[0]=='#')
 			{
 			  // Should use numeric_limits<int>::max() to by definition
 			  // skip to end of line, but numeric_limits does not exist
