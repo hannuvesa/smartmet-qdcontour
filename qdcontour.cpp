@@ -2025,6 +2025,203 @@ void draw_label_texts(NFmiImage & theImage,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Draw wind arrows onto the image
+ */
+// ----------------------------------------------------------------------
+
+void draw_wind_arrows(NFmiImage & theImage,
+					  const NFmiDataMatrix<float> & theValues,
+					  const NFmiArea & theArea)
+{
+  NFmiEnumConverter converter;
+  if((!globals.arrowpoints.empty() ||
+	  (globals.windarrowdx!=0 && globals.windarrowdy!=0)) &&
+	 (globals.arrowfile!=""))
+	{
+	  
+	  FmiParameterName param = FmiParameterName(NFmiEnumConverter().ToEnum(globals.directionparam));
+	  if(param==kFmiBadParameter)
+		throw runtime_error("Unknown parameter "+globals.directionparam);
+	  
+	  // Find the proper queryinfo to be used
+	  // Note that qi will be used later on for
+	  // getting the coordinate matrices
+	  
+	  bool ok = false;
+	  for(unsigned int qi=0; qi<globals.querystreams.size(); qi++)
+		{
+		  globals.queryinfo = globals.querystreams[qi];
+		  globals.queryinfo->Param(param);
+		  ok = globals.queryinfo->IsParamUsable();
+		  if(ok) break;
+		}
+	  
+	  if(!ok)
+		throw runtime_error("Parameter is not usable: " + globals.directionparam);
+	  
+	  // Read the arrow definition
+	  
+	  NFmiPath arrowpath;
+	  if(globals.arrowfile != "meteorological")
+		{
+		  ifstream arrow(globals.arrowfile.c_str());
+		  if(!arrow)
+			throw runtime_error("Could not open " + globals.arrowfile);
+		  // Read in the entire file
+		  string pathstring = NFmiStringTools::ReadFile(arrow);
+		  arrow.close();
+		  
+		  // Convert to a path
+		  
+		  arrowpath.Add(pathstring);
+		}
+	  
+	  // Handle all given coordinates
+	  
+	  list<NFmiPoint>::const_iterator iter;
+	  
+	  for(iter=globals.arrowpoints.begin();
+		  iter!=globals.arrowpoints.end();
+		  ++iter)
+		{
+		  
+		  // The start point
+		  NFmiPoint xy0 = theArea.ToXY(*iter);
+		  
+		  // Skip rendering if the start point is masked
+		  
+		  if(IsMasked(xy0,globals.mask,globals.maskimage))
+			continue;
+		  
+		  float dir = globals.queryinfo->InterpolatedValue(*iter);
+		  if(dir==kFloatMissing)	// ignore missing
+			continue;
+		  
+		  float speed = -1;
+		  
+		  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
+			speed = globals.queryinfo->InterpolatedValue(*iter);
+		  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
+		  
+		  
+		  // Direction calculations
+		  
+		  const float pi = 3.141592658979323;
+		  const float length = 0.1;	// degrees
+		  
+		  float x1 = iter->X()+sin(dir*pi/180)*length;
+		  float y1 = iter->Y()+cos(dir*pi/180)*length;
+		  
+		  NFmiPoint xy1 = theArea.ToXY(NFmiPoint(x1,y1));
+		  
+		  // Calculate the actual angle
+		  
+		  float alpha = atan2(xy1.X()-xy0.X(),
+							  xy1.Y()-xy0.Y());
+		  
+		  // Create a new path
+		  
+		  NFmiPath thispath;
+		  
+		  if(globals.arrowfile == "meteorological")
+			thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
+		  else
+			thispath.Add(arrowpath);
+		  
+		  if(speed>0 && speed!=kFloatMissing)
+			thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
+		  thispath.Scale(globals.arrowscale);
+		  thispath.Rotate(alpha*180/pi);
+		  thispath.Translate(xy0.X(),xy0.Y());
+		  
+		  // And render it
+		  
+		  thispath.Fill(theImage,
+						ColorTools::checkcolor(globals.arrowfillcolor),
+						ColorTools::checkrule(globals.arrowfillrule));
+		  thispath.Stroke(theImage,
+						  ColorTools::checkcolor(globals.arrowstrokecolor),
+						  ColorTools::checkrule(globals.arrowstrokerule));
+		}
+	  
+	  // Draw the full grid if so desired
+	  
+	  if(globals.windarrowdx!=0 && globals.windarrowdy!=0)
+		{
+		  
+		  NFmiDataMatrix<float> speedvalues(theValues.NX(),theValues.NY(),-1);
+		  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
+			globals.queryinfo->Values(speedvalues);
+		  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
+		  
+		  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(theArea);
+		  for(unsigned int j=0; j<worldpts->NY(); j+=globals.windarrowdy)
+			for(unsigned int i=0; i<worldpts->NX(); i+=globals.windarrowdx)
+			  {
+				// The start point
+				
+				NFmiPoint latlon = theArea.WorldXYToLatLon((*worldpts)[i][j]);
+				NFmiPoint xy0 = theArea.ToXY(latlon);
+				
+				// Skip rendering if the start point is masked
+				if(IsMasked(xy0,
+							globals.mask,
+							globals.maskimage))
+				  continue;
+				
+				float dir = theValues[i][j];
+				if(dir==kFloatMissing)	// ignore missing
+				  continue;
+				
+				float speed = speedvalues[i][j];
+				
+				// Direction calculations
+				
+				const float pi = 3.141592658979323;
+				const float length = 0.1;	// degrees
+				
+				float x0 = latlon.X();
+				float y0 = latlon.Y();
+				
+				float x1 = x0+sin(dir*pi/180)*length;
+				float y1 = y0+cos(dir*pi/180)*length;
+				
+				NFmiPoint xy1 = theArea.ToXY(NFmiPoint(x1,y1));
+				
+				// Calculate the actual angle
+				
+				float alpha = atan2(xy1.X()-xy0.X(),
+									xy1.Y()-xy0.Y());
+				
+				// Create a new path
+				
+				NFmiPath thispath;
+				if(globals.arrowfile == "meteorological")
+				  thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
+				else
+				  thispath.Add(arrowpath);
+				if(speed>0 && speed != kFloatMissing)
+				  thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
+				thispath.Scale(globals.arrowscale);
+				thispath.Rotate(alpha*180/pi);
+				thispath.Translate(xy0.X(),xy0.Y());
+				
+				// And render it
+				
+				thispath.Fill(theImage,
+							  ColorTools::checkcolor(globals.arrowfillcolor),
+							  ColorTools::checkrule(globals.arrowfillrule));
+				thispath.Stroke(theImage,
+								ColorTools::checkcolor(globals.arrowstrokecolor),
+								ColorTools::checkrule(globals.arrowstrokerule));
+			  }
+		}
+	}
+  
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Handle "draw contours" command
  */
 // ----------------------------------------------------------------------
@@ -2687,190 +2884,7 @@ void do_draw_contours(istream & theInput)
 
 	  // Draw wind arrows if so requested
 
-	  NFmiEnumConverter converter;
-	  if((!globals.arrowpoints.empty() ||
-		  (globals.windarrowdx!=0 && globals.windarrowdy!=0)) &&
-		 (globals.arrowfile!=""))
-		{
-
-		  FmiParameterName param = FmiParameterName(NFmiEnumConverter().ToEnum(globals.directionparam));
-		  if(param==kFmiBadParameter)
-			throw runtime_error("Unknown parameter "+globals.directionparam);
-
-		  // Find the proper queryinfo to be used
-		  // Note that qi will be used later on for
-		  // getting the coordinate matrices
-
-		  ok = false;
-		  for(qi=0; qi<globals.querystreams.size(); qi++)
-			{
-			  globals.queryinfo = globals.querystreams[qi];
-			  globals.queryinfo->Param(param);
-			  ok = globals.queryinfo->IsParamUsable();
-			  if(ok) break;
-			}
-
-		  if(!ok)
-			throw runtime_error("Parameter is not usable: " + globals.directionparam);
-
-		  // Read the arrow definition
-
-		  NFmiPath arrowpath;
-		  if(globals.arrowfile != "meteorological")
-			{
-			  ifstream arrow(globals.arrowfile.c_str());
-			  if(!arrow)
-				throw runtime_error("Could not open " + globals.arrowfile);
-			  // Read in the entire file
-			  string pathstring = NFmiStringTools::ReadFile(arrow);
-			  arrow.close();
-
-			  // Convert to a path
-
-			  arrowpath.Add(pathstring);
-			}
-
-		  // Handle all given coordinates
-
-		  list<NFmiPoint>::const_iterator iter;
-
-		  for(iter=globals.arrowpoints.begin();
-			  iter!=globals.arrowpoints.end();
-			  ++iter)
-			{
-
-			  // The start point
-			  NFmiPoint xy0 = area->ToXY(*iter);
-
-			  // Skip rendering if the start point is masked
-
-			  if(IsMasked(xy0,globals.mask,globals.maskimage))
-				continue;
-
-			  float dir = globals.queryinfo->InterpolatedValue(*iter);
-			  if(dir==kFloatMissing)	// ignore missing
-				continue;
-
-			  float speed = -1;
-
-			  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
-				speed = globals.queryinfo->InterpolatedValue(*iter);
-			  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
-
-
-			  // Direction calculations
-
-			  const float pi = 3.141592658979323;
-			  const float length = 0.1;	// degrees
-
-			  float x1 = iter->X()+sin(dir*pi/180)*length;
-			  float y1 = iter->Y()+cos(dir*pi/180)*length;
-
-			  NFmiPoint xy1 = area->ToXY(NFmiPoint(x1,y1));
-
-			  // Calculate the actual angle
-
-			  float alpha = atan2(xy1.X()-xy0.X(),
-								  xy1.Y()-xy0.Y());
-
-			  // Create a new path
-
-			  NFmiPath thispath;
-
-			  if(globals.arrowfile == "meteorological")
-				thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
-			  else
-				thispath.Add(arrowpath);
-
-			  if(speed>0 && speed!=kFloatMissing)
-				thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
-			  thispath.Scale(globals.arrowscale);
-			  thispath.Rotate(alpha*180/pi);
-			  thispath.Translate(xy0.X(),xy0.Y());
-
-			  // And render it
-
-			  thispath.Fill(image,
-							ColorTools::checkcolor(globals.arrowfillcolor),
-							ColorTools::checkrule(globals.arrowfillrule));
-			  thispath.Stroke(image,
-							  ColorTools::checkcolor(globals.arrowstrokecolor),
-							  ColorTools::checkrule(globals.arrowstrokerule));
-			}
-
-		  // Draw the full grid if so desired
-
-		  if(globals.windarrowdx!=0 && globals.windarrowdy!=0)
-			{
-
-			  NFmiDataMatrix<float> speedvalues(vals.NX(),vals.NY(),-1);
-			  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
-				globals.queryinfo->Values(speedvalues);
-			  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
-
-			  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(*area);
-			  for(unsigned int j=0; j<worldpts->NY(); j+=globals.windarrowdy)
-				for(unsigned int i=0; i<worldpts->NX(); i+=globals.windarrowdx)
-				  {
-					// The start point
-
-					NFmiPoint latlon = area->WorldXYToLatLon((*worldpts)[i][j]);
-					NFmiPoint xy0 = area->ToXY(latlon);
-
-					// Skip rendering if the start point is masked
-					if(IsMasked(xy0,
-								globals.mask,
-								globals.maskimage))
-					  continue;
-
-					float dir = vals[i][j];
-					if(dir==kFloatMissing)	// ignore missing
-					  continue;
-
-					float speed = speedvalues[i][j];
-
-					// Direction calculations
-
-					const float pi = 3.141592658979323;
-					const float length = 0.1;	// degrees
-
-					float x0 = latlon.X();
-					float y0 = latlon.Y();
-
-					float x1 = x0+sin(dir*pi/180)*length;
-					float y1 = y0+cos(dir*pi/180)*length;
-
-					NFmiPoint xy1 = area->ToXY(NFmiPoint(x1,y1));
-
-					// Calculate the actual angle
-
-					float alpha = atan2(xy1.X()-xy0.X(),
-										xy1.Y()-xy0.Y());
-
-					// Create a new path
-
-					NFmiPath thispath;
-					if(globals.arrowfile == "meteorological")
-					  thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
-					else
-					  thispath.Add(arrowpath);
-					if(speed>0 && speed != kFloatMissing)
-					  thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
-					thispath.Scale(globals.arrowscale);
-					thispath.Rotate(alpha*180/pi);
-					thispath.Translate(xy0.X(),xy0.Y());
-
-					// And render it
-
-					thispath.Fill(image,
-								  ColorTools::checkcolor(globals.arrowfillcolor),
-								  ColorTools::checkrule(globals.arrowfillrule));
-					thispath.Stroke(image,
-									ColorTools::checkcolor(globals.arrowstrokecolor),
-									ColorTools::checkrule(globals.arrowstrokerule));
-				  }
-			}
-		}
+	  draw_wind_arrows(image,vals,*area);
 
 	  // Draw labels
 
