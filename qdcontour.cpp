@@ -253,6 +253,9 @@ void do_querydata(istream & theInput)
   string newnames;
   theInput >> newnames;
 
+  if(theInput.fail())
+	throw runtime_error("Processing the 'querydata' command failed");
+
   if(globals.queryfilelist != newnames)
 	{
 	  globals.queryfilelist = newnames;
