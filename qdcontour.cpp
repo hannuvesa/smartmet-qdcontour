@@ -2222,6 +2222,79 @@ void draw_wind_arrows(NFmiImage & theImage,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Draw contour fills
+ */
+// ----------------------------------------------------------------------
+
+void draw_contour_fills(NFmiImage & theImage,
+						const NFmiArea & theArea,
+						const ContourSpec & theSpec,
+						NFmiContourTree::NFmiContourInterpolation theInterpolation,
+						float theMinimum,
+						float theMaximum)
+{
+  list<ContourRange>::const_iterator it;
+  list<ContourRange>::const_iterator begin;
+  list<ContourRange>::const_iterator end;
+  
+  begin = theSpec.contourFills().begin();
+  end   = theSpec.contourFills().end();
+  
+  for(it=begin ; it!=end; ++it)
+	{
+	  // Skip to next contour if this one is outside
+	  // the value range. As a special case
+	  // min=max=missing is ok, if both the limits
+	  // are missing too. That is, when we are
+	  // contouring missing values.
+	  
+	  if(theMinimum==kFloatMissing || theMaximum==kFloatMissing)
+		{
+		  if(it->lolimit()!=kFloatMissing &&
+			 it->hilimit()!=kFloatMissing)
+			continue;
+		}
+	  else
+		{
+		  if(it->lolimit()!=kFloatMissing &&
+			 theMaximum<it->lolimit())
+			continue;
+		  if(it->hilimit()!=kFloatMissing &&
+			 theMinimum>it->hilimit())
+			continue;
+		}
+	  
+	  bool exactlo = true;
+	  bool exacthi = (it->hilimit()!=kFloatMissing &&
+					  theSpec.exactHiLimit()!=kFloatMissing &&
+					  it->hilimit()==theSpec.exactHiLimit());
+	  
+	  NFmiPath path =
+		globals.calculator.contour(*globals.queryinfo,
+								   it->lolimit(),
+								   it->hilimit(),
+								   exactlo,
+								   exacthi,
+								   theSpec.dataLoLimit(),
+								   theSpec.dataHiLimit(),
+								   theSpec.contourDepth(),
+								   theInterpolation,
+								   globals.contourtriangles);
+	  
+	  if(globals.verbose && globals.calculator.wasCached())
+		cout << "Using cached "
+			 << it->lolimit() << " - "
+			 << it->hilimit() << endl;
+	  
+	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
+	  path.Project(&theArea);
+	  path.Fill(theImage,it->color(),rule);
+	  
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Draw contour patterns
  */
 // ----------------------------------------------------------------------
@@ -2858,68 +2931,9 @@ void do_draw_contours(istream & theInput)
 
 		  // Fill the contours
 
-		  list<ContourRange>::const_iterator citer;
-		  list<ContourRange>::const_iterator cbegin;
-		  list<ContourRange>::const_iterator cend;
+		  draw_contour_fills(image,*area,*piter,interp,min_value,max_value);
 
-		  cbegin = piter->contourFills().begin();
-		  cend   = piter->contourFills().end();
-
-		  for(citer=cbegin ; citer!=cend; ++citer)
-			{
-			  // Skip to next contour if this one is outside
-			  // the value range. As a special case
-			  // min=max=missing is ok, if both the limits
-			  // are missing too. That is, when we are
-			  // contouring missing values.
-
-			  if(min_value==kFloatMissing || max_value==kFloatMissing)
-				{
-				  if(citer->lolimit()!=kFloatMissing &&
-					 citer->hilimit()!=kFloatMissing)
-					continue;
-				}
-			  else
-				{
-				  if(citer->lolimit()!=kFloatMissing &&
-					 max_value<citer->lolimit())
-					continue;
-				  if(citer->hilimit()!=kFloatMissing &&
-					 min_value>citer->hilimit())
-					continue;
-				}
-
-			  bool exactlo = true;
-			  bool exacthi = (citer->hilimit()!=kFloatMissing &&
-							  piter->exactHiLimit()!=kFloatMissing &&
-							  citer->hilimit()==piter->exactHiLimit());
-
-			  NFmiPath path =
-				globals.calculator.contour(*globals.queryinfo,
-										   citer->lolimit(),
-										   citer->hilimit(),
-										   exactlo,
-										   exacthi,
-										   piter->dataLoLimit(),
-										   piter->dataHiLimit(),
-										   piter->contourDepth(),
-										   interp,
-										   globals.contourtriangles);
-
-			  if(globals.verbose && globals.calculator.wasCached())
-				cout << "Using cached "
-					 << citer->lolimit() << " - "
-					 << citer->hilimit() << endl;
-
-			  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(citer->rule());
-			  path.Project(area.get());
-			  path.Fill(image,citer->color(),rule);
-
-			}
-
-		  // Fill the contours with patterns
-
-		  // Stroke the contours
+		  // Pattern fill the contours
 
 		  draw_contour_patterns(image,*area,*piter,interp,min_value,max_value);
 
