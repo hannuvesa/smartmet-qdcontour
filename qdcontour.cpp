@@ -1876,6 +1876,92 @@ unsigned int choose_queryinfo(const string & theName)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Filter the data values
+ */
+// ----------------------------------------------------------------------
+
+void filter_values(NFmiDataMatrix<float> & theValues,
+				   const NFmiTime & theTime,
+				   const ContourSpec & theSpec)
+{
+  if(globals.filter=="none")
+	{
+	  // The time is known to be exact
+	}
+  else if(globals.filter=="linear")
+	{
+	  NFmiTime utc = globals.queryinfo->ValidTime();
+	  NFmiTime tnow = TimeTools::ConvertZone(utc,globals.timestampzone);
+	  bool isexact = theTime.IsEqual(tnow);
+	  
+	  if(!isexact)
+		{
+		  NFmiDataMatrix<float> tmpvals;
+		  NFmiTime t2utc = globals.queryinfo->ValidTime();
+		  NFmiTime t2 = TimeTools::ConvertZone(t2utc,globals.timestampzone);
+		  globals.queryinfo->PreviousTime();
+		  NFmiTime t1utc = globals.queryinfo->ValidTime();
+		  NFmiTime t1 = TimeTools::ConvertZone(t1utc,globals.timestampzone);
+		  if(!MetaFunctions::isMeta(theSpec.param()))
+			globals.queryinfo->Values(tmpvals);
+		  else
+			tmpvals = MetaFunctions::values(theSpec.param(), globals.queryinfo);
+		  if(theSpec.replace())
+			tmpvals.Replace(theSpec.replaceSourceValue(),
+							theSpec.replaceTargetValue());
+		  
+		  // Data from t1,t2, we want t
+		  
+		  long offset = theTime.DifferenceInMinutes(t1);
+		  long range = t2.DifferenceInMinutes(t1);
+		  
+		  float weight = (static_cast<float>(offset))/range;
+		  
+		  theValues.LinearCombination(tmpvals,weight,1-weight);
+		  
+		}
+	}
+  else
+	{
+	  NFmiTime tprev = theTime;
+	  tprev.ChangeByMinutes(-globals.timeinterval);
+	  
+	  NFmiDataMatrix<float> tmpvals;
+	  int steps = 1;
+	  for(;;)
+		{
+		  globals.queryinfo->PreviousTime();
+		  NFmiTime utc = globals.queryinfo->ValidTime();
+		  NFmiTime tnow = TimeTools::ConvertZone(utc,globals.timestampzone);
+		  if(tnow.IsLessThan(tprev))
+			break;
+		  
+		  steps++;
+		  if(!MetaFunctions::isMeta(theSpec.param()))
+			globals.queryinfo->Values(tmpvals);
+		  else
+			tmpvals = MetaFunctions::values(theSpec.param(), globals.queryinfo);
+		  if(theSpec.replace())
+			tmpvals.Replace(theSpec.replaceSourceValue(),
+							theSpec.replaceTargetValue());
+		  
+		  if(globals.filter=="min")
+			theValues.Min(tmpvals);
+		  else if(globals.filter=="max")
+			theValues.Max(tmpvals);
+		  else if(globals.filter=="mean")
+			theValues += tmpvals;
+		  else if(globals.filter=="sum")
+			theValues += tmpvals;
+		}
+	  
+	  if(globals.filter=="mean")
+		theValues /= steps;
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Save grid values for later labelling
  */
 // ----------------------------------------------------------------------
@@ -2846,81 +2932,9 @@ void do_draw_contours(istream & theInput)
 		  if(piter->replace())
 			vals.Replace(piter->replaceSourceValue(),piter->replaceTargetValue());
 
-		  if(globals.filter=="none")
-			{
-			  // The time is known to be exact
-			}
-		  else if(globals.filter=="linear")
-			{
-			  NFmiTime utc = globals.queryinfo->ValidTime();
-			  NFmiTime tnow = TimeTools::ConvertZone(utc,globals.timestampzone);
-			  bool isexact = t.IsEqual(tnow);
+		  // Filter the values if so requested
 
-			  if(!isexact)
-				{
-				  NFmiDataMatrix<float> tmpvals;
-				  NFmiTime t2utc = globals.queryinfo->ValidTime();
-				  NFmiTime t2 = TimeTools::ConvertZone(t2utc,globals.timestampzone);
-				  globals.queryinfo->PreviousTime();
-				  NFmiTime t1utc = globals.queryinfo->ValidTime();
-				  NFmiTime t1 = TimeTools::ConvertZone(t1utc,globals.timestampzone);
-				  if(!ismeta)
-					globals.queryinfo->Values(tmpvals);
-				  else
-					tmpvals = MetaFunctions::values(piter->param(), globals.queryinfo);
-				  if(piter->replace())
-					tmpvals.Replace(piter->replaceSourceValue(),
-									piter->replaceTargetValue());
-
-				  // Data from t1,t2, we want t
-
-				  long offset = t.DifferenceInMinutes(t1);
-				  long range = t2.DifferenceInMinutes(t1);
-
-				  float weight = (static_cast<float>(offset))/range;
-
-				  vals.LinearCombination(tmpvals,weight,1-weight);
-
-				}
-			}
-		  else
-			{
-			  NFmiTime tprev = t;
-			  tprev.ChangeByMinutes(-globals.timeinterval);
-
-			  NFmiDataMatrix<float> tmpvals;
-			  int steps = 1;
-			  for(;;)
-				{
-				  globals.queryinfo->PreviousTime();
-				  NFmiTime utc = globals.queryinfo->ValidTime();
-				  NFmiTime tnow = TimeTools::ConvertZone(utc,globals.timestampzone);
-				  if(tnow.IsLessThan(tprev))
-					break;
-
-				  steps++;
-				  if(!ismeta)
-					globals.queryinfo->Values(tmpvals);
-				  else
-					tmpvals = MetaFunctions::values(piter->param(), globals.queryinfo);
-				  if(piter->replace())
-					tmpvals.Replace(piter->replaceSourceValue(),
-									piter->replaceTargetValue());
-
-				  if(globals.filter=="min")
-					vals.Min(tmpvals);
-				  else if(globals.filter=="max")
-					vals.Max(tmpvals);
-				  else if(globals.filter=="mean")
-					vals += tmpvals;
-				  else if(globals.filter=="sum")
-					vals += tmpvals;
-				}
-
-			  if(globals.filter=="mean")
-				vals /= steps;
-			}
-
+		  filter_values(vals,t,*piter);
 
 		  // Smoothen the values
 
