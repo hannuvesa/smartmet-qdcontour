@@ -1241,6 +1241,158 @@ void do_shape(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \bried Handle "contourfill" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourfill(istream & theInput)
+{
+  string slo,shi,scolor;
+  theInput >> slo >> shi >> scolor;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'contourfill' command failed");
+
+  float lo,hi;
+  if(slo == "-")
+	lo = kFloatMissing;
+  else
+	lo = NFmiStringTools::Convert<float>(slo);
+  if(shi == "-")
+	hi = kFloatMissing;
+  else
+	hi = NFmiStringTools::Convert<float>(shi);
+  
+  NFmiColorTools::Color color = ColorTools::checkcolor(scolor);
+  
+  if(!globals.specs.empty())
+	globals.specs.back().add(ContourRange(lo,hi,color,globals.fillrule));
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "contourpattern" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourpattern(istream & theInput)
+{
+  string slo,shi,spattern,srule;
+  float alpha;
+  theInput >> slo >> shi >> spattern >> srule >> alpha;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'contourpattern' command failed");
+
+  float lo,hi;
+  if(slo == "-")
+	lo = kFloatMissing;
+  else
+	lo = NFmiStringTools::Convert<float>(slo);
+  if(shi == "-")
+	hi = kFloatMissing;
+  else
+	hi = NFmiStringTools::Convert<float>(shi);
+  
+  if(!globals.specs.empty())
+	globals.specs.back().add(ContourPattern(lo,hi,spattern,srule,alpha));
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "contourline" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourline(istream & theInput)
+{
+  string svalue,scolor;
+  theInput >> svalue >> scolor;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'contourline' command failed");
+
+  float value;
+  if(svalue == "-")
+	value = kFloatMissing;
+  else
+	value = NFmiStringTools::Convert<float>(svalue);
+
+  NFmiColorTools::Color color = ColorTools::checkcolor(scolor);
+  if(!globals.specs.empty())
+	globals.specs.back().add(ContourValue(value,color,globals.strokerule));
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "contourfills" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourfills(istream & theInput)
+{
+  float lo,hi,step;
+  string scolor1,scolor2;
+  theInput >> lo >> hi >> step >> scolor1 >> scolor2;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'contourfills' command failed");
+
+  int color1 = ColorTools::checkcolor(scolor1);
+  int color2 = ColorTools::checkcolor(scolor2);
+
+  int steps = static_cast<int>((hi-lo)/step);
+
+  for(int i=0; i<steps; i++)
+	{
+	  float tmplo=lo+i*step;
+	  float tmphi=lo+(i+1)*step;
+	  int color = color1;	// in case steps=1
+	  if(steps!=1)
+		color = NFmiColorTools::Interpolate(color1,color2,i/(steps-1.0));
+	  if(!globals.specs.empty())
+		globals.specs.back().add(ContourRange(tmplo,
+											  tmphi,
+											  color,
+											  globals.fillrule));
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \bried Handle "contourlines" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourlines(istream & theInput)
+{
+  float lo,hi,step;
+  string scolor1,scolor2;
+  theInput >> lo >> hi >> step >> scolor1 >> scolor2;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'contourlines' command failed");
+
+  int color1 = ColorTools::checkcolor(scolor1);
+  int color2 = ColorTools::checkcolor(scolor2);
+  
+  int steps = static_cast<int>((hi-lo)/step);
+  
+  for(int i=0; i<=steps; i++)
+	{
+	  float tmplo=lo+i*step;
+	  int color = color1;	// in case steps=1
+	  if(steps!=0)
+		color = NFmiColorTools::Interpolate(color1,color2,i/static_cast<float>(steps));
+	  if(!globals.specs.empty())
+		globals.specs.back().add(ContourValue(tmplo,
+											  color,
+											  globals.strokerule));
+	}
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -1334,108 +1486,11 @@ int domain(int argc, const char *argv[])
 		  else if(command == "smootherfactor")		do_smootherfactor(input);
 		  else if(command == "param")				do_param(input);
 		  else if(command == "shape")				do_shape(input);
-
-		  else if(command == "contourfill")
-			{
-			  string slo,shi,scolor;
-			  input >> slo >> shi >> scolor;
-
-			  float lo,hi;
-			  if(slo == "-")
-				lo = kFloatMissing;
-			  else
-				lo = atof(slo.c_str());
-			  if(shi == "-")
-				hi = kFloatMissing;
-			  else
-				hi = atof(shi.c_str());
-
-			  NFmiColorTools::Color color = ColorTools::checkcolor(scolor);
-
-			  if(!globals.specs.empty())
-				globals.specs.back().add(ContourRange(lo,hi,color,globals.fillrule));
-			}
-
-		  else if(command == "contourpattern")
-			{
-			  string slo,shi,spattern,srule;
-			  float alpha;
-			  input >> slo >> shi >> spattern >> srule >> alpha;
-
-			  float lo,hi;
-			  if(slo == "-")
-				lo = kFloatMissing;
-			  else
-				lo = atof(slo.c_str());
-			  if(shi == "-")
-				hi = kFloatMissing;
-			  else
-				hi = atof(shi.c_str());
-
-			  if(!globals.specs.empty())
-				globals.specs.back().add(ContourPattern(lo,hi,spattern,srule,alpha));
-			}
-
-		  else if(command == "contourline")
-			{
-			  string svalue,scolor;
-			  input >> svalue >> scolor;
-
-			  float value;
-			  if(svalue == "-")
-				value = kFloatMissing;
-			  else
-				value = atof(svalue.c_str());
-
-			  NFmiColorTools::Color color = ColorTools::checkcolor(scolor);
-			  if(!globals.specs.empty())
-				globals.specs.back().add(ContourValue(value,color,globals.strokerule));
-			}
-
-		  else if(command == "contourfills")
-			{
-			  float lo,hi,step;
-			  string scolor1,scolor2;
-			  input >> lo >> hi >> step >> scolor1 >> scolor2;
-
-			  int color1 = ColorTools::checkcolor(scolor1);
-			  int color2 = ColorTools::checkcolor(scolor2);
-
-			  int steps = static_cast<int>((hi-lo)/step);
-
-			  for(int i=0; i<steps; i++)
-				{
-				  float tmplo=lo+i*step;
-				  float tmphi=lo+(i+1)*step;
-				  int color = color1;	// in case steps=1
-				  if(steps!=1)
-					color = NFmiColorTools::Interpolate(color1,color2,i/(steps-1.0));
-				  if(!globals.specs.empty())
-					globals.specs.back().add(ContourRange(tmplo,tmphi,color,globals.fillrule));
-				}
-			}
-
-		  else if(command == "contourlines")
-			{
-			  float lo,hi,step;
-			  string scolor1,scolor2;
-			  input >> lo >> hi >> step >> scolor1 >> scolor2;
-
-			  int color1 = ColorTools::checkcolor(scolor1);
-			  int color2 = ColorTools::checkcolor(scolor2);
-
-			  int steps = static_cast<int>((hi-lo)/step);
-
-			  for(int i=0; i<=steps; i++)
-				{
-				  float tmplo=lo+i*step;
-				  int color = color1;	// in case steps=1
-				  if(steps!=0)
-					color = NFmiColorTools::Interpolate(color1,color2,i/static_cast<float>(steps));
-				  if(!globals.specs.empty())
-					globals.specs.back().add(ContourValue(tmplo,color,globals.strokerule));
-				}
-			}
+		  else if(command == "contourfill")			do_contourfill(input);
+		  else if(command == "contourpattern")		do_contourpattern(input);
+		  else if(command == "contourline")			do_contourline(input);
+		  else if(command == "contourfills")		do_contourfills(input);
+		  else if(command == "contourlines")		do_contourlines(input);
 
 		  else if(command == "clear")
 			{
