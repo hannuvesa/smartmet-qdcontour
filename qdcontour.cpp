@@ -215,6 +215,18 @@ const string preprocess_script(const string & theScript)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Check input stream validity
+ */
+// ----------------------------------------------------------------------
+
+void check_errors(istream & theInput, const string & theFunction)
+{
+  if(theInput.fail())
+	throw runtime_error("Processing the '"+theFunction+"' command failed");
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Handle a comment token
  */
 // ----------------------------------------------------------------------
@@ -235,8 +247,7 @@ void do_cache(istream & theInput)
   int flag;
   theInput >> flag;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'cache' command failed");
+  check_errors(theInput,"cache");
 
   globals.calculator.cache(flag);
 }
@@ -252,8 +263,7 @@ void do_querydata(istream & theInput)
   string newnames;
   theInput >> newnames;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'querydata' command failed");
+  check_errors(theInput,"querydata");
 
   if(globals.queryfilelist != newnames)
 	{
@@ -293,9 +303,7 @@ void do_querydatalevel(istream & theInput)
 {
   theInput >> globals.querydatalevel;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'querydatalevel' command failed");
-
+  check_errors(theInput,"querydatalevel");
 }
 
 // ----------------------------------------------------------------------
@@ -308,8 +316,7 @@ void do_filter(istream & theInput)
 {
   theInput >> globals.filter;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'filter' command failed");
+  check_errors(theInput,"filter");
 
   if(globals.filter != "none" &&
 	 globals.filter != "linear" &&
@@ -333,8 +340,7 @@ void do_timestepskip(istream & theInput)
 {
   theInput >> globals.timestepskip;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'timestepskip' command failed");
+  check_errors(theInput,"timestepskip");
 
   if(globals.timestepskip < 0)
 	throw runtime_error("timestepskip cannot be negative");
@@ -356,8 +362,7 @@ void do_timestep(istream & theInput)
   theInput >> globals.timestep;
   globals.timeinterval = globals.timestep;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'timestep' command failed");
+  check_errors(theInput,"timestep");
 
   if(globals.timestep < 0)
 	throw runtime_error("timestep cannot be negative");
@@ -378,8 +383,7 @@ void do_timeinterval(istream & theInput)
 {
   theInput >> globals.timeinterval;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'timeinterval' command failed");
+  check_errors(theInput,"timeinterval");
 
   if(globals.timeinterval < 0)
 	throw runtime_error("timeinterval cannot be negative");
@@ -400,8 +404,7 @@ void do_timesteps(istream & theInput)
 {
   theInput >> globals.timesteps;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'timeinterval' command failed");
+  check_errors(theInput,"timeinterval");
 
   if(globals.timesteps < 0)
 	throw runtime_error("timesteps cannot be negative");
@@ -422,9 +425,7 @@ void do_timestamp(istream & theInput)
 {
   theInput >> globals.timestampflag;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'timestamp' command failed");
-
+  check_errors(theInput,"timestamp");
 }
 
 // ----------------------------------------------------------------------
@@ -437,9 +438,7 @@ void do_timestampzone(istream & theInput)
 {
   theInput >> globals.timestampzone;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'timestampzone' command failed");
-
+  check_errors(theInput,"timestampzone");
 }
 
 // ----------------------------------------------------------------------
@@ -452,9 +451,7 @@ void do_timesteprounding(istream & theInput)
 {
   theInput >> globals.timesteprounding;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'timesteprounding' command failed");
-
+  check_errors(theInput,"timesteprounding");
 }
 
 // ----------------------------------------------------------------------
@@ -467,8 +464,7 @@ void do_timestampimage(istream & theInput)
 {
   theInput >> globals.timestampimage;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'timestampimage' command failed");
+  check_errors(theInput,"timestampimage");
 
   if(globals.timestampimage != "none" &&
 	 globals.timestampimage != "obs" &&
@@ -489,9 +485,7 @@ void do_timestampimagexy(istream & theInput)
 {
   theInput >> globals.timestampimagex >> globals.timestampimagey;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'timestampimagexy' command failed");
-
+  check_errors(theInput,"timestampimagexy");
 }
 
 // ----------------------------------------------------------------------
@@ -504,8 +498,7 @@ void do_projection(istream & theInput)
 {
   theInput >> globals.projection;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'projection' command failed");
+  check_errors(theInput,"projection");
 }
 
 // ----------------------------------------------------------------------
@@ -518,8 +511,7 @@ void do_erase(istream & theInput)
 {
   theInput >> globals.erase;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'erase' command failed");
+  check_errors(theInput,"projection");
 
   ColorTools::checkcolor(globals.erase);
 }
@@ -534,8 +526,7 @@ void do_fillrule(istream & theInput)
 {
   theInput >> globals.fillrule;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'fillrule' command failed");
+  check_errors(theInput,"fillrule");
 
   ColorTools::checkrule(globals.fillrule);
 
@@ -553,8 +544,7 @@ void do_strokerule(istream & theInput)
 {
   theInput >> globals.strokerule;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'strokerule' command failed");
+  check_errors(theInput,"strokerule");
 
   ColorTools::checkrule(globals.strokerule);
 
@@ -572,8 +562,7 @@ void do_directionparam(istream & theInput)
 {
   theInput >> globals.directionparam;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'directionparam' command failed");
+  check_errors(theInput,"directionparam");
 
   if(NFmiEnumConverter().ToEnum(globals.directionparam) == kFmiBadParameter)
 	throw runtime_error("Unrecognized directionparam '"+globals.directionparam+"'");
@@ -589,8 +578,7 @@ void do_speedparam(istream & theInput)
 {
   theInput >> globals.speedparam;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'speedparam' command failed");
+  check_errors(theInput,"speedparam");
 
   if(NFmiEnumConverter().ToEnum(globals.speedparam) == kFmiBadParameter)
 	throw runtime_error("Unrecognized speedparam '"+globals.speedparam+"'");
@@ -606,8 +594,7 @@ void do_arrowscale(istream & theInput)
 {
   theInput >> globals.arrowscale;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'arrowscale' command failed");
+  check_errors(theInput,"arrowscale");
 }
 
 // ----------------------------------------------------------------------
@@ -622,8 +609,7 @@ void do_windarrowscale(istream & theInput)
 		   >> globals.windarrowscaleB
 		   >> globals.windarrowscaleC;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'windarrowscale' command failed");
+  check_errors(theInput,"windarrowscale");
 
   if(globals.windarrowscaleB < 0)
 	throw runtime_error("Second parameter of windarrowscale must be nonnegative");
@@ -639,8 +625,7 @@ void do_arrowfill(istream & theInput)
 {
   theInput >> globals.arrowfillcolor  >> globals.arrowfillrule;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'arrowfill' command failed");
+  check_errors(theInput,"arrowfill");
 
   ColorTools::checkcolor(globals.arrowfillcolor);
   ColorTools::checkrule(globals.arrowfillrule);
@@ -656,8 +641,7 @@ void do_arrowstroke(istream & theInput)
 {
   theInput >> globals.arrowstrokecolor  >> globals.arrowstrokerule;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'arrowstroke' command failed");
+  check_errors(theInput,"arrowstroke");
 
   ColorTools::checkcolor(globals.arrowstrokecolor);
   ColorTools::checkrule(globals.arrowstrokerule);
@@ -673,8 +657,7 @@ void do_arrowpath(istream & theInput)
 {
   theInput >> globals.arrowfile;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'arrowpath' command failed");
+  check_errors(theInput,"arrowpath");
 
   if(!NFmiFileSystem::FileExists(globals.arrowfile) &&
 	 globals.arrowfile != "meteorological")
@@ -694,8 +677,7 @@ void do_windarrow(istream & theInput)
   double lon,lat;
   theInput >> lon >> lat;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'windarrow' command failed");
+  check_errors(theInput,"windarrow");
 
   globals.arrowpoints.push_back(NFmiPoint(lon,lat));
 
@@ -711,8 +693,7 @@ void do_windarrows(istream & theInput)
 {
   theInput >> globals.windarrowdx >> globals.windarrowdy;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'windarrow' command failed");
+  check_errors(theInput,"windarrow");
 
   if(globals.windarrowdx < 0 || globals.windarrowdy < 0)
 	throw runtime_error("windarrows parameters must be nonnegative");
@@ -729,6 +710,8 @@ void do_background(istream & theInput)
   using NFmiFileSystem::FileComplete;
 
   theInput >> globals.background;
+
+  check_errors(theInput,"background");
 
   if(globals.background == "none")
 	globals.background = "";
@@ -749,6 +732,8 @@ void do_foreground(istream & theInput)
 
   theInput >> globals.foreground;
 
+  check_errors(theInput,"foreground");
+
   if(globals.foreground == "none")
 	globals.foreground = "";
   else
@@ -768,6 +753,8 @@ void do_mask(istream & theInput)
 
   theInput >> globals.mask;
 
+  check_errors(theInput,"mask");
+
   if(globals.mask == "none")
 	globals.mask = "";
   else
@@ -786,6 +773,8 @@ void do_combine(istream & theInput)
   using NFmiFileSystem::FileComplete;
 
   theInput >> globals.combine;
+
+  check_errors(theInput,"combine");
 
   if(globals.combine == "none")
 	globals.combine = "";
@@ -816,8 +805,7 @@ void do_foregroundrule(istream & theInput)
 {
   theInput >> globals.foregroundrule;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'foregroundrule' command failed");
+  check_errors(theInput,"foregroundrule");
 
   ColorTools::checkrule(globals.foregroundrule);
 }
@@ -832,8 +820,7 @@ void do_savepath(istream & theInput)
 {
   theInput >> globals.savepath;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'savepath' command failed");
+  check_errors(theInput,"savepath");
 
   if(!NFmiFileSystem::DirectoryExists(globals.savepath))
 	throw runtime_error("savepath "+globals.savepath+" does not exist");
@@ -849,8 +836,7 @@ void do_prefix(istream & theInput)
 {
   theInput >> globals.prefix;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'prefix' command failed");
+  check_errors(theInput,"prefix");
 }
 
 // ----------------------------------------------------------------------
@@ -863,8 +849,7 @@ void do_suffix(istream & theInput)
 {
   theInput >> globals.suffix;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'suffix' command failed");
+  check_errors(theInput,"suffix");
 }
 
 // ----------------------------------------------------------------------
@@ -877,8 +862,7 @@ void do_format(istream & theInput)
 {
   theInput >> globals.format;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'format' command failed");
+  check_errors(theInput,"format");
 
   if(globals.format != "png" &&
 	 globals.format != "jpg" &&
@@ -899,8 +883,7 @@ void do_gamma(istream & theInput)
 {
   theInput >> globals.gamma;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'gamma' command failed");
+  check_errors(theInput,"gamma");
 }
 
 // ----------------------------------------------------------------------
@@ -913,8 +896,7 @@ void do_intent(istream & theInput)
 {
   theInput >> globals.intent;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'intent' command failed");
+  check_errors(theInput,"intent");
 }
 
 // ----------------------------------------------------------------------
@@ -927,8 +909,7 @@ void do_pngquality(istream & theInput)
 {
   theInput >> globals.pngquality;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'pngquality' command failed");
+  check_errors(theInput,"pngquality");
 }
 
 // ----------------------------------------------------------------------
@@ -941,8 +922,7 @@ void do_jpegquality(istream & theInput)
 {
   theInput >> globals.jpegquality;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'jpegquality' command failed");
+  check_errors(theInput,"jpegquality");
 }
 
 // ----------------------------------------------------------------------
@@ -955,8 +935,7 @@ void do_savealpha(istream & theInput)
 {
   theInput >> globals.savealpha;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'savealpha' command failed");
+  check_errors(theInput,"savealpha");
 }
 
 // ----------------------------------------------------------------------
@@ -969,8 +948,7 @@ void do_wantpalette(istream & theInput)
 {
   theInput >> globals.wantpalette;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'wantpalette' command failed");
+  check_errors(theInput,"wantpalette");
 }
 
 // ----------------------------------------------------------------------
@@ -983,8 +961,7 @@ void do_forcepalette(istream & theInput)
 {
   theInput >> globals.forcepalette;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'forcepalette' command failed");
+  check_errors(theInput,"forcepalette");
 }
 
 // ----------------------------------------------------------------------
@@ -997,8 +974,7 @@ void do_alphalimit(istream & theInput)
 {
   theInput >> globals.alphalimit;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'alphalimit' command failed");
+  check_errors(theInput,"alphalimit");
 }
 
 // ----------------------------------------------------------------------
@@ -1012,8 +988,7 @@ void do_hilimit(istream & theInput)
   float limit;
   theInput >> limit;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'hilimit' command failed");
+  check_errors(theInput,"hilimit");
 
   if(!globals.specs.empty())
 	globals.specs.back().exactHiLimit(limit);
@@ -1030,8 +1005,7 @@ void do_datalolimit(istream & theInput)
   float limit;
   theInput >> limit;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'datalolimit' command failed");
+  check_errors(theInput,"datalolimit");
 
   if(!globals.specs.empty())
 	globals.specs.back().dataLoLimit(limit);
@@ -1048,8 +1022,7 @@ void do_datahilimit(istream & theInput)
   float limit;
   theInput >> limit;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'datahilimit' command failed");
+  check_errors(theInput,"datahilimit");
 
   if(!globals.specs.empty())
 	globals.specs.back().dataHiLimit(limit);
@@ -1066,8 +1039,7 @@ void do_datareplace(istream & theInput)
   float src, dst;
   theInput >> src >> dst;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'datareplace' command failed");
+  check_errors(theInput,"datareplace");
 
   if(!globals.specs.empty())
 	globals.specs.back().replace(src,dst);
@@ -1083,8 +1055,7 @@ void do_contourdepth(istream & theInput)
 {
   theInput >> globals.contourdepth;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'contourdepth' command failed");
+  check_errors(theInput,"contourdepth");
 
   if(globals.contourdepth < 0)
 	throw runtime_error("Contour depth must be nonnegative");
@@ -1103,8 +1074,7 @@ void do_contourinterpolation(istream & theInput)
 {
   theInput >> globals.contourinterpolation;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'contourinterpolation' command failed");
+  check_errors(theInput,"contourinterpolation");
 
   if(!globals.specs.empty())
 	globals.specs.back().contourInterpolation(globals.contourinterpolation);
@@ -1120,8 +1090,7 @@ void do_contourtriangles(istream & theInput)
 {
   theInput >> globals.contourtriangles;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'contourtriangles' command failed");
+  check_errors(theInput,"contourtriangles");
 }
 
 // ----------------------------------------------------------------------
@@ -1134,8 +1103,7 @@ void do_smoother(istream & theInput)
 {
   theInput >> globals.smoother;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'smoother' command failed");
+  check_errors(theInput,"smoother");
 
   if(!globals.specs.empty())
 	globals.specs.back().smoother(globals.smoother);
@@ -1151,8 +1119,7 @@ void do_smootherradius(istream & theInput)
 {
   theInput >> globals.smootherradius;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'smootherradius' command failed");
+  check_errors(theInput,"smootherradius");
 
   if(!globals.specs.empty())
 	globals.specs.back().smootherRadius(globals.smootherradius);
@@ -1168,8 +1135,7 @@ void do_smootherfactor(istream & theInput)
 {
   theInput >> globals.smootherfactor;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'smootherfactor' command failed");
+  check_errors(theInput,"smootherfactor");
 
   if(!globals.specs.empty())
 	globals.specs.back().smootherFactor(globals.smootherfactor);
@@ -1187,8 +1153,7 @@ void do_param(istream & theInput)
 
   theInput >> param;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'param' command failed");
+  check_errors(theInput,"param");
 
   globals.specs.push_back(ContourSpec(param,
 									  globals.contourinterpolation,
@@ -1200,7 +1165,7 @@ void do_param(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "param" command
+ * \bried Handle "shape" command
  */
 // ----------------------------------------------------------------------
 
@@ -1209,6 +1174,8 @@ void do_shape(istream & theInput)
   string shapename, arg1;
 
   theInput >> shapename >> arg1;
+
+  check_errors(theInput,"shape");
 
   if(arg1=="mark")
 	{
@@ -1235,9 +1202,7 @@ void do_shape(istream & theInput)
 											 globals.strokerule));
 	}
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'shape' command failed");
-
+  check_errors(theInput,"shape");
 }
 
 // ----------------------------------------------------------------------
@@ -1251,8 +1216,7 @@ void do_contourfill(istream & theInput)
   string slo,shi,scolor;
   theInput >> slo >> shi >> scolor;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'contourfill' command failed");
+  check_errors(theInput,"contourfill");
 
   float lo,hi;
   if(slo == "-")
@@ -1282,8 +1246,7 @@ void do_contourpattern(istream & theInput)
   float alpha;
   theInput >> slo >> shi >> spattern >> srule >> alpha;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'contourpattern' command failed");
+  check_errors(theInput,"contourpattern");
 
   float lo,hi;
   if(slo == "-")
@@ -1310,8 +1273,7 @@ void do_contourline(istream & theInput)
   string svalue,scolor;
   theInput >> svalue >> scolor;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'contourline' command failed");
+  check_errors(theInput,"contourline");
 
   float value;
   if(svalue == "-")
@@ -1336,8 +1298,7 @@ void do_contourfills(istream & theInput)
   string scolor1,scolor2;
   theInput >> lo >> hi >> step >> scolor1 >> scolor2;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'contourfills' command failed");
+  check_errors(theInput,"contourfills");
 
   int color1 = ColorTools::checkcolor(scolor1);
   int color2 = ColorTools::checkcolor(scolor2);
@@ -1371,8 +1332,7 @@ void do_contourlines(istream & theInput)
   string scolor1,scolor2;
   theInput >> lo >> hi >> step >> scolor1 >> scolor2;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'contourlines' command failed");
+  check_errors(theInput,"contourlines");
 
   int color1 = ColorTools::checkcolor(scolor1);
   int color2 = ColorTools::checkcolor(scolor2);
@@ -1405,8 +1365,7 @@ void do_labelmarker(istream & theInput)
 
   theInput >> filename >> rule >> alpha;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'labelmarker' command failed");
+  check_errors(theInput,"labelmarker");
 
   if(!globals.specs.empty())
 	{
@@ -1427,8 +1386,7 @@ void do_labelfont(istream & theInput)
   string font;
   theInput >> font;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'labelfont' command failed");
+  check_errors(theInput,"labelfont");
 
   if(!globals.specs.empty())
 	globals.specs.back().labelFont(font);
@@ -1445,8 +1403,7 @@ void do_labelsize(istream & theInput)
   float size;
   theInput >> size;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'labelsize' command failed");
+  check_errors(theInput,"labelsize");
 
   if(!globals.specs.empty())
 	globals.specs.back().labelSize(size);
@@ -1463,8 +1420,7 @@ void do_labelstroke(istream & theInput)
   string color,rule;
   theInput >> color >> rule;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'labelstroke' command failed");
+  check_errors(theInput,"labelstroke");
 
   if(!globals.specs.empty())
 	{
@@ -1484,8 +1440,7 @@ void do_labelfill(istream & theInput)
   string color,rule;
   theInput >> color >> rule;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'labelfill' command failed");
+  check_errors(theInput,"labelfill");
 
   if(!globals.specs.empty())
 	{
@@ -1505,8 +1460,7 @@ void do_labelalign(istream & theInput)
   string align;
   theInput >> align;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'labelalign' command failed");
+  check_errors(theInput,"labelalign");
 
   if(!globals.specs.empty())
 	globals.specs.back().labelAlignment(align);
@@ -1523,8 +1477,7 @@ void do_labelformat(istream & theInput)
   string format;
   theInput >> format;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'labelformat' command failed");
+  check_errors(theInput,"labelformat");
 
   if(format == "-") format = "";
   if(!globals.specs.empty())
@@ -1542,8 +1495,7 @@ void do_labelmissing(istream & theInput)
   string label;
   theInput >> label;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'labelmissing' command failed");
+  check_errors(theInput,"labelmissing");
 
   if(label == "none")
 	label = "";
@@ -1563,8 +1515,7 @@ void do_labeloffset(istream & theInput)
   float dx,dy;
   theInput >> dx >> dy;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'labeloffset' command failed");
+  check_errors(theInput,"labeloffset");
 
   if(!globals.specs.empty())
 	{
@@ -1584,8 +1535,7 @@ void do_labelangle(istream & theInput)
   float angle;
   theInput >> angle;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'labelangle' command failed");
+  check_errors(theInput,"labelangle");
 
   if(!globals.specs.empty())
 	globals.specs.back().labelAngle(angle);
@@ -1603,8 +1553,7 @@ void do_labelcaption(istream & theInput)
   float dx,dy;
   theInput >> name >> dx >> dy >> align;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'labelcaption' command failed");
+  check_errors(theInput,"labelcaption");
 
   if(!globals.specs.empty())
 	{
@@ -1626,8 +1575,7 @@ void do_label(istream & theInput)
   float lon,lat;
   theInput >> lon >> lat;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'label' command failed");
+  check_errors(theInput,"label");
 
   if(!globals.specs.empty())
 	globals.specs.back().add(NFmiPoint(lon,lat));
@@ -1645,8 +1593,7 @@ void do_labelxy(istream & theInput)
   int dx, dy;
   theInput >> lon >> lat >> dx >> dy;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'labelxy' command failed");
+  check_errors(theInput,"labelxy");
 
   if(!globals.specs.empty())
 	globals.specs.back().add(NFmiPoint(lon,lat),NFmiPoint(dx,dy));
@@ -1663,8 +1610,7 @@ void do_labels(istream & theInput)
   int dx,dy;
   theInput >> dx >> dy;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'labels' command failed");
+  check_errors(theInput,"labels");
 
   if(!globals.specs.empty())
 	{
@@ -1684,8 +1630,7 @@ void do_labelfile(istream & theInput)
   string datafilename;
   theInput >> datafilename;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'labelfile' command failed");
+  check_errors(theInput,"labelfile");
 
   ifstream datafile(datafilename.c_str());
   if(!datafile)
@@ -1720,8 +1665,7 @@ void do_clear(istream & theInput)
 
   theInput >> command;
 
-  if(theInput.fail())
-	throw runtime_error("Processing the 'clear' command failed");
+  check_errors(theInput,"clear");
 
   if(command=="contours")
 	globals.specs.clear();
@@ -1757,6 +1701,8 @@ void do_draw_shapes(istream & theInput)
 
   string filename;
   theInput >> filename;
+
+  check_errors(theInput,"draw shapes");
 
   auto_ptr<NFmiArea> area;
 
@@ -1843,6 +1789,8 @@ void do_draw_imagemap(istream & theInput)
 
   string fieldname, filename;
   theInput >> fieldname >> filename;
+
+  check_errors(theInput,"draw imagemap");
 
   auto_ptr<NFmiArea> area;
 
