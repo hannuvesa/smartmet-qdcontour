@@ -1864,6 +1864,57 @@ void add_label_grid_values(ContourSpec & theSpec,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Save point values for later labelling
+ */
+// ----------------------------------------------------------------------
+
+void add_label_point_values(ContourSpec & theSpec,
+							const NFmiArea & theArea,
+							const NFmiDataMatrix<float> & theValues)
+{
+  theSpec.clearLabelValues();
+  if((theSpec.labelFormat() != "") &&
+	 !theSpec.labelPoints().empty() )
+	{
+	  list<pair<NFmiPoint,NFmiPoint> >::const_iterator it;
+
+	  for(it=theSpec.labelPoints().begin();
+		  it!=theSpec.labelPoints().end();
+		  ++it)
+		{
+		  NFmiPoint latlon = it->first;
+		  NFmiPoint ij = globals.queryinfo->LatLonToGrid(latlon);
+		  
+		  float value;
+		  
+		  if(fabs(ij.X()-FmiRound(ij.X()))<0.00001 &&
+			 fabs(ij.Y()-FmiRound(ij.Y()))<0.00001)
+			{
+			  value = theValues[FmiRound(ij.X())][FmiRound(ij.Y())];
+			}
+		  else
+			{
+			  int i = static_cast<int>(ij.X()); // rounds down
+			  int j = static_cast<int>(ij.Y());
+			  float v00 = theValues.At(i,j,kFloatMissing);
+			  float v10 = theValues.At(i+1,j,kFloatMissing);
+			  float v01 = theValues.At(i,j+1,kFloatMissing);
+			  float v11 = theValues.At(i+1,j+1,kFloatMissing);
+			  if(!globals.queryinfo->BiLinearInterpolation(ij.X(),
+														   ij.Y(),
+														   value,
+														   v00,v10,
+														   v01,v11))
+				value = kFloatMissing;
+
+			}
+		  theSpec.addLabelValue(value);
+		}
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Draw label markers
  */
 // ----------------------------------------------------------------------
@@ -2906,45 +2957,7 @@ void do_draw_contours(istream & theInput)
 		  if(!labeldxdydone)
 			add_label_grid_values(*piter,*area,*worldpts);
 
-		  piter->clearLabelValues();
-		  if((piter->labelFormat() != "") &&
-			 !piter->labelPoints().empty() )
-			{
-			  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
-
-			  for(iter=piter->labelPoints().begin();
-				  iter!=piter->labelPoints().end();
-				  ++iter)
-				{
-				  NFmiPoint latlon = iter->first;
-				  NFmiPoint ij = globals.queryinfo->LatLonToGrid(latlon);
-
-				  float value;
-
-				  if(fabs(ij.X()-FmiRound(ij.X()))<0.00001 &&
-					 fabs(ij.Y()-FmiRound(ij.Y()))<0.00001)
-					{
-					  value = vals[FmiRound(ij.X())][FmiRound(ij.Y())];
-					}
-				  else
-					{
-					  int i = static_cast<int>(ij.X()); // rounds down
-					  int j = static_cast<int>(ij.Y());
-					  float v00 = vals.At(i,j,kFloatMissing);
-					  float v10 = vals.At(i+1,j,kFloatMissing);
-					  float v01 = vals.At(i,j+1,kFloatMissing);
-					  float v11 = vals.At(i+1,j+1,kFloatMissing);
-					  if(!globals.queryinfo->BiLinearInterpolation(ij.X(),
-																   ij.Y(),
-																   value,
-																   v00,v10,
-																   v01,v11))
-						value = kFloatMissing;
-
-					}
-				  piter->addLabelValue(value);
-				}
-			}
+		  add_label_point_values(*piter,*area,vals);
 
 		  // Fill the contours
 
