@@ -364,11 +364,7 @@ int domain(int argc, const char *argv[])
 		  
 		  if(command == "#" || command == "//" || command[0]=='#')
 			{
-			  // Should use numeric_limits<int>::max() to by definition
-			  // skip to end of line, but numeric_limits does not exist
-			  // in g++ v2.95
-			  
-			  input.ignore(1000000,'\n');
+			  input.ignore(numeric_limits<std::streamsize>::max(),'\n');
 			}
 		  
 		  else if(command == "cache")
