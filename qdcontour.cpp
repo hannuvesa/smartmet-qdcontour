@@ -217,14 +217,29 @@ const string preprocess_script(const string & theScript)
 // ----------------------------------------------------------------------
 /*!
  * \brief Handle a comment token
- *
- * \param theInput The input stream
  */
 // ----------------------------------------------------------------------
 
 void do_comment(istream & theInput)
 {
   theInput.ignore(numeric_limits<std::streamsize>::max(),'\n');
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle the "cache" command
+ */
+// ----------------------------------------------------------------------
+
+void do_cache(istream & theInput)
+{
+  int flag;
+  theInput >> flag;
+  
+  if(theInput.fail())
+	throw runtime_error("Processing the 'cache' command failed");
+
+  globals.calculator.cache(flag);
 }
 
 // ----------------------------------------------------------------------
@@ -374,11 +389,7 @@ int domain(int argc, const char *argv[])
 			do_comment(input);
 
 		  else if(command == "cache")
-			{
-			  int flag;
-			  input >> flag;
-			  globals.calculator.cache(flag);
-			}
+			do_cache(input);
 
 		  else if(command == "querydata")
 			{
