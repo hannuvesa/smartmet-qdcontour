@@ -1002,6 +1002,24 @@ void do_alphalimit(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "hilimit" command
+ */
+// ----------------------------------------------------------------------
+
+void do_hilimit(istream & theInput)
+{
+  float limit;
+  theInput >> limit;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'hilimit' command failed");
+
+  if(!globals.specs.empty())
+	globals.specs.back().exactHiLimit(limit);
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -1102,14 +1120,8 @@ int domain(int argc, const char *argv[])
 		  else if(command == "wantpalette")			do_wantpalette(input);
 		  else if(command == "forcepalette")		do_forcepalette(input);
 		  else if(command == "alphalimit")			do_alphalimit(input);
+		  else if(command == "hilimit")				do_hilimit(input);
 
-		  else if(command == "hilimit")
-			{
-			  float limit;
-			  input >> limit;
-			  if(!globals.specs.empty())
-				globals.specs.back().exactHiLimit(limit);
-			}
 		  else if(command == "datalolimit")
 			{
 			  float limit;
