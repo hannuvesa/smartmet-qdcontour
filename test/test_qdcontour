@@ -76,6 +76,10 @@ DoTest("directionparam",
        "directionparam.conf",
        "directionparam_200210150900_141500.png");
 
+DoTest("speedparam",
+       "speedparam.conf",
+       "speedparam_200210150900_141500.png");
+
 print "Done\n";
 
 # ----------------------------------------------------------------------
