@@ -25,7 +25,7 @@ namespace
    */
   // ----------------------------------------------------------------------
 
-  NFmiDataMatrix<float> elevation_angle_values(NFmiFastQueryInfo * theQI)
+  NFmiDataMatrix<float> elevation_angle_values(LazyQueryData * theQI)
   {
 	NFmiDataMatrix<float> values;
 	NFmiDataMatrix<NFmiPoint> pts;
@@ -79,7 +79,7 @@ namespace MetaFunctions
   // ----------------------------------------------------------------------
 
   NFmiDataMatrix<float> values(const std::string & theFunction,
-							   NFmiFastQueryInfo * theQI)
+							   LazyQueryData * theQI)
   {
 	if(theFunction == "MetaElevationAngle")
 	  return elevation_angle_values(theQI);
