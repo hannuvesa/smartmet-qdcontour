@@ -44,6 +44,25 @@ namespace TimeTools
 	  throw std::runtime_error("ConvertZone: Unrecognized time zone "+theZone);
   }
 
+  // ----------------------------------------------------------------------
+  /*!
+   * \brief Convert time_t to NFmiTime in UTC timezone
+   *
+   * \param theTime The epoch seconds
+   * \return The time
+   */
+  // ----------------------------------------------------------------------
+
+  NFmiTime ToUTC(::time_t theTime)
+  {
+	struct ::tm * t = ::gmtime(&theTime);
+	return NFmiTime(t->tm_year + 1900,
+					t->tm_mon + 1,
+					t->tm_mday,
+					t->tm_hour,
+					t->tm_min,
+					t->tm_sec);
+  }
 } // namespace TimeTools
 
 // ======================================================================

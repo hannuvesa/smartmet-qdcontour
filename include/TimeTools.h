@@ -14,6 +14,7 @@
 #ifndef TIMETOOLS_H
 #define TIMETOOLS_H
 
+#include <ctime>
 #include <string>
 class NFmiTime;
 
@@ -21,6 +22,9 @@ namespace TimeTools
 {
   NFmiTime ConvertZone(const NFmiTime & theTime,
 					   const std::string & theZone);
+
+  NFmiTime ToUTC(::time_t theTime);
+
 
 } // namespace TimeTools
 
