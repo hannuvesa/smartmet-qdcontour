@@ -5,6 +5,7 @@
  */
 // ======================================================================
 
+#include "Globals.h"
 #include "ColorTools.h"
 #include "ContourCalculator.h"
 #include "ContourSpec.h"
@@ -46,6 +47,12 @@
 using namespace std;
 using namespace boost;
 using namespace Imagine;
+
+// ----------------------------------------------------------------------
+// Global instance of global variables
+// ----------------------------------------------------------------------
+
+static Globals globals;
 
 // ----------------------------------------------------------------------
 // Usage
@@ -104,9 +111,8 @@ bool IsMasked(const NFmiPoint & thePoint,
 int domain(int argc, const char *argv[])
 {
   // Ympäristön konfigurointi
-
-  string datapath = NFmiSettings::Optional<string>("qdcontour::querydata_path",".");
-  string mapspath = NFmiSettings::Optional<string>("qdcontour::maps_path",".");
+  
+  NFmiSettings::Init();
 
   // Tallennetut kontuurit
 
@@ -367,7 +373,7 @@ int domain(int argc, const char *argv[])
 					  for(iter=qnames.begin(); iter!=qnames.end(); ++iter)
 						{
 						  LazyQueryData * tmp = new LazyQueryData();
-						  string filename = NFmiFileSystem::FileComplete(*iter,datapath);
+						  string filename = NFmiFileSystem::FileComplete(*iter,globals.datapath);
 						  theFullQueryFileNames.push_back(filename);
 						  tmp->Read(filename);
 						  theQueryStreams.push_back(tmp);
@@ -552,7 +558,7 @@ int domain(int argc, const char *argv[])
 			{
 			  input >> theBackground;
 			  if(theBackground != "none")
-				theBackgroundImage.Read(NFmiFileSystem::FileComplete(theBackground,mapspath));
+				theBackgroundImage.Read(NFmiFileSystem::FileComplete(theBackground,globals.mapspath));
 			  else
 				theBackground = "";
 			}
@@ -561,7 +567,7 @@ int domain(int argc, const char *argv[])
 			{
 			  input >> theForeground;
 			  if(theForeground != "none")
-				theForegroundImage.Read(NFmiFileSystem::FileComplete(theForeground,mapspath));
+				theForegroundImage.Read(NFmiFileSystem::FileComplete(theForeground,globals.mapspath));
 			  else
 				theForeground = "";
 			}
@@ -570,7 +576,7 @@ int domain(int argc, const char *argv[])
 			{
 			  input >> theMask;
 			  if(theMask != "none")
-				theMaskImage.Read(NFmiFileSystem::FileComplete(theMask,mapspath));
+				theMaskImage.Read(NFmiFileSystem::FileComplete(theMask,globals.mapspath));
 			  else
 				theMask = "";
 			}
@@ -582,7 +588,7 @@ int domain(int argc, const char *argv[])
 				  input >> theCombineX >> theCombineY;
 				  input >> theCombineRule >> theCombineFactor;
 				  ColorTools::checkrule(theCombineRule);
-				  theCombineImage.Read(NFmiFileSystem::FileComplete(theCombine,mapspath));
+				  theCombineImage.Read(NFmiFileSystem::FileComplete(theCombine,globals.mapspath));
 				}
 			  else
 				theCombine = "";
