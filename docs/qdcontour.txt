@@ -911,7 +911,7 @@ The different formats are
 The appearance of the timestamp can be controlled with
 commands
 \code
-timestampimageformat [hour|hourdate] # default = hourdate
+timestampimageformat [hour|hourdate|hourdateyear] # default = hourdateyear
 timestampimagefont [font]            # default = misc/6x13B.pcf.gz:6x13
 timestampimagecolor [color]          # default = black
 timestampimagebackground [color]     # default = none

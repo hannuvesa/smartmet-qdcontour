@@ -101,6 +101,12 @@ Globals::Globals()
   , timestampzone("local")
   , timestampimagex(0)
   , timestampimagey(0)
+  , timestampimageformat("hourdateyear")
+  , timestampimagefont("misc/6x13B.pcf.gz:6x13")
+  , timestampimagecolor(NFmiColorTools::Black)
+  , timestampimagebackground(NFmiColorTools::NoColor)
+  , timestampimagexmargin(2)
+  , timestampimageymargin(2)
   , contourlabelimagexmargin(20)
   , contourlabelimageymargin(20)
   , highpressureimage()
@@ -223,31 +229,46 @@ const std::string Globals::getImageStampText(const NFmiTime & theTime) const
   string stamp;
   if(timestampimage == "obs")
 	{
-	  // hh:mi dd.mm.yyyy
-	  sprintf(buffer,"%02d:%02d %02d.%02d.%04d",
-			  obshh,obsmi,obsdd,obsmm,obsyy);
+	  if(timestampimageformat == "hour") // hh:mi
+		sprintf(buffer,"%02d:%02d",obshh,obsmi);
+	  
+	  else if(timestampimageformat == "hourdate") // hh:mi dd.mm.
+		sprintf(buffer,"%02d:%02d %02d.%02d.",obshh,obsmi,obsdd,obsmm);
+
+	  else // hh:mi dd.mm.yyyy
+		sprintf(buffer,"%02d:%02d %02d.%02d.%04d",obshh,obsmi,obsdd,obsmm,obsyy);
 	  stamp = buffer;
 	}
   else if(timestampimage == "for")
 	{
-	  // hh:mi dd.mm.yyyy
-	  sprintf(buffer,"%02d:%02d %02d.%02d.%04d",
-			  forhh,formi,fordd,formm,foryy);
+	  if(timestampimageformat == "hour") // hh:mi
+		sprintf(buffer,"%02d:%02d",forhh,formi);
+	  else if(timestampimageformat == "hourdate") // hh:mi dd.mm.
+		sprintf(buffer,"%02d:%02d %02d.%02d.",forhh,formi,fordd,formm);
+	  else // hh:mi dd.mm.yyyy
+		sprintf(buffer,"%02d:%02d %02d.%02d.%04d",forhh,formi,fordd,formm,foryy);
 	  stamp = buffer;
 	}
   else if(timestampimage == "forobs")
 	{
-	  // hh:mi dd.mm.yyyy +hh
+	  if(timestampimageformat == "hour") // hh:mi +hh
+		sprintf(buffer,"%02d:%02d",forhh,formi);
+	  else if(timestampimageformat == "hourdate") // dd.mm. hh:mi + hh
+		sprintf(buffer,"%02d.%02d. %02d:%02d",fordd,formm,forhh,formi);
+	  else // dd.mm.yy hh:mi +hh
+		sprintf(buffer,"%02d.%02d.%04d %02d:%02d",
+				fordd,formm,foryy,forhh,formi);
+	  
+	  stamp = buffer;
+
 	  const long diff = theTime.DifferenceInMinutes(tfor);
 	  if(diff%60==0 && timestep%60==0)
-		sprintf(buffer,"%02d.%02d.%04d %02d:%02d %s%ldh",
-				fordd,formm,foryy,forhh,formi,
-				(diff<0 ? "" : "+"), diff/60);
+		sprintf(buffer," %s%ldh",(diff<0 ? "" : "+"), diff/60);
 	  else
-		sprintf(buffer,"%02d.%02d.%04d %02d:%02d %s%ldm",
-				fordd,formm,foryy,forhh,formi,
-				(diff<0 ? "" : "+"), diff);
-	  stamp = buffer;
+		sprintf(buffer," %s%ldm",(diff<0 ? "" : "+"), diff);
+
+	  stamp += buffer;
+
 	}
   return stamp;
 }
@@ -264,7 +285,7 @@ void Globals::drawImageStampText(NFmiImage & theImage,
   if(theText.empty())
 	return;
 
-  NFmiFace face("misc/6x13B.pcf.gz",6,13);
+  NFmiFace face(timestampimagefont);
   face.Background(true);
   
   int x = timestampimagex;
@@ -273,11 +294,18 @@ void Globals::drawImageStampText(NFmiImage & theImage,
   if(x<0) x+= theImage.Width();
   if(y<0) y+= theImage.Height();
 
+  if(timestampimagebackground != NFmiColorTools::NoColor)
+	{
+	  face.Background(true);
+	  face.BackgroundMargin(timestampimagexmargin,timestampimageymargin);
+	  face.BackgroundColor(timestampimagebackground);
+	}
+
   face.Draw(theImage,
 			x,y,
 			theText,
 			kFmiAlignNorthWest,
-			NFmiColorTools::Black);
+			timestampimagecolor);
 }
 
 // ----------------------------------------------------------------------

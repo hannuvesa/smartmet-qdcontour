@@ -14,6 +14,7 @@
 #include "LabelLocator.h"
 #include "ShapeSpec.h"
 
+#include "NFmiColorTools.h"
 #include "NFmiImage.h"
 #include "NFmiPoint.h"
 
@@ -131,6 +132,13 @@ struct Globals
   std::string timestampimage;		// image timestamping mode
   int timestampimagex;
   int timestampimagey;
+  std::string timestampimageformat;	// hour or hourdate
+  std::string timestampimagefont;	// font to draw the timestamp with
+  Imagine::NFmiColorTools::Color timestampimagecolor;
+  Imagine::NFmiColorTools::Color timestampimagebackground;
+  int timestampimagexmargin;
+  int timestampimageymargin;
+
 
   int contourlabelimagexmargin;		// minimum distance from borders
   int contourlabelimageymargin;
