@@ -213,6 +213,42 @@ namespace ColorTools
 	throw runtime_error("Unrecognized color " + theColor);
   }
 
+  // ----------------------------------------------------------------------
+  /*!
+   * \brief Parse a text description of a blending rule
+   *
+   * Return NFmiColorTools::kFmiColorRuleMissing on failure
+   *
+   * \param theRule The string to parse
+   * \return The blending rule
+   */
+  // ----------------------------------------------------------------------
+
+  NFmiColorTools::NFmiBlendRule parserule(const std::string & theRule)
+  {
+	return NFmiColorTools::BlendValue(theRule);
+  }
+
+  // ----------------------------------------------------------------------
+  /*!
+   * \brief Check the blending rule parses ok
+   *
+   * Throws an exception for unknown blending rules
+   *
+   * \param theRule The string to parse
+   * \return The blending rule
+   */
+  // ----------------------------------------------------------------------
+
+  NFmiColorTools::NFmiBlendRule checkrule(const std::string & theRule)
+  {
+	NFmiColorTools::NFmiBlendRule rule = parserule(theRule);
+	if(rule != NFmiColorTools::kFmiColorRuleMissing)
+	  return rule;
+	throw runtime_error("Unknown blending rule "+theRule);
+  }
+
+
 } // namespace ColorTools
 
 // ======================================================================

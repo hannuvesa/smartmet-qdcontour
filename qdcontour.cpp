@@ -436,16 +436,14 @@ int domain(int argc, const char *argv[])
 		  else if(command == "fillrule")
 			{
 			  input >> theFillRule;
-			  if(NFmiColorTools::BlendValue(theFillRule)==NFmiColorTools::kFmiColorRuleMissing)
-				throw runtime_error("Unknown blending rule " + theFillRule);
+			  ColorTools::checkrule(theFillRule);
 			  if(!theShapeSpecs.empty())
 				theShapeSpecs.back().fillrule(theFillRule);
 			}
 		  else if(command == "strokerule")
 			{
 			  input >> theStrokeRule;
-			  if(NFmiColorTools::BlendValue(theStrokeRule)==NFmiColorTools::kFmiColorRuleMissing)
-				throw runtime_error("Unknown blending rule " + theStrokeRule);
+			  ColorTools::checkrule(theStrokeRule);
 			  if(!theShapeSpecs.empty())
 				theShapeSpecs.back().strokerule(theStrokeRule);
 			}
@@ -466,16 +464,13 @@ int domain(int argc, const char *argv[])
 			{
 			  input >> theArrowFillColor >> theArrowFillRule;
 			  ColorTools::checkcolor(theArrowFillColor);
-			  
-			  if(NFmiColorTools::BlendValue(theArrowFillRule)==NFmiColorTools::kFmiColorRuleMissing)
-				throw runtime_error("Unknown blending rule "+theArrowFillRule);
+			  ColorTools::checkrule(theArrowFillRule);
 			}
 		  else if(command == "arrowstroke")
 			{
 			  input >> theArrowStrokeColor >> theArrowStrokeRule;
 			  ColorTools::checkcolor(theArrowStrokeColor);
-			  if(NFmiColorTools::BlendValue(theArrowStrokeRule)==NFmiColorTools::kFmiColorRuleMissing)
-				throw runtime_error("Unknown blending rule "+ theArrowStrokeRule);
+			  ColorTools::checkrule(theArrowStrokeRule);
 			}
 		  
 		  else if(command == "arrowpath")
@@ -524,8 +519,7 @@ int domain(int argc, const char *argv[])
 				{
 				  input >> theCombineX >> theCombineY;
 				  input >> theCombineRule >> theCombineFactor;
-				  if(NFmiColorTools::BlendValue(theCombineRule)==NFmiColorTools::kFmiColorRuleMissing)
-					throw runtime_error("Unknown blending rule " + theCombineRule);
+				  ColorTools::checkrule(theCombineRule);
 				  theCombineImage.Read(FileComplete(theCombine,mapspath));
 				}
 			  else
@@ -535,9 +529,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "foregroundrule")
 			{
 			  input >> theForegroundRule;
-			  
-			  if(NFmiColorTools::BlendValue(theForegroundRule)==NFmiColorTools::kFmiColorRuleMissing)
-				throw runtime_error("Unknown blending rule "+theForegroundRule);
+			  ColorTools::checkrule(theForegroundRule);
 			}
 		  
 		  else if(command == "savepath")
@@ -663,8 +655,7 @@ int domain(int argc, const char *argv[])
 				  float markeralpha;
 				  input >> marker >> markerrule >> markeralpha;
 				  
-				  if(NFmiColorTools::BlendValue(markerrule)==NFmiColorTools::kFmiColorRuleMissing)
-					throw runtime_error("Unknown blending rule "+markerrule);
+				  ColorTools::checkrule(markerrule);
 				  ShapeSpec spec(theShapeFileName);
 				  spec.marker(marker,markerrule,markeralpha);
 				  theShapeSpecs.push_back(spec);
@@ -1015,7 +1006,7 @@ int domain(int argc, const char *argv[])
 						{
 						  float thelo = citer->lolimit();
 						  float thehi = citer->hilimit();
-						  NFmiColorTools::NFmiBlendRule rule = NFmiColorTools::BlendValue(citer->rule());
+						  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(citer->rule());
 						  
 						  if(thelo==kFloatMissing) thelo=-1e6;
 						  if(thehi==kFloatMissing) thehi= 1e6;
@@ -1178,14 +1169,14 @@ int domain(int argc, const char *argv[])
 					  
 					  if(iter->marker()=="")
 						{
-						  NFmiColorTools::NFmiBlendRule fillrule = NFmiColorTools::BlendValue(iter->fillrule());
-						  NFmiColorTools::NFmiBlendRule strokerule = NFmiColorTools::BlendValue(iter->strokerule());
+						  NFmiColorTools::NFmiBlendRule fillrule = ColorTools::checkrule(iter->fillrule());
+						  NFmiColorTools::NFmiBlendRule strokerule = ColorTools::checkrule(iter->strokerule());
 						  geo.Fill(theImage,iter->fillcolor(),fillrule);
 						  geo.Stroke(theImage,iter->strokecolor(),strokerule);
 						}
 					  else
 						{
-						  NFmiColorTools::NFmiBlendRule markerrule = NFmiColorTools::BlendValue(iter->markerrule());
+						  NFmiColorTools::NFmiBlendRule markerrule = ColorTools::checkrule(iter->markerrule());
 						  
 						  NFmiImage marker;
 						  marker.Read(iter->marker());
@@ -1889,7 +1880,7 @@ int domain(int argc, const char *argv[])
 							  if(piter->dataHiLimit()!=kFloatMissing)
 								tree.DataHiLimit(piter->dataHiLimit());
 							  
-							  NFmiColorTools::NFmiBlendRule rule = NFmiColorTools::BlendValue(citer->rule());
+							  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(citer->rule());
 							  
 							  tree.Contour(pts[qi],vals,interp,piter->contourDepth());
 							  tree.Fill(theImage,citer->color(),rule);
@@ -1942,7 +1933,7 @@ int domain(int argc, const char *argv[])
 							  if(piter->dataHiLimit()!=kFloatMissing)
 								tree.DataHiLimit(piter->dataHiLimit());
 							  
-							  NFmiColorTools::NFmiBlendRule rule = NFmiColorTools::BlendValue(patiter->rule());
+							  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(patiter->rule());
 							  
 							  tree.Contour(pts[qi],vals,interp,piter->contourDepth());
 							  NFmiImage pattern(patiter->pattern());
@@ -1981,7 +1972,7 @@ int domain(int argc, const char *argv[])
 							  if(piter->dataHiLimit()!=kFloatMissing)
 								tree.DataHiLimit(piter->dataHiLimit());
 							  
-							  NFmiColorTools::NFmiBlendRule rule = NFmiColorTools::BlendValue(liter->rule());
+							  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(liter->rule());
 							  tree.Contour(pts[qi],vals,interp,piter->contourDepth());
 							  NFmiPath path = tree.Path();
 							  path.SimplifyLines(10);
@@ -1998,7 +1989,7 @@ int domain(int argc, const char *argv[])
 					  
 					  if(theForeground != "")
 						{
-						  NFmiColorTools::NFmiBlendRule rule = NFmiColorTools::BlendValue(theForegroundRule);
+						  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(theForegroundRule);
 						  
 						  theImage.Composite(theForegroundImage,rule,kFmiAlignNorthWest,0,0,1);
 						  
@@ -2110,10 +2101,10 @@ int domain(int argc, const char *argv[])
 							  
 							  thispath.Fill(theImage,
 											ColorTools::checkcolor(theArrowFillColor),
-											NFmiColorTools::BlendValue(theArrowFillRule));
+											ColorTools::checkrule(theArrowFillRule));
 							  thispath.Stroke(theImage,
 											  ColorTools::checkcolor(theArrowStrokeColor),
-											  NFmiColorTools::BlendValue(theArrowStrokeRule));
+											  ColorTools::checkrule(theArrowStrokeRule));
 							}
 						  
 						  // Draw the full grid if so desired
@@ -2181,10 +2172,10 @@ int domain(int argc, const char *argv[])
 									
 									thispath.Fill(theImage,
 												  ColorTools::checkcolor(theArrowFillColor),
-												  NFmiColorTools::BlendValue(theArrowFillRule));
+												  ColorTools::checkrule(theArrowFillRule));
 									thispath.Stroke(theImage,
 													ColorTools::checkcolor(theArrowStrokeColor),
-													NFmiColorTools::BlendValue(theArrowStrokeRule));
+													ColorTools::checkrule(theArrowStrokeRule));
 								  }
 							}
 						}
@@ -2209,7 +2200,7 @@ int domain(int argc, const char *argv[])
 							  NFmiImage marker;
 							  marker.Read(piter->labelMarker());
 							  
-							  NFmiColorTools::NFmiBlendRule markerrule = NFmiColorTools::BlendValue(piter->labelMarkerRule());
+							  NFmiColorTools::NFmiBlendRule markerrule = ColorTools::checkrule(piter->labelMarkerRule());
 							  
 							  float markeralpha = piter->labelMarkerAlphaFactor();
 							  
@@ -2292,10 +2283,10 @@ int domain(int argc, const char *argv[])
 						  // The rules
 						  
 						  NFmiColorTools::NFmiBlendRule fillrule
-							= NFmiColorTools::BlendValue(piter->labelFillRule());
+							= ColorTools::checkrule(piter->labelFillRule());
 						  
 						  NFmiColorTools::NFmiBlendRule strokerule
-							= NFmiColorTools::BlendValue(piter->labelStrokeRule());
+							= ColorTools::checkrule(piter->labelStrokeRule());
 						  
 						  // Draw labels at specifing latlon points if requested
 						  
@@ -2374,7 +2365,7 @@ int domain(int argc, const char *argv[])
 					  
 					  if(theCombine != "")
 						{
-						  NFmiColorTools::NFmiBlendRule rule = NFmiColorTools::BlendValue(theCombineRule);
+						  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(theCombineRule);
 						  
 						  theImage.Composite(theCombineImage,rule,kFmiAlignNorthWest,theCombineX,theCombineY,theCombineFactor);
 						  
