@@ -31,14 +31,14 @@ public:
 
   void add(float theContour, int theX, int theY);
 
+  void chooseLabels();
+
 private:
 
   // Intentionally disabled:
 
   LabelLocator(const LabelLocator & theLocator);
   LabelLocator & operator=(const LabelLocator & theLocator);
-
-  bool inside(int theX1, int theY1) const;
 
   bool itHasBBox;
   int itsBBoxX1;
@@ -58,6 +58,31 @@ private:
   int itsActiveParameter;
   ParamCoordinates itsPreviousCoordinates;
   ParamCoordinates itsCurrentCoordinates;
+
+  // Private methods:
+
+  bool inside(int theX1, int theY1) const;
+
+  Coordinates::const_iterator
+  chooseOne(const Coordinates & theCandidates,
+			int theParam,
+			float theContour);
+
+  Coordinates::const_iterator
+  chooseClosestToPrevious(const Coordinates & theCandidates,
+						  const Coordinates & thePreviousChoices,
+						  int theParam,
+						  float theContour);
+
+  Coordinates::const_iterator
+  chooseClosestToBorder(const Coordinates & theCandidates,
+						int theParam,
+						float theContour);
+
+  void removeCandidates(ParamCoordinates & theCandidates,
+						const XY & thePoint,
+						int theParam,
+						float theContour);
 
 }; // class LabelLocator
 

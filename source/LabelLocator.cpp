@@ -27,37 +27,78 @@
  * The algorithm for choosing the labels for a new timestep is
  *
  *   -# discard all points not within the bounding box
- *   -# for all candidate labels
- *      -# remove those too close to labels of different value
- *      -# remove those too close to labels of another parameter
- *   -# sort the candidate coordinates based on minimum distances to
- *      previous timestep coordinates
- *   -# for all remaining candidate labels until there are none
- *      -# remove those too close to same value labels chosen earlier
- *      -# choose the first label (the one closest to the earlier timestep)
- *
+ *   -# while there are candidate coordinates
+ *    -# loop over parameters
+ *     -# loop over contour values
+ *      -# select label closest to a label from an earlier timestep
+ *      -# loop over all contours of all different parameters
+ *        -# remove candidates too close to the chosen one
+ *      -# loop over all different contours of same parameter
+ *        -# remove candidates too close to the chosen one
+ *      -# loop over all candidates for the same contour
+ *        -# remove candidates too close to the chosen one
+ * 
  * The algorithm for choosing the label positions for the first
  * timestep \b when a bounding box has been specified is the same,
  * but the candidate coordinates are sorted based on their distances
  * to the bounding box instead of the previous timestep. Points
  * closest to the bounding box are preferred.
  *
- * If there is no bounding box, we measure the distances from
- * an imaginary bounding box determined from the bounding box
- * of the candidate coordinates themselves. That is, we prefer
- * the outmost coordinates.
- *
+ * If there is no bounding box, we simply choose the first one
+ * available.
  */
 // ======================================================================
 
 #include "LabelLocator.h"
+
 #include <stdexcept>
+#include <cmath>
 
 using namespace std;
 
 //! Bad parameter value
 
 const int badparameter = 0;
+
+namespace
+{
+  // ----------------------------------------------------------------------
+  /*!
+   * \brief Distance between two points
+   */
+  // ----------------------------------------------------------------------
+
+  double distance(double theX1, double theY1, double theX2, double theY2)
+  {
+	return sqrt((theX2-theX1)*(theX2-theX1) +
+				(theY2-theY1)*(theY2-theY1));
+  }
+
+  // ----------------------------------------------------------------------
+  /*!
+   * \brief Minimum distance of point from collection of points
+   */
+  // ----------------------------------------------------------------------
+
+  template <typename T>
+  double mindistance(double theX, double theY, const T & theCoords)
+  {
+	double best = -1;
+	for(typename T::const_iterator it = theCoords.begin();
+		it != theCoords.end();
+		++it)
+	  {
+		double dist = distance(theX,theY,it->first,it->second);
+		if(best < 0)
+		  best = dist;
+		else
+		  best = min(best,dist);
+	  }
+	return best;
+  }
+
+} // namespace anonymous
+
 
 // ----------------------------------------------------------------------
 /*!
@@ -288,6 +329,211 @@ void LabelLocator::add(float theContour, int theX, int theY)
 
   c.push_back(Coordinates::value_type(theX,theY));
 
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Choose the final label locations
+ */
+// ----------------------------------------------------------------------
+
+void LabelLocator::chooseLabels()
+{
+  // Make a duplicate for the final choices
+
+  ParamCoordinates candidates;
+  ParamCoordinates choices;
+  swap(itsCurrentCoordinates,candidates);
+
+  while(!candidates.empty())
+	{
+	  ParamCoordinates::iterator pit = candidates.begin();
+
+	  for(ContourCoordinates::iterator cit = pit->second.begin();
+		  cit != pit->second.end();
+		  ++cit)
+		{
+
+		  const int param = pit->first;
+		  const float value = cit->first;
+
+		  Coordinates::const_iterator best = chooseOne(cit->second,param,value);
+		  if(best == cit->second.end())
+			throw runtime_error("Internal error in LabelLocator::chooseLabels()");
+
+		  ContourCoordinates & contours = choices[param];
+		  Coordinates & coords = contours[value];
+
+		  coords.push_back(*best);
+
+		  removeCandidates(candidates,*best,param,value);
+
+		}
+	}
+
+  swap(itsCurrentCoordinates,choices);
+
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Choose a label location from given candidates
+ *
+ * \param theCandidates The list of candidates
+ * \param theParam The parameter ID
+ * \param theContour The contour value
+ */
+// ----------------------------------------------------------------------
+
+LabelLocator::Coordinates::const_iterator
+LabelLocator::chooseOne(const Coordinates & theCandidates,
+						int theParam,
+						float theContour)
+{
+  ParamCoordinates::const_iterator pit = itsPreviousCoordinates.find(theParam);
+  if(pit == itsPreviousCoordinates.end())
+	return chooseClosestToBorder(theCandidates,theParam,theContour);
+
+  ContourCoordinates::const_iterator cit = pit->second.find(theContour);
+  if(cit == pit->second.end())
+	return chooseClosestToBorder(theCandidates,theParam,theContour);
+
+  return chooseClosestToPrevious(theCandidates,cit->second,theParam,theContour);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Choose a label location from given candidates closest to earlier ones
+ *
+ * \param theCandidates The list of candidates
+ * \param thePreviousChoises The list of choises from previous timestep
+ * \param theParam The parameter ID
+ * \param theContour The contour value
+ */
+// ----------------------------------------------------------------------
+
+LabelLocator::Coordinates::const_iterator
+LabelLocator::chooseClosestToPrevious(const Coordinates & theCandidates,
+									  const Coordinates & thePreviousChoises,
+									  int theParam,
+									  float theContour)
+{
+  double bestdist = -1;
+  Coordinates::const_iterator best = theCandidates.end();
+
+  for(Coordinates::const_iterator it = theCandidates.begin();
+	  it != theCandidates.end();
+	  ++it)
+	{
+	  double mindist = mindistance(it->first,it->second,thePreviousChoises);
+	  if(bestdist < 0 || mindist < bestdist)
+		{
+		  bestdist = mindist;
+		  best = it;
+		}
+	}
+  return best;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Choose a label location closest to the bounding box
+ *
+ * \param theCandidates The list of candidates
+ * \param theParam The parameter ID
+ * \param theContour The contour value
+ */
+// ----------------------------------------------------------------------
+
+LabelLocator::Coordinates::const_iterator
+LabelLocator::chooseClosestToBorder(const Coordinates & theCandidates,
+									int theParam,
+									float theContour)
+{
+  double bestdist = -1;
+  Coordinates::const_iterator best = theCandidates.end();
+
+  if(theCandidates.empty())
+	return best;
+
+  if(!itHasBBox)
+	return theCandidates.begin();
+
+  for(Coordinates::const_iterator it = theCandidates.begin();
+	  it != theCandidates.end();
+	  ++it)
+	{
+	  double xdist = min(abs(it->first-itsBBoxX1),abs(it->first-itsBBoxX2));
+	  double ydist = min(abs(it->second-itsBBoxY1),abs(it->second-itsBBoxY2));
+	  double dist = min(xdist,ydist);
+
+	  if(bestdist < 0 || dist < bestdist)
+		{
+		  bestdist = dist;
+		  best = it;
+		}
+	}
+  return best;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Remove candidates too close to the chosen point
+ *
+ * \param theCandidates The candidates to clean up
+ * \param thePoint The chosen point
+ * \param theParam The chosen parameter
+ * \param theContour The chosen contour value
+ */
+// ----------------------------------------------------------------------
+
+void LabelLocator::removeCandidates(ParamCoordinates & theCandidates,
+									const XY & thePoint,
+									int theParam,
+									float theContour)
+{
+  for(ParamCoordinates::iterator pit = theCandidates.begin();
+	  pit != theCandidates.end();
+	  ++pit)
+	{
+	  const int param = pit->first;
+	  for(ContourCoordinates::iterator cit = pit->second.begin();
+		  cit != pit->second.end();
+		  ++cit)
+		{
+		  const float contour = cit->first;
+		  for(Coordinates::iterator it = cit->second.begin();
+			  it != cit->second.end();
+			  ++it)
+			{
+			  const double dist = distance(thePoint.first,
+										   thePoint.second,
+										   it->first,
+										   it->second);
+
+			  if(param != theParam)
+				{
+				  if(dist < itsMinDistanceToDifferentParameter)
+					cit->second.erase(it);
+				}
+			  else if(contour != theContour)
+				{
+				  if(dist < itsMinDistanceToDifferentValue)
+					cit->second.erase(it);
+				}
+			  else
+				{
+				  if(dist < itsMinDistanceToSameValue)
+					cit->second.erase(it);
+				}
+			}
+		  if(cit->second.empty())
+			pit->second.erase(cit);
+		}
+	  if(pit->second.empty())
+		theCandidates.erase(pit);
+	}
+	  
 }
 
 // ======================================================================
