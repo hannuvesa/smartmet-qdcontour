@@ -3740,7 +3740,7 @@ void do_draw_contours(istream & theInput)
 	  if(!globals.force && globals.isOutdated())
 		{
 		  if(globals.verbose)
-			cout << "Aborting since querydata has been updated" << endl;
+			cout << "Aborting 'draw contour' since querydata has been updated" << endl;
 		  break;
 		}
 
