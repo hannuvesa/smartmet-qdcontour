@@ -409,6 +409,8 @@ int domain(int argc, const char *argv[])
 			  double lon,lat;
 			  input >> lon >> lat;
 			  theBottomLeft.Set(lon,lat);
+			  theCenter.Set(kFloatMissing, kFloatMissing);
+			  theScale = -1.0;
 			}
 		  
 		  else if(command == "topright")
@@ -416,6 +418,8 @@ int domain(int argc, const char *argv[])
 			  double lon,lat;
 			  input >> lon >> lat;
 			  theTopRight.Set(lon,lat);
+			  theCenter.Set(kFloatMissing, kFloatMissing);
+			  theScale = -1.0;
 			}
 		  
 		  else if(command == "center")
@@ -423,6 +427,15 @@ int domain(int argc, const char *argv[])
 			  double lon,lat;
 			  input >> lon >> lat;
 			  theCenter.Set(lon,lat);
+			  theBottomLeft.Set(kFloatMissing, kFloatMissing);
+			  theTopRight.Set(kFloatMissing, kFloatMissing);
+			}
+
+		  else if(command == "scale")
+			{
+			  input >> theScale;
+			  theBottomLeft.Set(kFloatMissing, kFloatMissing);
+			  theTopRight.Set(kFloatMissing, kFloatMissing);
 			}
 
 		  else if(command == "stereographic")
@@ -442,9 +455,6 @@ int domain(int argc, const char *argv[])
 		  else if(command == "height")
 			input >> theHeight;
 		  
-		  else if(command == "scale")
-			input >> theScale;
-
 		  else if(command == "erase")
 			{
 			  input >> theErase;
