@@ -42,16 +42,11 @@ ContourSpec::ContourSpec(const std::string & theParam,
   , itsLabelMarker("")
   , itsLabelMarkerRule("Copy")
   , itsLabelMarkerAlphaFactor(1.0)
-  , itsLabelFont("TimesRoman")
-  , itsLabelSize(12)
-  , itsLabelStrokeColor(Imagine::NFmiColorTools::NoColor)
-  , itsLabelStrokeRule("Copy")
-  , itsLabelFillColor(Imagine::NFmiColorTools::NoColor)
-  , itsLabelFillRule("Copy")
+  , itsLabelFont("misc/6x13B.pcf.gz:6x13")
+  , itsLabelColor(Imagine::NFmiColorTools::Black)
   , itsLabelAlignment("Center")
   , itsLabelFormat("%.1f")
   , itsLabelMissing("-")
-  , itsLabelAngle(0)
   , itsLabelOffsetX(0)
   , itsLabelOffsetY(0)
   , itsLabelDX(0)
@@ -635,67 +630,15 @@ const std::string & ContourSpec::labelFont(void) const
 
 // ----------------------------------------------------------------------
 /*!
- * \brief Return the label size
- *
- * \return The label size
- */
-// ----------------------------------------------------------------------
-
-float ContourSpec::labelSize(void) const
-{
-  return itsLabelSize;
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Return the label stroke color
+ * \brief Return the label color
  *
  * \return The color
  */
 // ----------------------------------------------------------------------
 
-int ContourSpec::labelStrokeColor(void) const
+int ContourSpec::labelColor(void) const
 {
-  return itsLabelStrokeColor;
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Return the label stroke rule
- *
- * \return The stroke rule
- */
-// ----------------------------------------------------------------------
-
-const std::string & ContourSpec::labelStrokeRule(void) const
-{
-  return itsLabelStrokeRule;
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Return the label fill color
- *
- * \return The fill color
- */
-// ----------------------------------------------------------------------
-
-int ContourSpec::labelFillColor(void) const
-{
-  return itsLabelFillColor;
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Return the label fill rule
- *
- * \return The fill rule
- */
-// ----------------------------------------------------------------------
-
-const std::string & ContourSpec::labelFillRule(void) const
-{
-  return itsLabelFillRule;
+  return itsLabelColor;
 }
 
 // ----------------------------------------------------------------------
@@ -735,19 +678,6 @@ const std::string & ContourSpec::labelFormat(void) const
 const std::string & ContourSpec::labelMissing(void) const
 {
   return itsLabelMissing;
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Return the label angle
- *
- * \return The label angle
- */
-// ----------------------------------------------------------------------
-
-float ContourSpec::labelAngle(void) const
-{
-  return itsLabelAngle;
 }
 
 // ----------------------------------------------------------------------
@@ -908,67 +838,15 @@ void ContourSpec::labelFont(const std::string & theValue)
 
 // ----------------------------------------------------------------------
 /*!
- * \brief Set the label size
- *
- * \param theValue The label size
- */
-// ----------------------------------------------------------------------
-
-void ContourSpec::labelSize(float theValue)
-{
-  itsLabelSize = theValue;
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Set the label stroke color
+ * \brief Set the label color
  *
  * \param theValue The color
  */
 // ----------------------------------------------------------------------
 
-void ContourSpec::labelStrokeColor(int theValue)
+void ContourSpec::labelColor(int theValue)
 {
-  itsLabelStrokeColor = theValue;
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Set the label stroke blending rule
- *
- * \param theValue The rule
- */
-// ----------------------------------------------------------------------
-
-void ContourSpec::labelStrokeRule(const std::string & theValue)
-{
-  itsLabelStrokeRule = theValue;
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Set the label fill color
- *
- * \param theValue The color
- */
-// ----------------------------------------------------------------------
-
-void ContourSpec::labelFillColor(int theValue)
-{
-  itsLabelFillColor = theValue;
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Set the label fill blending rule
- *
- * \param theValue The rule
- */
-// ----------------------------------------------------------------------
-
-void ContourSpec::labelFillRule(const std::string & theValue)
-{
-  itsLabelFillRule = theValue;
+  itsLabelColor = theValue;
 }
 
 // ----------------------------------------------------------------------
@@ -1008,19 +886,6 @@ void ContourSpec::labelFormat(const std::string & theValue)
 void ContourSpec::labelMissing(const std::string & theValue)
 {
   itsLabelMissing = theValue;
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Set the label angle
- *
- * \param theValue The angle
- */
-// ----------------------------------------------------------------------
-
-void ContourSpec::labelAngle(float theValue)
-{
-  itsLabelAngle = theValue;
 }
 
 // ----------------------------------------------------------------------

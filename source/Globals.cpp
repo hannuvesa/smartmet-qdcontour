@@ -11,7 +11,8 @@
 #include "TimeTools.h"
 
 #include "imagine/NFmiEsriBox.h"
-#include "imagine/NFmiFontHershey.h"	// for Hershey fonts
+#include "imagine/NFmiFace.h"
+#include "imagine/NFmiFreeType.h"
 #include "imagine/NFmiPath.h"
 #include "imagine/NFmiText.h"			// for labels
 
@@ -263,38 +264,20 @@ void Globals::drawImageStampText(NFmiImage & theImage,
   if(theText.empty())
 	return;
 
-  NFmiFontHershey font("TimesRoman-Bold");
+  NFmiFace face = Imagine::NFmiFreeType::Instance().Face("misc/6x13B.pcf.gz",6,13);
+  face.Background(true);
   
   int x = timestampimagex;
   int y = timestampimagey;
   
   if(x<0) x+= theImage.Width();
   if(y<0) y+= theImage.Height();
-		  
-  NFmiText text(theText,font,14,x,y,kFmiAlignNorthWest,0.0);
 
-  // And render the text
-
-  NFmiPath path = text.Path();
-
-  NFmiEsriBox box = path.BoundingBox();
-
-  NFmiPath rect;
-  int w = 4;
-  rect.MoveTo(box.Xmin()-w,box.Ymin()-w);
-  rect.LineTo(box.Xmax()+w,box.Ymin()-w);
-  rect.LineTo(box.Xmax()+w,box.Ymax()+w);
-  rect.LineTo(box.Xmin()-w,box.Ymax()+w);
-  rect.CloseLineTo();
-
-  rect.Fill(theImage,
-			NFmiColorTools::MakeColor(180,180,180,32),
-			NFmiColorTools::kFmiColorOver);
-
-  path.Stroke(theImage,
-			  NFmiColorTools::Black,
-			  NFmiColorTools::kFmiColorCopy);
-
+  face.Draw(theImage,
+			x,y,
+			theText,
+			kFmiAlignNorthWest,
+			NFmiColorTools::Black);
 }
 
 // ----------------------------------------------------------------------

@@ -24,7 +24,6 @@
 #include "imagine/NFmiColorTools.h"
 #include "imagine/NFmiFace.h"
 #include "imagine/NFmiFreeType.h"
-#include "imagine/NFmiFontHershey.h"	// for Hershey fonts
 #include "imagine/NFmiImage.h"			// for rendering
 #include "imagine/NFmiGeoShape.h"		// for esri data
 #include "imagine/NFmiText.h"			// for labels
@@ -1925,59 +1924,19 @@ void do_labelfont(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "labelsize" command
+ * \bried Handle "labelcolor" command
  */
 // ----------------------------------------------------------------------
 
-void do_labelsize(istream & theInput)
+void do_labelcolor(istream & theInput)
 {
-  float size;
-  theInput >> size;
+  string color;
+  theInput >> color;
 
-  check_errors(theInput,"labelsize");
+  check_errors(theInput,"labelcolor");
 
   if(!globals.specs.empty())
-	globals.specs.back().labelSize(size);
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \bried Handle "labelstroke" command
- */
-// ----------------------------------------------------------------------
-
-void do_labelstroke(istream & theInput)
-{
-  string color,rule;
-  theInput >> color >> rule;
-
-  check_errors(theInput,"labelstroke");
-
-  if(!globals.specs.empty())
-	{
-	  globals.specs.back().labelStrokeColor(ColorTools::checkcolor(color));
-	  globals.specs.back().labelStrokeRule(rule);
-	}
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \bried Handle "labelfill" command
- */
-// ----------------------------------------------------------------------
-
-void do_labelfill(istream & theInput)
-{
-  string color,rule;
-  theInput >> color >> rule;
-
-  check_errors(theInput,"labelfill");
-
-  if(!globals.specs.empty())
-	{
-	  globals.specs.back().labelFillColor(ColorTools::checkcolor(color));
-	  globals.specs.back().labelFillRule(rule);
-	}
+	globals.specs.back().labelColor(ColorTools::checkcolor(color));
 }
 
 // ----------------------------------------------------------------------
@@ -2053,23 +2012,6 @@ void do_labeloffset(istream & theInput)
 	  globals.specs.back().labelOffsetX(dx);
 	  globals.specs.back().labelOffsetY(dy);
 	}
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \bried Handle "labelangle" command
- */
-// ----------------------------------------------------------------------
-
-void do_labelangle(istream & theInput)
-{
-  float angle;
-  theInput >> angle;
-
-  check_errors(theInput,"labelangle");
-
-  if(!globals.specs.empty())
-	globals.specs.back().labelAngle(angle);
 }
 
 // ----------------------------------------------------------------------
@@ -2664,35 +2606,10 @@ void draw_label_texts(NFmiImage & theImage,
   if(theSpec.labelFormat() == "")
 	return;
 
-  // Create the font object to be used
+  // Create the face object to be used
 
-  NFmiFontHershey font(theSpec.labelFont());
-
-  // Create the text object to be used
-
-  NFmiText text("",
-				font,
-				theSpec.labelSize(),
-				0.0,	// x
-				0.0,	// y
-				AlignmentValue(theSpec.labelAlignment()),
-				theSpec.labelAngle());
-
-  NFmiText caption(theSpec.labelCaption(),
-				   font,
-				   theSpec.labelSize(),
-				   0.0,
-				   0.0,
-				   AlignmentValue(theSpec.labelCaptionAlignment()),
-				   theSpec.labelAngle());
-
-  // The rules
-
-  NFmiColorTools::NFmiBlendRule fillrule
-	= ColorTools::checkrule(theSpec.labelFillRule());
-
-  NFmiColorTools::NFmiBlendRule strokerule
-	= ColorTools::checkrule(theSpec.labelStrokeRule());
+  Imagine::NFmiFace face = make_face(theSpec.labelFont());
+  face.Background(false);
 
   // Draw labels at specifing latlon points if requested
 
@@ -2744,23 +2661,23 @@ void draw_label_texts(NFmiImage & theImage,
 
 	  // Set new text properties
 
-	  text.Text(strvalue);
-	  text.X(x + theSpec.labelOffsetX());
-	  text.Y(y + theSpec.labelOffsetY());
-
-	  // And render the text
-
-	  text.Fill(theImage,theSpec.labelFillColor(),fillrule);
-	  text.Stroke(theImage,theSpec.labelStrokeColor(),strokerule);
+	  face.Draw(theImage,
+				FmiRound(x + theSpec.labelOffsetX()),
+				FmiRound(y + theSpec.labelOffsetY()),
+				strvalue,
+				AlignmentValue(theSpec.labelAlignment()),
+				theSpec.labelColor());
 
 	  // Then the label caption
 
 	  if(!theSpec.labelCaption().empty())
 		{
-		  caption.X(text.X() + theSpec.labelCaptionDX());
-		  caption.Y(text.Y() + theSpec.labelCaptionDY());
-		  caption.Fill(theImage,theSpec.labelFillColor(),fillrule);
-		  caption.Stroke(theImage,theSpec.labelStrokeColor(),strokerule);
+		  face.Draw(theImage,
+					FmiRound(x + theSpec.labelCaptionDX()),
+					FmiRound(y + theSpec.labelCaptionDY()),
+					theSpec.labelCaption(),
+					AlignmentValue(theSpec.labelCaptionAlignment()),
+					theSpec.labelColor());
 		}
 	}
 }
@@ -4273,13 +4190,10 @@ int domain(int argc, const char *argv[])
 		  else if(cmd == "pressuremindistdifferent") do_pressuremindistdifferent(in);
 		  else if(cmd == "labelmarker")				do_labelmarker(in);
 		  else if(cmd == "labelfont")				do_labelfont(in);
-		  else if(cmd == "labelsize")				do_labelsize(in);
-		  else if(cmd == "labelstroke")				do_labelstroke(in);
-		  else if(cmd == "labelfill")				do_labelfill(in);
+		  else if(cmd == "labelcolor")				do_labelcolor(in);
 		  else if(cmd == "labelalign")				do_labelalign(in);
 		  else if(cmd == "labelformat")				do_labelformat(in);
 		  else if(cmd == "labelmissing")			do_labelmissing(in);
-		  else if(cmd == "labelangle")				do_labelangle(in);
 		  else if(cmd == "labeloffset")				do_labeloffset(in);
 		  else if(cmd == "labelcaption")			do_labelcaption(in);
 		  else if(cmd == "label")					do_label(in);
