@@ -643,6 +643,9 @@ int main(int argc, const char *argv[])
   float theCombineFactor = 1.0;
   
   string theFilter = "none";
+
+  string theDirectionParameter = "WindDirection";
+  string theSpeedParameter = "WindSpeedMS";
   
   float theArrowScale = 1.0;
 
@@ -2764,8 +2767,8 @@ int main(int argc, const char *argv[])
 					  
 					  // Draw wind arrows if so requested
 					  
-					  
-					  if(theQueryInfo->Param().GetParamIdent()==kFmiWindDirection &&
+					  NFmiEnumConverter converter;
+					  if(converter.ToString(theQueryInfo->Param().GetParamIdent()) == theDirectionParameter &&
 						 (!theArrowPoints.empty() || (theWindArrowDX!=0 && theWindArrowDY!=0)) &&
 						 (theArrowFile!=""))
 						{
@@ -2801,9 +2804,10 @@ int main(int argc, const char *argv[])
 								continue;
 							  
 							  float speed = -1;
-							  if(theQueryInfo->Param(kFmiWindSpeedMS))
+							  
+							  if(theQueryInfo->Param(FmiParameterName(converter.ToEnum(theSpeedParameter))));
 								speed = theQueryInfo->InterpolatedValue(*iter);
-							  theQueryInfo->Param(kFmiWindDirection);
+							  theQueryInfo->Param(FmiParameterName(converter.ToEnum(theDirectionParameter)));
 							  
 							  // The start point
 							  
