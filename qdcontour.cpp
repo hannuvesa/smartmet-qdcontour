@@ -205,6 +205,7 @@ int domain(int argc, const char *argv[])
   unsigned int theWindArrowDY = 0;
   
   int theContourDepth	= 0;
+  int theContourTrianglesOn = 1;
   
   int thePngQuality = -1;
   int theJpegQuality = -1;
@@ -652,6 +653,11 @@ int domain(int argc, const char *argv[])
 			  if(!theSpecs.empty())
 				theSpecs.back().contourInterpolation(theContourInterpolation);
 			}
+		  else if(command == "contourtriangles")
+			{
+			  input >> theContourTrianglesOn;
+			}
+
 		  else if(command == "smoother")
 			{
 			  input >> theSmoother;
@@ -1801,7 +1807,8 @@ int domain(int argc, const char *argv[])
 													  piter->dataLoLimit(),
 													  piter->dataHiLimit(),
 													  piter->contourDepth(),
-													  interp);
+													  interp,
+													  theContourTrianglesOn);
 							  
 							  if(verbose && theCalculator.wasCached())
 								cout << "Using cached "
@@ -1861,7 +1868,8 @@ int domain(int argc, const char *argv[])
 													  piter->dataLoLimit(),
 													  piter->dataHiLimit(),
 													  piter->contourDepth(),
-													  interp);
+													  interp,
+													  theContourTrianglesOn);
 
 							  if(verbose && theCalculator.wasCached())
 								cout << "Using cached "
@@ -1909,7 +1917,8 @@ int domain(int argc, const char *argv[])
 													  piter->dataLoLimit(),
 													  piter->dataHiLimit(),
 													  piter->contourDepth(),
-													  interp);
+													  interp,
+													  theContourTrianglesOn);
 
 							  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(liter->rule());
 							  path.Project(&theArea);
