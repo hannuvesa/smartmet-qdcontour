@@ -344,7 +344,16 @@ int domain(int argc, const char *argv[])
 				  
 				  // Split the comma separated list into a real list
 				  
-				  list<string> qnames = StringTools::splitwords(theQueryStreamNames,',');
+				  list<string> qnames;
+				  unsigned int pos1 = 0;
+				  while(pos1<theQueryStreamNames.size())
+					{
+					  unsigned int pos2 = theQueryStreamNames.find(',',pos1);
+					  if(pos2==std::string::npos)
+						pos2 = theQueryStreamNames.size();
+					  qnames.push_back(theQueryStreamNames.substr(pos1,pos2-pos1));
+					  pos1 = pos2 + 1;
+					}
 			  
 				  // Read the queryfiles
 				  
@@ -1341,6 +1350,7 @@ int domain(int argc, const char *argv[])
 				  // Loop over all times
 				  
 				  int imagesdone = 0;
+				  bool labeldxdydone = false;
 				  while(true)
 					{
 					  if(imagesdone>=theTimeSteps)
@@ -1691,7 +1701,7 @@ int domain(int argc, const char *argv[])
 						  // First, however, if this is the first image, we add
 						  // the grid points to the set of points, if so requested
 
-						  if(piter->labelDX() > 0 && piter->labelDY() > 0)
+						  if(!labeldxdydone && piter->labelDX() > 0 && piter->labelDY() > 0)
 							{
 							  for(unsigned int j=0; j<worldpts[qi].NY(); j+=piter->labelDY())
 								for(unsigned int i=0; i<worldpts[qi].NX(); i+=piter->labelDX())
@@ -2108,8 +2118,7 @@ int domain(int argc, const char *argv[])
 							{
 							  // Establish that something is to be done
 							  
-							  if(piter->labelPoints().empty() &&
-								 !(piter->labelDX()==0 || piter->labelDX()==0))
+							  if(piter->labelPoints().empty())
 								continue;
 							  
 							  // Establish the marker specs
@@ -2123,38 +2132,35 @@ int domain(int argc, const char *argv[])
 							  
 							  // Draw individual points
 							  
-							  if(!piter->labelPoints().empty())
+							  unsigned int pointnumber = 0;
+							  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
+							  for(iter=piter->labelPoints().begin();
+								  iter!=piter->labelPoints().end();
+								  ++iter)
 								{
-								  unsigned int pointnumber = 0;
-								  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
-								  for(iter=piter->labelPoints().begin();
-									  iter!=piter->labelPoints().end();
-									  ++iter)
+								  // The point in question
+								  
+								  NFmiPoint xy = theArea.ToXY(iter->first);
+								  
+								  // Skip rendering if the start point is masked
+								  
+								  if(IsMasked(xy,theMask,theMaskImage))
+									continue;
+								  
+								  // Skip rendering if LabelMissing is "" and value is missing
+								  if(piter->labelMissing().empty())
 									{
-									  // The point in question
-									  
-									  NFmiPoint xy = theArea.ToXY(iter->first);
-									  
-									  // Skip rendering if the start point is masked
-									  
-									  if(IsMasked(xy,theMask,theMaskImage))
+									  float value = piter->labelValues()[pointnumber++];
+									  if(value == kFloatMissing)
 										continue;
-
-                                      // Skip rendering if LabelMissing is "" and value is missing
-                                      if(piter->labelMissing().empty())
-                                        {
-                                          float value = piter->labelValues()[pointnumber++];
-                                          if(value == kFloatMissing)
-                                            continue;
-                                        }
-									  
-									  theImage.Composite(marker,
-														 markerrule,
-														 kFmiAlignCenter,
-														 FmiRound(xy.X()),
-														 FmiRound(xy.Y()),
-														 markeralpha);
 									}
+								  
+								  theImage.Composite(marker,
+													 markerrule,
+													 kFmiAlignCenter,
+													 FmiRound(xy.X()),
+													 FmiRound(xy.Y()),
+													 markeralpha);
 								}
 							  
 							}
@@ -2164,16 +2170,9 @@ int domain(int argc, const char *argv[])
 						  // Quick exit from loop if no labels are
 						  // desired for this parameter
 						  
-						  if(piter->labelPoints().empty() &&
-							 !(piter->labelDX()!=0 && piter->labelDY()!=0))
-							continue;
-						  
 						  if(piter->labelFormat() == "")
 							continue;
 
-						  // Draw markers if so requested
-						  
-						  
 						  // Create the font object to be used
 						  
 						  NFmiFontHershey font(piter->labelFont());
@@ -2386,6 +2385,11 @@ int domain(int argc, const char *argv[])
 									  NFmiColorTools::kFmiColorCopy);
 						  
 						}
+
+					  // dx and dy labels have now been extracted into a list,
+					  // disable adding them again and again and again..
+					  
+					  labeldxdydone = true;
 					  
 					  // Save
 					  
