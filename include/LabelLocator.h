@@ -26,6 +26,8 @@ public:
   void minDistanceToDifferentValue(float theDistance);
   void minDistanceToDifferentParameter(float theDistance);
 
+  void nextTime();
+
 private:
 
   // Intentionally disabled:

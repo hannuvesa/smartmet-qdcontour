@@ -176,4 +176,22 @@ void LabelLocator::minDistanceToDifferentParameter(float theDistance)
   itsMinDistanceToDifferentParameter = theDistance;
 }
 
+// ----------------------------------------------------------------------
+/*!
+ * \brief Initialize next time step
+ *
+ * This must be called before coordinates are added for any new timestep.
+ * It should be called also before the first timestep, although at this
+ * point it could be omitted. This is not however guaranteed in the
+ * future.
+ */
+// ----------------------------------------------------------------------
+
+void LabelLocator::nextTime()
+{
+  swap(itsPreviousCoordinates,itsCurrentCoordinates);
+  itsCurrentCoordinates.clear();
+}
+
+
 // ======================================================================
