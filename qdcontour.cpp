@@ -890,6 +890,20 @@ void do_format(istream & theInput)
 }
 
 // ----------------------------------------------------------------------
+/*!
+ * \brief Handle "gamma" command
+ */
+// ----------------------------------------------------------------------
+
+void do_gamma(istream & theInput)
+{
+  theInput >> globals.gamma;
+
+  if(theInput.fail())
+	throw runtime_error("Processing the 'gamma format' command failed");
+}
+
+// ----------------------------------------------------------------------
 // Main program.
 // ----------------------------------------------------------------------
 
@@ -930,7 +944,6 @@ int domain(int argc, const char *argv[])
   int thePngQuality = -1;
   int theJpegQuality = -1;
   int theAlphaLimit = -1;
-  float theGamma = -1.0;
   string theIntent = "";
 
   // Related variables
@@ -999,9 +1012,7 @@ int domain(int argc, const char *argv[])
 		  else if(command == "prefix")				do_prefix(input);
 		  else if(command == "suffix")				do_suffix(input);
 		  else if(command == "format")				do_format(input);
-
-		  else if(command == "gamma")
-			input >> theGamma;
+		  else if(command == "gamma")				do_gamma(input);
 
 		  else if(command == "intent")
 			input >> theIntent;
@@ -1473,7 +1484,7 @@ int domain(int argc, const char *argv[])
 				  theImage.SaveAlpha(theSaveAlphaFlag);
 				  theImage.WantPalette(theWantPaletteFlag);
 				  theImage.ForcePalette(theForcePaletteFlag);
-				  if(theGamma>0) theImage.Gamma(theGamma);
+				  if(globals.gamma>0) theImage.Gamma(globals.gamma);
 				  if(!theIntent.empty()) theImage.Intent(theIntent);
 				  if(thePngQuality>=0) theImage.PngQuality(thePngQuality);
 				  if(theJpegQuality>=0) theImage.JpegQuality(theJpegQuality);
@@ -1829,7 +1840,7 @@ int domain(int argc, const char *argv[])
 					  theImage.SaveAlpha(theSaveAlphaFlag);
 					  theImage.WantPalette(theWantPaletteFlag);
 					  theImage.ForcePalette(theForcePaletteFlag);
-					  if(theGamma>0) theImage.Gamma(theGamma);
+					  if(globals.gamma>0) theImage.Gamma(globals.gamma);
 					  if(!theIntent.empty()) theImage.Intent(theIntent);
 					  if(thePngQuality>=0) theImage.PngQuality(thePngQuality);
 					  if(theJpegQuality>=0) theImage.JpegQuality(theJpegQuality);
