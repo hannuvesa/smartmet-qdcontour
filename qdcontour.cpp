@@ -1446,6 +1446,7 @@ int main(int argc, const char *argv[])
 				  theSpecs.back().LabelDX(dx);
 				  theSpecs.back().LabelDY(dy);
 				}
+
 			}
 		  
 		  else if(command == "labelfile")
@@ -2323,9 +2324,19 @@ int main(int argc, const char *argv[])
 							cout << "Data range for " << name << " is " << valmin << "," << valmax << endl;
 						  
 						  // Save the data values at desired points for later
-						  // use, this lets ups avoid using InterpolatedValue()
+						  // use, this lets us avoid using InterpolatedValue()
 						  // which does not use smoothened values.
-						  
+
+						  // First, however, if this is the first image, we add
+						  // the grid points to the set of points, if so requested
+
+						  if(piter->LabelDX() > 0 && piter->LabelDY() > 0)
+							{
+							  for(unsigned int j=0; j<pts[qi].NY(); j+=piter->LabelDY())
+								for(unsigned int i=0; i<pts[qi].NX(); i+=piter->LabelDX())
+								  piter->Add(area.WorldXYToLatLon(worldpts[qi][i][j]));
+							}
+
 						  piter->ClearLabelValues();
 						  if((piter->LabelFormat() != "") &&
 							 !piter->LabelPoints().empty() )
@@ -2362,7 +2373,7 @@ int main(int argc, const char *argv[])
 								  piter->AddLabelValue(value);
 								}
 							}
-						  
+					  
 						  // Fill the contours
 						  
 						  list<ContourRange>::const_iterator citer;
@@ -2753,16 +2764,6 @@ int main(int argc, const char *argv[])
 							  
 							}
 							  
-						  // Grid would be labeled here, but it's not implemented
-						  // yet. I have to decide whether to smoothen as in
-						  // contouring or whether to use the original data value
-						  // at the grid point.
-							  
-						  if(piter->LabelDX() != 0 && piter->LabelDY() != 0)
-							{
-							}
-
-
 						}
 					  
 					  

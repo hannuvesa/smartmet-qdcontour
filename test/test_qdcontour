@@ -106,6 +106,10 @@ DoTest("labels at points",
        "labels_points.conf",
        "labels_points_200210140900_140900.png");
 
+DoTest("labels at gridpoints",
+       "labels_grid.conf",
+       "labels_grid_200210140900_140900.png");
+
 print "Done\n";
 
 # ----------------------------------------------------------------------
