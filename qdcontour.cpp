@@ -1362,7 +1362,7 @@ int domain(int argc, const char *argv[])
 				  
 				  int imagesdone = 0;
 				  bool labeldxdydone = false;
-				  while(true)
+				  for(;;)
 					{
 					  if(imagesdone>=theTimeSteps)
 						break;
@@ -1648,7 +1648,7 @@ int domain(int argc, const char *argv[])
 							  
 							  NFmiDataMatrix<float> tmpvals;
 							  int steps = 1;
-							  while(true)
+							  for(;;)
 								{
 								  theQueryInfo->PreviousTime();
 								  NFmiTime utc = theQueryInfo->ValidTime();
