@@ -14,7 +14,6 @@
 #include "MetaFunctions.h"
 #include "ProjectionFactory.h"
 #include "ShapeSpec.h"
-#include "StringTools.h"
 #include "TimeTools.h"
 // imagine
 #include "NFmiColorTools.h"
@@ -32,6 +31,7 @@
 #include "NFmiLatLonArea.h"			// Geographic projection
 #include "NFmiSettings.h"			// Configuration
 #include "NFmiStereographicArea.h"	// Stereographic projection
+#include "NFmiStringTools.h"
 #include "NFmiPreProcessor.h"
 // system
 #include <fstream>
@@ -1965,7 +1965,7 @@ int domain(int argc, const char *argv[])
 							  if(!arrow)
 								throw runtime_error("Could not open " + theArrowFile);
 							  // Read in the entire file
-							  string pathstring = StringTools::readfile(arrow);
+							  string pathstring = NFmiStringTools::ReadFile(arrow);
 							  arrow.close();
 
 							  // Convert to a path
