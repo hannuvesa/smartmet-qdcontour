@@ -242,7 +242,6 @@ int domain(int argc, const char *argv[])
   
   LazyQueryData *theQueryInfo = 0;
   
-  bool verbose	= false;	// verbose mode off
   bool force	= false;	// overwrite disabled
 
   string theCommandLineQueryData;
@@ -266,7 +265,7 @@ int domain(int argc, const char *argv[])
   // Read -v option
   
   if(cmdline.isOption('v'))
-    verbose = true;
+    globals.verbose = true;
   
   // Read -f option
   
@@ -289,7 +288,7 @@ int domain(int argc, const char *argv[])
     {
       const string & cmdfilename = *fileiter;
 	  
-      if(verbose)
+      if(globals.verbose)
 		cout << "Processing file: " << cmdfilename << endl;
 	  
       // Open command file for reading
@@ -308,7 +307,7 @@ int domain(int argc, const char *argv[])
 
 	  if(!theCommandLineQueryData.empty())
 		{
-		  if(verbose)
+		  if(globals.verbose)
 			cout << "Using querydata " << theCommandLineQueryData << endl;
 		  text = "querydata "+theCommandLineQueryData + '\n' + text;
 		}
@@ -1152,7 +1151,7 @@ int domain(int argc, const char *argv[])
 					theArea.reset(NFmiAreaFactory::Create(theProjection).release());
 				  
 				  
-				  if(verbose)
+				  if(globals.verbose)
 					cout << "Area corners are"
 						 << endl
 						 << "bottomleft\t= " 
@@ -1215,7 +1214,7 @@ int domain(int argc, const char *argv[])
 					}
 				  
 				  string outfile = filename + "." + theFormat;
-				  if(verbose)
+				  if(globals.verbose)
 					cout << "Writing " << outfile << endl;
 				  if(theFormat=="png")
 					theImage.WritePng(outfile);
@@ -1268,7 +1267,7 @@ int domain(int argc, const char *argv[])
 				  ofstream out(outfile.c_str());
 				  if(!out)
 					throw runtime_error("Failed to open "+outfile+" for writing");
-				  if(verbose)
+				  if(globals.verbose)
 					cout << "Writing " << outfile << endl;
 				  
 				  for(iter=begin; iter!=end; ++iter)
@@ -1333,7 +1332,7 @@ int domain(int argc, const char *argv[])
 					theArea.reset(NFmiAreaFactory::Create(theProjection).release());
 				  
 
-				  if(verbose)
+				  if(globals.verbose)
 					cout << "Area corners are"
 						 << endl
 						 << "bottomleft\t= " 
@@ -1396,7 +1395,7 @@ int domain(int argc, const char *argv[])
 					  
 					}
 				  
-				  if(verbose)
+				  if(globals.verbose)
 					{
 					  cout << "Data start time " << time1 << endl
 						   << "Data end time " << time2 << endl;
@@ -1517,7 +1516,7 @@ int domain(int argc, const char *argv[])
 					  
 					  NFmiString datatimestr = t.ToStr(kYYYYMMDDHHMM);
 					  
-					  if(verbose)
+					  if(globals.verbose)
 						cout << "Time is " << datatimestr.CharPtr() << endl;
 
 					  string filename =
@@ -1548,7 +1547,7 @@ int domain(int argc, const char *argv[])
 					  
 					  if(!force && !NFmiFileSystem::FileEmpty(filename))
 						{
-						  if(verbose)
+						  if(globals.verbose)
 							cout << "Not overwriting " << filename << endl;
 						  continue;
 						}
@@ -1618,7 +1617,7 @@ int domain(int argc, const char *argv[])
 						  if(!ok)
 							throw runtime_error("The parameter is not usable: " + name);
 						  
-						  if(verbose)
+						  if(globals.verbose)
 							{
 							  cout << "Param " << name << " from queryfile number "
 								   << (qi+1) << endl;
@@ -1744,7 +1743,7 @@ int domain(int argc, const char *argv[])
 									valmax = vals[i][j];
 								}
 						  
-						  if(verbose)
+						  if(globals.verbose)
 							cout << "Data range for " << name << " is " << valmin << "," << valmax << endl;
 						  
 						  // Setup the contourer with the values
@@ -1855,7 +1854,7 @@ int domain(int argc, const char *argv[])
 													  interp,
 													  theContourTrianglesOn);
 							  
-							  if(verbose && theCalculator.wasCached())
+							  if(globals.verbose && theCalculator.wasCached())
 								cout << "Using cached "
 									 << citer->lolimit() << " - "
 									 << citer->hilimit() << endl;
@@ -1915,7 +1914,7 @@ int domain(int argc, const char *argv[])
 													  interp,
 													  theContourTrianglesOn);
 
-							  if(verbose && theCalculator.wasCached())
+							  if(globals.verbose && theCalculator.wasCached())
 								cout << "Using cached "
 									 << patiter->lolimit() << " - "
 									 << patiter->hilimit() << endl;
@@ -2451,7 +2450,7 @@ int domain(int argc, const char *argv[])
 					  
 					  // Save
 					  
-					  if(verbose)
+					  if(globals.verbose)
 						cout << "Writing " << filename << endl;
 					  if(theFormat=="png")
 						theImage.WritePng(filename);

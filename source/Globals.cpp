@@ -20,7 +20,8 @@ using NFmiSettings::Optional;
 // ----------------------------------------------------------------------
 
 Globals::Globals()
-  : datapath(Optional<string>("qdcontour::querydata_path","."))
+  : verbose(false)
+  , datapath(Optional<string>("qdcontour::querydata_path","."))
   , mapspath(Optional<string>("qdcontour::maps_path","."))
 {
 }

@@ -14,6 +14,8 @@ struct Globals
 {
   Globals();
 
+  bool verbose;
+
   std::string datapath;
   std::string mapspath;
 
