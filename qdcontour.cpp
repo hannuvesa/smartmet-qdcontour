@@ -26,7 +26,6 @@
 #include "imagine/NFmiFreeType.h"
 #include "imagine/NFmiImage.h"			// for rendering
 #include "imagine/NFmiGeoShape.h"		// for esri data
-#include "imagine/NFmiText.h"			// for labels
 
 #include "newbase/NFmiCmdLine.h"			// command line options
 #include "newbase/NFmiDataMatrix.h"
