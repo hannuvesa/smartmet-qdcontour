@@ -835,9 +835,18 @@ The available meta parameters are
 <dl>
 <dt>MetaElevationAngle</dt>
 <dd>
-This is the elevation of the sun angle in degrees for each geographic location.
-This value can be used to render night time areas dark. Note that angle -0.83
-is considered dark and angle +0.83 is considered daylight.
+The elevation of the sun angle in degrees for each
+geographic location.  This value can be used to render night time
+areas dark. Note that angle -0.83 is considered dark and angle +0.83
+is considered daylight.
+</dd>
+<dt>MetaWindChill</dt>
+<dd>
+Wind chill index
+</dd>
+<dt>MetaDewDifference</dt>
+<dd>
+Road temperature minus dew point at 2 meters.
 </dd>
 </dl>
 \endhtmlonly
