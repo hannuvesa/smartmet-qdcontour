@@ -548,8 +548,8 @@ commands
 \code
 labelfont [fontname]                  (default TimesRoman)
 labelsize [size]                      (default 12 pixels)
-labelstroke [color] [blendingrule]    (default black, Copy)
-labelfill [color] [blendingrule]      (default black, Copy)
+labelstroke [color] [blendingrule]    (default none, Copy)
+labelfill [color] [blendingrule]      (default none, Copy)
 labelalign [alignment]                (default Center)
 labelformat [format]                  (default is "-", implying no output)
 labelangle [angle]                    (default 0)
