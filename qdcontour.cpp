@@ -235,6 +235,33 @@ void check_errors(istream & theInput, const string & theFunction)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Set queryinfo level
+ *
+ * A negative level value implies the first level in the data
+ *
+ * \param theInfo The queryinfo
+ * \param theLevel The level value
+ */
+// ----------------------------------------------------------------------
+
+bool set_level(LazyQueryData & theInfo, int theLevel)
+{
+  if(theLevel < 0)
+	{
+	  theInfo.FirstLevel();
+	  return true;
+	}
+  else
+	{
+	  for(theInfo.ResetLevel(); theInfo.NextLevel(); )
+		if(theInfo.Level()->LevelValue() == static_cast<unsigned int>(theLevel))
+		  return true;
+	  return false;
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Print debugging information on area object
  */
 // ----------------------------------------------------------------------
@@ -389,15 +416,19 @@ void do_querydata(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \brief Handle "querydatalevel" command
+ * \brief Handle "level" command
  */
 // ----------------------------------------------------------------------
 
-void do_querydatalevel(istream & theInput)
+void do_level(istream & theInput)
 {
   theInput >> globals.querydatalevel;
 
-  check_errors(theInput,"querydatalevel");
+  check_errors(theInput,"level");
+
+  if(!globals.specs.empty())
+	globals.specs.back().level(globals.querydatalevel);
+
 }
 
 // ----------------------------------------------------------------------
@@ -1244,6 +1275,7 @@ void do_param(istream & theInput)
   globals.specs.push_back(ContourSpec(param,
 									  globals.contourinterpolation,
 									  globals.smoother,
+									  globals.querydatalevel,
 									  globals.smootherradius,
 									  globals.smootherfactor));
 }
@@ -2234,7 +2266,8 @@ int paramid(const string & theParam)
  */
 // ----------------------------------------------------------------------
 
-unsigned int choose_queryinfo(const string & theName)
+unsigned int choose_queryinfo(const string & theName,
+							  int theLevel)
 {
   if(globals.querystreams.size() == 0)
 	throw runtime_error("No querydata has been specified");
@@ -2255,9 +2288,15 @@ unsigned int choose_queryinfo(const string & theName)
 		  globals.queryinfo = globals.querystreams[qi];
 		  globals.queryinfo->Param(param);
 		  if(globals.queryinfo->IsParamUsable())
-			return qi;
+			{
+			  if(set_level(*globals.queryinfo,theLevel))
+				return qi;
+			}
 		}
-	  throw runtime_error("Parameter '"+theName+"' is not available in the query files");
+	  if(theLevel < 0)
+		throw runtime_error("Parameter '"+theName+"' is not available in the query files");
+	  else
+		throw runtime_error("Parameter '"+theName+"' on level " + NFmiStringTools::Convert(theLevel) + " is not available in the query files");
 	}
 }
 
@@ -3351,7 +3390,7 @@ void draw_pressure_markers(NFmiImage & theImage,
 
   // Get the data to be analyzed
 
-  choose_queryinfo("Pressure");
+  choose_queryinfo("Pressure",-1);
 
   shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(theArea);
 
@@ -3510,18 +3549,10 @@ void do_draw_contours(istream & theInput)
   unsigned int qi;
   for(qi=0; qi<globals.querystreams.size(); qi++)
 	{
-	  // Initialize the queryinfo
+	  // Establish time limits
 
 	  globals.queryinfo = globals.querystreams[qi];
-	  globals.queryinfo->FirstLevel();
-	  if(globals.querydatalevel>0)
-		{
-		  int level = globals.querydatalevel;
-		  while(--level > 0)
-			globals.queryinfo->NextLevel();
-		}
 
-	  // Establish time limits
 	  globals.queryinfo->LastTime();
 	  NFmiTime t2 = globals.queryinfo->ValidTime();
 
@@ -3731,8 +3762,9 @@ void do_draw_contours(istream & theInput)
 		  // Establish the parameter
 
 		  string name = piter->param();
+		  int level = piter->level();
 
-		  qi = choose_queryinfo(name);
+		  qi = choose_queryinfo(name,level);
 
 		  if(globals.verbose)
 			report_queryinfo(name,qi);
@@ -3908,7 +3940,6 @@ int domain(int argc, const char *argv[])
 		  else if(cmd == "//")						do_comment(in);
 		  else if(cmd == "cache")					do_cache(in);
 		  else if(cmd == "querydata")				do_querydata(in);
-		  else if(cmd == "querydatalevel")			do_querydatalevel(in);
 		  else if(cmd == "filter")					do_filter(in);
 		  else if(cmd == "timestepskip")			do_timestepskip(in);
 		  else if(cmd == "timestep")				do_timestep(in);
@@ -3959,6 +3990,7 @@ int domain(int argc, const char *argv[])
 		  else if(cmd == "smoother")				do_smoother(in);
 		  else if(cmd == "smootherradius")			do_smootherradius(in);
 		  else if(cmd == "smootherfactor")			do_smootherfactor(in);
+		  else if(cmd == "level")					do_level(in);
 		  else if(cmd == "param")					do_param(in);
 		  else if(cmd == "shape")					do_shape(in);
 		  else if(cmd == "contourfill")				do_contourfill(in);
