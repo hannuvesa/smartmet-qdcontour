@@ -101,7 +101,7 @@ private:
   mutable boost::shared_ptr<Coordinates> itsLocations;
   mutable boost::shared_ptr<Coordinates> itsLocationsWorldXY;
   mutable boost::shared_ptr<Coordinates> itsLocationsXY;
-
+  mutable std::string itsLocationsArea;
 
 }; // class LazyQueryData
 

@@ -12,6 +12,7 @@
 #include "newbase/NFmiQueryData.h"
 #include <fstream>
 #include <stdexcept>
+#include <sstream>
 
 using namespace std;
 
@@ -309,8 +310,13 @@ boost::shared_ptr<LazyQueryData::Coordinates>
 LazyQueryData::LocationsWorldXY(const NFmiArea & theArea) const
 {
   requireInfo();
-  if(itsLocationsWorldXY.get() == 0)
+
+  ostringstream os;
+  os << theArea;
+
+  if(itsLocationsWorldXY.get() == 0 || os.str() != itsLocationsArea)
 	{
+	  itsLocationsArea = os.str();
 	  itsLocationsWorldXY.reset(new Coordinates);
 	  itsInfo->LocationsWorldXY(*itsLocationsWorldXY, theArea);
 	}
@@ -327,8 +333,13 @@ boost::shared_ptr<LazyQueryData::Coordinates>
 LazyQueryData::LocationsXY(const NFmiArea & theArea) const
 {
   requireInfo();
-  if(itsLocationsXY.get() == 0)
+
+  ostringstream os;
+  os << theArea;
+
+  if(itsLocationsXY.get() == 0 || os.str() != itsLocationsArea)
 	{
+	  itsLocationsArea = os.str();
 	  itsLocationsXY.reset(new Coordinates);
 	  itsInfo->LocationsXY(*itsLocationsXY, theArea);
 	}
