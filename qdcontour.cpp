@@ -3291,7 +3291,7 @@ int extrematype(const NFmiDataMatrix<float> & theValues,
   float maximum = theValues[i-DX][j-DY];
 
   for(int dy = -DY; dy<=DY; dy++)
-	for(int dx = -DY; dx<=DX; dx++)
+	for(int dx = -DX; dx<=DX; dx++)
 	  {
 		// quick exit for missing values
 		if(theValues[i+dx][j+dy] == kFloatMissing)
@@ -3323,8 +3323,14 @@ int extrematype(const NFmiDataMatrix<float> & theValues,
   float change = min(abs(theValues[i][j]-minimum),
 					 abs(theValues[i][j]-maximum));
 
+#if 0
+  if(change >= mingradient)
+	cout << "Change = " << change << " at " << i << ' ' << j << endl;
+#endif
+
   if(change < mingradient)
 	return 0;
+
   else if(smaller == (DX*2+1)*(DY*2+1)-1)
 	return 2;
   else if(bigger == (DX*2+1)*(DY*2+1)-1)
@@ -3375,7 +3381,7 @@ void draw_pressure_markers(NFmiImage & theImage,
 
   const int DX = 7; // ceil(500*1000/dx/2);	// 500km radius required
   const int DY = 7; // ceil(500*1000/dx/2);
-  const float required_gradient = 3;
+  const float required_gradient = 1.0;
 
   for(unsigned int j=DY; j<vals.NY()-DY; j++)
 	for(unsigned int i=DX; i<vals.NX()-DX; i++)
