@@ -124,6 +124,10 @@ DoTest("windarrows in a grid",
        "windarrow_grid.conf",
        "windarrow_grid200210140600_200210140937.png");
 
+DoTest("windarrows in a grid with fractional step",
+       "windarrow_grid_step.conf",
+       "windarrow_grid_step_200210140600_200210140937.png");
+
 DoTest("windarrows in a grid masked",
        "windarrow_grid_masked.conf",
        "windarrow_grid_masked_200210140600_200210140937.png");
@@ -153,6 +157,10 @@ DoTest("labels at gridpoints",
 DoTest("labels at masked gridpoints",
        "labels_grid_masked.conf",
        "labels_grid_masked_200210140600_200210140937.png");
+
+DoTest("labels at fractional gridpoints",
+       "labels_grid_step.conf",
+       "labels_grid_step_200210140600_200210140937.png");
 
 # Labels must be on top of arrows
 
