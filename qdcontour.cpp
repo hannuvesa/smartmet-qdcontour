@@ -9,6 +9,7 @@
 #include "ColorTools.h"
 #include "ContourSpec.h"
 #include "GramTools.h"
+#include "LazyQueryData.h"
 #include "MetaFunctions.h"
 #include "ShapeSpec.h"
 #include "StringTools.h"
@@ -28,7 +29,6 @@
 #include "NFmiLatLonArea.h"			// Geographic projection
 #include "NFmiSettings.h"			// Configuration
 #include "NFmiStereographicArea.h"	// Stereographic projection
-#include "NFmiStreamQueryData.h"
 #include "NFmiPreProcessor.h"
 // system
 #include <fstream>
@@ -213,15 +213,14 @@ int domain(int argc, const char *argv[])
   
   // This holds a vector of querydatastreams
   
-  vector<NFmiStreamQueryData *> theQueryStreams;
+  vector<LazyQueryData *> theQueryStreams;
   int theQueryDataLevel = 1;
   string theQueryStreamNames = "";
   vector<string> theFullQueryFileNames;
   
   // These will hold the querydata for the active parameter
   
-  NFmiQueryData *theQueryData = 0;
-  NFmiFastQueryInfo *theQueryInfo = 0;
+  LazyQueryData *theQueryInfo = 0;
   
   bool verbose	= false;	// verbose mode off
   bool force	= false;	// overwrite disabled
@@ -329,7 +328,6 @@ int domain(int argc, const char *argv[])
 					delete theQueryStreams[i];
 				  theQueryStreams.resize(0);
 				  theQueryInfo = 0;
-				  theQueryData = 0;
 				  
 				  // Split the comma separated list into a real list
 				  
@@ -350,11 +348,10 @@ int domain(int argc, const char *argv[])
 					  list<string>::const_iterator iter;
 					  for(iter=qnames.begin(); iter!=qnames.end(); ++iter)
 						{
-						  NFmiStreamQueryData * tmp = new NFmiStreamQueryData();
+						  LazyQueryData * tmp = new LazyQueryData();
 						  string filename = FileComplete(*iter,datapath);
 						  theFullQueryFileNames.push_back(filename);
-						  if(!tmp->ReadLatestData(filename))
-							exit(1);
+						  tmp->Read(filename);
 						  theQueryStreams.push_back(tmp);
 						}
 					}
@@ -1408,7 +1405,7 @@ int domain(int argc, const char *argv[])
 					{
 					  // Initialize the queryinfo
 					  
-					  theQueryInfo = theQueryStreams[qi]->QueryInfoIter();
+					  theQueryInfo = theQueryStreams[qi];
 					  theQueryInfo->FirstLevel();
 					  if(theQueryDataLevel>0)
 						{
@@ -1491,7 +1488,7 @@ int domain(int argc, const char *argv[])
 					  bool ok = true;
 					  for(qi=0; ok && qi<theQueryStreams.size(); qi++)
 						{
-						  theQueryInfo = theQueryStreams[qi]->QueryInfoIter();
+						  theQueryInfo = theQueryStreams[qi];
 						  theQueryInfo->ResetTime();
 						  while(theQueryInfo->NextTime())
 							{
@@ -1646,7 +1643,7 @@ int domain(int argc, const char *argv[])
 							  ok = true;
 							  // We always assume the first querydata is ok
 							  qi = 0;
-							  theQueryInfo = theQueryStreams[0]->QueryInfoIter();
+							  theQueryInfo = theQueryStreams[0];
 							}
 						  else
 							{
@@ -1656,7 +1653,7 @@ int domain(int argc, const char *argv[])
 							  
 							  for(qi=0; qi<theQueryStreams.size(); qi++)
 								{
-								  theQueryInfo = theQueryStreams[qi]->QueryInfoIter();
+								  theQueryInfo = theQueryStreams[qi];
 								  theQueryInfo->Param(param);
 								  ok = theQueryInfo->IsParamUsable();
 								  if(ok) break;
@@ -1819,7 +1816,7 @@ int domain(int argc, const char *argv[])
 								  ++iter)
 								{
 								  NFmiPoint latlon = iter->first;
-								  NFmiPoint ij = theQueryInfo->Grid()->LatLonToGrid(latlon);
+								  NFmiPoint ij = theQueryInfo->LatLonToGrid(latlon);
 								  
 								  float value;
 								  
@@ -2027,7 +2024,7 @@ int domain(int argc, const char *argv[])
 						  ok = false;
 						  for(qi=0; qi<theQueryStreams.size(); qi++)
 							{
-							  theQueryInfo = theQueryStreams[qi]->QueryInfoIter();
+							  theQueryInfo = theQueryStreams[qi];
 							  theQueryInfo->Param(param);
 							  ok = theQueryInfo->IsParamUsable();
 							  if(ok) break;
@@ -2403,7 +2400,7 @@ int domain(int argc, const char *argv[])
 						NFmiTime tfor;
 						for(qi=0; qi<theQueryStreams.size(); qi++)
 						  {
-							theQueryInfo = theQueryStreams[qi]->QueryInfoIter();
+							theQueryInfo = theQueryStreams[qi];
 							NFmiTime futctime = theQueryInfo->OriginTime(); 
 							NFmiTime tlocal = NFmiMetTime(futctime,1).CorrectLocalTime();
 							if(qi==0 || tlocal.IsLessThan(tfor))
