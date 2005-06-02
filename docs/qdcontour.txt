@@ -40,6 +40,7 @@
   <li>\ref contourcache_section</li>
   <li>\ref interpolation_section</li>
   <li>\ref filtering_section</li>
+  <li>\ref extrapolating_section</li>
   <li>\ref smoothing_section</li>
   <li>\ref timezone_section</li>
   <li>\ref timestamp_section</li>
@@ -857,6 +858,15 @@ datahilimit [value]
 \endcode
 can be used to indicate that any value outside the limited range
 is to be considered missing data.
+
+\subsection extrapolating_section Extrapolating querydata
+
+Currently qdcontour supports only one way to extrapolate data - to
+replace missing values by adjacent values. The feature is controlled
+with the command
+\code
+expanddata [0|1]
+\endcode
 
 \subsection smoothing_section Smoothening the querydata
 
