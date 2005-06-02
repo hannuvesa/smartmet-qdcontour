@@ -221,6 +221,10 @@ DoTest("rendering missing values",
        "missing_values.conf",
        "missing_values_200505271800_200506020900.png");
 
+DoTest("expanding data",
+       "expanddata.conf",
+       "expanddata_200505271800_200506020900.png");
+
 print "Done\n";
 
 
