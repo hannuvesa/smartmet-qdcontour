@@ -1272,6 +1272,18 @@ void do_datareplace(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Handle "expanddata" command
+ */
+// ----------------------------------------------------------------------
+
+void do_expanddata(istream & theInput)
+{
+  theInput >> globals.expanddata;
+  check_errors(theInput,"expanddata");
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Handle "contourdepth" command
  */
 // ----------------------------------------------------------------------
@@ -2460,6 +2472,43 @@ void find_extrema(const NFmiDataMatrix<float> & theValues,
 		  if(theMax==kFloatMissing || theValues[i][j]>theMax)
 			theMax = theValues[i][j];
 		}
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Expand the data values
+ *
+ * First we try to calculate the mean from adjacent values.
+ * If that fails, we try to calculate the mean from diagonal values.
+ */
+// ----------------------------------------------------------------------
+
+void expand_data(NFmiDataMatrix<float> & theValues)
+{
+  NFmiDataModifierAvg calculator;
+
+  NFmiDataMatrix<float> tmp(theValues);
+
+  for(unsigned int j=0; j<theValues.NY(); j++)
+	for(unsigned int i=0; i<theValues.NX(); i++)
+	  {
+		if(theValues[i][j] == kFloatMissing)
+		  {
+			calculator.Clear();
+			calculator.Calculate(tmp.At(i-1,j,kFloatMissing));
+			calculator.Calculate(tmp.At(i+1,j,kFloatMissing));
+			calculator.Calculate(tmp.At(i,j-1,kFloatMissing));
+			calculator.Calculate(tmp.At(i,j+1,kFloatMissing));
+			if(calculator.CalculationResult() == kFloatMissing)
+			  {
+				calculator.Calculate(tmp.At(i-1,j-1,kFloatMissing));
+				calculator.Calculate(tmp.At(i-1,j+1,kFloatMissing));
+				calculator.Calculate(tmp.At(i+1,j-1,kFloatMissing));
+				calculator.Calculate(tmp.At(i+1,j+1,kFloatMissing));
+			  }
+			theValues[i][j] = calculator.CalculationResult();
+		  }
+	  }
 }
 
 // ----------------------------------------------------------------------
@@ -4107,6 +4156,10 @@ void do_draw_contours(istream & theInput)
 
 		  filter_values(vals,t,*piter);
 
+		  // Expand the data if so requested
+
+		  if(globals.expanddata) expand_data(vals);
+
 		  // Call smoother only if necessary to avoid LazyCoordinates dereferencing
 
 		  LazyCoordinates worldpts(*area);
@@ -4317,6 +4370,7 @@ int domain(int argc, const char *argv[])
 		  else if(cmd == "datalolimit")				do_datalolimit(in);
 		  else if(cmd == "datahilimit")				do_datahilimit(in);
 		  else if(cmd == "datareplace")				do_datareplace(in);
+		  else if(cmd == "expanddata")				do_expanddata(in);
 		  else if(cmd == "contourdepth")			do_contourdepth(in);
 		  else if(cmd == "contourinterpolation")	do_contourinterpolation(in);
 		  else if(cmd == "contourtriangles")		do_contourtriangles(in);

@@ -75,6 +75,8 @@ struct Globals
   float smootherradius;				// smoothing radius
   int smootherfactor;				// smoothing sharpness factor
 
+  bool expanddata;					// whether to expand data or not?
+
   std::string projection;			// projection definition
   std::string filter;				// filtering mode
 
