@@ -215,6 +215,12 @@ DoTest("MetaThermalFront",
        "meta_thermal_front.conf",
        "meta_thermal_front_200210140600_200210140937.png");
 
+# Missing values
+
+DoTest("rendering missing values",
+       "missing_values.conf",
+       "missing_values_200505271800_200506020900.png");
+
 print "Done\n";
 
 
