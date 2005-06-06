@@ -960,6 +960,10 @@ Wind chill index
 <dd>
 Road temperature minus dew point at 2 meters.
 </dd>
+<dt>MetaDewDifferenceAir</dt>
+<dd>
+Air temperature minus dew point at 2 meters.
+</dd>
 <dt>MetaT2mAdvection</dt>
 <dd>
 Temperature advection in degrees per hour

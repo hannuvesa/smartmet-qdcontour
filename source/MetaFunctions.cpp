@@ -129,6 +129,40 @@ namespace
 
   // ----------------------------------------------------------------------
   /*!
+   * \brief Return DewDifferenceAir matrix from given query info
+   *
+   * \param theQI The query info
+   * \return The values in a matrix
+   */
+  // ----------------------------------------------------------------------
+
+  NFmiDataMatrix<float> air_dew_difference_values(LazyQueryData * theQI)
+  {
+	NFmiDataMatrix<float> tdew;
+	NFmiDataMatrix<float> t2m;
+
+	theQI->Param(kFmiTemperature);
+	theQI->Values(t2m);
+	theQI->Param(kFmiDewPoint);
+	theQI->Values(tdew);
+
+	// overwrite troad with troad-tdew
+
+	for(unsigned int j=0; j<t2m.NY(); j++)
+	  for(unsigned int i=0; i<t2m.NX(); i++)
+		{
+		  if(t2m[i][j] == kFloatMissing)
+			;
+		  else if(tdew[i][j] == kFloatMissing)
+			t2m[i][j] = kFloatMissing;
+		  else
+			t2m[i][j] -= tdew[i][j];
+		}
+	return t2m;
+  }
+
+  // ----------------------------------------------------------------------
+  /*!
    * \brief Return N matrix from given query info
    *
    * \param theQI The query info
@@ -431,6 +465,8 @@ namespace MetaFunctions
 	  return 10005;
 	if(theFunction == "MetaThermalFront")
 	  return 10006;
+	if(theFunction == "MetaDewDifferenceAir")
+	  return 10007;
 	return 0;
   }
 
@@ -464,6 +500,9 @@ namespace MetaFunctions
 	  return t2m_advection(theQI);
 	if(theFunction == "MetaThermalFront")
 	  return thermal_front(theQI);
+	if(theFunction == "MetaDewDifferenceAir")
+	  return air_dew_difference_values(theQI);
+
 
 	throw runtime_error("Unrecognized meta function " + theFunction);
 
