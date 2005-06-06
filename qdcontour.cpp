@@ -1324,7 +1324,7 @@ void do_contourtriangles(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "smoother" command
+ * \brief Handle "smoother" command
  */
 // ----------------------------------------------------------------------
 
@@ -1340,7 +1340,7 @@ void do_smoother(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "smootherradius" command
+ * \brief Handle "smootherradius" command
  */
 // ----------------------------------------------------------------------
 
@@ -1356,7 +1356,7 @@ void do_smootherradius(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "smootherfactor" command
+ * \brief Handle "smootherfactor" command
  */
 // ----------------------------------------------------------------------
 
@@ -1372,7 +1372,7 @@ void do_smootherfactor(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "param" command
+ * \brief Handle "param" command
  */
 // ----------------------------------------------------------------------
 
@@ -1394,7 +1394,7 @@ void do_param(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "shape" command
+ * \brief Handle "shape" command
  */
 // ----------------------------------------------------------------------
 
@@ -1436,7 +1436,7 @@ void do_shape(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "contourfill" command
+ * \brief Handle "contourfill" command
  */
 // ----------------------------------------------------------------------
 
@@ -1465,7 +1465,7 @@ void do_contourfill(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "contourpattern" command
+ * \brief Handle "contourpattern" command
  */
 // ----------------------------------------------------------------------
 
@@ -1493,7 +1493,7 @@ void do_contourpattern(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "contoursymbol" command
+ * \brief Handle "contoursymbol" command
  */
 // ----------------------------------------------------------------------
 
@@ -1521,7 +1521,7 @@ void do_contoursymbol(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "contourfont" command
+ * \brief Handle "contourfont" command
  */
 // ----------------------------------------------------------------------
 
@@ -1542,7 +1542,7 @@ void do_contourfont(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "contourline" command
+ * \brief Handle "contourline" command
  */
 // ----------------------------------------------------------------------
 
@@ -1566,7 +1566,7 @@ void do_contourline(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "contourfills" command
+ * \brief Handle "contourfills" command
  */
 // ----------------------------------------------------------------------
 
@@ -1600,7 +1600,7 @@ void do_contourfills(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "contourlines" command
+ * \brief Handle "contourlines" command
  */
 // ----------------------------------------------------------------------
 
@@ -1632,7 +1632,7 @@ void do_contourlines(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "contourlabel" command
+ * \brief Handle "contourlabel" command
  */
 // ----------------------------------------------------------------------
 
@@ -1651,7 +1651,7 @@ void do_contourlabel(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "contourlabels" command
+ * \brief Handle "contourlabels" command
  */
 // ----------------------------------------------------------------------
 
@@ -1970,7 +1970,7 @@ void do_pressuremindistdifferent(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "labelmarker" command
+ * \brief Handle "labelmarker" command
  */
 // ----------------------------------------------------------------------
 
@@ -1993,7 +1993,7 @@ void do_labelmarker(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "labelfont" command
+ * \brief Handle "labelfont" command
  */
 // ----------------------------------------------------------------------
 
@@ -2010,7 +2010,7 @@ void do_labelfont(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "labelcolor" command
+ * \brief Handle "labelcolor" command
  */
 // ----------------------------------------------------------------------
 
@@ -2027,7 +2027,7 @@ void do_labelcolor(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "labelrule" command
+ * \brief Handle "labelrule" command
  */
 // ----------------------------------------------------------------------
 
@@ -2046,7 +2046,7 @@ void do_labelrule(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "labelalign" command
+ * \brief Handle "labelalign" command
  */
 // ----------------------------------------------------------------------
 
@@ -2063,7 +2063,7 @@ void do_labelalign(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "labelformat" command
+ * \brief Handle "labelformat" command
  */
 // ----------------------------------------------------------------------
 
@@ -2081,7 +2081,7 @@ void do_labelformat(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "labelmissing" command
+ * \brief Handle "labelmissing" command
  */
 // ----------------------------------------------------------------------
 
@@ -2101,7 +2101,7 @@ void do_labelmissing(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "labeloffset" command
+ * \brief Handle "labeloffset" command
  */
 // ----------------------------------------------------------------------
 
@@ -2121,7 +2121,7 @@ void do_labeloffset(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "labelcaption" command
+ * \brief Handle "labelcaption" command
  */
 // ----------------------------------------------------------------------
 
@@ -2144,7 +2144,7 @@ void do_labelcaption(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "label" command
+ * \brief Handle "label" command
  */
 // ----------------------------------------------------------------------
 
@@ -2161,7 +2161,7 @@ void do_label(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "labelxy" command
+ * \brief Handle "labelxy" command
  */
 // ----------------------------------------------------------------------
 
@@ -2179,7 +2179,7 @@ void do_labelxy(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "labels" command
+ * \brief Handle "labels" command
  */
 // ----------------------------------------------------------------------
 
@@ -2202,7 +2202,7 @@ void do_labels(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \bried Handle "labelfile" command
+ * \brief Handle "labelfile" command
  */
 // ----------------------------------------------------------------------
 
