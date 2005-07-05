@@ -2847,14 +2847,12 @@ void draw_label_texts(NFmiImage & theImage,
 // ----------------------------------------------------------------------
 
 void draw_wind_arrows(NFmiImage & theImage,
-					  const NFmiDataMatrix<float> & theValues,
 					  const NFmiArea & theArea)
 {
   if((!globals.arrowpoints.empty() ||
 	  (globals.windarrowdx!=0 && globals.windarrowdy!=0)) &&
 	 (globals.arrowfile!=""))
 	{
-
 	  FmiParameterName param = FmiParameterName(converter.ToEnum(globals.directionparam));
 	  if(param==kFmiBadParameter)
 		throw runtime_error("Unknown parameter "+globals.directionparam);
@@ -2963,11 +2961,13 @@ void draw_wind_arrows(NFmiImage & theImage,
 
 	  if(globals.windarrowdx!=0 && globals.windarrowdy!=0)
 		{
-
-		  NFmiDataMatrix<float> speedvalues(theValues.NX(),theValues.NY(),-1);
+		  NFmiDataMatrix<float> speedvalues;
 		  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
 			globals.queryinfo->Values(speedvalues);
+		  
+		  NFmiDataMatrix<float> dirvalues;
 		  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
+		  globals.queryinfo->Values(dirvalues);
 
 		  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(theArea);
 		  for(float y=0; y<=worldpts->NY()-1; y+=globals.windarrowdy)
@@ -2997,10 +2997,10 @@ void draw_wind_arrows(NFmiImage & theImage,
 
 				double dir = NFmiInterpolation::ModBiLinear(x-i,
 															y-j,
-															theValues.At(i,j+1,kFloatMissing),
-															theValues.At(i+1,j+1,kFloatMissing),
-															theValues.At(i,j,kFloatMissing),
-															theValues.At(i+1,j,kFloatMissing),
+															dirvalues.At(i,j+1,kFloatMissing),
+															dirvalues.At(i+1,j+1,kFloatMissing),
+															dirvalues.At(i,j,kFloatMissing),
+															dirvalues.At(i+1,j,kFloatMissing),
 															360);
 
 				if(dir==kFloatMissing)	// ignore missing
@@ -4229,7 +4229,7 @@ void do_draw_contours(istream & theInput)
 
 	  // Draw wind arrows if so requested
 
-	  draw_wind_arrows(*image,vals,*area);
+	  draw_wind_arrows(*image,*area);
 
 	  // Draw contour fonts
 
