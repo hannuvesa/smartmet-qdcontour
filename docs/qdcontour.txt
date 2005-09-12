@@ -30,6 +30,7 @@
   <li>\ref multipledatas_section</li>
   <li>\ref filename_section</li>
   <li>\ref contour_section</li>
+  <li>\ref contourmask_section</li>
   <li>\ref contourlabel_section</li>
   <li>\ref symbol_section</li>
   <li>\ref pressure_section</li>
@@ -453,6 +454,24 @@ pattern to be used when filling. The filling is performed using
 There is no similar <em>patternfills</em> equivalent as before, as
 interpolation between the start and end patterns would rarely make
 sense.
+
+\subsection contourmask_section Masking contour fills
+
+One can intersect contour fills with a polygon mask based
+on any other parameter by using the command
+\code
+contourmask <parameter> <lo> <hi>
+\endcode
+The limits work as in the \c contourfill command. For example,
+one can fill areas only in positive temperature areas with
+\code
+contourmask Temperature 0 -
+\endcode
+The mask is active until cleared with
+\code
+clear contourmask
+\endcode
+The mask has no effect on contourlines.
 
 \subsection contourlabel_section Labeling the contours
 
