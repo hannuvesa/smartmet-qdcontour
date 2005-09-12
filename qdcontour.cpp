@@ -1436,6 +1436,34 @@ void do_shape(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Handle "contourmask" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourmask(istream & theInput)
+{
+  string sparam,slo,shi;
+  theInput >> sparam >> slo >> shi;
+
+  check_errors(theInput,"contourmask");
+
+  float lo,hi;
+  if(slo == "-")
+	lo = kFloatMissing;
+  else
+	lo = NFmiStringTools::Convert<float>(slo);
+  if(shi == "-")
+	hi = kFloatMissing;
+  else
+	hi = NFmiStringTools::Convert<float>(shi);
+
+  globals.contourmaskparam = sparam;
+  globals.contourmasklolimit = lo;
+  globals.contourmaskhilimit = hi;
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Handle "contourfill" command
  */
 // ----------------------------------------------------------------------
@@ -2259,6 +2287,12 @@ void do_clear(istream & theInput)
 	  globals.symbollocator.clear();
 	  globals.highpressureimage = NFmiImage();
 	  globals.lowpressureimage = NFmiImage();
+	}
+  else if(command=="contourmask")
+	{
+	  globals.contourmaskparam = "";
+	  globals.contourmasklolimit = kFloatMissing;
+	  globals.contourmaskhilimit = kFloatMissing;
 	}
   else if(command=="shapes")
 	globals.shapespecs.clear();
@@ -4380,6 +4414,7 @@ int domain(int argc, const char *argv[])
 		  else if(cmd == "level")					do_level(in);
 		  else if(cmd == "param")					do_param(in);
 		  else if(cmd == "shape")					do_shape(in);
+		  else if(cmd == "contourmask")				do_contourmask(in);
 		  else if(cmd == "contourfill")				do_contourfill(in);
 		  else if(cmd == "contourpattern")			do_contourpattern(in);
 		  else if(cmd == "contoursymbol")			do_contoursymbol(in);
