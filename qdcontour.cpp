@@ -3141,6 +3141,26 @@ void draw_contour_fills(NFmiImage & theImage,
 			 theMinimum>it->hilimit())
 			continue;
 		}
+
+	  // Find the data with the mask parameter
+	  unsigned int masknro = 0;
+	  bool foundmask = false;
+	  if(!theSpec.contourMaskParam().empty())
+		{
+		  FmiParameterName param = FmiParameterName(converter.ToEnum(theSpec.contourMaskParam()));
+		  for(masknro=0; masknro<globals.querystreams.size(); masknro++)
+			{
+			  FmiParameterName oldid = FmiParameterName(globals.querystreams[masknro]->GetParamIdent());
+			  globals.querystreams[masknro]->Param(param);
+			  foundmask = globals.querystreams[masknro]->IsParamUsable();
+			  globals.querystreams[masknro]->Param(oldid);
+			  if(foundmask)
+				break;
+			}
+		}
+	  if(!foundmask)
+		throw runtime_error("Could not find data with mask parameter '"+theSpec.contourMaskParam()+"'");
+	  // Contour the actual data
 	  
 	  bool exactlo = true;
 	  bool exacthi = (it->hilimit()!=kFloatMissing &&
@@ -3162,9 +3182,54 @@ void draw_contour_fills(NFmiImage & theImage,
 		cout << "Using cached "
 			 << it->lolimit() << " - "
 			 << it->hilimit() << endl;
+
+	  // Avoid unnecessary work if the path is empty
+	  if(path.Empty())
+		continue;
+
+	  // Augment the path with the contourmask if necessary
+
+	  if(foundmask)
+		{
+		  FmiParameterName oldid = FmiParameterName(globals.querystreams[masknro]->GetParamIdent());
+		  FmiParameterName param = FmiParameterName(converter.ToEnum(theSpec.contourMaskParam()));
+		  globals.querystreams[masknro]->Param(param);
+
+		  NFmiPath mask =
+			globals.calculator.contour(*globals.querystreams[masknro],
+									   theSpec.contourMaskLoLimit(),
+									   theSpec.contourMaskHiLimit(),
+									   true,
+									   true,
+									   kFloatMissing,
+									   kFloatMissing,
+									   NFmiContourTree::kFmiContourLinear,
+									   true);
+
+		  globals.querystreams[masknro]->Param(oldid);
+		  
+		  // Nothing to do if the mask is empty
+		  if(mask.Empty())
+			continue;
+
+		  // Augment the path
+		  path.Add(mask);
+		}
+
 	  
-	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
 	  path.Project(&theArea);
+
+	  // Finally reverse even-odd rule if mask is on
+	  if(foundmask)
+		{
+		  path.MoveTo(-100000,-100000);
+		  path.LineTo(-100000, 100000);
+		  path.LineTo( 100000, 100000);
+		  path.LineTo( 100000,-100000);
+		  path.LineTo(-100000,-100000);
+		}
+
+	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
 	  path.Fill(theImage,it->color(),rule);
 	  
 	}
