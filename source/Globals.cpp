@@ -125,6 +125,9 @@ Globals::Globals()
   , querystreams()
   , shapespecs()
   , specs()
+  , contourmaskparam("")
+  , contourmasklolimit(kFloatMissing)
+  , contourmaskhilimit(kFloatMissing)
 {
   symbollocator.minDistanceToDifferentParameter(8);
   symbollocator.minDistanceToDifferentValue(8);

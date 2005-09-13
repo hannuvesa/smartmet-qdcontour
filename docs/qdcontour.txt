@@ -467,7 +467,8 @@ one can fill areas only in positive temperature areas with
 \code
 contourmask Temperature 0 -
 \endcode
-The mask is active until cleared with
+The mask is effective for all subsequent parameter definitions until
+until cleared with
 \code
 clear contourmask
 \endcode

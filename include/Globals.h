@@ -167,6 +167,10 @@ struct Globals
   std::list<ShapeSpec> shapespecs;
   std::list<ContourSpec> specs;
 
+  std::string contourmaskparam;
+  float contourmasklolimit;
+  float contourmaskhilimit;
+
 };
 
 // For global use

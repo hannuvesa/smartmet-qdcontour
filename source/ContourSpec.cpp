@@ -61,6 +61,9 @@ ContourSpec::ContourSpec(const std::string & theParam,
   , itsContourLabelBackgroundColor(Imagine::NFmiColorTools::MakeColor(180,180,180,32))
   , itsContourLabelBackgroundXMargin(2)
   , itsContourLabelBackgroundYMargin(2)
+  , itsContourMaskParam("")
+  , itsContourMaskLoLimit(kFloatMissing)
+  , itsContourMaskHiLimit(kFloatMissing)
 {
 }
 
@@ -153,6 +156,45 @@ const std::list<ContourLabel> & ContourSpec::contourLabels(void) const
 const std::string & ContourSpec::param(void) const
 {
   return itsParam;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return the mask parameter name
+ *
+ * \return The parameter name
+ */
+// ----------------------------------------------------------------------
+
+const std::string & ContourSpec::contourMaskParam(void) const
+{
+  return itsContourMaskParam;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return the mask low limit
+ *
+ * \return The low limit
+ */
+// ----------------------------------------------------------------------
+
+float ContourSpec::contourMaskLoLimit(void) const
+{
+  return itsContourMaskLoLimit;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return the mask high limit
+ *
+ * \return The high limit
+ */
+// ----------------------------------------------------------------------
+
+float ContourSpec::contourMaskHiLimit(void) const
+{
+  return itsContourMaskHiLimit;
 }
 
 // ----------------------------------------------------------------------
@@ -1147,6 +1189,25 @@ int ContourSpec::contourLabelBackgroundXMargin() const
 int ContourSpec::contourLabelBackgroundYMargin() const
 {
   return itsContourLabelBackgroundYMargin;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Set the contour mask parameters
+ *
+ * \param theParam The contour mask parameter
+ * \param theLoLimit The low limit
+ * \param theHiLimit The high limit
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::contourMask(const std::string & theParam,
+							  float theLoLimit,
+							  float theHiLimit)
+{
+  itsContourMaskParam = theParam;
+  itsContourMaskLoLimit = theLoLimit;
+  itsContourMaskHiLimit = theHiLimit;
 }
 
 

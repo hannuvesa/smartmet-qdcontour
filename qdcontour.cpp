@@ -1384,12 +1384,18 @@ void do_param(istream & theInput)
 
   check_errors(theInput,"param");
 
-  globals.specs.push_back(ContourSpec(param,
-									  globals.contourinterpolation,
-									  globals.smoother,
-									  globals.querydatalevel,
-									  globals.smootherradius,
-									  globals.smootherfactor));
+  ContourSpec spec(param,
+				   globals.contourinterpolation,
+				   globals.smoother,
+				   globals.querydatalevel,
+				   globals.smootherradius,
+				   globals.smootherfactor);
+
+  spec.contourMask(globals.contourmaskparam,
+				   globals.contourmasklolimit,
+				   globals.contourmaskhilimit);
+
+  globals.specs.push_back(spec);
 }
 
 // ----------------------------------------------------------------------

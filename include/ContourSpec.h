@@ -52,6 +52,10 @@ public:
   float exactHiLimit(void) const;
   float dataHiLimit(void) const;
   float dataLoLimit(void) const;
+
+  const std::string & contourMaskParam(void) const;
+  float contourMaskLoLimit(void) const;
+  float contourMaskHiLimit(void) const;
   
   void level(int theValue);
   void contourInterpolation(const std::string & theValue);
@@ -143,7 +147,10 @@ public:
   void contourLabelBackgroundColor(int theValue);
   void contourLabelBackgroundXMargin(int theValue);
   void contourLabelBackgroundYMargin(int theValue);
- 
+
+  void contourMask(const std::string & theParam,
+				   float theLoLimit,
+				   float theHiLimit);
 
 private:
 
@@ -200,8 +207,11 @@ private:
   int itsContourLabelBackgroundColor;
   int itsContourLabelBackgroundXMargin;
   int itsContourLabelBackgroundYMargin;
-
-  
+ 
+  std::string itsContourMaskParam;
+  float itsContourMaskLoLimit;
+  float itsContourMaskHiLimit;
+ 
 };
 
 #endif // CONTOURSPEC_H
