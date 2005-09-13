@@ -3157,9 +3157,9 @@ void draw_contour_fills(NFmiImage & theImage,
 			  if(foundmask)
 				break;
 			}
+		  if(!foundmask)
+			throw runtime_error("Could not find data with mask parameter '"+theSpec.contourMaskParam()+"'");
 		}
-	  if(!foundmask)
-		throw runtime_error("Could not find data with mask parameter '"+theSpec.contourMaskParam()+"'");
 	  // Contour the actual data
 	  
 	  bool exactlo = true;
