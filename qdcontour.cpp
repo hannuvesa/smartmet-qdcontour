@@ -379,6 +379,7 @@ void do_cache(istream & theInput)
   check_errors(theInput,"cache");
 
   globals.calculator.cache(flag);
+  globals.maskcalculator.cache(flag);
 }
 
 // ----------------------------------------------------------------------
@@ -2304,7 +2305,10 @@ void do_clear(istream & theInput)
   else if(command=="shapes")
 	globals.shapespecs.clear();
   else if(command=="cache")
-	globals.calculator.clearCache();
+	{
+	  globals.calculator.clearCache();
+	  globals.maskcalculator.clearCache();
+	}
   else if(command=="arrows")
 	{
 	  globals.arrowpoints.clear();
@@ -3143,24 +3147,6 @@ void draw_contour_fills(NFmiImage & theImage,
 			continue;
 		}
 
-	  // Find the data with the mask parameter
-	  unsigned int masknro = 0;
-	  bool foundmask = false;
-	  if(!theSpec.contourMaskParam().empty())
-		{
-		  FmiParameterName param = FmiParameterName(converter.ToEnum(theSpec.contourMaskParam()));
-		  for(masknro=0; masknro<globals.querystreams.size(); masknro++)
-			{
-			  FmiParameterName oldid = FmiParameterName(globals.querystreams[masknro]->GetParamIdent());
-			  globals.querystreams[masknro]->Param(param);
-			  foundmask = globals.querystreams[masknro]->IsParamUsable();
-			  globals.querystreams[masknro]->Param(oldid);
-			  if(foundmask)
-				break;
-			}
-		  if(!foundmask)
-			throw runtime_error("Could not find data with mask parameter '"+theSpec.contourMaskParam()+"'");
-		}
 	  // Contour the actual data
 	  
 	  bool exactlo = true;
@@ -3192,25 +3178,27 @@ void draw_contour_fills(NFmiImage & theImage,
 
 	  // Augment the path with the contourmask if necessary
 
-	  if(foundmask)
+	  if(!theSpec.contourMaskParam().empty())
 		{
-		  FmiParameterName oldid = FmiParameterName(globals.querystreams[masknro]->GetParamIdent());
-		  FmiParameterName param = FmiParameterName(converter.ToEnum(theSpec.contourMaskParam()));
-		  globals.querystreams[masknro]->Param(param);
+		  FmiParameterName oldid = FmiParameterName(globals.maskqueryinfo->GetParamIdent());
+		  FmiParameterName maskid = FmiParameterName(converter.ToEnum(theSpec.contourMaskParam()));
+
+		  globals.maskqueryinfo->Param(maskid);
 
 		  NFmiPath mask =
-			globals.calculator.contour(*globals.querystreams[masknro],
-									   theSpec.contourMaskLoLimit(),
-									   theSpec.contourMaskHiLimit(),
-									   true,
-									   true,
-									   kFloatMissing,
-									   kFloatMissing,
-									   NFmiContourTree::kFmiContourLinear,
-									   true);
-
-		  globals.querystreams[masknro]->Param(oldid);
+			globals.maskcalculator.contour(*globals.maskqueryinfo,
+										   theSpec.contourMaskLoLimit(),
+										   theSpec.contourMaskHiLimit(),
+										   true,
+										   true,
+										   kFloatMissing,
+										   kFloatMissing,
+										   NFmiContourTree::kFmiContourLinear,
+										   true);
 		  
+
+		  globals.maskqueryinfo->Param(oldid);
+
 		  // Nothing to do if the mask is empty
 		  if(mask.Empty())
 			continue;
@@ -3218,6 +3206,7 @@ void draw_contour_fills(NFmiImage & theImage,
 		  mask.Project(&theArea);
 
 		  path = NFmiGpcTools::And(path,mask);
+
 		}
 
 	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
@@ -3979,6 +3968,7 @@ void do_draw_contours(istream & theInput)
   NFmiTime time1, time2;
 
   NFmiDataMatrix<float> vals;
+  NFmiDataMatrix<float> maskvalues;
 
   unsigned int qi;
   for(qi=0; qi<globals.querystreams.size(); qi++)
@@ -4280,6 +4270,32 @@ void do_draw_contours(istream & theInput)
 		  // Setup the contourer with the values
 
 		  globals.calculator.data(vals);
+
+		  if(!piter->contourMaskParam().empty())
+			{
+			  // Find the data with the mask parameter
+			  unsigned int masknro = 0;
+			  bool foundmask = false;
+			  FmiParameterName param = FmiParameterName(converter.ToEnum(piter->contourMaskParam()));
+			  for(masknro=0; masknro<globals.querystreams.size(); masknro++)
+				{
+				  FmiParameterName oldid = FmiParameterName(globals.querystreams[masknro]->GetParamIdent());
+				  globals.querystreams[masknro]->Param(param);
+				  foundmask = globals.querystreams[masknro]->IsParamUsable();
+				  if(foundmask)
+					{
+					  globals.querystreams[masknro]->Values(maskvalues);
+					  globals.querystreams[masknro]->Param(oldid);
+					  break;
+					}
+				  globals.querystreams[masknro]->Param(oldid);
+				}
+			  if(!foundmask)
+				throw runtime_error("Could not find data with mask parameter '"+piter->contourMaskParam()+"'");
+
+			  globals.maskcalculator.data(maskvalues);
+			  globals.maskqueryinfo = globals.querystreams[masknro];
+			}
 
 		  // Save the data values at desired points for later
 		  // use, this lets us avoid using InterpolatedValue()
