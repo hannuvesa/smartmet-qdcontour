@@ -13,7 +13,7 @@
 #include "newbase/NFmiMetTime.h"
 #include "newbase/NFmiPoint.h"
 
-#include "boost/shared_ptr.hpp"
+#include <boost/shared_ptr.hpp>
 
 #include <iostream>
 #include <stdexcept>

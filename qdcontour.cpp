@@ -41,7 +41,7 @@
 #include "newbase/NFmiStringTools.h"
 #include "newbase/NFmiPreProcessor.h"
 
-#include "boost/shared_ptr.hpp"
+#include <boost/shared_ptr.hpp>
 
 #include <fstream>
 #include <iomanip>
