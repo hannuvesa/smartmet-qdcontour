@@ -122,6 +122,8 @@ Globals::Globals()
   , labellocator()
   , symbollocator()
   , calculator()
+  , maskcalculator()
+  , maskqueryinfo(0)
   , querystreams()
   , shapespecs()
   , specs()
@@ -161,6 +163,7 @@ void Globals::clear_querystreams()
 	}
   querystreams.resize(0);
   queryinfo = 0;
+  maskqueryinfo = 0;
 }
 
 // ----------------------------------------------------------------------

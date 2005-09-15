@@ -162,6 +162,8 @@ struct Globals
   LabelLocator symbollocator;		// symbol coordinate calculator
 
   ContourCalculator calculator;		// data contourer
+  ContourCalculator maskcalculator;	// mask contourer
+  LazyQueryData * maskqueryinfo;	// active mask data, does not own pointer
   std::vector<LazyQueryData *> querystreams;
 
   std::list<ShapeSpec> shapespecs;
