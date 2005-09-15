@@ -4,6 +4,12 @@ $program = "../qdcontour";
 
 %usednames = ();
 
+# Test contourmask
+
+DoTest("contourmask",
+       "contourmask.conf",
+       "contourmask_200210140600_200210140937.png");
+
 # Timestamping
 
 DoTest("timestampimage",
