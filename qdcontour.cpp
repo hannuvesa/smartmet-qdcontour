@@ -25,6 +25,7 @@
 #include "imagine/NFmiColorTools.h"
 #include "imagine/NFmiFace.h"
 #include "imagine/NFmiFreeType.h"
+#include "imagine/NFmiGpcTools.h"
 #include "imagine/NFmiImage.h"			// for rendering
 #include "imagine/NFmiGeoShape.h"		// for esri data
 
@@ -3187,6 +3188,8 @@ void draw_contour_fills(NFmiImage & theImage,
 	  if(path.Empty())
 		continue;
 
+	  path.Project(&theArea);
+
 	  // Augment the path with the contourmask if necessary
 
 	  if(foundmask)
@@ -3212,21 +3215,9 @@ void draw_contour_fills(NFmiImage & theImage,
 		  if(mask.Empty())
 			continue;
 
-		  // Augment the path
-		  path.Add(mask);
-		}
+		  mask.Project(&theArea);
 
-	  
-	  path.Project(&theArea);
-
-	  // Finally reverse even-odd rule if mask is on
-	  if(foundmask)
-		{
-		  path.MoveTo(-100000,-100000);
-		  path.LineTo(-100000, 100000);
-		  path.LineTo( 100000, 100000);
-		  path.LineTo( 100000,-100000);
-		  path.LineTo(-100000,-100000);
+		  path = NFmiGpcTools::And(path,mask);
 		}
 
 	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
