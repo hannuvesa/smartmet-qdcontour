@@ -401,7 +401,7 @@ void do_querydata(istream & theInput)
 
 	  // Delete possible old infos
 
-	  globals.clear_querystreams();
+	  globals.querystreams.clear();
 
 	  // Split the comma separated list into a real list
 
@@ -413,7 +413,7 @@ void do_querydata(istream & theInput)
 		vector<string>::const_iterator iter;
 		for(iter=qnames.begin(); iter!=qnames.end(); ++iter)
 		  {
-			LazyQueryData * tmp = new LazyQueryData();
+			boost::shared_ptr<LazyQueryData> tmp(new LazyQueryData());
 			string filename = NFmiFileSystem::FileComplete(*iter,globals.datapath);
 			globals.queryfilenames.push_back(filename);
 			tmp->Read(filename);
@@ -2584,7 +2584,7 @@ void filter_values(NFmiDataMatrix<float> & theValues,
 		  if(!MetaFunctions::isMeta(theSpec.param()))
 			globals.queryinfo->Values(tmpvals);
 		  else
-			tmpvals = MetaFunctions::values(theSpec.param(), globals.queryinfo);
+			tmpvals = MetaFunctions::values(theSpec.param(), *globals.queryinfo);
 		  if(theSpec.replace())
 			tmpvals.Replace(theSpec.replaceSourceValue(),
 							theSpec.replaceTargetValue());
@@ -4231,7 +4231,7 @@ void do_draw_contours(istream & theInput)
 			globals.queryinfo->Values(vals);
 		  else
 			vals = MetaFunctions::values(piter->param(),
-										 globals.queryinfo);
+										 *globals.queryinfo);
 
 		  // Replace values if so requested
 

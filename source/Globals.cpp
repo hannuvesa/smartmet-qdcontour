@@ -91,7 +91,7 @@ Globals::Globals()
   , arrowpoints()
   , queryfilelist()
   , queryfilenames()
-  , queryinfo(0)
+  , queryinfo()
   , querydatalevel(-1)
   , timesteps(24)
   , timestep(0)
@@ -123,7 +123,7 @@ Globals::Globals()
   , symbollocator()
   , calculator()
   , maskcalculator()
-  , maskqueryinfo(0)
+  , maskqueryinfo()
   , querystreams()
   , shapespecs()
   , specs()
@@ -144,26 +144,6 @@ Globals::Globals()
 
 Globals::~Globals()
 {
-  clear_querystreams();
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Delete all active querystreams
- */
-// ----------------------------------------------------------------------
-
-void Globals::clear_querystreams()
-{
-  for(vector<LazyQueryData *>::iterator it = querystreams.begin();
-	  it != querystreams.end();
-	  ++it)
-	{
-	  delete *it;
-	}
-  querystreams.resize(0);
-  queryinfo = 0;
-  maskqueryinfo = 0;
 }
 
 // ----------------------------------------------------------------------
@@ -344,7 +324,7 @@ void Globals::drawCombine(NFmiImage & theImage) const
 
 bool Globals::isOutdated() const
 {
-  for(vector<LazyQueryData *>::const_iterator it = querystreams.begin();
+  for(vector<boost::shared_ptr<LazyQueryData> >::const_iterator it = querystreams.begin();
 	  it != querystreams.end();
 	  ++it)
 	{

@@ -18,6 +18,8 @@
 #include "NFmiImage.h"
 #include "NFmiPoint.h"
 
+#include <boost/shared_ptr.hpp>
+
 #include <list>
 #include <memory>
 #include <string>
@@ -33,7 +35,6 @@ struct Globals
   ~Globals();
   Globals();
 
-  void clear_querystreams();
   void setImageModes(NFmiImage & theImage) const;
   std::auto_ptr<NFmiArea> createArea() const;
   const std::string getImageStampText(const NFmiTime & theTime) const;
@@ -122,7 +123,7 @@ struct Globals
   std::string queryfilelist;		// querydata files in use
   std::vector<std::string> queryfilenames;	// querydata files in use
 
-  LazyQueryData * queryinfo;		// active data, does not own pointer
+  boost::shared_ptr<LazyQueryData> queryinfo;		// active data, does not own pointer
   int querydatalevel;				// level value (-1 for first)
   int timesteps;					// how many images to draw?
   int timestep;						// timestep, 0 = all valid
@@ -163,8 +164,8 @@ struct Globals
 
   ContourCalculator calculator;		// data contourer
   ContourCalculator maskcalculator;	// mask contourer
-  LazyQueryData * maskqueryinfo;	// active mask data, does not own pointer
-  std::vector<LazyQueryData *> querystreams;
+  boost::shared_ptr<LazyQueryData> maskqueryinfo;	// active mask data, does not own pointer
+  std::vector<boost::shared_ptr<LazyQueryData> > querystreams;
 
   std::list<ShapeSpec> shapespecs;
   std::list<ContourSpec> specs;
