@@ -420,6 +420,41 @@ namespace
 	return tfp;
   }
 
+  // ----------------------------------------------------------------------
+  /*!
+   * \brief Probability of snow according to the Gospel of Elina Saltikoff
+   *
+   * \param theQI The queryinfo
+   * \return The valeus in a matrix
+   */
+  // ----------------------------------------------------------------------
+
+  NFmiDataMatrix<float> snowprob(LazyQueryData & theQI)
+  {
+	NFmiDataMatrix<float> t2m;
+	NFmiDataMatrix<float> rh;
+
+	theQI.Param(kFmiTemperature);
+	theQI.Values(t2m);
+	theQI.Param(kFmiHumidity);
+	theQI.Values(rh);
+
+	// overwrite t2m with snowprob
+
+	for(unsigned int j=0; j<t2m.NY(); j++)
+	  for(unsigned int i=0; i<t2m.NX(); i++)
+		{
+		  if(t2m[i][j] == kFloatMissing)
+			;
+		  else if(rh[i][j] == kFloatMissing)
+			t2m[i][j] = kFloatMissing;
+		  else
+			t2m[i][j] = 100*(1-1/(1+exp(22-2.7*t2m[i][j]-0.2*rh[i][j])));
+		}
+	return t2m;
+  }
+
+
 } // namespace anonymous
 
 
@@ -467,6 +502,8 @@ namespace MetaFunctions
 	  return 10006;
 	if(theFunction == "MetaDewDifferenceAir")
 	  return 10007;
+	if(theFunction == "MetaSnowProb")
+	  return 10008;
 	return 0;
   }
 
@@ -502,7 +539,8 @@ namespace MetaFunctions
 	  return thermal_front(theQI);
 	if(theFunction == "MetaDewDifferenceAir")
 	  return air_dew_difference_values(theQI);
-
+	if(theFunction == "MetaSnowProb")
+	  return snowprob(theQI);
 
 	throw runtime_error("Unrecognized meta function " + theFunction);
 
