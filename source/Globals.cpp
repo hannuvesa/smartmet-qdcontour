@@ -186,11 +186,13 @@ std::auto_ptr<NFmiArea> Globals::createArea() const
 
 const std::string Globals::getImageStampText(const NFmiTime & theTime) const
 {
-  const int obsyy = theTime.GetYear();
-  const int obsmm = theTime.GetMonth();
-  const int obsdd = theTime.GetDay();
-  const int obshh = theTime.GetHour();
-  const int obsmi = theTime.GetMin();
+  NFmiTime tobs = TimeTools::ConvertZone(theTime,timestampzone);
+
+  const int obsyy = tobs.GetYear();
+  const int obsmm = tobs.GetMonth();
+  const int obsdd = tobs.GetDay();
+  const int obshh = tobs.GetHour();
+  const int obsmi = tobs.GetMin();
 
   // Interpretation: The age of the forecast is the age
   // of the oldest forecast
@@ -248,7 +250,7 @@ const std::string Globals::getImageStampText(const NFmiTime & theTime) const
 	  
 	  stamp = buffer;
 
-	  const long diff = theTime.DifferenceInMinutes(tfor);
+	  const long diff = tobs.DifferenceInMinutes(tfor);
 	  if(diff%60==0 && timestep%60==0)
 		sprintf(buffer," %s%ldh",(diff<0 ? "" : "+"), diff/60);
 	  else

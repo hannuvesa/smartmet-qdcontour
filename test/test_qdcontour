@@ -20,6 +20,11 @@ DoTest("timestampimage2",
        "timestampimage2.conf",
        "timestampimage2_200210140600_200210140937.png");
 
+DoTest("timestampimageutc",
+       "timestampimageutc.conf",
+       "timestampimageutc_200210140700_200210140937.png");
+
+
 # Shape filling
 
 DoTest("shape filling",
