@@ -6,12 +6,12 @@
 // ======================================================================
 
 #include "MetaFunctions.h"
-#include "newbase/NFmiArea.h"
-#include "newbase/NFmiGrid.h"
-#include "newbase/NFmiLocation.h"
-#include "newbase/NFmiMetMath.h"
-#include "newbase/NFmiMetTime.h"
-#include "newbase/NFmiPoint.h"
+#include "NFmiArea.h"
+#include "NFmiGrid.h"
+#include "NFmiLocation.h"
+#include "NFmiMetMath.h"
+#include "NFmiMetTime.h"
+#include "NFmiPoint.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -34,7 +34,7 @@ namespace
 	if(theCloudiness == kFloatMissing)
 	  return kFloatMissing;
 	else
-	  return FmiRound(theCloudiness/100*8);
+	  return static_cast<float>(FmiRound(theCloudiness/100*8));
   }
 
   // ----------------------------------------------------------------------
@@ -315,10 +315,10 @@ namespace
 	// we overwrite wspd with the results
 	
 	// grid resolution in meters for difference formulas
-	const float dx = (theQI.Area()->WorldXYWidth()) / (theQI.Grid()->XNumber());
-	const float dy = (theQI.Area()->WorldXYHeight()) / (theQI.Grid()->YNumber());
+	const float dx = static_cast<float>((theQI.Area()->WorldXYWidth()) / (theQI.Grid()->XNumber()));
+	const float dy = static_cast<float>((theQI.Area()->WorldXYHeight()) / (theQI.Grid()->YNumber()));
 
-	const float pirad=3.14159265358979323/360;
+	const float pirad=3.14159265358979323f/360.f;
 
 	for(unsigned int j=0; j<t2m.NY(); j++)
 	  for(unsigned int i=0; i<t2m.NX(); i++)
@@ -384,8 +384,8 @@ namespace
 	// thermal front parameter = (-nabla |nabla T|) dot (nabla T /|nabla T|)
 
 	// grid resolution in meters for difference formulas
-	const float dx = (theQI.Area()->WorldXYWidth()) / (theQI.Grid()->XNumber());
-	const float dy = (theQI.Area()->WorldXYHeight()) / (theQI.Grid()->YNumber());
+	const float dx = static_cast<float>((theQI.Area()->WorldXYWidth()) / (theQI.Grid()->XNumber()));
+	const float dy = static_cast<float>((theQI.Area()->WorldXYHeight()) / (theQI.Grid()->YNumber()));
 
 	NFmiDataMatrix<float> nablatx, nablaty;
 	matrix_nabla(t2m,dx,dy,nablatx,nablaty);
@@ -412,7 +412,7 @@ namespace
 			  // The 1e9 factor is there just to get a convenient scale
 
 			  if(nt != 0)
-				tfp[i][j] = - 1e9 * (nntx*ntx+nnty*nty)/nt;
+				tfp[i][j] = static_cast<float>(- 1e9 * (nntx*ntx+nnty*nty)/nt);
 			  else
 				tfp[i][j] = 0;
 			}

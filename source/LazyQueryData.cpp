@@ -6,11 +6,11 @@
 // ======================================================================
 
 #include "LazyQueryData.h"
-#include "newbase/NFmiFastQueryInfo.h"
-#include "newbase/NFmiFileSystem.h"
-#include "newbase/NFmiInterpolation.h"
-#include "newbase/NFmiGrid.h"
-#include "newbase/NFmiQueryData.h"
+#include "NFmiFastQueryInfo.h"
+#include "NFmiFileSystem.h"
+#include "NFmiInterpolation.h"
+#include "NFmiGrid.h"
+#include "NFmiQueryData.h"
 #include <fstream>
 #include <stdexcept>
 #include <sstream>
@@ -397,12 +397,12 @@ bool LazyQueryData::BiLinearInterpolation(double x, double y, float & theValue,
 										  float bottomLeftValue, float bottomRightValue)
 {
   requireInfo();
-  theValue = NFmiInterpolation::BiLinear(x - floor(x),
+  theValue = static_cast<float>(NFmiInterpolation::BiLinear(x - floor(x),
 										 y - floor(y),
 										 topLeftValue,
 										 topRightValue,
 										 bottomLeftValue,
-										 bottomRightValue);
+										 bottomRightValue));
   return (theValue != kFloatMissing);
 }
   

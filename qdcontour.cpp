@@ -22,25 +22,25 @@
 #include "TimeTools.h"
 #include "ExtremaLocator.h"
 
-#include "imagine/NFmiColorTools.h"
-#include "imagine/NFmiFace.h"
-#include "imagine/NFmiFreeType.h"
-#include "imagine/NFmiGpcTools.h"
-#include "imagine/NFmiImage.h"			// for rendering
-#include "imagine/NFmiGeoShape.h"		// for esri data
+#include "NFmiColorTools.h"
+#include "NFmiFace.h"
+#include "NFmiFreeType.h"
+#include "NFmiGpcTools.h"
+#include "NFmiImage.h"			// for rendering
+#include "NFmiGeoShape.h"		// for esri data
 
-#include "newbase/NFmiCmdLine.h"			// command line options
-#include "newbase/NFmiDataMatrix.h"
-#include "newbase/NFmiDataModifierClasses.h"
-#include "newbase/NFmiEnumConverter.h"		// FmiParameterName<-->string
-#include "newbase/NFmiFileSystem.h"			// FileExists()
-#include "newbase/NFmiInterpolation.h"		// Interpolation functions
-#include "newbase/NFmiLatLonArea.h"			// Geographic projection
-#include "newbase/NFmiSettings.h"			// Configuration
-#include "newbase/NFmiSmoother.h"			// for smoothing data
-#include "newbase/NFmiStereographicArea.h"	// Stereographic projection
-#include "newbase/NFmiStringTools.h"
-#include "newbase/NFmiPreProcessor.h"
+#include "NFmiCmdLine.h"			// command line options
+#include "NFmiDataMatrix.h"
+#include "NFmiDataModifierClasses.h"
+#include "NFmiEnumConverter.h"		// FmiParameterName<-->string
+#include "NFmiFileSystem.h"			// FileExists()
+#include "NFmiInterpolation.h"		// Interpolation functions
+#include "NFmiLatLonArea.h"			// Geographic projection
+#include "NFmiSettings.h"			// Configuration
+#include "NFmiSmoother.h"			// for smoothing data
+#include "NFmiStereographicArea.h"	// Stereographic projection
+#include "NFmiStringTools.h"
+#include "NFmiPreProcessor.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -378,8 +378,8 @@ void do_cache(istream & theInput)
 
   check_errors(theInput,"cache");
 
-  globals.calculator.cache(flag);
-  globals.maskcalculator.cache(flag);
+  globals.calculator.cache(flag != 0);
+  globals.maskcalculator.cache(flag != 0);
 }
 
 // ----------------------------------------------------------------------
@@ -1625,7 +1625,7 @@ void do_contourfills(istream & theInput)
 	  float tmphi=lo+(i+1)*step;
 	  int color = color1;	// in case steps=1
 	  if(steps!=1)
-		color = NFmiColorTools::Interpolate(color1,color2,i/(steps-1.0));
+		color = NFmiColorTools::Interpolate(color1,color2,i/(steps-1.0f));
 	  if(!globals.specs.empty())
 		globals.specs.back().add(ContourRange(tmplo,
 											  tmphi,
@@ -2639,7 +2639,7 @@ void filter_values(NFmiDataMatrix<float> & theValues,
 		}
 	  
 	  if(globals.filter=="mean")
-		theValues /= steps;
+		theValues /= static_cast<float>(steps);
 	}
 }
 
@@ -2715,12 +2715,12 @@ void add_label_point_values(ContourSpec & theSpec,
 		  
 		  int i = static_cast<int>(ij.X()); // rounds down
 		  int j = static_cast<int>(ij.Y());
-		  float value = NFmiInterpolation::BiLinear(ij.X()-floor(ij.X()),
+		  float value = static_cast<float>(NFmiInterpolation::BiLinear(ij.X()-floor(ij.X()),
 													ij.Y()-floor(ij.Y()),
 													theValues.At(i,j+1,kFloatMissing),
 													theValues.At(i+1,j+1,kFloatMissing),
 													theValues.At(i,j,kFloatMissing),
-													theValues.At(i+1,j,kFloatMissing));
+													theValues.At(i+1,j,kFloatMissing)));
 		  theSpec.addLabelValue(value);
 		}
 	}
@@ -2824,7 +2824,7 @@ void draw_label_texts(NFmiImage & theImage,
 
 	  // The point in question
 
-	  float x,y;
+	  double x,y;
 	  if(iter->second.X() == kFloatMissing)
 		{
 		  NFmiPoint xy = theArea.ToXY(iter->first);
@@ -2964,18 +2964,18 @@ void draw_wind_arrows(NFmiImage & theImage,
 
 		  // Direction calculations
 
-		  const float pi = 3.141592658979323;
-		  const float length = 0.1;	// degrees
+		  const float pi = 3.141592658979323f;
+		  const float length = 0.1f;	// degrees
 
-		  float x1 = iter->X()+sin(dir*pi/180)*length;
-		  float y1 = iter->Y()+cos(dir*pi/180)*length;
+		  double x1 = iter->X()+sin(dir*pi/180)*length;
+		  double y1 = iter->Y()+cos(dir*pi/180)*length;
 
 		  NFmiPoint xy1 = theArea.ToXY(NFmiPoint(x1,y1));
 
 		  // Calculate the actual angle
 
-		  float alpha = atan2(xy1.X()-xy0.X(),
-							  xy1.Y()-xy0.Y());
+		  float alpha = static_cast<float>(atan2(xy1.X()-xy0.X(),
+							  xy1.Y()-xy0.Y()));
 
 		  // Create a new path
 
@@ -2990,7 +2990,7 @@ void draw_wind_arrows(NFmiImage & theImage,
 			thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
 		  thispath.Scale(globals.arrowscale);
 		  thispath.Rotate(alpha*180/pi);
-		  thispath.Translate(xy0.X(),xy0.Y());
+		  thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 
 		  // And render it
 
@@ -3080,14 +3080,14 @@ void draw_wind_arrows(NFmiImage & theImage,
 
 				NFmiPath thispath;
 				if(globals.arrowfile == "meteorological")
-				  thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
+				  thispath.Add(GramTools::metarrow(static_cast<float>(speed*globals.windarrowscaleC)));
 				else
 				  thispath.Add(arrowpath);
 				if(speed>0 && speed != kFloatMissing)
-				  thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
+				  thispath.Scale(static_cast<float>(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC));
 				thispath.Scale(globals.arrowscale);
-				thispath.Rotate(alpha*180/pi);
-				thispath.Translate(xy0.X(),xy0.Y());
+				thispath.Rotate(static_cast<float>(alpha*180/pi));
+				thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 
 				// And render it
 
@@ -3163,7 +3163,7 @@ void draw_contour_fills(NFmiImage & theImage,
 								   theSpec.dataLoLimit(),
 								   theSpec.dataHiLimit(),
 								   theInterpolation,
-								   globals.contourtriangles);
+								   globals.contourtriangles != 0);
 	  
 	  if(globals.verbose && globals.calculator.wasCached())
 		cout << "Using cached "
@@ -3272,7 +3272,7 @@ void draw_contour_patterns(NFmiImage & theImage,
 								   theSpec.dataLoLimit(),
 								   theSpec.dataHiLimit(),
 								   theInterpolation,
-								   globals.contourtriangles);
+								   globals.contourtriangles != 0);
 
 	  if(globals.verbose && globals.calculator.wasCached())
 		cout << "Using cached "
@@ -3330,7 +3330,7 @@ void draw_contour_strokes(NFmiImage & theImage,
 								   theSpec.dataLoLimit(),
 								   theSpec.dataHiLimit(),
 								   theInterpolation,
-								   globals.contourtriangles);
+								   globals.contourtriangles != 0);
 
 	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
 	  path.Project(&theArea);
@@ -3389,7 +3389,7 @@ void save_contour_labels(NFmiImage & theImage,
 								   theSpec.dataLoLimit(),
 								   theSpec.dataHiLimit(),
 								   theInterpolation,
-								   globals.contourtriangles);
+								   globals.contourtriangles != 0);
 
 	  path.Project(&theArea);
 
