@@ -12,7 +12,7 @@
 #include "ContourSymbol.h"
 #include "ContourValue.h"
 
-#include "newbase/NFmiPoint.h"
+#include "NFmiPoint.h"
 
 #include <list>
 #include <string>

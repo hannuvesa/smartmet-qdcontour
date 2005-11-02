@@ -21,8 +21,8 @@
 #ifndef LAZYQUERYDATA_H
 #define LAZYQUERYDATA_H
 
-#include "newbase/NFmiDataMatrix.h"
-#include "newbase/NFmiParameterName.h"
+#include "NFmiDataMatrix.h"
+#include "NFmiParameterName.h"
 #include <boost/shared_ptr.hpp>
 #include <memory>
 #include <string>

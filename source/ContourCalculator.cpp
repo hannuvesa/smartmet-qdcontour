@@ -9,11 +9,11 @@
 #include "ContourCache.h"
 #include "LazyQueryData.h"
 
-#include "imagine/NFmiContourTree.h"
-#include "imagine/NFmiPath.h"
-#include "imagine/NFmiContourDataHelper.h"
+#include "NFmiContourTree.h"
+#include "NFmiPath.h"
+#include "NFmiContourDataHelper.h"
 
-#include "newbase/NFmiDataMatrix.h"
+#include "NFmiDataMatrix.h"
 
 #include <memory>
 #include <stdexcept>
