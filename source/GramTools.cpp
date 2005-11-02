@@ -50,7 +50,7 @@ namespace GramTools
 	
 	const float flag_angle_deg = 60;	// angle from the direction the wind is coming from
 	
-	const float flag_angle = flag_angle_deg/180*3.14159265358979323846;
+	const float flag_angle = flag_angle_deg/180*3.14159265358979323846f;
 	
 	// Mark the spot with a small dot
 	path.MoveTo(spot_size,spot_size);

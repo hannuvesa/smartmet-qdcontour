@@ -340,14 +340,14 @@ void LabelLocator::add(float theContour, int theX, int theY)
 
   float dist;
   if(it == itsPreviousCoordinates.end())
-	dist = distanceToBorder(theX,theY);
+	dist = distanceToBorder(static_cast<float>(theX), static_cast<float>(theY));
   else
 	{
 	  ContourCoordinates::const_iterator jt = it->second.find(theContour);
 	  if(jt == it->second.end())
-		dist = distanceToBorder(theX,theY);
+		dist = distanceToBorder(static_cast<float>(theX), static_cast<float>(theY));
 	  else
-		dist = mindistance(theX,theY,jt->second);
+		dist = static_cast<float>(mindistance(static_cast<float>(theX), theY,jt->second));
 	}
 
   c.insert(Coordinates::value_type(dist,XY(theX,theY)));
@@ -371,7 +371,7 @@ float LabelLocator::distanceToBorder(float theX, float theY) const
 
   double xdist = min(abs(theX-itsBBoxX1),abs(theX-itsBBoxX2));
   double ydist = min(abs(theY-itsBBoxY1),abs(theY-itsBBoxY2));
-  return min(xdist,ydist);
+  return static_cast<float>(min(xdist,ydist));
 }
 
 
