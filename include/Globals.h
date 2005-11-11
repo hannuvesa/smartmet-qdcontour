@@ -118,6 +118,11 @@ struct Globals
   float windarrowdx;					// wind arrow grid spacing
   float windarrowdy;
 
+  float windarrowsxyx0;				// windarrowsxy [x0] [y0] [dx] [dy]
+  float windarrowsxyy0;				// dx/dy must be positive for rendering to start
+  float windarrowsxydx;
+  float windarrowsxydy;
+
   std::list<NFmiPoint> arrowpoints;	// Active wind arrows
 
   std::string queryfilelist;		// querydata files in use

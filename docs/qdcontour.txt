@@ -593,6 +593,7 @@ The arrows themselves are put on the image using the commands
 \code
 windarrow [longitude] [latitude]
 windarrows [dx] [dy]
+windarrowsxy [x0] [y0] [dx] [dy]
 \endcode
 The first form places the arrow at a specific location. Both the
 direction and the speed will be interpolated, if necessary, for
@@ -607,6 +608,13 @@ windarrows 0.5 0.5
 \endcode
 would effectively double the grid resolution.
 
+The third form places the first wind arrow at pixel coordinates
+\c x0,y0 and then uses the pixel offsets \c dx,dy to create a
+lattice of wind arrows to cover the entire image. The last wind
+arrows to be drawn are those which are the first ones outside
+the image. This guarantees an uniform appearance in case the last
+arrows are very close to the edge.
+
 Wind arrows are drawn after all contours have been rendered.
 
 \subsection label_section Placing text values in the images
@@ -617,6 +625,7 @@ of the commands
 label [longitude] [latitude]
 labelxy [longitude] [latitude] [x] [y]
 labels [dx] [dy]
+labelsxy [x0] [y0] [dx] [dy]
 \endcode
 The <em>label</em> command places a label at the specified geographic
 coordinates. One can place the label at a completely different
@@ -625,6 +634,10 @@ can place labels at the grid points themselves using the
 <em>labels</em> command. The <em>dx</em> and <em>dy</em> arguments
 specify the step size in the grid, usually one labels every grid point
 using a step size of 1.
+
+The \c <em>labelsxy</em> allows one to draw a lattice of labels
+based on pixel coordinates just like the <em>windarrowsxy</em>
+command.
 
 Note that the steps <em>dx</em> and <em>dy</em> can be fractional.
 For example, using a step 0.5 would effectively double the grid

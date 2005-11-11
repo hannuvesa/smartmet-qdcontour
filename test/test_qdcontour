@@ -143,6 +143,14 @@ DoTest("windarrows in a grid masked",
        "windarrow_grid_masked.conf",
        "windarrow_grid_masked_200210140600_200210140937.png");
 
+DoTest("windarrows in a pixel grid",
+       "windarrow_pixelgrid.conf",
+       "windarrow_pixelgrid200210140600_200210140937.png");
+
+DoTest("windarrows in a pixelgrid masked",
+       "windarrow_pixelgrid_masked.conf",
+       "windarrow_pixelgrid_masked_200210140600_200210140937.png");
+
 DoTest("windarrowscale",
        "windarrowscale.conf",
        "windarrowscale_200210140600_200210140937.png");
