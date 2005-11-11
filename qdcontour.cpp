@@ -906,10 +906,27 @@ void do_windarrows(istream & theInput)
 {
   theInput >> globals.windarrowdx >> globals.windarrowdy;
 
-  check_errors(theInput,"windarrow");
+  check_errors(theInput,"windarrows");
 
   if(globals.windarrowdx < 0 || globals.windarrowdy < 0)
 	throw runtime_error("windarrows parameters must be nonnegative");
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "windarrowsxy" command
+ */
+// ----------------------------------------------------------------------
+
+void do_windarrowsxy(istream & theInput)
+{
+  theInput >> globals.windarrowsxyx0
+		   >> globals.windarrowsxyy0
+		   >> globals.windarrowsxydx
+		   >> globals.windarrowsxydy;
+
+  check_errors(theInput,"windarrowsxy");
+
 }
 
 // ----------------------------------------------------------------------
@@ -2314,6 +2331,8 @@ void do_clear(istream & theInput)
 	  globals.arrowpoints.clear();
 	  globals.windarrowdx = 0;
 	  globals.windarrowdy = 0;
+	  globals.windarrowsxydx = -1;
+	  globals.windarrowsxydy = -1;
 	}
   else if(command=="labels")
 	{
@@ -2887,6 +2906,193 @@ void draw_label_texts(NFmiImage & theImage,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Draw the listed wind arrow points
+ */
+// ----------------------------------------------------------------------
+
+void draw_wind_arrows_points(NFmiImage & theImage,
+							 const NFmiArea & theArea,
+							 const NFmiPath & theArrow)
+{
+  // Handle all given coordinates
+  
+  list<NFmiPoint>::const_iterator iter;
+  
+  for(iter=globals.arrowpoints.begin();
+	  iter!=globals.arrowpoints.end();
+	  ++iter)
+	{
+	  
+	  // The start point
+	  NFmiPoint xy0 = theArea.ToXY(*iter);
+	  
+	  // Skip rendering if the start point is masked
+	  
+	  if(IsMasked(xy0,globals.mask,globals.maskimage))
+		continue;
+	  
+	  float dir = globals.queryinfo->InterpolatedValue(*iter);
+	  if(dir==kFloatMissing)	// ignore missing
+		continue;
+	  
+	  float speed = -1;
+	  
+	  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
+		speed = globals.queryinfo->InterpolatedValue(*iter);
+	  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
+	  
+	  // Direction calculations
+	  
+	  const float pi = 3.141592658979323f;
+	  const float length = 0.1f;	// degrees
+	  
+	  double x1 = iter->X()+sin(dir*pi/180)*length;
+	  double y1 = iter->Y()+cos(dir*pi/180)*length;
+	  
+	  NFmiPoint xy1 = theArea.ToXY(NFmiPoint(x1,y1));
+	  
+	  // Calculate the actual angle
+	  
+	  float alpha = static_cast<float>(atan2(xy1.X()-xy0.X(),
+											 xy1.Y()-xy0.Y()));
+	  
+	  // Create a new path
+	  
+	  NFmiPath thispath;
+	  
+	  if(globals.arrowfile == "meteorological")
+		thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
+	  else
+		thispath.Add(theArrow);
+	  
+	  if(speed>0 && speed!=kFloatMissing)
+		thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
+	  thispath.Scale(globals.arrowscale);
+	  thispath.Rotate(alpha*180/pi);
+	  thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
+	  
+	  // And render it
+	  
+	  thispath.Fill(theImage,
+					ColorTools::checkcolor(globals.arrowfillcolor),
+					ColorTools::checkrule(globals.arrowfillrule));
+	  thispath.Stroke(theImage,
+					  ColorTools::checkcolor(globals.arrowstrokecolor),
+					  ColorTools::checkrule(globals.arrowstrokerule));
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Draw the data gridded wind arrow points
+ */
+// ----------------------------------------------------------------------
+
+void draw_wind_arrows_grid(NFmiImage & theImage,
+						   const NFmiArea & theArea,
+						   const NFmiPath & theArrow)
+{
+  // Draw the full grid if so desired
+  
+  if(globals.windarrowdx==0 || globals.windarrowdy==0)
+	return;
+
+  NFmiDataMatrix<float> speedvalues;
+  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
+	globals.queryinfo->Values(speedvalues);
+  
+  NFmiDataMatrix<float> dirvalues;
+  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
+  globals.queryinfo->Values(dirvalues);
+  
+  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(theArea);
+  for(float y=0; y<=worldpts->NY()-1; y+=globals.windarrowdy)
+	for(float x=0; x<=worldpts->NX()-1; x+=globals.windarrowdx)
+	  {
+		// The start point
+		
+		const int i = static_cast<int>(floor(x));
+		const int j = static_cast<int>(floor(y));
+		
+		NFmiPoint bad(kFloatMissing,kFloatMissing);
+		NFmiPoint xy = NFmiInterpolation::BiLinear(x-i,
+												   y-j,
+												   worldpts->At(i,j+1,bad),
+												   worldpts->At(i+1,j+1,bad),
+												   worldpts->At(i,j,bad),
+												   worldpts->At(i+1,j,bad));
+		
+		NFmiPoint latlon = theArea.WorldXYToLatLon(xy);
+		NFmiPoint xy0 = theArea.ToXY(latlon);
+		
+		// Skip rendering if the start point is masked
+		if(IsMasked(xy0,
+					globals.mask,
+					globals.maskimage))
+		  continue;
+		
+		double dir = NFmiInterpolation::ModBiLinear(x-i,
+													y-j,
+													dirvalues.At(i,j+1,kFloatMissing),
+													dirvalues.At(i+1,j+1,kFloatMissing),
+													dirvalues.At(i,j,kFloatMissing),
+													dirvalues.At(i+1,j,kFloatMissing),
+													360);
+		
+		if(dir==kFloatMissing)	// ignore missing
+		  continue;
+		
+		double speed = NFmiInterpolation::BiLinear(x-i,
+												   y-j,
+												   speedvalues.At(i,j+1,kFloatMissing),
+												   speedvalues.At(i+1,j+1,kFloatMissing),
+												   speedvalues.At(i,j,kFloatMissing),
+												   speedvalues.At(i+1,j,kFloatMissing));
+		
+		// Direction calculations
+		
+		const double pi = 3.141592658979323;
+		const double length = 0.1;	// degrees
+		
+		double x0 = latlon.X();
+		double y0 = latlon.Y();
+		
+		double x1 = x0+sin(dir*pi/180)*length;
+		double y1 = y0+cos(dir*pi/180)*length;
+		
+		NFmiPoint xy1 = theArea.ToXY(NFmiPoint(x1,y1));
+		
+		// Calculate the actual angle
+		
+		double alpha = atan2(xy1.X()-xy0.X(),
+							 xy1.Y()-xy0.Y());
+		
+		// Create a new path
+			
+		NFmiPath thispath;
+		if(globals.arrowfile == "meteorological")
+		  thispath.Add(GramTools::metarrow(static_cast<float>(speed*globals.windarrowscaleC)));
+		else
+		  thispath.Add(theArrow);
+		if(speed>0 && speed != kFloatMissing)
+		  thispath.Scale(static_cast<float>(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC));
+		thispath.Scale(globals.arrowscale);
+		thispath.Rotate(static_cast<float>(alpha*180/pi));
+		thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
+		
+		// And render it
+		
+		thispath.Fill(theImage,
+					  ColorTools::checkcolor(globals.arrowfillcolor),
+					  ColorTools::checkrule(globals.arrowfillrule));
+		thispath.Stroke(theImage,
+						ColorTools::checkcolor(globals.arrowstrokecolor),
+						ColorTools::checkrule(globals.arrowstrokerule));
+	  }
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Draw wind arrows onto the image
  */
 // ----------------------------------------------------------------------
@@ -2903,8 +3109,6 @@ void draw_wind_arrows(NFmiImage & theImage,
 		throw runtime_error("Unknown parameter "+globals.directionparam);
 
 	  // Find the proper queryinfo to be used
-	  // Note that qi will be used later on for
-	  // getting the coordinate matrices
 
 	  bool ok = false;
 	  for(unsigned int qi=0; qi<globals.querystreams.size(); qi++)
@@ -2914,7 +3118,7 @@ void draw_wind_arrows(NFmiImage & theImage,
 		  ok = globals.queryinfo->IsParamUsable();
 		  if(ok) break;
 		}
-
+	  
 	  if(!ok)
 		throw runtime_error("Parameter is not usable: " + globals.directionparam);
 
@@ -2929,176 +3133,15 @@ void draw_wind_arrows(NFmiImage & theImage,
 		  // Read in the entire file
 		  string pathstring = NFmiStringTools::ReadFile(arrow);
 		  arrow.close();
-
+		  
 		  // Convert to a path
-
+		  
 		  arrowpath.Add(pathstring);
 		}
+	  
+	  draw_wind_arrows_points(theImage,theArea,arrowpath);
+	  draw_wind_arrows_grid(theImage,theArea,arrowpath);
 
-	  // Handle all given coordinates
-
-	  list<NFmiPoint>::const_iterator iter;
-
-	  for(iter=globals.arrowpoints.begin();
-		  iter!=globals.arrowpoints.end();
-		  ++iter)
-		{
-
-		  // The start point
-		  NFmiPoint xy0 = theArea.ToXY(*iter);
-
-		  // Skip rendering if the start point is masked
-
-		  if(IsMasked(xy0,globals.mask,globals.maskimage))
-			continue;
-
-		  float dir = globals.queryinfo->InterpolatedValue(*iter);
-		  if(dir==kFloatMissing)	// ignore missing
-			continue;
-
-		  float speed = -1;
-
-		  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
-			speed = globals.queryinfo->InterpolatedValue(*iter);
-		  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
-
-		  // Direction calculations
-
-		  const float pi = 3.141592658979323f;
-		  const float length = 0.1f;	// degrees
-
-		  double x1 = iter->X()+sin(dir*pi/180)*length;
-		  double y1 = iter->Y()+cos(dir*pi/180)*length;
-
-		  NFmiPoint xy1 = theArea.ToXY(NFmiPoint(x1,y1));
-
-		  // Calculate the actual angle
-
-		  float alpha = static_cast<float>(atan2(xy1.X()-xy0.X(),
-							  xy1.Y()-xy0.Y()));
-
-		  // Create a new path
-
-		  NFmiPath thispath;
-
-		  if(globals.arrowfile == "meteorological")
-			thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
-		  else
-			thispath.Add(arrowpath);
-
-		  if(speed>0 && speed!=kFloatMissing)
-			thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
-		  thispath.Scale(globals.arrowscale);
-		  thispath.Rotate(alpha*180/pi);
-		  thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
-
-		  // And render it
-
-		  thispath.Fill(theImage,
-						ColorTools::checkcolor(globals.arrowfillcolor),
-						ColorTools::checkrule(globals.arrowfillrule));
-		  thispath.Stroke(theImage,
-						  ColorTools::checkcolor(globals.arrowstrokecolor),
-						  ColorTools::checkrule(globals.arrowstrokerule));
-		}
-
-	  // Draw the full grid if so desired
-
-	  if(globals.windarrowdx!=0 && globals.windarrowdy!=0)
-		{
-		  NFmiDataMatrix<float> speedvalues;
-		  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
-			globals.queryinfo->Values(speedvalues);
-		  
-		  NFmiDataMatrix<float> dirvalues;
-		  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
-		  globals.queryinfo->Values(dirvalues);
-
-		  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(theArea);
-		  for(float y=0; y<=worldpts->NY()-1; y+=globals.windarrowdy)
-			for(float x=0; x<=worldpts->NX()-1; x+=globals.windarrowdx)
-			  {
-				// The start point
-
-				const int i = static_cast<int>(floor(x));
-				const int j = static_cast<int>(floor(y));
-
-				NFmiPoint bad(kFloatMissing,kFloatMissing);
-				NFmiPoint xy = NFmiInterpolation::BiLinear(x-i,
-														   y-j,
-														   worldpts->At(i,j+1,bad),
-														   worldpts->At(i+1,j+1,bad),
-														   worldpts->At(i,j,bad),
-														   worldpts->At(i+1,j,bad));
-
-				NFmiPoint latlon = theArea.WorldXYToLatLon(xy);
-				NFmiPoint xy0 = theArea.ToXY(latlon);
-
-				// Skip rendering if the start point is masked
-				if(IsMasked(xy0,
-							globals.mask,
-							globals.maskimage))
-				  continue;
-
-				double dir = NFmiInterpolation::ModBiLinear(x-i,
-															y-j,
-															dirvalues.At(i,j+1,kFloatMissing),
-															dirvalues.At(i+1,j+1,kFloatMissing),
-															dirvalues.At(i,j,kFloatMissing),
-															dirvalues.At(i+1,j,kFloatMissing),
-															360);
-
-				if(dir==kFloatMissing)	// ignore missing
-				  continue;
-
-				double speed = NFmiInterpolation::BiLinear(x-i,
-														   y-j,
-														   speedvalues.At(i,j+1,kFloatMissing),
-														   speedvalues.At(i+1,j+1,kFloatMissing),
-														   speedvalues.At(i,j,kFloatMissing),
-														   speedvalues.At(i+1,j,kFloatMissing));
-
-				// Direction calculations
-
-				const double pi = 3.141592658979323;
-				const double length = 0.1;	// degrees
-
-				double x0 = latlon.X();
-				double y0 = latlon.Y();
-
-				double x1 = x0+sin(dir*pi/180)*length;
-				double y1 = y0+cos(dir*pi/180)*length;
-
-				NFmiPoint xy1 = theArea.ToXY(NFmiPoint(x1,y1));
-
-				// Calculate the actual angle
-
-				double alpha = atan2(xy1.X()-xy0.X(),
-									xy1.Y()-xy0.Y());
-
-				// Create a new path
-
-				NFmiPath thispath;
-				if(globals.arrowfile == "meteorological")
-				  thispath.Add(GramTools::metarrow(static_cast<float>(speed*globals.windarrowscaleC)));
-				else
-				  thispath.Add(arrowpath);
-				if(speed>0 && speed != kFloatMissing)
-				  thispath.Scale(static_cast<float>(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC));
-				thispath.Scale(globals.arrowscale);
-				thispath.Rotate(static_cast<float>(alpha*180/pi));
-				thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
-
-				// And render it
-
-				thispath.Fill(theImage,
-							  ColorTools::checkcolor(globals.arrowfillcolor),
-							  ColorTools::checkrule(globals.arrowfillrule));
-				thispath.Stroke(theImage,
-								ColorTools::checkcolor(globals.arrowstrokecolor),
-								ColorTools::checkrule(globals.arrowstrokerule));
-			  }
-		}
 	}
 
 }
@@ -4460,6 +4503,7 @@ int domain(int argc, const char *argv[])
 		  else if(cmd == "arrowpath")				do_arrowpath(in);
 		  else if(cmd == "windarrow")				do_windarrow(in);
 		  else if(cmd == "windarrows")				do_windarrows(in);
+		  else if(cmd == "windarrowsxy")			do_windarrowsxy(in);
 		  else if(cmd == "background")				do_background(in);
 		  else if(cmd == "foreground")				do_foreground(in);
 		  else if(cmd == "mask")					do_mask(in);
