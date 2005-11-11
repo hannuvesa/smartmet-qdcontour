@@ -109,6 +109,11 @@ public:
   float labelOffsetY(void) const;
   float labelDX(void) const;
   float labelDY(void) const;
+
+  float labelXyX0(void) const;
+  float labelXyY0(void) const;
+  float labelXyDX(void) const;
+  float labelXyDY(void) const;
   
   std::string labelCaption(void) const;
   float labelCaptionDX(void) const;
@@ -130,6 +135,11 @@ public:
   void labelOffsetY(float theValue);
   void labelDX(float theValue);
   void labelDY(float theValue);
+  void labelXyX0(float theValue);
+  void labelXyY0(float theValue);
+  void labelXyDX(float theValue);
+  void labelXyDY(float theValue);
+
   
   void labelCaption(const std::string & theValue);
   void labelCaptionDX(float theValue);
@@ -196,6 +206,10 @@ private:
   float itsLabelOffsetY;
   float itsLabelDX;
   float itsLabelDY;
+  float itsLabelXyX0;
+  float itsLabelXyY0;
+  float itsLabelXyDX;
+  float itsLabelXyDY;
   
   std::string itsLabelCaption;
   float itsLabelCaptionDX;

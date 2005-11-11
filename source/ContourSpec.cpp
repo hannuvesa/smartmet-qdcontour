@@ -52,6 +52,10 @@ ContourSpec::ContourSpec(const std::string & theParam,
   , itsLabelOffsetY(0)
   , itsLabelDX(0)
   , itsLabelDY(0)
+  , itsLabelXyX0(0)
+  , itsLabelXyY0(0)
+  , itsLabelXyDX(0)
+  , itsLabelXyDY(0)
   , itsLabelCaption("")
   , itsLabelCaptionDX(0)
   , itsLabelCaptionDY(0)
@@ -617,6 +621,10 @@ void ContourSpec::clearLabels(void)
   itsLabelValues.clear();
   itsLabelDX = 0;
   itsLabelDY = 0;
+  itsLabelXyX0 = 0;
+  itsLabelXyY0 = 0;
+  itsLabelXyDX = 0;
+  itsLabelXyDY = 0;
 }
 
 // ----------------------------------------------------------------------
@@ -786,6 +794,58 @@ float ContourSpec::labelDX(void) const
 float ContourSpec::labelDY(void) const
 {
   return itsLabelDY;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return the pixellabel X-origin
+ *
+ * \return The origin X-coordinate
+ */
+// ----------------------------------------------------------------------
+
+float ContourSpec::labelXyX0(void) const
+{
+  return itsLabelXyX0;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return the pixellabel Y-origin
+ *
+ * \return The origin Y-coordinate
+ */
+// ----------------------------------------------------------------------
+
+float ContourSpec::labelXyY0(void) const
+{
+  return itsLabelXyY0;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return the pixellabel X-step
+ *
+ * \return The X-step
+ */
+// ----------------------------------------------------------------------
+
+float ContourSpec::labelXyDX(void) const
+{
+  return itsLabelXyDX;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return the pixellabel Y-step
+ *
+ * \return The Y-step
+ */
+// ----------------------------------------------------------------------
+
+float ContourSpec::labelXyDY(void) const
+{
+  return itsLabelXyDY;
 }
 
 // ----------------------------------------------------------------------
@@ -1007,6 +1067,58 @@ void ContourSpec::labelDX(float theValue)
 void ContourSpec::labelDY(float theValue)
 {
   itsLabelDY = theValue;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Set the pixellabel origin X-coordinate
+ *
+ * \param theValue The step
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::labelXyX0(float theValue)
+{
+  itsLabelXyX0 = theValue;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Set the pixellabel origin Y-coordinate
+ *
+ * \param theValue The step
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::labelXyY0(float theValue)
+{
+  itsLabelXyY0 = theValue;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Set the pixellabel X-step
+ *
+ * \param theValue The step
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::labelXyDX(float theValue)
+{
+  itsLabelXyDX = theValue;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Set the pixellabel Y-step
+ *
+ * \param theValue The step
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::labelXyDY(float theValue)
+{
+  itsLabelXyDY = theValue;
 }
 
 // ----------------------------------------------------------------------

@@ -2255,6 +2255,31 @@ void do_labels(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Handle "labelsxy" command
+ */
+// ----------------------------------------------------------------------
+
+void do_labelsxy(istream & theInput)
+{
+  float x0,y0,dx,dy;
+  theInput >> x0 >> y0 >> dx >> dy;
+
+  check_errors(theInput,"labelsxy");
+
+  if(dx < 0 || dy < 0)
+	throw runtime_error("labelsxy arguments must be nonnegative");
+
+  if(!globals.specs.empty())
+	{
+	  globals.specs.back().labelXyX0(x0);
+	  globals.specs.back().labelXyY0(y0);
+	  globals.specs.back().labelXyDX(dx);
+	  globals.specs.back().labelXyDY(dy);
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Handle "labelfile" command
  */
 // ----------------------------------------------------------------------
@@ -2709,6 +2734,30 @@ void add_label_grid_values(ContourSpec & theSpec,
 	}
 }
 
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Save pixelgrid values for later labelling
+ */
+// ----------------------------------------------------------------------
+
+void add_label_pixelgrid_values(ContourSpec & theSpec,
+								const NFmiArea & theArea,
+								const NFmiImage & theImage)
+{
+  const float x0 = theSpec.labelXyX0();
+  const float y0 = theSpec.labelXyY0();
+  const float dx = theSpec.labelXyDX();
+  const float dy = theSpec.labelXyDY();
+  
+  if(dx>0 && dy>0)
+	{
+	  for(float y=y0; y<=theImage.Height(); y+=dy)
+		for(float x=x0; x<=theImage.Width(); x+=dx)
+		  theSpec.add(theArea.ToLatLon(NFmiPoint(x,y)));
+	}
+}
+
 // ----------------------------------------------------------------------
 /*!
  * \brief Save point values for later labelling
@@ -2735,11 +2784,11 @@ void add_label_point_values(ContourSpec & theSpec,
 		  int i = static_cast<int>(ij.X()); // rounds down
 		  int j = static_cast<int>(ij.Y());
 		  float value = static_cast<float>(NFmiInterpolation::BiLinear(ij.X()-floor(ij.X()),
-													ij.Y()-floor(ij.Y()),
-													theValues.At(i,j+1,kFloatMissing),
-													theValues.At(i+1,j+1,kFloatMissing),
-													theValues.At(i,j,kFloatMissing),
-													theValues.At(i+1,j,kFloatMissing)));
+																	   ij.Y()-floor(ij.Y()),
+																	   theValues.At(i,j+1,kFloatMissing),
+																	   theValues.At(i+1,j+1,kFloatMissing),
+																	   theValues.At(i,j,kFloatMissing),
+																	   theValues.At(i+1,j,kFloatMissing)));
 		  theSpec.addLabelValue(value);
 		}
 	}
@@ -4434,7 +4483,10 @@ void do_draw_contours(istream & theInput)
 		  // the grid points to the set of points, if so requested
 
 		  if(!labeldxdydone)
-			add_label_grid_values(*piter,*area,worldpts);
+			{
+			  add_label_grid_values(*piter,*area,worldpts);
+			  add_label_pixelgrid_values(*piter,*area,*image);
+			}
 
 		  add_label_point_values(*piter,*area,vals);
 
@@ -4663,6 +4715,7 @@ int domain(int argc, const char *argv[])
 		  else if(cmd == "label")					do_label(in);
 		  else if(cmd == "labelxy")					do_labelxy(in);
 		  else if(cmd == "labels")					do_labels(in);
+		  else if(cmd == "labelsxy")				do_labelsxy(in);
 		  else if(cmd == "labelfile")				do_labelfile(in);
 		  else if(cmd == "clear")					do_clear(in);
 
