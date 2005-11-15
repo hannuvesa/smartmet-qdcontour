@@ -204,7 +204,8 @@ DoTest("labels on top of arrows regardless of definition order",
 
 DoTest("labels at pixelgridpoints",
        "labels_pixelgrid.conf",
-       "labels_pixelgrid_200210140600_200210140937.png");
+       "labels_pixelgrid_200210140600_200210140937.png",
+       "labels_pixelgrid2_200210140600_200210140937.png");
 
 DoTest("labels at masked pixelgridpoints",
        "labels_pixelgrid_masked.conf",
