@@ -90,6 +90,12 @@ public:
 		   const NFmiPoint theXY = NFmiPoint(kFloatMissing,kFloatMissing));
   
   const std::vector<float> & labelValues(void) const;
+
+
+  // labelsxy command methods
+  const std::list<std::pair<NFmiPoint,float> > & pixelLabels(void) const;
+  void addPixelLabel(const NFmiPoint & thePoint, float value);
+  void clearPixelLabels(void);
   
   void addLabelValue(float theValue);
   void clearLabelValues(void);
@@ -192,6 +198,9 @@ private:
   std::list<std::pair<NFmiPoint,NFmiPoint> > itsLabelPoints;
   // Respective values calculated while contouring
   std::vector<float> itsLabelValues;
+
+  // And then labels for specific XY-coordinates
+  std::list<std::pair<NFmiPoint,float> > itsPixelLabels;
   
   std::string itsLabelMarker;
   std::string itsLabelMarkerRule;

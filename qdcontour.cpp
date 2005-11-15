@@ -2743,8 +2743,11 @@ void add_label_grid_values(ContourSpec & theSpec,
 
 void add_label_pixelgrid_values(ContourSpec & theSpec,
 								const NFmiArea & theArea,
-								const NFmiImage & theImage)
+								const NFmiImage & theImage,
+								const NFmiDataMatrix<float> & theValues)
 {
+  theSpec.clearPixelLabels();
+
   const float x0 = theSpec.labelXyX0();
   const float y0 = theSpec.labelXyY0();
   const float dx = theSpec.labelXyDX();
@@ -2754,7 +2757,21 @@ void add_label_pixelgrid_values(ContourSpec & theSpec,
 	{
 	  for(float y=y0; y<=theImage.Height(); y+=dy)
 		for(float x=x0; x<=theImage.Width(); x+=dx)
-		  theSpec.add(theArea.ToLatLon(NFmiPoint(x,y)));
+		  {
+			NFmiPoint latlon = theArea.ToLatLon(NFmiPoint(x,y));
+			NFmiPoint ij = globals.queryinfo->LatLonToGrid(latlon);
+		  
+			int i = static_cast<int>(ij.X()); // rounds down
+			int j = static_cast<int>(ij.Y());
+			float value = static_cast<float>(NFmiInterpolation::BiLinear(ij.X()-floor(ij.X()),
+																		 ij.Y()-floor(ij.Y()),
+																		 theValues.At(i,j+1,kFloatMissing),
+																		 theValues.At(i+1,j+1,kFloatMissing),
+																		 theValues.At(i,j,kFloatMissing),
+
+																		 theValues.At(i+1,j,kFloatMissing)));
+			theSpec.addPixelLabel(NFmiPoint(x,y),value);
+		  }
 	}
 }
 
@@ -2867,7 +2884,8 @@ void draw_label_texts(NFmiImage & theImage,
 {
   // Establish that something is to be done
 
-  if(theSpec.labelPoints().empty())
+  if(theSpec.labelPoints().empty() &&
+	 theSpec.pixelLabels().empty())
 	return;
 
   // Quick exit if no labels are desired for this parameter
@@ -2882,75 +2900,139 @@ void draw_label_texts(NFmiImage & theImage,
 
   // Draw labels at specifing latlon points if requested
 
-  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
+  {
+	list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
+	
+	int pointnumber = 0;
+	for(iter=theSpec.labelPoints().begin();
+		iter!=theSpec.labelPoints().end();
+		++iter)
+	  {
+		
+		// The point in question
+		
+		double x,y;
+		if(iter->second.X() == kFloatMissing)
+		  {
+			NFmiPoint xy = theArea.ToXY(iter->first);
+			x = xy.X();
+			y = xy.Y();
+		  }
+		else
+		  {
+			x = iter->second.X();
+			y = iter->second.Y();
+		  }
+		
+		float value = theSpec.labelValues()[pointnumber++];
+		
+		// Skip rendering if the start point is masked
+		
+		if(IsMasked(NFmiPoint(x,y),
+					globals.mask,
+					globals.maskimage))
+		  continue;
+		
+		// Convert value to string
+		string strvalue = theSpec.labelMissing();
+		
+		if(value!=kFloatMissing)
+		  {
+			char tmp[20];
+			sprintf(tmp,theSpec.labelFormat().c_str(),value);
+			strvalue = tmp;
+		  }
+		
+		// Don't bother drawing empty strings
+		if(strvalue.empty())
+		  continue;
+		
+		// Set new text properties
+		
+		face.Draw(theImage,
+				  FmiRound(x + theSpec.labelOffsetX()),
+				  FmiRound(y + theSpec.labelOffsetY()),
+				  strvalue,
+				  AlignmentValue(theSpec.labelAlignment()),
+				  theSpec.labelColor(),
+				  ColorTools::checkrule(theSpec.labelRule()));
+		
+		// Then the label caption
+		
+		if(!theSpec.labelCaption().empty())
+		  {
+			face.Draw(theImage,
+					  FmiRound(x + theSpec.labelCaptionDX()),
+					  FmiRound(y + theSpec.labelCaptionDY()),
+					  theSpec.labelCaption(),
+					  AlignmentValue(theSpec.labelCaptionAlignment()),
+					  theSpec.labelColor(),
+					  ColorTools::checkrule(theSpec.labelRule()));
+		  }
+	  }
+  }
 
-  int pointnumber = 0;
-  for(iter=theSpec.labelPoints().begin();
-	  iter!=theSpec.labelPoints().end();
-	  ++iter)
-	{
+  // Draw labels at specifing pixel coordinates if requested
 
-	  // The point in question
-
-	  double x,y;
-	  if(iter->second.X() == kFloatMissing)
-		{
-		  NFmiPoint xy = theArea.ToXY(iter->first);
-		  x = xy.X();
-		  y = xy.Y();
-		}
-	  else
-		{
-		  x = iter->second.X();
-		  y = iter->second.Y();
-		}
-
-	  float value = theSpec.labelValues()[pointnumber++];
-
-	  // Skip rendering if the start point is masked
-
-	  if(IsMasked(NFmiPoint(x,y),
-				  globals.mask,
-				  globals.maskimage))
-		continue;
-
-	  // Convert value to string
-	  string strvalue = theSpec.labelMissing();
-
-	  if(value!=kFloatMissing)
-		{
-		  char tmp[20];
-		  sprintf(tmp,theSpec.labelFormat().c_str(),value);
-		  strvalue = tmp;
-		}
-
-	  // Don't bother drawing empty strings
-	  if(strvalue.empty())
-		continue;
-
-	  // Set new text properties
-
-	  face.Draw(theImage,
-				FmiRound(x + theSpec.labelOffsetX()),
-				FmiRound(y + theSpec.labelOffsetY()),
-				strvalue,
-				AlignmentValue(theSpec.labelAlignment()),
-				theSpec.labelColor(),
-				ColorTools::checkrule(theSpec.labelRule()));
-
-	  // Then the label caption
-
-	  if(!theSpec.labelCaption().empty())
-		{
-		  face.Draw(theImage,
-					FmiRound(x + theSpec.labelCaptionDX()),
-					FmiRound(y + theSpec.labelCaptionDY()),
-					theSpec.labelCaption(),
-					AlignmentValue(theSpec.labelCaptionAlignment()),
-					theSpec.labelColor(),
-					ColorTools::checkrule(theSpec.labelRule()));
-		}
-	}
+  {
+	list<pair<NFmiPoint,float> >::const_iterator iter;
+	
+	for(iter=theSpec.pixelLabels().begin();
+		iter!=theSpec.pixelLabels().end();
+		++iter)
+	  {
+		
+		// The point in question
+		
+		double x = iter->first.X();
+		double y = iter->first.Y();
+		float value = iter->second;
+		
+		// Skip rendering if the start point is masked
+		
+		if(IsMasked(NFmiPoint(x,y),
+					globals.mask,
+					globals.maskimage))
+		  continue;
+		
+		// Convert value to string
+		string strvalue = theSpec.labelMissing();
+		
+		if(value!=kFloatMissing)
+		  {
+			char tmp[20];
+			sprintf(tmp,theSpec.labelFormat().c_str(),value);
+			strvalue = tmp;
+		  }
+		
+		// Don't bother drawing empty strings
+		if(strvalue.empty())
+		  continue;
+		
+		// Set new text properties
+		
+		face.Draw(theImage,
+				  FmiRound(x + theSpec.labelOffsetX()),
+				  FmiRound(y + theSpec.labelOffsetY()),
+				  strvalue,
+				  AlignmentValue(theSpec.labelAlignment()),
+				  theSpec.labelColor(),
+				  ColorTools::checkrule(theSpec.labelRule()));
+		
+		// Then the label caption
+		
+		if(!theSpec.labelCaption().empty())
+		  {
+			face.Draw(theImage,
+					  FmiRound(x + theSpec.labelCaptionDX()),
+					  FmiRound(y + theSpec.labelCaptionDY()),
+					  theSpec.labelCaption(),
+					  AlignmentValue(theSpec.labelCaptionAlignment()),
+					  theSpec.labelColor(),
+					  ColorTools::checkrule(theSpec.labelRule()));
+		  }
+	  }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -4483,12 +4565,14 @@ void do_draw_contours(istream & theInput)
 		  // the grid points to the set of points, if so requested
 
 		  if(!labeldxdydone)
-			{
-			  add_label_grid_values(*piter,*area,worldpts);
-			  add_label_pixelgrid_values(*piter,*area,*image);
-			}
+			add_label_grid_values(*piter,*area,worldpts);
+
+		  // For pixelgrids we must repeat the process for all new
+		  // background images, since the pixel spacing changes
+		  // every time. Note! We assume the following calling order!
 
 		  add_label_point_values(*piter,*area,vals);
+		  add_label_pixelgrid_values(*piter,*area,*image,vals);
 
 		  // Fill the contours
 

@@ -557,6 +557,19 @@ const std::list<std::pair<NFmiPoint,NFmiPoint> > & ContourSpec::labelPoints(void
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Return pixel label points
+ *
+ * \return A reference to the internal list of points
+ */
+// ----------------------------------------------------------------------
+
+const std::list<std::pair<NFmiPoint,float> > & ContourSpec::pixelLabels(void) const
+{
+  return itsPixelLabels;
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Add a new label point
  *
  * \param thePoint The geographic coordinates
@@ -568,6 +581,21 @@ void ContourSpec::add(const NFmiPoint & thePoint,
 					  const NFmiPoint theXY)
 {
   itsLabelPoints.push_back(std::make_pair(thePoint,theXY));
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Add a new pixel label
+ *
+ * \param thePoint The pixel coordinate
+ * \param theValue The value
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::addPixelLabel(const NFmiPoint & thePoint,
+								float theValue)
+{
+  itsPixelLabels.push_back(std::make_pair(thePoint,theValue));
 }
 
 // ----------------------------------------------------------------------
@@ -610,6 +638,18 @@ void ContourSpec::clearLabelValues(void)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Clear all pixel labels
+ *
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::clearPixelLabels(void)
+{
+  itsPixelLabels.clear();
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Clear all labels
  *
  */
@@ -619,6 +659,7 @@ void ContourSpec::clearLabels(void)
 {
   itsLabelPoints.clear();
   itsLabelValues.clear();
+  itsPixelLabels.clear();
   itsLabelDX = 0;
   itsLabelDY = 0;
   itsLabelXyX0 = 0;
