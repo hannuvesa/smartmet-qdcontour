@@ -11,6 +11,7 @@
 #include "ContourCalculator.h"
 #include "ContourSpec.h"
 #include "ExtremaLocator.h"
+#include "ImageCache.h"
 #include "LabelLocator.h"
 #include "ShapeSpec.h"
 
@@ -40,6 +41,7 @@ struct Globals
   const std::string getImageStampText(const NFmiTime & theTime) const;
   void drawImageStampText(NFmiImage & theImage, const std::string & theText) const;
   void drawCombine(NFmiImage & theImage) const;
+  const Imagine::NFmiImage & getImage(const std::string & theFile) const;
 
   bool isOutdated() const;
 
@@ -86,10 +88,6 @@ struct Globals
   std::string foreground;			// foreground image name
   std::string mask;					// mask image name
   std::string combine;				// combine image name
-  NFmiImage backgroundimage;		// background image, if name nonempty
-  NFmiImage foregroundimage;		// foreground image, if name nonempty
-  NFmiImage maskimage;				// mask image, if name nonempty
-  NFmiImage combineimage;			// combine image, if name nonempty
 
   int combinex;
   int combiney;
@@ -151,12 +149,12 @@ struct Globals
   int contourlabelimagexmargin;		// minimum distance from borders
   int contourlabelimageymargin;
 
-  NFmiImage highpressureimage;		// high pressure image
+  std::string highpressureimage;		// high pressure image
   std::string highpressurerule;
   float highpressurefactor;
   float highpressureminimum;
 
-  NFmiImage lowpressureimage;		// low pressure image
+  std::string lowpressureimage;		// low pressure image
   std::string lowpressurerule;
   float lowpressurefactor;
   float lowpressuremaximum;
@@ -178,6 +176,8 @@ struct Globals
   std::string contourmaskparam;
   float contourmasklolimit;
   float contourmaskhilimit;
+
+  ImageCache itsImageCache;
 
 };
 

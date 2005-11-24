@@ -64,10 +64,6 @@ Globals::Globals()
   , foreground()
   , mask()
   , combine()
-  , backgroundimage()
-  , foregroundimage()
-  , maskimage()
-  , combineimage()
   , combinex(0)
   , combiney(0)
   , combinerule("Over")
@@ -134,6 +130,7 @@ Globals::Globals()
   , contourmaskparam("")
   , contourmasklolimit(kFloatMissing)
   , contourmaskhilimit(kFloatMissing)
+  , itsImageCache()
 {
   symbollocator.minDistanceToDifferentParameter(8);
   symbollocator.minDistanceToDifferentValue(8);
@@ -148,6 +145,17 @@ Globals::Globals()
 
 Globals::~Globals()
 {
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return the given image
+ */
+// ----------------------------------------------------------------------
+
+const NFmiImage & Globals::getImage(const string & theFile) const
+{
+  return itsImageCache.getImage(theFile);
 }
 
 // ----------------------------------------------------------------------
@@ -314,7 +322,7 @@ void Globals::drawCombine(NFmiImage & theImage) const
 
   NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(combinerule);
 
-  theImage.Composite(combineimage,
+  theImage.Composite(getImage(combine),
 					 rule,
 					 kFmiAlignNorthWest,
 					 combinex,

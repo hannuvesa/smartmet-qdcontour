@@ -95,8 +95,7 @@ void Usage(void)
 // ----------------------------------------------------------------------
 
 bool IsMasked(const NFmiPoint & thePoint,
-			  const std::string & theMask,
-			  const NFmiImage & theMaskImage)
+			  const std::string & theMask)
 {
   if(theMask.empty())
 	return false;
@@ -104,12 +103,16 @@ bool IsMasked(const NFmiPoint & thePoint,
   int x = static_cast<int>(FmiRound(thePoint.X()));
   int y = static_cast<int>(FmiRound(thePoint.Y()));
 
+  // Get the mask
+
+  const NFmiImage & mask = globals.getImage(theMask);
+
   // Clip outside pixels
 
-  x = min(max(x,0),theMaskImage.Width()-1);
-  y = min(max(y,0),theMaskImage.Height()-1);
+  x = min(max(x,0),mask.Width()-1);
+  y = min(max(y,0),mask.Height()-1);
 
-  const NFmiColorTools::Color c = theMaskImage(x,y);
+  const NFmiColorTools::Color c = mask(x,y);
   const int alpha = NFmiColorTools::GetAlpha(c);
 
   return (alpha != NFmiColorTools::Transparent);
@@ -946,8 +949,8 @@ void do_background(istream & theInput)
   if(globals.background == "none")
 	globals.background = "";
   else
-	globals.backgroundimage.Read(FileComplete(globals.background,
-											  globals.mapspath));
+	globals.background = FileComplete(globals.background,
+									  globals.mapspath);
 }
 
 // ----------------------------------------------------------------------
@@ -967,8 +970,8 @@ void do_foreground(istream & theInput)
   if(globals.foreground == "none")
 	globals.foreground = "";
   else
-	globals.foregroundimage.Read(FileComplete(globals.foreground,
-											  globals.mapspath));
+	globals.foreground = FileComplete(globals.foreground,
+									  globals.mapspath);
 }
 
 // ----------------------------------------------------------------------
@@ -988,8 +991,8 @@ void do_mask(istream & theInput)
   if(globals.mask == "none")
 	globals.mask = "";
   else
-	globals.maskimage.Read(FileComplete(globals.mask,
-										globals.mapspath));
+	globals.mask = FileComplete(globals.mask,
+								globals.mapspath);
 }
 
 // ----------------------------------------------------------------------
@@ -1020,8 +1023,8 @@ void do_combine(istream & theInput)
 	  if(globals.combinefactor < 0 || globals.combinefactor > 1)
 		throw runtime_error("combine blending factor must be in range 0-1");
 
-	  globals.combineimage.Read(FileComplete(globals.combine,
-											 globals.mapspath));
+	  globals.combine = FileComplete(globals.combine,
+									 globals.mapspath);
 	}
 }
 
@@ -1936,14 +1939,11 @@ void do_contourfontmindistdifferentparam(istream & theInput)
 
 void do_highpressure(istream & theInput)
 {
-  string imagefile;
-  theInput >> imagefile
+  theInput >> globals.highpressureimage
 		   >> globals.highpressurerule
 		   >> globals.highpressurefactor;
 
   check_errors(theInput,"highpressure");
-
-  globals.highpressureimage.Read(imagefile);
 }
 
 // ----------------------------------------------------------------------
@@ -1954,14 +1954,11 @@ void do_highpressure(istream & theInput)
 
 void do_lowpressure(istream & theInput)
 {
-  string imagefile;
-  theInput >> imagefile
+  theInput >> globals.lowpressureimage
 		   >> globals.lowpressurerule
 		   >> globals.lowpressurefactor;
   
   check_errors(theInput,"lowpressure");
-
-  globals.lowpressureimage.Read(imagefile);
 }
 
 // ----------------------------------------------------------------------
@@ -2335,8 +2332,8 @@ void do_clear(istream & theInput)
 	  globals.specs.clear();
 	  globals.labellocator.clear();
 	  globals.symbollocator.clear();
-	  globals.highpressureimage = NFmiImage();
-	  globals.lowpressureimage = NFmiImage();
+	  globals.highpressureimage.clear();
+	  globals.lowpressureimage.clear();
 	}
   else if(command=="contourmask")
 	{
@@ -2367,8 +2364,8 @@ void do_clear(istream & theInput)
 	}
   else if(command=="pressure")
 	{
-	  globals.highpressureimage = NFmiImage();
-	  globals.lowpressureimage = NFmiImage();
+	  globals.highpressureimage.clear();
+	  globals.lowpressureimage.clear();
 	}
   else
 	throw runtime_error("Unknown clear target: " + command);
@@ -2427,8 +2424,7 @@ void do_draw_shapes(istream & theInput)
 		{
 		  NFmiColorTools::NFmiBlendRule markerrule = ColorTools::checkrule(iter->markerrule());
 
-		  NFmiImage marker;
-		  marker.Read(iter->marker());
+		  const NFmiImage & marker = globals.getImage(iter->marker());
 		  geo.Mark(image,marker,markerrule,
 				   kFmiAlignCenter,
 				   iter->markeralpha());
@@ -2831,8 +2827,7 @@ void draw_label_markers(NFmiImage & theImage,
 
   // Establish the marker specs
 
-  NFmiImage marker;
-  marker.Read(theSpec.labelMarker());
+  const NFmiImage & marker = globals.getImage(theSpec.labelMarker());
 
   NFmiColorTools::NFmiBlendRule markerrule = ColorTools::checkrule(theSpec.labelMarkerRule());
 
@@ -2860,7 +2855,7 @@ void draw_label_markers(NFmiImage & theImage,
 
 	  // Skip rendering if the start point is masked
 
-	  if(IsMasked(xy, globals.mask, globals.maskimage))
+	  if(IsMasked(xy, globals.mask))
 		continue;
 
 	  theImage.Composite(marker,
@@ -2928,9 +2923,7 @@ void draw_label_texts(NFmiImage & theImage,
 		
 		// Skip rendering if the start point is masked
 		
-		if(IsMasked(NFmiPoint(x,y),
-					globals.mask,
-					globals.maskimage))
+		if(IsMasked(NFmiPoint(x,y),globals.mask))
 		  continue;
 		
 		// Convert value to string
@@ -2990,9 +2983,7 @@ void draw_label_texts(NFmiImage & theImage,
 		
 		// Skip rendering if the start point is masked
 		
-		if(IsMasked(NFmiPoint(x,y),
-					globals.mask,
-					globals.maskimage))
+		if(IsMasked(NFmiPoint(x,y),globals.mask))
 		  continue;
 		
 		// Convert value to string
@@ -3059,7 +3050,7 @@ void draw_wind_arrows_points(NFmiImage & theImage,
 	  
 	  // Skip rendering if the start point is masked
 	  
-	  if(IsMasked(xy0,globals.mask,globals.maskimage))
+	  if(IsMasked(xy0,globals.mask))
 		continue;
 	  
 	  float dir = globals.queryinfo->InterpolatedValue(*iter);
@@ -3157,9 +3148,7 @@ void draw_wind_arrows_grid(NFmiImage & theImage,
 		NFmiPoint xy0 = theArea.ToXY(latlon);
 		
 		// Skip rendering if the start point is masked
-		if(IsMasked(xy0,
-					globals.mask,
-					globals.maskimage))
+		if(IsMasked(xy0,globals.mask))
 		  continue;
 		
 		double dir = NFmiInterpolation::ModBiLinear(x-i,
@@ -3247,7 +3236,7 @@ void draw_wind_arrows_pixelgrid(NFmiImage & theImage,
 		NFmiPoint xy0(x,y);
 
 		// Skip the point if it is masked
-		if(IsMasked(xy0,globals.mask,globals.maskimage))
+		if(IsMasked(xy0,globals.mask))
 		  continue;
 
 		// Calculate the latlon value
@@ -3540,7 +3529,7 @@ void draw_contour_patterns(NFmiImage & theImage,
 			 << it->hilimit() << endl;
 
 	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
-	  NFmiImage pattern(it->pattern());
+	  const NFmiImage & pattern = globals.getImage(it->pattern());
 
 	  path.Project(&theArea);
 	  path.Fill(theImage,pattern,rule,it->factor());
@@ -3777,7 +3766,7 @@ void draw_contour_symbols(NFmiImage & theImage,
 		}
 
 	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
-	  NFmiImage symbol(it->pattern());
+	  const NFmiImage & symbol = globals.getImage(it->pattern());
 	  const float factor = it->factor();
 	  const float lo = it->lolimit();
 	  const float hi = it->hilimit();
@@ -4060,10 +4049,8 @@ void draw_pressure_markers(NFmiImage & theImage,
 {
   // Establish which markers are to be drawn
 
-  bool dohigh = (globals.highpressureimage.Width() > 0 &&
-				 globals.highpressureimage.Height() > 0);
-  bool dolow =  (globals.lowpressureimage.Width() > 0 &&
-				 globals.lowpressureimage.Height() > 0);
+  bool dohigh = !globals.highpressureimage.empty();
+  bool dolow =  !globals.lowpressureimage.empty();
 
   // Exit if none
 
@@ -4170,7 +4157,7 @@ void draw_foreground(NFmiImage & theImage)
 
   NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(globals.foregroundrule);
 
-  theImage.Composite(globals.foregroundimage,
+  theImage.Composite(globals.getImage(globals.foreground),
 					 rule,
 					 kFmiAlignNorthWest,
 					 0,0,1);
@@ -4432,12 +4419,12 @@ void do_draw_contours(istream & theInput)
 		image.reset(new NFmiImage(imgwidth,imgheight,erasecolor));
 	  else
 		{
-		  if(imgwidth != globals.backgroundimage.Width() ||
-			 imgheight != globals.backgroundimage.Height())
+		  image.reset(new NFmiImage(globals.getImage(globals.background)));
+		  if(imgwidth != image->Width() ||
+			 imgheight != image->Height())
 			{
 			  throw runtime_error("Background image size does not match area size");
 			}
-		  image.reset(new NFmiImage(globals.backgroundimage));
 		}
 
 	  if(image.get()==0)
