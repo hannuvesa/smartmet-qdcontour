@@ -117,6 +117,18 @@ void ContourCalculator::data(const NFmiDataMatrix<float> & theData)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Return data minmax
+ */
+// ----------------------------------------------------------------------
+
+void ContourCalculator::minmax(float & theMin, float & theMax) const
+{
+  theMin = itsPimple->itsHelper->Min();
+  theMax = itsPimple->itsHelper->Max();
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Return the desired contour
  *
  * \return The path object

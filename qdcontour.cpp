@@ -4506,17 +4506,17 @@ void do_draw_contours(istream & theInput)
 			  vals = smoother.Smoothen(*worldpts,vals);
 			}
 
-		  // Find the minimum and maximum
-
-		  float min_value, max_value;
-		  find_extrema(vals,min_value,max_value);
-
-		  if(globals.verbose)
-			report_extrema(name,min_value,max_value);
-
 		  // Setup the contourer with the values
 
 		  globals.calculator.data(vals);
+
+		  // Find the minimum and maximum
+
+		  float min_value, max_value;
+		  globals.calculator.minmax(min_value,max_value);
+
+		  if(globals.verbose)
+			report_extrema(name,min_value,max_value);
 
 		  if(!piter->contourMaskParam().empty())
 			{

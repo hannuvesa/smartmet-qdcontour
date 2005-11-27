@@ -53,6 +53,7 @@ public:
   void data(const NFmiDataMatrix<float> & theData);
   void clearCache();
   void cache(bool);
+  void minmax(float & theMin, float & theMax) const;
   bool wasCached(void) const;
   
 private:
