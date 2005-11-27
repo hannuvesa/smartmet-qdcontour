@@ -3337,9 +3337,7 @@ void draw_wind_arrows(NFmiImage & theImage,
 void draw_contour_fills(NFmiImage & theImage,
 						const NFmiArea & theArea,
 						const ContourSpec & theSpec,
-						NFmiContourTree::NFmiContourInterpolation theInterpolation,
-						float theMinimum,
-						float theMaximum)
+						NFmiContourTree::NFmiContourInterpolation theInterpolation)
 {
   list<ContourRange>::const_iterator it;
   list<ContourRange>::const_iterator begin;
@@ -3350,28 +3348,6 @@ void draw_contour_fills(NFmiImage & theImage,
   
   for(it=begin ; it!=end; ++it)
 	{
-	  // Skip to next contour if this one is outside
-	  // the value range. As a special case
-	  // min=max=missing is ok, if both the limits
-	  // are missing too. That is, when we are
-	  // contouring missing values.
-	  
-	  if(theMinimum==kFloatMissing || theMaximum==kFloatMissing)
-		{
-		  if(it->lolimit()!=kFloatMissing &&
-			 it->hilimit()!=kFloatMissing)
-			continue;
-		}
-	  else
-		{
-		  if(it->lolimit()!=kFloatMissing &&
-			 theMaximum<it->lolimit())
-			continue;
-		  if(it->hilimit()!=kFloatMissing &&
-			 theMinimum>it->hilimit())
-			continue;
-		}
-
 	  // Contour the actual data
 	  
 	  bool exactlo = true;
@@ -3449,9 +3425,7 @@ void draw_contour_fills(NFmiImage & theImage,
 void draw_contour_patterns(NFmiImage & theImage,
 						   const NFmiArea & theArea,
 						   const ContourSpec & theSpec,
-						   NFmiContourTree::NFmiContourInterpolation theInterpolation,
-						   float theMinimum,
-						   float theMaximum)
+						   NFmiContourTree::NFmiContourInterpolation theInterpolation)
 {
   list<ContourPattern>::const_iterator it;
   list<ContourPattern>::const_iterator begin;
@@ -3462,28 +3436,6 @@ void draw_contour_patterns(NFmiImage & theImage,
 
   for(it=begin ; it!=end; ++it)
 	{
-	  // Skip to next contour if this one is outside
-	  // the value range. As a special case
-	  // min=max=missing is ok, if both the limits
-	  // are missing too. That is, when we are
-	  // contouring missing values.
-
-	  if(theMinimum==kFloatMissing || theMaximum==kFloatMissing)
-		{
-		  if(it->lolimit()!=kFloatMissing &&
-			 it->hilimit()!=kFloatMissing)
-			continue;
-		}
-	  else
-		{
-		  if(it->lolimit()!=kFloatMissing &&
-			 theMaximum<it->lolimit())
-			continue;
-		  if(it->hilimit()!=kFloatMissing &&
-			 theMinimum>it->hilimit())
-			continue;
-		}
-
 	  bool exactlo = true;
 	  bool exacthi = (it->hilimit()!=kFloatMissing &&
 					  theSpec.exactHiLimit()!=kFloatMissing &&
@@ -3522,9 +3474,7 @@ void draw_contour_patterns(NFmiImage & theImage,
 void draw_contour_strokes(NFmiImage & theImage,
 						  const NFmiArea & theArea,
 						  const ContourSpec & theSpec,
-						  NFmiContourTree::NFmiContourInterpolation theInterpolation,
-						  float theMinimum,
-						  float theMaximum)
+						  NFmiContourTree::NFmiContourInterpolation theInterpolation)
 {
   list<ContourValue>::const_iterator it;
   list<ContourValue>::const_iterator begin;
@@ -3535,20 +3485,6 @@ void draw_contour_strokes(NFmiImage & theImage,
 
   for(it=begin ; it!=end; ++it)
 	{
-	  // Skip to next contour if this one is outside
-	  // the value range.
-
-	  if(theMinimum!=kFloatMissing &&
-		 theMaximum!=kFloatMissing)
-		{
-		  if(it->value()!=kFloatMissing &&
-			 theMaximum<it->value())
-			continue;
-		  if(it->value()!=kFloatMissing &&
-			 theMinimum>it->value())
-			continue;
-		}
-
 	  NFmiPath path =
 		globals.calculator.contour(*globals.queryinfo,
 								   it->value(),
@@ -3574,9 +3510,7 @@ void draw_contour_strokes(NFmiImage & theImage,
 void save_contour_labels(NFmiImage & theImage,
 						 const NFmiArea & theArea,
 						 const ContourSpec & theSpec,
-						 NFmiContourTree::NFmiContourInterpolation theInterpolation,
-						 float theMinimum,
-						 float theMaximum)
+						 NFmiContourTree::NFmiContourInterpolation theInterpolation)
 {
   // The ID under which the coordinates will be stored
 
@@ -3594,20 +3528,6 @@ void save_contour_labels(NFmiImage & theImage,
 
   for(it=begin ; it!=end; ++it)
 	{
-	  // Skip to next contour if this one is outside
-	  // the value range.
-
-	  if(theMinimum!=kFloatMissing &&
-		 theMaximum!=kFloatMissing)
-		{
-		  if(it->value()!=kFloatMissing &&
-			 theMaximum<it->value())
-			continue;
-		  if(it->value()!=kFloatMissing &&
-			 theMinimum>it->value())
-			continue;
-		}
-
 	  NFmiPath path =
 		globals.calculator.contour(*globals.queryinfo,
 								   it->value(),
@@ -3706,9 +3626,7 @@ void draw_contour_symbols(NFmiImage & theImage,
 						  const NFmiArea & theArea,
 						  const ContourSpec & theSpec,
 						  const LazyCoordinates & thePoints,
-						  const NFmiDataMatrix<float> & theValues,
-						  float theMinimum,
-						  float theMaximum)
+						  const NFmiDataMatrix<float> & theValues)
 {
   list<ContourSymbol>::const_iterator it;
   list<ContourSymbol>::const_iterator begin;
@@ -3719,28 +3637,6 @@ void draw_contour_symbols(NFmiImage & theImage,
   
   for(it=begin ; it!=end; ++it)
 	{
-	  // Skip to next contour if this one is outside
-	  // the value range. As a special case
-	  // min=max=missing is ok, if both the limits
-	  // are missing too. That is, when we are
-	  // contouring missing values.
-	  
-	  if(theMinimum==kFloatMissing || theMaximum==kFloatMissing)
-		{
-		  if(it->lolimit()!=kFloatMissing &&
-			 it->hilimit()!=kFloatMissing)
-			continue;
-		}
-	  else
-		{
-		  if(it->lolimit()!=kFloatMissing &&
-			 theMaximum<it->lolimit())
-			continue;
-		  if(it->hilimit()!=kFloatMissing &&
-			 theMinimum>it->hilimit())
-			continue;
-		}
-
 	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
 	  const NFmiImage & symbol = globals.getImage(it->pattern());
 	  const float factor = it->factor();
@@ -3874,9 +3770,7 @@ void save_contour_fonts(NFmiImage & theImage,
 						const NFmiArea & theArea,
 						const ContourSpec & theSpec,
 						const LazyCoordinates & thePoints,
-						const NFmiDataMatrix<float> & theValues,
-						float theMinimum,
-						float theMaximum)
+						const NFmiDataMatrix<float> & theValues)
 {
   // The ID under which the coordinates will be stored
 
@@ -3897,21 +3791,6 @@ void save_contour_fonts(NFmiImage & theImage,
   
   for(it=begin ; it!=end; ++it)
 	{
-	  // Skip to next contour if this one is outside
-	  // the value range.
-	  
-	  if(theMinimum==kFloatMissing || theMaximum==kFloatMissing)
-		{
-		  continue;
-		}
-	  else
-		{
-		  if(it->value() < theMinimum)
-			continue;
-		  if(it->value() > theMaximum)
-			continue;
-		}
-
 	  okvalues.insert(it->value());
 	}
 
@@ -4486,13 +4365,6 @@ void do_draw_contours(istream & theInput)
 
 		  globals.calculator.data(vals);
 
-		  // Find the minimum and maximum
-
-		  float min_value, max_value;
-		  globals.calculator.minmax(min_value,max_value);
-
-		  if(globals.verbose)
-			report_extrema(name,min_value,max_value);
 
 		  if(!piter->contourMaskParam().empty())
 			{
@@ -4539,27 +4411,27 @@ void do_draw_contours(istream & theInput)
 
 		  // Fill the contours
 
-		  draw_contour_fills(*image,*area,*piter,interp,min_value,max_value);
+		  draw_contour_fills(*image,*area,*piter,interp);
 
 		  // Pattern fill the contours
 
-		  draw_contour_patterns(*image,*area,*piter,interp,min_value,max_value);
+		  draw_contour_patterns(*image,*area,*piter,interp);
 
 		  // Stroke the contours
 
-		  draw_contour_strokes(*image,*area,*piter,interp,min_value,max_value);
+		  draw_contour_strokes(*image,*area,*piter,interp);
 
 		  // Symbol fill the contours
 
-		  draw_contour_symbols(*image,*area,*piter,worldpts,vals,min_value,max_value);
+		  draw_contour_symbols(*image,*area,*piter,worldpts,vals);
+
 		  // Save symbol fill coordinates
 
-		  save_contour_fonts(*image,*area,*piter,worldpts,vals,min_value,max_value);
+		  save_contour_fonts(*image,*area,*piter,worldpts,vals);
 
 		  // Save contour label coordinates
 
-		  save_contour_labels(*image,*area,*piter,interp,min_value,max_value);
-
+		  save_contour_labels(*image,*area,*piter,interp);
 
 		}
 
