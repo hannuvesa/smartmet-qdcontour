@@ -33,6 +33,7 @@ public:
 	, isCacheOn(false)
 	, itWasCached(false)
 	, itsData(0)
+	, itsHelperOK(false)
   { }
 
   ContourCache itsAreaCache;
@@ -40,9 +41,29 @@ public:
   bool isCacheOn;
   bool itWasCached;
   const NFmiDataMatrix<float> * itsData;			// does not own!
+  bool itsHelperOK;
   std::auto_ptr<Imagine::NFmiContourDataHelper> itsHelper;
+
+  void require_helper();
   
 }; // class ContourCalculatorPimple
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Require the pimple to be up to date
+ */
+// ----------------------------------------------------------------------
+
+void ContourCalculatorPimple::require_helper()
+{
+  if(itsHelperOK)
+	return;
+
+  itsHelper.reset(new Imagine::NFmiContourDataHelper(*itsData));
+  itsHelperOK = true;
+
+}
+
 
 // ----------------------------------------------------------------------
 /*!
@@ -112,7 +133,7 @@ bool ContourCalculator::wasCached() const
 void ContourCalculator::data(const NFmiDataMatrix<float> & theData)
 {
   itsPimple->itsData = &theData;
-  itsPimple->itsHelper.reset(new Imagine::NFmiContourDataHelper(theData));
+  itsPimple->itsHelperOK = false;
 }
 
 // ----------------------------------------------------------------------
@@ -123,6 +144,7 @@ void ContourCalculator::data(const NFmiDataMatrix<float> & theData)
 
 void ContourCalculator::minmax(float & theMin, float & theMax) const
 {
+  itsPimple->require_helper();
   theMin = itsPimple->itsHelper->Min();
   theMax = itsPimple->itsHelper->Max();
 }
@@ -161,6 +183,7 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
   if(theDataHiLimit != kFloatMissing)
 	tree.DataHiLimit(theDataHiLimit);
 
+  itsPimple->require_helper();
   tree.Contour(*(itsPimple->itsData), *(itsPimple->itsHelper), theInterpolation);
 
   Imagine::NFmiPath path = tree.Path();
@@ -207,6 +230,7 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
   if(theDataHiLimit != kFloatMissing)
 	tree.DataHiLimit(theDataHiLimit);
 
+  itsPimple->require_helper();
   tree.Contour(*(itsPimple->itsData), *(itsPimple->itsHelper), theInterpolation);
 
   Imagine::NFmiPath path = tree.Path();
