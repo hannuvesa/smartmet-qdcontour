@@ -2537,30 +2537,6 @@ unsigned int choose_queryinfo(const string & theName,
 
 // ----------------------------------------------------------------------
 /*!
- * \brief Find the extrema from the data
- */
-// ----------------------------------------------------------------------
-
-void find_extrema(const NFmiDataMatrix<float> & theValues,
-				  float & theMin,
-				  float & theMax)
-{
-  theMin = kFloatMissing;
-  theMax = kFloatMissing;
-
-  for(unsigned int j=0; j<theValues.NY(); j++)
-	for(unsigned int i=0; i<theValues.NX(); i++)
-	  if(theValues[i][j]!=kFloatMissing)
-		{
-		  if(theMin==kFloatMissing || theValues[i][j]<theMin)
-			theMin = theValues[i][j];
-		  if(theMax==kFloatMissing || theValues[i][j]>theMax)
-			theMax = theValues[i][j];
-		}
-}
-
-// ----------------------------------------------------------------------
-/*!
  * \brief Expand the data values
  *
  * First we try to calculate the mean from adjacent values.
