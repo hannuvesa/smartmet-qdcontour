@@ -454,6 +454,50 @@ namespace
 	return t2m;
   }
 
+  // ----------------------------------------------------------------------
+  /*!
+   * \brief Theta E
+   *
+   * \param theQI The queryinfo
+   * \return The values in a matrix
+   */
+  // ----------------------------------------------------------------------
+
+  NFmiDataMatrix<float> thetae(LazyQueryData & theQI)
+  {
+	NFmiDataMatrix<float> t2m;
+	NFmiDataMatrix<float> rh;
+	NFmiDataMatrix<float> p;
+
+	theQI.Param(kFmiTemperature);
+	theQI.Values(t2m);
+	theQI.Param(kFmiHumidity);
+	theQI.Values(rh);
+	theQI.Param(kFmiPressure);
+	theQI.Values(p);
+
+	// overwrite t2m with thetae
+
+	for(unsigned int j=0; j<t2m.NY(); j++)
+	  for(unsigned int i=0; i<t2m.NX(); i++)
+		{
+		  if(t2m[i][j] == kFloatMissing ||
+			 rh[i][j] == kFloatMissing ||
+			 p[i][j] == kFloatMissing)
+			{
+			  t2m[i][j] = kFloatMissing;
+			}
+		  else
+			{
+			  float T = t2m[i][j];
+			  float RH = rh[i][j];
+			  float P = p[i][j];
+			  t2m[i][j] =  (273.15+T)*pow(1000.0/P,0.286)+(3*(RH*(3.884266*pow(10.0,((7.5*T)/(237.7+T))))/100));
+			}
+		}
+	return t2m;
+  }
+
 
 } // namespace anonymous
 
@@ -504,6 +548,8 @@ namespace MetaFunctions
 	  return 10007;
 	if(theFunction == "MetaSnowProb")
 	  return 10008;
+	if(theFunction == "MetaThetaE")
+	  return 10009;
 	return 0;
   }
 
@@ -541,6 +587,8 @@ namespace MetaFunctions
 	  return air_dew_difference_values(theQI);
 	if(theFunction == "MetaSnowProb")
 	  return snowprob(theQI);
+	if(theFunction == "MetaThetaE")
+	  return thetae(theQI);
 
 	throw runtime_error("Unrecognized meta function " + theFunction);
 

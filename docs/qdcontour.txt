@@ -1004,6 +1004,10 @@ Temperature advection in degrees per hour
 <dt>MetaThermalFront</dt>
 <dd>Thermal front parameter</dd>
 </dl>
+<dt>MetaSnowProb</dt>
+<dd>Probability that precipitation form is snow</dd>
+<dt>MetaThetaE</dt>
+<dd>Theta_E</dd>
 \endhtmlonly
 
 \section appendix_section Appendix
