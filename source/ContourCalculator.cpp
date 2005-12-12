@@ -221,8 +221,8 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 	}
 
   Imagine::NFmiContourTree tree(theValue, kFloatMissing, true, false);
-  if(theValue != kFloatMissing)
-	tree.LinesOnly(true);
+  tree.LinesOnly(theValue != kFloatMissing);
+  tree.ConvertGhostLines(theValue == kFloatMissing);
   tree.SubTriangleMode(theContourTrianglesOn);
 
   if(theDataLoLimit != kFloatMissing)
