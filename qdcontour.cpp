@@ -1100,6 +1100,7 @@ void do_format(istream & theInput)
   if(globals.format != "png" &&
 	 globals.format != "jpg" &&
 	 globals.format != "jpeg" &&
+	 globals.format != "pnm" &&
 	 globals.format != "wbmp" &&
 	 globals.format != "gif")
 	{
