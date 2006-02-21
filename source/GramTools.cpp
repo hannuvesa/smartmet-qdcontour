@@ -86,7 +86,7 @@ namespace GramTools
 	  for(unsigned int i=0; i<short_segments; i++)
 		{
 		  path.MoveTo(0,y);
-		  path.LineTo(flag_length/2*::sin(flag_angle),y+flag_length/2*::cos(flag_angle));
+		  path.LineTo(-flag_length/2*::sin(flag_angle),y+flag_length/2*::cos(flag_angle));
 		  y += flag_interval;
 		}
 	
@@ -96,7 +96,7 @@ namespace GramTools
 	  for(unsigned int j=0; j<long_segments; j++)
 		{
 		  path.MoveTo(0,y);
-		  path.LineTo(flag_length*::sin(flag_angle),y+flag_length*::cos(flag_angle));
+		  path.LineTo(-flag_length*::sin(flag_angle),y+flag_length*::cos(flag_angle));
 		  y += flag_interval;
 		}
 
