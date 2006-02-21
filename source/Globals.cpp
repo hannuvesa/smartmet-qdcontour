@@ -131,6 +131,7 @@ Globals::Globals()
   , contourmasklolimit(kFloatMissing)
   , contourmaskhilimit(kFloatMissing)
   , itsImageCache()
+  , itsArrowCache()
 {
   symbollocator.minDistanceToDifferentParameter(8);
   symbollocator.minDistanceToDifferentValue(8);

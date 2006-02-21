@@ -3310,16 +3310,8 @@ void draw_wind_arrows(NFmiImage & theImage,
 	  NFmiPath arrowpath;
 	  if(globals.arrowfile != "meteorological")
 		{
-		  ifstream arrow(globals.arrowfile.c_str());
-		  if(!arrow)
-			throw runtime_error("Could not open " + globals.arrowfile);
-		  // Read in the entire file
-		  string pathstring = NFmiStringTools::ReadFile(arrow);
-		  arrow.close();
-		  
-		  // Convert to a path
-		  
-		  arrowpath.Add(pathstring);
+		  const string & arr = globals.itsArrowCache.find(globals.arrowfile);
+		  arrowpath.Add(arr);
 		}
 	  
 	  draw_wind_arrows_points(theImage,theArea,arrowpath);

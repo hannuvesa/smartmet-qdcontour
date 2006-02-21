@@ -8,6 +8,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include "ArrowCache.h"
 #include "ContourCalculator.h"
 #include "ContourSpec.h"
 #include "ExtremaLocator.h"
@@ -178,6 +179,7 @@ struct Globals
   float contourmaskhilimit;
 
   ImageCache itsImageCache;
+  ArrowCache itsArrowCache;
 
 };
 
