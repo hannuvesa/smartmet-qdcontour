@@ -2896,6 +2896,17 @@ void draw_label_texts(NFmiImage & theImage,
 			x = iter->second.X();
 			y = iter->second.Y();
 		  }
+
+		// Skip rendering if the point is much too far from the image
+
+		const int safetymargin = 50;
+		if(x < -safetymargin ||
+		   y < -safetymargin ||
+		   x > theImage.Width()+safetymargin ||
+		   y > theImage.Height()+safetymargin)
+		  continue;
+
+		// Fetch the value to be rendered
 		
 		float value = theSpec.labelValues()[pointnumber++];
 		
@@ -2959,6 +2970,15 @@ void draw_label_texts(NFmiImage & theImage,
 		double y = iter->first.Y();
 		float value = iter->second;
 		
+		// Skip rendering if the point is much too far from the image
+
+		const int safetymargin = 50;
+		if(x < -safetymargin ||
+		   y < -safetymargin ||
+		   x > theImage.Width()+safetymargin ||
+		   y > theImage.Height()+safetymargin)
+		  continue;
+
 		// Skip rendering if the start point is masked
 		
 		if(IsMasked(NFmiPoint(x,y),globals.mask))
