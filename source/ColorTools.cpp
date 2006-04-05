@@ -129,7 +129,7 @@ namespace
 
   Imagine::NFmiColorTools::Color parse_named_color(const string & theColor)
   {
-	unsigned int pos = static_cast<unsigned int>(theColor.find(","));
+	string::size_type pos = theColor.find(",");
 	if(pos == string::npos)
 	  return Imagine::NFmiColorTools::ColorValue(theColor);
 
