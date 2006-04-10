@@ -15,6 +15,7 @@
 #include "ImageCache.h"
 #include "LabelLocator.h"
 #include "ShapeSpec.h"
+#include "UnitsConverter.h"
 
 #include "NFmiColorTools.h"
 #include "NFmiImage.h"
@@ -177,6 +178,7 @@ struct Globals
   std::string contourmaskparam;
   float contourmasklolimit;
   float contourmaskhilimit;
+  UnitsConverter unitsconverter;
 
   ImageCache itsImageCache;
   ArrowCache itsArrowCache;

@@ -2317,6 +2317,27 @@ void do_labelfile(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Handle "units" command
+ */
+// ----------------------------------------------------------------------
+
+void do_units(istream & theInput)
+{
+  string paramname, conversion;
+
+  theInput >> paramname >> conversion;
+
+  check_errors(theInput,"units");
+
+  FmiParameterName param = FmiParameterName(converter.ToEnum(paramname));
+  if(param == kFmiBadParameter)
+	throw runtime_error("Unknown parametername '"+paramname+"'");
+  globals.unitsconverter.setConversion(param,conversion);
+
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Handle "clear" command
  */
 // ----------------------------------------------------------------------
@@ -2369,6 +2390,8 @@ void do_clear(istream & theInput)
 	  globals.highpressureimage.clear();
 	  globals.lowpressureimage.clear();
 	}
+  else if(command=="units")
+	globals.unitsconverter.clear();
   else
 	throw runtime_error("Unknown clear target: " + command);
 }
@@ -2600,7 +2623,10 @@ void filter_values(NFmiDataMatrix<float> & theValues,
 		  globals.queryinfo->PreviousTime();
 		  NFmiTime t1 = globals.queryinfo->ValidTime();
 		  if(!MetaFunctions::isMeta(theSpec.param()))
-			globals.queryinfo->Values(tmpvals);
+			{
+			  globals.queryinfo->Values(tmpvals);
+			  globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),tmpvals);
+			}
 		  else
 			tmpvals = MetaFunctions::values(theSpec.param(), *globals.queryinfo);
 		  if(theSpec.replace())
@@ -2634,6 +2660,7 @@ void filter_values(NFmiDataMatrix<float> & theValues,
 		{
 
 		  globals.queryinfo->Values(tmpvals,tnow);
+		  globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),tmpvals);
 
 		  if(theSpec.replace())
 			tmpvals.Replace(theSpec.replaceSourceValue(),
@@ -3052,13 +3079,19 @@ void draw_wind_arrows_points(NFmiImage & theImage,
 		continue;
 	  
 	  float dir = globals.queryinfo->InterpolatedValue(*iter);
+	  dir = globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),
+										   dir);
+
 	  if(dir==kFloatMissing)	// ignore missing
 		continue;
 	  
 	  float speed = -1;
 	  
 	  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
-		speed = globals.queryinfo->InterpolatedValue(*iter);
+		{
+		  speed = globals.queryinfo->InterpolatedValue(*iter);
+		  speed = globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),speed);
+		}
 	  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
 	  
 	  // Direction calculations
@@ -3119,11 +3152,15 @@ void draw_wind_arrows_grid(NFmiImage & theImage,
 
   NFmiDataMatrix<float> speedvalues;
   if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
-	globals.queryinfo->Values(speedvalues);
+	{
+	  globals.queryinfo->Values(speedvalues);
+	  globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),speedvalues);
+	}
   
   NFmiDataMatrix<float> dirvalues;
   globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
   globals.queryinfo->Values(dirvalues);
+  globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),dirvalues);
   
   shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(theArea);
   for(float y=0; y<=worldpts->NY()-1; y+=globals.windarrowdy)
@@ -3243,12 +3280,16 @@ void draw_wind_arrows_pixelgrid(NFmiImage & theImage,
 
 		// Calculate the speed values
 		float dir = globals.queryinfo->InterpolatedValue(latlon);
+		dir = globals.unitsconverter.convert(FmiParameterName(converter.ToEnum(globals.directionparam)),dir);
 		if(dir==kFloatMissing)
 		  continue;
 		
 		float speed = -1;
 		if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
-		  speed = globals.queryinfo->InterpolatedValue(latlon);
+		  {
+			speed = globals.queryinfo->InterpolatedValue(latlon);
+			speed = globals.unitsconverter.convert(FmiParameterName(converter.ToEnum(globals.speedparam)),speed);
+		  }
 		globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
 		
 		// Direction calculations
@@ -3934,6 +3975,7 @@ void draw_pressure_markers(NFmiImage & theImage,
 
   NFmiDataMatrix<float> vals;
   globals.queryinfo->Values(vals);
+  globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),vals);
 
   // Insert candidate coordinates into the system
 
@@ -4344,7 +4386,10 @@ void do_draw_contours(istream & theInput)
 		  // Get the values.
 
 		  if(!MetaFunctions::isMeta(name))
-			globals.queryinfo->Values(vals);
+			{
+			  globals.queryinfo->Values(vals);
+			  globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),vals);
+			}
 		  else
 			vals = MetaFunctions::values(piter->param(),
 										 *globals.queryinfo);
@@ -4394,6 +4439,7 @@ void do_draw_contours(istream & theInput)
 				  if(foundmask)
 					{
 					  globals.querystreams[masknro]->Values(maskvalues);
+					  globals.unitsconverter.convert(FmiParameterName(globals.querystreams[masknro]->GetParamIdent()),maskvalues);
 					  globals.querystreams[masknro]->Param(oldid);
 					  break;
 					}
@@ -4650,6 +4696,7 @@ int domain(int argc, const char *argv[])
 		  else if(cmd == "labels")					do_labels(in);
 		  else if(cmd == "labelsxy")				do_labelsxy(in);
 		  else if(cmd == "labelfile")				do_labelfile(in);
+		  else if(cmd == "units")					do_units(in);
 		  else if(cmd == "clear")					do_clear(in);
 
 		  else if(cmd == "draw")

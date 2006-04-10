@@ -1,0 +1,197 @@
+// ======================================================================
+/*!
+ * \file
+ * \brief Implementation of class UnitsConverter
+ */
+// ======================================================================
+
+#include "UnitsConverter.h"
+#include <algorithm>
+#include <stdexcept>
+
+using namespace std;
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Available conversions
+ */
+// ----------------------------------------------------------------------
+
+enum ConversionType
+  {
+	NoConversion = 0,
+	CelsiusToFahrenheit,
+	FahrenheitToCelsius,
+	MetersPerSecondToKnots
+  };
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Convert degrees Celsius to Fahrenheit
+ */
+// ----------------------------------------------------------------------
+
+inline float celsius_to_fahrenheit(float theValue)
+{
+  if(theValue == kFloatMissing)
+	return kFloatMissing;
+  else
+	return (1.8*theValue+32);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Convert degrees Fahrenheit to Celsius
+ */
+// ----------------------------------------------------------------------
+
+inline float fahrenheit_to_celsius(float theValue)
+{
+  if(theValue == kFloatMissing)
+	return kFloatMissing;
+  else
+	return (theValue-32)/1.8;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Convert meters per second to knots
+ *
+ * 1 knot = 1,852 km/h = 0.5144444444444.. m/s
+ */
+// ----------------------------------------------------------------------
+
+inline float meterspersecond_to_knots(float theValue)
+{
+  if(theValue == kFloatMissing)
+	return kFloatMissing;
+  else
+	return theValue / 0.51444444444444444444444444;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Convert degrees Celsius to Fahrenheit
+ */
+// ----------------------------------------------------------------------
+
+void celsius_to_fahrenheit(NFmiDataMatrix<float> & theValues)
+{
+  for(NFmiDataMatrix<float>::size_type j = 0; j<theValues.NY(); j++)
+	for(NFmiDataMatrix<float>::size_type i = 0; i<theValues.NX(); i++)
+	  theValues[i][j] = celsius_to_fahrenheit(theValues[i][j]);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Convert degrees Fahrenheit to Celsius
+ */
+// ----------------------------------------------------------------------
+
+void fahrenheit_to_celsius(NFmiDataMatrix<float> & theValues)
+{
+  for(NFmiDataMatrix<float>::size_type j = 0; j<theValues.NY(); j++)
+	for(NFmiDataMatrix<float>::size_type i = 0; i<theValues.NX(); i++)
+	  theValues[i][j] = fahrenheit_to_celsius(theValues[i][j]);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Convert meters per second to knots
+ */
+// ----------------------------------------------------------------------
+
+void meterspersecond_to_knots(NFmiDataMatrix<float> & theValues)
+{
+  for(NFmiDataMatrix<float>::size_type j = 0; j<theValues.NY(); j++)
+	for(NFmiDataMatrix<float>::size_type i = 0; i<theValues.NX(); i++)
+	  theValues[i][j] = meterspersecond_to_knots(theValues[i][j]);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Initialize the converter
+ */
+// ----------------------------------------------------------------------
+
+UnitsConverter::UnitsConverter()
+  : itsConversions(kFmiLastParameter,NoConversion)
+{
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Clear all conversions
+ */
+// ----------------------------------------------------------------------
+
+void UnitsConverter::clear()
+{
+  fill(itsConversions.begin(),itsConversions.end(),NoConversion);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Set a new conversion
+ */
+// ----------------------------------------------------------------------
+
+void UnitsConverter::setConversion(FmiParameterName theParam,
+								   const std::string & theConversion)
+{
+  if(theConversion == "celsius_to_fahrenheit")
+	itsConversions[theParam] = CelsiusToFahrenheit;
+  else if(theConversion == "fahrenheit_to_celsius")
+	itsConversions[theParam] = FahrenheitToCelsius;
+  else if(theConversion == "meterspersecond_to_knots")
+	itsConversions[theParam] = MetersPerSecondToKnots;
+  else
+	throw runtime_error("Unknown unit conversion '"+theConversion+"'");
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Convert a single value
+ */
+// ----------------------------------------------------------------------
+
+float UnitsConverter::convert(FmiParameterName theParam,
+							  float theValue) const
+{
+  switch(itsConversions[theParam])
+	{
+	case CelsiusToFahrenheit:
+	  return celsius_to_fahrenheit(theValue);
+	case FahrenheitToCelsius:
+	  return fahrenheit_to_celsius(theValue);
+	case MetersPerSecondToKnots:
+	  return meterspersecond_to_knots(theValue);
+	default:
+	  return theValue;
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Convert a datamatrix
+ */
+// ----------------------------------------------------------------------
+
+void UnitsConverter::convert(FmiParameterName theParam,
+							 NFmiDataMatrix<float> & theValues) const
+{
+  switch(itsConversions[theParam])
+	{
+	case NoConversion:
+	  return;
+	case CelsiusToFahrenheit:
+	  celsius_to_fahrenheit(theValues);
+	  break;
+	case FahrenheitToCelsius:
+	  fahrenheit_to_celsius(theValues);
+	  break;
+	case MetersPerSecondToKnots:
+	  meterspersecond_to_knots(theValues);
+	  break;
+	}
+}

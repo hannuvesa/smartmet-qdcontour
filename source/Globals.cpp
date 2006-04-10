@@ -130,6 +130,7 @@ Globals::Globals()
   , contourmaskparam("")
   , contourmasklolimit(kFloatMissing)
   , contourmaskhilimit(kFloatMissing)
+  , unitsconverter()
   , itsImageCache()
   , itsArrowCache()
 {

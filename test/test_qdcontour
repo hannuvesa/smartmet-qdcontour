@@ -255,6 +255,12 @@ DoTest("expanding data",
        "expanddata.conf",
        "expanddata_200505271800_200506020900.png");
 
+# Fahrenheit conversions
+
+DoTest("fahrenheit conversion",
+       "fahrenheit.conf",
+       "fahrenheit200210140600_200210140937.png");
+
 print "Done\n";
 
 

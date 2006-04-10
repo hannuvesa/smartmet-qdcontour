@@ -46,6 +46,7 @@
   <li>\ref timezone_section</li>
   <li>\ref timestamp_section</li>
   <li>\ref metaparams_section</li>
+  <li>\ref changeunits_section</li>
 </ol>
 <li>\ref appendix_section</li>
 <ol>
@@ -1009,6 +1010,25 @@ Temperature advection in degrees per hour
 <dt>MetaThetaE</dt>
 <dd>Theta_E</dd>
 \endhtmlonly
+
+\subsection changeunits_section Unit conversions
+
+Unit conversions can be performed using the command
+\code
+units [paramname] [conversiontype]
+\endcode
+For example
+\code
+changeunits Temperature celsius_to_fahrenheit
+\endcode
+Unit conversions can be removed with the command
+\code
+clear units
+\endcode
+The known conversions are
+ - celsius_to_fahrenheit
+ - fahrenheit_to_celsius
+ - meterspersecond_to_knots
 
 \section appendix_section Appendix
 
