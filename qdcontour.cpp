@@ -186,7 +186,7 @@ const string read_script(const string & theName)
 	{
 	  if(!NFmiFileSystem::FileExists(theName))
 		throw runtime_error("Script file '"+theName+"' does not exist");
-	  throw runtime_error("Preprocessor failed to parse '"+theName+"'");
+	  throw runtime_error("Preprocessor failed to parse '"+theName+"': "+processor.GetMessage());
 
 	}
 
