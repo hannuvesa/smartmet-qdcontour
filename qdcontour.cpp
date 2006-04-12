@@ -3187,6 +3187,17 @@ void draw_wind_arrows_grid(NFmiImage & theImage,
 		if(IsMasked(xy0,globals.mask))
 		  continue;
 		
+		// Skip rendering if the start point is way outside the image
+
+		const int safetymargin = 50;
+		if(xy0.X() < -safetymargin ||
+		   xy0.Y() < -safetymargin ||
+		   xy0.X() > theImage.Width()+safetymargin ||
+		   xy0.Y() > theImage.Height()+safetymargin)
+		  continue;
+
+		// Render the arrow
+		
 		double dir = NFmiInterpolation::ModBiLinear(x-i,
 													y-j,
 													dirvalues.At(i,j+1,kFloatMissing),
