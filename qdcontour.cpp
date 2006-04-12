@@ -2807,6 +2807,7 @@ void add_label_point_values(ContourSpec & theSpec,
 																	   theValues.At(i+1,j+1,kFloatMissing),
 																	   theValues.At(i,j,kFloatMissing),
 																	   theValues.At(i+1,j,kFloatMissing)));
+
 		  theSpec.addLabelValue(value);
 		}
 	}
@@ -2924,6 +2925,10 @@ void draw_label_texts(NFmiImage & theImage,
 			y = iter->second.Y();
 		  }
 
+		// Fetch the value to be rendered
+		
+		float value = theSpec.labelValues()[pointnumber++];
+		
 		// Skip rendering if the point is much too far from the image
 
 		const int safetymargin = 50;
@@ -2933,10 +2938,6 @@ void draw_label_texts(NFmiImage & theImage,
 		   y > theImage.Height()+safetymargin)
 		  continue;
 
-		// Fetch the value to be rendered
-		
-		float value = theSpec.labelValues()[pointnumber++];
-		
 		// Skip rendering if the start point is masked
 		
 		if(IsMasked(NFmiPoint(x,y),globals.mask))
