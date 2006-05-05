@@ -22,7 +22,8 @@ enum ConversionType
 	NoConversion = 0,
 	CelsiusToFahrenheit,
 	FahrenheitToCelsius,
-	MetersPerSecondToKnots
+	MetersPerSecondToKnots,
+	MetersToFeet
   };
 
 // ----------------------------------------------------------------------
@@ -71,6 +72,22 @@ inline float meterspersecond_to_knots(float theValue)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Convert meters to feet
+ *
+ * 1 foot = 0.3048 m
+ */
+// ----------------------------------------------------------------------
+
+inline float meters_to_feet(float theValue)
+{
+  if(theValue == kFloatMissing)
+	return kFloatMissing;
+  else
+	return theValue / 0.3048;
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Convert degrees Celsius to Fahrenheit
  */
 // ----------------------------------------------------------------------
@@ -110,6 +127,19 @@ void meterspersecond_to_knots(NFmiDataMatrix<float> & theValues)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Convert meters to feet
+ */
+// ----------------------------------------------------------------------
+
+void meters_to_feet(NFmiDataMatrix<float> & theValues)
+{
+  for(NFmiDataMatrix<float>::size_type j = 0; j<theValues.NY(); j++)
+	for(NFmiDataMatrix<float>::size_type i = 0; i<theValues.NX(); i++)
+	  theValues[i][j] = meters_to_feet(theValues[i][j]);
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Initialize the converter
  */
 // ----------------------------------------------------------------------
@@ -145,6 +175,8 @@ void UnitsConverter::setConversion(FmiParameterName theParam,
 	itsConversions[theParam] = FahrenheitToCelsius;
   else if(theConversion == "meterspersecond_to_knots")
 	itsConversions[theParam] = MetersPerSecondToKnots;
+  else if(theConversion == "meters_to_feet_knots")
+	itsConversions[theParam] = MetersToFeet;
   else
 	throw runtime_error("Unknown unit conversion '"+theConversion+"'");
 }
@@ -166,6 +198,8 @@ float UnitsConverter::convert(FmiParameterName theParam,
 	  return fahrenheit_to_celsius(theValue);
 	case MetersPerSecondToKnots:
 	  return meterspersecond_to_knots(theValue);
+	case MetersToFeet:
+	  return meters_to_feet(theValue);
 	default:
 	  return theValue;
 	}
@@ -192,6 +226,9 @@ void UnitsConverter::convert(FmiParameterName theParam,
 	  break;
 	case MetersPerSecondToKnots:
 	  meterspersecond_to_knots(theValues);
+	  break;
+	case MetersToFeet:
+	  meters_to_feet(theValues);
 	  break;
 	}
 }
