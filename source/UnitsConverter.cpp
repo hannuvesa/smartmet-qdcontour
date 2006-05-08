@@ -23,7 +23,8 @@ enum ConversionType
 	CelsiusToFahrenheit,
 	FahrenheitToCelsius,
 	MetersPerSecondToKnots,
-	MetersToFeet
+	MetersToFeet,
+	KiloMetersToFeet
   };
 
 // ----------------------------------------------------------------------
