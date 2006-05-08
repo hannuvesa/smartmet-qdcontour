@@ -1030,6 +1030,7 @@ The known conversions are
  - fahrenheit_to_celsius
  - meterspersecond_to_knots
  - meters_to_feet
+ - kilometers_to_feet
 
 \section appendix_section Appendix
 

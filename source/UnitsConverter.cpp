@@ -88,6 +88,22 @@ inline float meters_to_feet(float theValue)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Convert kilometers to feet
+ *
+ * 1 foot = 0.3048 m
+ */
+// ----------------------------------------------------------------------
+
+inline float kilometers_to_feet(float theValue)
+{
+  if(theValue == kFloatMissing)
+	return kFloatMissing;
+  else
+	return 1000.0 * theValue / 0.3048;
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Convert degrees Celsius to Fahrenheit
  */
 // ----------------------------------------------------------------------
@@ -140,6 +156,19 @@ void meters_to_feet(NFmiDataMatrix<float> & theValues)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Convert kilometers to feet
+ */
+// ----------------------------------------------------------------------
+
+void kilometers_to_feet(NFmiDataMatrix<float> & theValues)
+{
+  for(NFmiDataMatrix<float>::size_type j = 0; j<theValues.NY(); j++)
+	for(NFmiDataMatrix<float>::size_type i = 0; i<theValues.NX(); i++)
+	  theValues[i][j] = kilometers_to_feet(theValues[i][j]);
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Initialize the converter
  */
 // ----------------------------------------------------------------------
@@ -177,6 +206,8 @@ void UnitsConverter::setConversion(FmiParameterName theParam,
 	itsConversions[theParam] = MetersPerSecondToKnots;
   else if(theConversion == "meters_to_feet_knots")
 	itsConversions[theParam] = MetersToFeet;
+  else if(theConversion == "kilometers_to_feet_knots")
+	itsConversions[theParam] = KiloMetersToFeet;
   else
 	throw runtime_error("Unknown unit conversion '"+theConversion+"'");
 }
@@ -200,6 +231,8 @@ float UnitsConverter::convert(FmiParameterName theParam,
 	  return meterspersecond_to_knots(theValue);
 	case MetersToFeet:
 	  return meters_to_feet(theValue);
+	case KiloMetersToFeet:
+	  return kilometers_to_feet(theValue);
 	default:
 	  return theValue;
 	}
@@ -229,6 +262,9 @@ void UnitsConverter::convert(FmiParameterName theParam,
 	  break;
 	case MetersToFeet:
 	  meters_to_feet(theValues);
+	  break;
+	case KiloMetersToFeet:
+	  kilometers_to_feet(theValues);
 	  break;
 	}
 }
