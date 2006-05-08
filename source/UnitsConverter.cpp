@@ -205,9 +205,9 @@ void UnitsConverter::setConversion(FmiParameterName theParam,
 	itsConversions[theParam] = FahrenheitToCelsius;
   else if(theConversion == "meterspersecond_to_knots")
 	itsConversions[theParam] = MetersPerSecondToKnots;
-  else if(theConversion == "meters_to_feet_knots")
+  else if(theConversion == "meters_to_feet")
 	itsConversions[theParam] = MetersToFeet;
-  else if(theConversion == "kilometers_to_feet_knots")
+  else if(theConversion == "kilometers_to_feet")
 	itsConversions[theParam] = KiloMetersToFeet;
   else
 	throw runtime_error("Unknown unit conversion '"+theConversion+"'");
