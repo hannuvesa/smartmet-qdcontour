@@ -265,31 +265,31 @@ DoTest("fahrenheit conversion",
 
 DoTest("despeckle_none",
        "despeckle_none.conf",
-       "despeckle_none_200605090000_200605091101.png");
+       "despeckle_none_200605090000.png");
 
 DoTest("despeckle_median1",
        "despeckle_median1.conf",
-       "despeckle_median1_200605090000_200605091101.png");
+       "despeckle_median1_200605090000.png");
 
 DoTest("despeckle_median2",
        "despeckle_median2.conf",
-       "despeckle_median2_200605090000_200605091101.png");
+       "despeckle_median2_200605090000.png");
 
 DoTest("despeckle_median1_iter2",
        "despeckle_median1_iter2.conf",
-       "despeckle_median1_iter2_200605090000_200605091101.png");
+       "despeckle_median1_iter2_200605090000.png");
 
 DoTest("despeckle_median1_upper",
        "despeckle_median1_upper.conf",
-       "despeckle_median1_upper_200605090000_200605091101.png");
+       "despeckle_median1_upper_200605090000.png");
 
 DoTest("despeckle_median1_lower",
        "despeckle_median1_lower.conf",
-       "despeckle_median1_lower_200605090000_200605091101.png");
+       "despeckle_median1_lower_200605090000.png");
 
 DoTest("despeckle_median1_lower_range",
        "despeckle_median1_lower_range.conf",
-       "despeckle_median1_lower_range_200605090000_200605091101.png");
+       "despeckle_median1_lower_range_200605090000.png");
 
 
 print "Done\n";
