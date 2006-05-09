@@ -43,6 +43,7 @@
   <li>\ref filtering_section</li>
   <li>\ref extrapolating_section</li>
   <li>\ref smoothing_section</li>
+  <li>\ref noisereduction_section</li>
   <li>\ref timezone_section</li>
   <li>\ref timestamp_section</li>
   <li>\ref metaparams_section</li>
@@ -926,6 +927,22 @@ The <em>factor</em> controls the sharpness of the weighting
 function, the higher the number (say 10-20), the closer the
 smoothed values are to the originals. A low value such as 1-4
 smoothens the data more.
+
+\subsection noisereduction_section Reducing noise in the querydata
+
+One can despeckle the active parameter with the command
+\code
+despeckle [lolimit] [hilimit] [radius] [weight] [iterations]
+\endcode
+The <em>lolimit</em> and <em>hilimit</em> determine the values
+that can be despecled. Either limit (or both) can also be set to
+"-", which implies no limit.
+
+The algorithm used is a weighted median filter. The size of the median
+filter is given by radius (1-N). Valid weights are in the range 0-100.
+In a normal median filter the value would be 50. The median filter
+can be applied several times to further despeckle the image. Normally
+one would use only one iteration though.
 
 \subsection timezone_section Selecting the time zone
 

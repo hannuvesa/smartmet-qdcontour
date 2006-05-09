@@ -6,6 +6,7 @@
 // ======================================================================
 
 #include "ContourSpec.h"
+#include "NoiseTools.h"
 #include "NFmiColorTools.h"
 
 // ----------------------------------------------------------------------
@@ -39,6 +40,7 @@ ContourSpec::ContourSpec(const std::string & theParam,
   , itsDataLoLimit(kFloatMissing)
   , itsDataHiLimit(kFloatMissing)
   , itHasReplace(false)
+  , itHasDespeckle(false)
   , itsLabelMarker("")
   , itsLabelMarkerRule("Copy")
   , itsLabelMarkerAlphaFactor(1.0)
@@ -1363,6 +1365,44 @@ void ContourSpec::contourMask(const std::string & theParam,
   itsContourMaskHiLimit = theHiLimit;
 }
 
+// ----------------------------------------------------------------------
+/*!
+ * \brief Enable despeckling
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::despeckle(float theLoLimit,
+							float theHiLimit,
+							int theRadius,
+							float theWeight,
+							int theIterations)
+{
+  itHasDespeckle = true;
+  itsDespeckleLoLimit = theLoLimit;
+  itsDespeckleHiLimit = theHiLimit;
+  itsDespeckleRadius = theRadius;
+  itsDespeckleWeight = theWeight;
+  itsDespeckleIterations = theIterations;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Despeckle the data
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::despeckle(NFmiDataMatrix<float> & theValues) const
+{
+  if(!itHasDespeckle)
+	return;
+
+  NoiseTools::despeckle(theValues,
+						itsDespeckleLoLimit,
+						itsDespeckleHiLimit,
+						itsDespeckleRadius,
+						itsDespeckleWeight,
+						itsDespeckleIterations);
+}
 
 // ======================================================================
 

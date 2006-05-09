@@ -12,6 +12,7 @@
 #include "ContourSymbol.h"
 #include "ContourValue.h"
 
+#include "NFmiDataMatrix.h"
 #include "NFmiPoint.h"
 
 #include <list>
@@ -81,6 +82,16 @@ public:
   float replaceTargetValue(void) const;
   
   void replace(float theSrcValue, float theDstValue);
+
+  // Despeckling
+
+  void despeckle(float theLoLimit,
+				 float theHiLimit,
+				 int theRadius,
+				 float theWeight,
+				 int theIterations);
+
+  void despeckle(NFmiDataMatrix<float> & theValues) const;
 
   // Label specific methods
   
@@ -193,6 +204,13 @@ private:
   bool itHasReplace;
   float itsReplaceSourceValue;
   float itsReplaceTargetValue;
+
+  bool itHasDespeckle;
+  float itsDespeckleLoLimit;
+  float itsDespeckleHiLimit;
+  int itsDespeckleRadius;
+  float itsDespeckleWeight;
+  int itsDespeckleIterations;
   
   // LatLon, optional label location pairs in pixels
   std::list<std::pair<NFmiPoint,NFmiPoint> > itsLabelPoints;

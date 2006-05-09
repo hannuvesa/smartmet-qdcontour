@@ -1296,6 +1296,44 @@ void do_datareplace(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Handle "despeckle" command
+ *
+ * Syntax: despeckle lo hi radius weight iterations
+ */
+// ----------------------------------------------------------------------
+
+void do_despeckle(istream & theInput)
+{
+  string slo, shi;
+  int radius, iterations;
+  float weight;
+
+  theInput >> slo >> shi >> radius >> weight >> iterations;
+
+  check_errors(theInput,"despeckle");
+
+  float lo = (slo == "-" ? kFloatMissing : NFmiStringTools::Convert<float>(slo));
+  float hi = (shi == "-" ? kFloatMissing : NFmiStringTools::Convert<float>(shi));
+
+  if(lo != kFloatMissing && hi != kFloatMissing && lo >= hi)
+	throw runtime_error("despeckle hilimit must be > lolimit");
+
+  if(radius < 1 || radius > 50)
+	throw runtime_error("despeckle radius must be in the range 1-50");
+
+  if(iterations < 1 || iterations > 50)
+	throw runtime_error("despeckle iterations must be in the range 1-50");
+
+  if(weight < 0 || weight > 100)
+	throw runtime_error("despeckle weight must be in the range 0-100");
+
+  if(!globals.specs.empty())
+	globals.specs.back().despeckle(lo,hi,radius,weight,iterations);
+
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Handle "expanddata" command
  */
 // ----------------------------------------------------------------------
@@ -2632,7 +2670,7 @@ void filter_values(NFmiDataMatrix<float> & theValues,
 		  if(theSpec.replace())
 			tmpvals.Replace(theSpec.replaceSourceValue(),
 							theSpec.replaceTargetValue());
-		  
+
 		  // Data from t1,t2, we want t
 		  
 		  long offset = theTime.DifferenceInMinutes(t1);
@@ -2685,7 +2723,13 @@ void filter_values(NFmiDataMatrix<float> & theValues,
 	  
 	  if(globals.filter=="mean")
 		theValues /= static_cast<float>(steps);
+
 	}
+
+  // Noise reduction
+
+  theSpec.despeckle(theValues);
+
 }
 
 // ----------------------------------------------------------------------
@@ -4655,6 +4699,7 @@ int domain(int argc, const char *argv[])
 		  else if(cmd == "datalolimit")				do_datalolimit(in);
 		  else if(cmd == "datahilimit")				do_datahilimit(in);
 		  else if(cmd == "datareplace")				do_datareplace(in);
+		  else if(cmd == "despeckle")				do_despeckle(in);
 		  else if(cmd == "expanddata")				do_expanddata(in);
 		  else if(cmd == "contourdepth")			do_contourdepth(in);
 		  else if(cmd == "contourinterpolation")	do_contourinterpolation(in);
