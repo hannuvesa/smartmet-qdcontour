@@ -1048,6 +1048,7 @@ The known conversions are
  - meterspersecond_to_knots
  - meters_to_feet
  - kilometers_to_feet
+ - kilometers_to_flightlevel (= feet/100)
 
 \section appendix_section Appendix
 

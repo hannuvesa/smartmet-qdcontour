@@ -24,7 +24,8 @@ enum ConversionType
 	FahrenheitToCelsius,
 	MetersPerSecondToKnots,
 	MetersToFeet,
-	KiloMetersToFeet
+	KiloMetersToFeet,
+	KiloMetersToFlightLevel
   };
 
 // ----------------------------------------------------------------------
@@ -105,6 +106,22 @@ inline float kilometers_to_feet(float theValue)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Convert kilometers to flight level ( = feet/100)
+ *
+ * 1 foot = 0.3048 m
+ */
+// ----------------------------------------------------------------------
+
+inline float kilometers_to_flightlevel(float theValue)
+{
+  if(theValue == kFloatMissing)
+	return kFloatMissing;
+  else
+	return 10.0 * theValue / 0.3048;
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Convert degrees Celsius to Fahrenheit
  */
 // ----------------------------------------------------------------------
@@ -170,6 +187,19 @@ void kilometers_to_feet(NFmiDataMatrix<float> & theValues)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Convert kilometers to flight level
+ */
+// ----------------------------------------------------------------------
+
+void kilometers_to_flightlevel(NFmiDataMatrix<float> & theValues)
+{
+  for(NFmiDataMatrix<float>::size_type j = 0; j<theValues.NY(); j++)
+	for(NFmiDataMatrix<float>::size_type i = 0; i<theValues.NX(); i++)
+	  theValues[i][j] = kilometers_to_flightlevel(theValues[i][j]);
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Initialize the converter
  */
 // ----------------------------------------------------------------------
@@ -209,6 +239,8 @@ void UnitsConverter::setConversion(FmiParameterName theParam,
 	itsConversions[theParam] = MetersToFeet;
   else if(theConversion == "kilometers_to_feet")
 	itsConversions[theParam] = KiloMetersToFeet;
+  else if(theConversion == "kilometers_to_flightlevel")
+	itsConversions[theParam] = KiloMetersToFlightLevel;
   else
 	throw runtime_error("Unknown unit conversion '"+theConversion+"'");
 }
@@ -234,6 +266,8 @@ float UnitsConverter::convert(FmiParameterName theParam,
 	  return meters_to_feet(theValue);
 	case KiloMetersToFeet:
 	  return kilometers_to_feet(theValue);
+	case KiloMetersToFlightLevel:
+	  return kilometers_to_flightlevel(theValue);
 	default:
 	  return theValue;
 	}
@@ -266,6 +300,9 @@ void UnitsConverter::convert(FmiParameterName theParam,
 	  break;
 	case KiloMetersToFeet:
 	  kilometers_to_feet(theValues);
+	  break;
+	case KiloMetersToFlightLevel:
+	  kilometers_to_flightlevel(theValues);
 	  break;
 	}
 }
