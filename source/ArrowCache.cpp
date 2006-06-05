@@ -1,3 +1,5 @@
+Client: Concurrent Versions System (CVSNT) 2.5.03 (Scorpio) Build 2260 (client/server)
+Server: Concurrent Versions System (CVS) 1.11.1p1 (client/server)
 // ======================================================================
 /*!
  * \file
@@ -6,7 +8,7 @@
 // ======================================================================
 
 #include "ArrowCache.h"
-#include "newbase/NFmiStringTools.h"
+#include "NFmiStringTools.h"
 #include <fstream>
 #include <stdexcept>
 
