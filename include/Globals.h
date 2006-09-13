@@ -166,6 +166,7 @@ struct Globals
   ExtremaLocator pressurelocator;	// high/low pressure locator
   LabelLocator labellocator;		// label coordinate calculator
   LabelLocator symbollocator;		// symbol coordinate calculator
+  LabelLocator imagelocator;		// contour symbol coordinate calculator
 
   ContourCalculator calculator;		// data contourer
   ContourCalculator maskcalculator;	// mask contourer

@@ -53,6 +53,7 @@
 
 #include <stdexcept>
 #include <cmath>
+#include <iostream>
 
 using namespace std;
 
@@ -411,6 +412,14 @@ const LabelLocator::ParamCoordinates & LabelLocator::chooseLabels()
 			throw runtime_error("Internal error in LabelLocator::chooseLabels()");
 		  const float value = cit->first;
 		  const Coordinates::value_type best = *(cit->second.begin());
+
+#if 0
+		  cout << "Chose: " << best.first << " at "
+			   << best.second.first
+			   << ' '
+			   << best.second.second
+			   << endl;
+#endif
 
 		  // add the best label coordinate
 

@@ -121,6 +121,7 @@ Globals::Globals()
   , pressurelocator()
   , labellocator()
   , symbollocator()
+  , imagelocator()
   , calculator()
   , maskcalculator()
   , maskqueryinfo()
@@ -137,6 +138,11 @@ Globals::Globals()
   symbollocator.minDistanceToDifferentParameter(8);
   symbollocator.minDistanceToDifferentValue(8);
   symbollocator.minDistanceToSameValue(8);
+
+  imagelocator.minDistanceToDifferentParameter(4);
+  imagelocator.minDistanceToDifferentValue(4);
+  imagelocator.minDistanceToSameValue(4);
+
 }
 
 // ----------------------------------------------------------------------

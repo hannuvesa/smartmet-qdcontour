@@ -511,6 +511,11 @@ The syntax for the command is
 contoursymbol [startvalue] [endvalue] [imagefile] [blendrule] [blendfactor]
 \endcode
 
+The placement of the images can be controlled with
+\code
+contoursymbolmindist [value]  # default = 4 pixels
+\endcode
+
 Alternatively, one may use a specific symbolic font to draw the
 symbols. The syntax is
 

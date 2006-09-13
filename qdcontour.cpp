@@ -1973,6 +1973,25 @@ void do_contourfontmindistdifferentparam(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Handle "contoursymbolmindist" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contoursymbolmindist(istream & theInput)
+{
+  float dist;
+
+  theInput >> dist;
+
+  check_errors(theInput,"contoursymbolmindist");
+
+  globals.imagelocator.minDistanceToDifferentParameter(dist);
+  globals.imagelocator.minDistanceToDifferentValue(dist);
+  globals.imagelocator.minDistanceToSameValue(dist);
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Handle "highpressure" command
  */
 // ----------------------------------------------------------------------
@@ -2393,6 +2412,7 @@ void do_clear(istream & theInput)
 	  globals.specs.clear();
 	  globals.labellocator.clear();
 	  globals.symbollocator.clear();
+	  globals.imagelocator.clear();
 	  globals.highpressureimage.clear();
 	  globals.lowpressureimage.clear();
 	}
@@ -3729,32 +3749,33 @@ void draw_contour_labels(NFmiImage & theImage)
 
 // ----------------------------------------------------------------------
 /*!
- * \brief Draw contour symbols
+ * \brief Save contour symbols
  */
 // ----------------------------------------------------------------------
 
-void draw_contour_symbols(NFmiImage & theImage,
+void save_contour_symbols(NFmiImage & theImage,
 						  const NFmiArea & theArea,
 						  const ContourSpec & theSpec,
 						  const LazyCoordinates & thePoints,
 						  const NFmiDataMatrix<float> & theValues)
 {
+  // The ID under which the coordinates will be stored
+
+  int id = paramid(theSpec.param());
+  globals.imagelocator.parameter(id);
+
   list<ContourSymbol>::const_iterator it;
   list<ContourSymbol>::const_iterator begin;
   list<ContourSymbol>::const_iterator end;
   
   begin = theSpec.contourSymbols().begin();
   end   = theSpec.contourSymbols().end();
-  
+
   for(it=begin ; it!=end; ++it)
 	{
-	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
-	  const NFmiImage & symbol = globals.getImage(it->pattern());
-	  const float factor = it->factor();
 	  const float lo = it->lolimit();
 	  const float hi = it->hilimit();
 
-	  // Draw symbol at each grid point where necessary
 	  for(unsigned int j=0; j<theValues.NY(); j++)
 		for(unsigned int i=0; i<theValues.NX(); i++)
 		  {
@@ -3769,24 +3790,106 @@ void draw_contour_symbols(NFmiImage & theImage,
 			else
 			  inside = true;
 
-
-
 			if(inside)
 			  {
 				NFmiPoint latlon = theArea.WorldXYToLatLon(thePoints(i,j));
 				NFmiPoint xy = theArea.ToXY(latlon);
 
-				theImage.Composite(symbol,
-								   rule,
-								   kFmiAlignCenter,
-								   FmiRound(xy.X()),
-								   FmiRound(xy.Y()),
-								   factor);
+				globals.imagelocator.add(z,
+										 FmiRound(xy.X()),
+										 FmiRound(xy.Y()));
 			  }
-			
 		  }
 	}
 }
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Draw contour symbols
+ */
+// ----------------------------------------------------------------------
+
+void draw_contour_symbols(NFmiImage & theImage)
+{
+  const LabelLocator::ParamCoordinates & paramcoords = globals.imagelocator.chooseLabels();
+
+  if(paramcoords.empty())
+	return;
+
+  // Iterate through all parameters
+
+  list<ContourSpec>::iterator piter;
+  list<ContourSpec>::iterator pbegin = globals.specs.begin();
+  list<ContourSpec>::iterator pend   = globals.specs.end();
+  
+  for(piter=pbegin; piter!=pend; ++piter)
+	{
+	  // Ignore the param if we could not assign any coordinates for it
+
+	  const int id = paramid(piter->param());
+
+	  LabelLocator::ParamCoordinates::const_iterator pit = paramcoords.find(id);
+	  if(pit == paramcoords.end())
+		continue;
+
+	  const LabelLocator::ContourCoordinates & coords = pit->second;
+
+	  // Loop through all the values
+
+	  for(LabelLocator::ContourCoordinates::const_iterator cit = coords.begin();
+		  cit != coords.end();
+		  ++cit)
+		{
+		  const float z = cit->first;
+
+		  // Find the specs for the font value
+
+		  list<ContourSymbol>::const_iterator fit;
+		  for(fit=piter->contourSymbols().begin();
+			  fit!=piter->contourSymbols().end();
+			  ++fit)
+			{
+			  const float lo = fit->lolimit();
+			  const float hi = fit->hilimit();
+			  bool inside = false;
+			  if(lo!=kFloatMissing && z<lo)
+				inside = false;
+			  else if(hi!=kFloatMissing && z>=hi)
+				inside = false;
+			  else if(lo==kFloatMissing && hi==kFloatMissing)
+				inside = (z == kFloatMissing);
+			  else
+				inside = true;			  
+			  if(inside)
+				break;
+			}
+
+		  // Should never happen
+		  if(fit == piter->contourSymbols().end())
+			throw runtime_error("Internal error while contouring with symbols");
+
+		  // Render the symbols
+
+		  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(fit->rule());
+		  const NFmiImage & symbol = globals.getImage(fit->pattern());
+		  const float factor = fit->factor();
+		  
+		  for(LabelLocator::Coordinates::const_iterator it = cit->second.begin();
+			  it != cit->second.end();
+			  ++it)
+			{
+			  theImage.Composite(symbol,
+								 rule,
+								 kFmiAlignCenter,
+								 it->second.first,
+								 it->second.second,
+								 factor);
+			}
+		}
+	}
+}
+
+
 
 // ----------------------------------------------------------------------
 /*!
@@ -4157,6 +4260,7 @@ void do_draw_contours(istream & theInput)
   globals.labellocator.clear();
   globals.pressurelocator.clear();
   globals.symbollocator.clear();
+  globals.imagelocator.clear();
 
   if(globals.querystreams.empty())
 	throw runtime_error("No query data has been read!");
@@ -4410,6 +4514,7 @@ void do_draw_contours(istream & theInput)
 	  // for large symbols
 
 	  globals.symbollocator.boundingBox(-30,-30,image->Width()+30,image->Height()+30);
+	  globals.imagelocator.boundingBox(-30,-30,image->Width()+30,image->Height()+30);
 
 	  // Loop over all parameters
 	  // The loop collects all contour label information, but
@@ -4537,9 +4642,9 @@ void do_draw_contours(istream & theInput)
 
 		  draw_contour_strokes(*image,*area,*piter,interp);
 
-		  // Symbol fill the contours
+		  // Save contour symbol coordinates
 
-		  draw_contour_symbols(*image,*area,*piter,worldpts,vals);
+		  save_contour_symbols(*image,*area,*piter,worldpts,vals);
 
 		  // Save symbol fill coordinates
 
@@ -4558,6 +4663,10 @@ void do_draw_contours(istream & theInput)
 	  // Draw wind arrows if so requested
 
 	  draw_wind_arrows(*image,*area);
+
+	  // Draw contour symbols
+
+	  draw_contour_symbols(*image);
 
 	  // Draw contour fonts
 
@@ -4603,6 +4712,7 @@ void do_draw_contours(istream & theInput)
 	  globals.labellocator.nextTime();
 	  globals.pressurelocator.nextTime();
 	  globals.symbollocator.nextTime();
+	  globals.imagelocator.nextTime();
 
 	}
 }
@@ -4714,6 +4824,7 @@ int domain(int argc, const char *argv[])
 		  else if(cmd == "contourfill")				do_contourfill(in);
 		  else if(cmd == "contourpattern")			do_contourpattern(in);
 		  else if(cmd == "contoursymbol")			do_contoursymbol(in);
+		  else if(cmd == "contoursymbolmindist")	do_contoursymbolmindist(in);
 		  else if(cmd == "contourfont")				do_contourfont(in);
 		  else if(cmd == "contourline")				do_contourline(in);
 		  else if(cmd == "contourfills")			do_contourfills(in);
