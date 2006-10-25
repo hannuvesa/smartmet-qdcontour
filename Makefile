@@ -16,7 +16,7 @@ CFLAGS_RELEASE = -DUNIX -O2 -DNDEBUG $(MAINFLAGS)
 LDFLAGS = 
 ARFLAGS = -r
 INCLUDES = -I $(includedir) -I $(includedir)/newbase -I $(includedir)/imagine -I /usr/include/freetype2
-LIBS = -L$(libdir) -limagine -lnewbase -lgpc -lfreetype -lpng -ljpeg -lz
+LIBS = -L$(libdir) -limagine -lnewbase -lgpc -lfreetype -lpng -ljpeg -lz -ltiff
 
 # Common library compiling template
 
