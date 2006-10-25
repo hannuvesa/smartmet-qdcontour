@@ -99,6 +99,20 @@ unsigned long LazyQueryData::GetParamIdent() const
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Return the level number
+ *
+ * \return The number
+ */
+// ----------------------------------------------------------------------
+
+int LazyQueryData::GetLevelNumber() const
+{
+  requireInfo();
+  return (itsInfo->Level()->LevelValue());
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Lazy-read the given query data file
  *
  * Throws if an error occurs.

@@ -38,7 +38,8 @@ namespace
 	   << theData.ValidTime().ToStr(kYYYYMMDDHHMM).CharPtr() << '_'
 	   << theData.OriginTime().ToStr(kYYYYMMDDHHMM).CharPtr() << '_'
 	   << theData.GetParamName() << '_'
-	   << theData.GetParamIdent();
+	   << theData.GetParamIdent() << '_'
+	   << theData.GetLevelNumber();
 
 	return os.str();
 
