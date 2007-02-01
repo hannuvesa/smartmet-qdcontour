@@ -11,7 +11,7 @@
 
 #include "NFmiContourTree.h"
 #include "NFmiPath.h"
-#include "NFmiContourDataHelper.h"
+#include "NFmiDataHints.h"
 
 #include "NFmiDataMatrix.h"
 
@@ -33,7 +33,7 @@ public:
 	, isCacheOn(false)
 	, itWasCached(false)
 	, itsData(0)
-	, itsHelperOK(false)
+	, itsHintsOK(false)
   { }
 
   ContourCache itsAreaCache;
@@ -41,10 +41,10 @@ public:
   bool isCacheOn;
   bool itWasCached;
   const NFmiDataMatrix<float> * itsData;			// does not own!
-  bool itsHelperOK;
-  std::auto_ptr<Imagine::NFmiContourDataHelper> itsHelper;
+  bool itsHintsOK;
+  std::auto_ptr<Imagine::NFmiDataHints> itsHints;
 
-  void require_helper();
+  void require_hints();
   
 }; // class ContourCalculatorPimple
 
@@ -54,13 +54,13 @@ public:
  */
 // ----------------------------------------------------------------------
 
-void ContourCalculatorPimple::require_helper()
+void ContourCalculatorPimple::require_hints()
 {
-  if(itsHelperOK)
+  if(itsHintsOK)
 	return;
 
-  itsHelper.reset(new Imagine::NFmiContourDataHelper(*itsData));
-  itsHelperOK = true;
+  itsHints.reset(new Imagine::NFmiDataHints(*itsData));
+  itsHintsOK = true;
 
 }
 
@@ -133,20 +133,7 @@ bool ContourCalculator::wasCached() const
 void ContourCalculator::data(const NFmiDataMatrix<float> & theData)
 {
   itsPimple->itsData = &theData;
-  itsPimple->itsHelperOK = false;
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Return data minmax
- */
-// ----------------------------------------------------------------------
-
-void ContourCalculator::minmax(float & theMin, float & theMax) const
-{
-  itsPimple->require_helper();
-  theMin = itsPimple->itsHelper->Min();
-  theMax = itsPimple->itsHelper->Max();
+  itsPimple->itsHintsOK = false;
 }
 
 // ----------------------------------------------------------------------
@@ -183,8 +170,8 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
   if(theDataHiLimit != kFloatMissing)
 	tree.DataHiLimit(theDataHiLimit);
 
-  itsPimple->require_helper();
-  tree.Contour(*(itsPimple->itsData), *(itsPimple->itsHelper), theInterpolation);
+  itsPimple->require_hints();
+  tree.Contour(*(itsPimple->itsData), *(itsPimple->itsHints), theInterpolation);
 
   Imagine::NFmiPath path = tree.Path();
   path.InvGrid(theData.Grid());
@@ -231,8 +218,8 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
   if(theDataHiLimit != kFloatMissing)
 	tree.DataHiLimit(theDataHiLimit);
 
-  itsPimple->require_helper();
-  tree.Contour(*(itsPimple->itsData), *(itsPimple->itsHelper), theInterpolation);
+  itsPimple->require_hints();
+  tree.Contour(*(itsPimple->itsData), *(itsPimple->itsHints), theInterpolation);
 
   Imagine::NFmiPath path = tree.Path();
   path.InvGrid(theData.Grid());
