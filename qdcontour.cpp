@@ -17,6 +17,7 @@
 #include "GramTools.h"
 #include "LazyCoordinates.h"
 #include "LazyQueryData.h"
+#include "MeridianTools.h"
 #include "MetaFunctions.h"
 #include "ProjectionFactory.h"
 #include "TimeTools.h"
@@ -2913,7 +2914,8 @@ void draw_label_markers(NFmiImage & theImage,
 	{
 	  // The point in question
 
-	  NFmiPoint xy = theArea.ToXY(iter->first);
+	  NFmiPoint xy = MeridianTools::Relocate(iter->first,theArea);
+	  xy = theArea.ToXY(xy);
 
 	  // Skip rendering if LabelMissing is "" and value is missing
 	  if(theSpec.labelMissing().empty())
@@ -2979,7 +2981,8 @@ void draw_label_texts(NFmiImage & theImage,
 		double x,y;
 		if(iter->second.X() == kFloatMissing)
 		  {
-			NFmiPoint xy = theArea.ToXY(iter->first);
+			NFmiPoint xy = MeridianTools::Relocate(iter->first,theArea);
+			xy = theArea.ToXY(xy);
 			x = xy.X();
 			y = xy.Y();
 		  }
@@ -3136,7 +3139,8 @@ void draw_wind_arrows_points(NFmiImage & theImage,
 	{
 	  
 	  // The start point
-	  NFmiPoint xy0 = theArea.ToXY(*iter);
+	  NFmiPoint latlon = MeridianTools::Relocate(*iter,theArea);
+	  NFmiPoint xy0 = theArea.ToXY(latlon);
 	  
 	  // Skip rendering if the start point is masked
 	  
@@ -3164,10 +3168,11 @@ void draw_wind_arrows_points(NFmiImage & theImage,
 	  const float pi = 3.141592658979323f;
 	  const float length = 0.1f;	// degrees
 	  
-	  double x1 = iter->X()+sin(dir*pi/180)*length;
-	  double y1 = iter->Y()+cos(dir*pi/180)*length;
+	  double x1 = latlon.X()+sin(dir*pi/180)*length;
+	  double y1 = latlon.Y()+cos(dir*pi/180)*length;
 	  
-	  NFmiPoint xy1 = theArea.ToXY(NFmiPoint(x1,y1));
+	  NFmiPoint xy1 = MeridianTools::Relocate(NFmiPoint(x1,y1),theArea);
+	  xy1 = theArea.ToXY(xy1);
 	  
 	  // Calculate the actual angle
 	  
@@ -3245,6 +3250,7 @@ void draw_wind_arrows_grid(NFmiImage & theImage,
 												   worldpts->At(i+1,j,bad));
 		
 		NFmiPoint latlon = theArea.WorldXYToLatLon(xy);
+		latlon = MeridianTools::Relocate(latlon,theArea);
 		NFmiPoint xy0 = theArea.ToXY(latlon);
 		
 		// Skip rendering if the start point is masked
@@ -3506,6 +3512,7 @@ void draw_contour_fills(NFmiImage & theImage,
 	  if(path.Empty())
 		continue;
 
+	  MeridianTools::Relocate(path,theArea);
 	  path.Project(&theArea);
 
 	  // Augment the path with the contourmask if necessary
@@ -3535,6 +3542,7 @@ void draw_contour_fills(NFmiImage & theImage,
 		  if(mask.Empty())
 			continue;
 
+		  MeridianTools::Relocate(mask,theArea);
 		  mask.Project(&theArea);
 
 		  path = NFmiGpcTools::And(path,mask);
@@ -3590,6 +3598,7 @@ void draw_contour_patterns(NFmiImage & theImage,
 	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
 	  const NFmiImage & pattern = globals.getImage(it->pattern());
 
+	  MeridianTools::Relocate(path,theArea);
 	  path.Project(&theArea);
 	  path.Fill(theImage,pattern,rule,it->factor());
 
@@ -3625,6 +3634,7 @@ void draw_contour_strokes(NFmiImage & theImage,
 								   globals.contourtriangles != 0);
 
 	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
+	  MeridianTools::Relocate(path,theArea);
 	  path.Project(&theArea);
 	  path.SimplifyLines(10);
 	  path.Stroke(theImage,it->color(),rule);
@@ -3667,6 +3677,7 @@ void save_contour_labels(NFmiImage & theImage,
 								   theInterpolation,
 								   globals.contourtriangles != 0);
 
+	  MeridianTools::Relocate(path,theArea);
 	  path.Project(&theArea);
 
 	  for(NFmiPathData::const_iterator pit = path.Elements().begin();
@@ -3793,6 +3804,7 @@ void save_contour_symbols(NFmiImage & theImage,
 			if(inside)
 			  {
 				NFmiPoint latlon = theArea.WorldXYToLatLon(thePoints(i,j));
+				latlon = MeridianTools::Relocate(latlon,theArea);
 				NFmiPoint xy = theArea.ToXY(latlon);
 
 				globals.imagelocator.add(z,
@@ -4016,6 +4028,7 @@ void save_contour_fonts(NFmiImage & theImage,
 		if(okvalues.find(theValues[i][j]) != okvalues.end())
 		  {
 			NFmiPoint latlon = theArea.WorldXYToLatLon(thePoints(i,j));
+			latlon = MeridianTools::Relocate(latlon,theArea);
 			NFmiPoint xy = theArea.ToXY(latlon);
 
 			globals.symbollocator.add(theValues[i][j],
@@ -4189,6 +4202,7 @@ void draw_pressure_markers(NFmiImage & theImage,
 		{
 		  NFmiPoint wxy(it->first*1000,it->second*1000);
 		  NFmiPoint latlon = theArea.WorldXYToLatLon(wxy);
+		  latlon = MeridianTools::Relocate(latlon,theArea);
 		  NFmiPoint xy = theArea.ToXY(latlon);
 
 		  switch(eit->first)
