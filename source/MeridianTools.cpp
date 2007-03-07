@@ -64,7 +64,10 @@ namespace MeridianTools
   NFmiPoint Relocate(const NFmiPoint & thePoint, const NFmiArea & theArea)
   {
 	const float meridian = centralmeridian(theArea);
-	if(meridian == 00)
+	if(meridian == 0)
+	  return thePoint;
+
+	if(std::abs(thePoint.X()-meridian) < 180)
 	  return thePoint;
 
 	const float shift = (meridian < 0 ? -360 : 360);
