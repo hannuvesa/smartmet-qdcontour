@@ -20,7 +20,7 @@ namespace
    */
   // ----------------------------------------------------------------------
 
-  bool centralmeridian(const NFmiArea & theArea)
+  float centralmeridian(const NFmiArea & theArea)
   {
 	// the area longitudes
 
