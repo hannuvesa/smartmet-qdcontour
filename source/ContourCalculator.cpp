@@ -8,15 +8,45 @@
 #include "ContourCalculator.h"
 #include "ContourCache.h"
 #include "LazyQueryData.h"
-
-#include "NFmiContourTree.h"
-#include "NFmiPath.h"
-#include "NFmiDataHints.h"
+#include "DataMatrixAdapter.h"
+#include "PathAdapter.h"
 
 #include "NFmiDataMatrix.h"
+#include "NFmiPath.h"
+
+#include "Contourer.h"
+#include "Hints.h"
+#include "Missing.h"
+#include "LinearInterpolation.h"
+#include "NearestNeighbourInterpolation.h"
+#include "DiscreteInterpolation.h"
+#include "Missing.h"
+#include "Traits.h"
 
 #include <memory>
 #include <stdexcept>
+
+typedef Tron::Traits<float,float> MyTraits;
+
+typedef Tron::Contourer<DataMatrixAdapter,
+						PathAdapter,
+						MyTraits,
+						Tron::LinearInterpolation,
+						Tron::FmiMissing> MyLinearContourer;
+
+typedef Tron::Contourer<DataMatrixAdapter,
+						PathAdapter,MyTraits,
+						Tron::NearestNeighbourInterpolation,
+						Tron::FmiMissing> MyNearestContourer;
+
+typedef Tron::Contourer<DataMatrixAdapter,
+						PathAdapter,
+						MyTraits,
+						Tron::DiscreteInterpolation,
+						Tron::FmiMissing> MyDiscreteContourer;
+
+// typedef MyLinearContourer::hints_type MyHints;
+typedef Tron::Hints<DataMatrixAdapter,MyTraits,Tron::FmiMissing> MyHints;
 
 // ----------------------------------------------------------------------
 /*!
@@ -32,7 +62,7 @@ public:
 	, itsLineCache()
 	, isCacheOn(false)
 	, itWasCached(false)
-	, itsData(0)
+	, itsData()
 	, itsHintsOK(false)
   { }
 
@@ -40,9 +70,9 @@ public:
   ContourCache itsLineCache;
   bool isCacheOn;
   bool itWasCached;
-  const NFmiDataMatrix<float> * itsData;			// does not own!
+  std::auto_ptr<DataMatrixAdapter> itsData;	// does not own!
   bool itsHintsOK;
-  std::auto_ptr<Imagine::NFmiDataHints> itsHints;
+  std::auto_ptr<MyHints> itsHints;
 
   void require_hints();
   
@@ -59,11 +89,9 @@ void ContourCalculatorPimple::require_hints()
   if(itsHintsOK)
 	return;
 
-  itsHints.reset(new Imagine::NFmiDataHints(*itsData));
+  itsHints.reset(new MyHints(*itsData));
   itsHintsOK = true;
-
 }
-
 
 // ----------------------------------------------------------------------
 /*!
@@ -132,7 +160,7 @@ bool ContourCalculator::wasCached() const
 
 void ContourCalculator::data(const NFmiDataMatrix<float> & theData)
 {
-  itsPimple->itsData = &theData;
+  itsPimple->itsData.reset(new DataMatrixAdapter(theData));
   itsPimple->itsHintsOK = false;
 }
 
@@ -146,12 +174,9 @@ void ContourCalculator::data(const NFmiDataMatrix<float> & theData)
 
 Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 											 float theLoLimit, float theHiLimit,
-											 bool theLoIsExact, bool theHiIsExact,
-											 float theDataLoLimit, float theDataHiLimit,
-											 Imagine::NFmiContourTree::NFmiContourInterpolation theInterpolation,
-											 bool theContourTrianglesOn)
+											 Imagine::NFmiContourTree::NFmiContourInterpolation theInterpolation)
 {
-  if(itsPimple->itsData == 0)
+  if(itsPimple->itsData.get() == 0)
 	throw std::runtime_error("ContourCalculator:: No data set before calling contour");
 
   if(itsPimple->isCacheOn &&
@@ -161,19 +186,40 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 	  return itsPimple->itsAreaCache.find(theLoLimit, theHiLimit, theData);
 	}
 
-  Imagine::NFmiContourTree tree(theLoLimit, theHiLimit, theLoIsExact, theHiIsExact);
-  tree.SubTriangleMode(theContourTrianglesOn);
-
-  if(theDataLoLimit != kFloatMissing)
-	tree.DataLoLimit(theDataLoLimit);
-
-  if(theDataHiLimit != kFloatMissing)
-	tree.DataHiLimit(theDataHiLimit);
-
   itsPimple->require_hints();
-  tree.Contour(*(itsPimple->itsData), *(itsPimple->itsHints), theInterpolation);
 
-  Imagine::NFmiPath path = tree.Path();
+  PathAdapter adapter;
+  
+  switch(theInterpolation)
+	{
+	case Imagine::NFmiContourTree::kFmiContourLinear:
+	case Imagine::NFmiContourTree::kFmiContourMissingInterpolation:
+	  {
+		MyLinearContourer::fill(adapter,
+								*(itsPimple->itsData),
+								theLoLimit,theHiLimit,
+								*(itsPimple->itsHints));
+		break;
+	  }
+	case Imagine::NFmiContourTree::kFmiContourNearest:
+	  {
+		MyNearestContourer::fill(adapter,
+								 *(itsPimple->itsData),
+								 theLoLimit,theHiLimit,
+								 *(itsPimple->itsHints));
+		break;
+	  }
+	case Imagine::NFmiContourTree::kFmiContourDiscrete:
+	  {
+		MyDiscreteContourer::fill(adapter,
+								  *(itsPimple->itsData),
+								  theLoLimit,theHiLimit,
+								  *(itsPimple->itsHints));
+		break;
+	  }
+	}
+
+  Imagine::NFmiPath path = adapter.path();
   path.InvGrid(theData.Grid());
 
   if(itsPimple->isCacheOn)
@@ -193,11 +239,10 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 
 Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 											 float theValue,
-											 float theDataLoLimit, float theDataHiLimit,
-											 Imagine::NFmiContourTree::NFmiContourInterpolation theInterpolation,
-											 bool theContourTrianglesOn)
+											 Imagine::NFmiContourTree::NFmiContourInterpolation theInterpolation)
 {
-  if(itsPimple->itsData == 0)
+
+  if(itsPimple->itsData.get() == 0)
 	throw std::runtime_error("ContourCalculator:: No data set before calling contour");
 
   if(itsPimple->isCacheOn &&
@@ -207,21 +252,38 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 	  return itsPimple->itsLineCache.find(theValue, kFloatMissing, theData);
 	}
 
-  Imagine::NFmiContourTree tree(theValue, kFloatMissing, true, false);
-  tree.LinesOnly(theValue != kFloatMissing);
-  tree.ConvertGhostLines(theValue == kFloatMissing);
-  tree.SubTriangleMode(theContourTrianglesOn);
-
-  if(theDataLoLimit != kFloatMissing)
-	tree.DataLoLimit(theDataLoLimit);
-
-  if(theDataHiLimit != kFloatMissing)
-	tree.DataHiLimit(theDataHiLimit);
-
   itsPimple->require_hints();
-  tree.Contour(*(itsPimple->itsData), *(itsPimple->itsHints), theInterpolation);
 
-  Imagine::NFmiPath path = tree.Path();
+  PathAdapter adapter;
+  
+  switch(theInterpolation)
+	{
+	case Imagine::NFmiContourTree::kFmiContourLinear:
+	case Imagine::NFmiContourTree::kFmiContourMissingInterpolation:
+	  {
+#if 0
+		MyLinearContourer::line(adapter,
+								*(itsPimple->itsData),
+								theValue,
+								*(itsPimple->itsHints));
+#endif
+		MyLinearContourer::line(adapter,
+								*(itsPimple->itsData),
+								theValue);
+		break;
+	  }
+	case Imagine::NFmiContourTree::kFmiContourNearest:
+	  {
+		throw std::runtime_error("Contour lines not supported for nearest neighbour interpolation");
+	  }
+	case Imagine::NFmiContourTree::kFmiContourDiscrete:
+	  {
+		throw std::runtime_error("Contour lines not supported for discrete neighbour interpolation");
+		break;
+	  }
+	}
+
+  Imagine::NFmiPath path = adapter.path();
   path.InvGrid(theData.Grid());
 
   if(itsPimple->isCacheOn)

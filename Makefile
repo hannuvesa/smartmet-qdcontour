@@ -11,12 +11,15 @@ EXTRAFLAGS = -Wpointer-arith -Wcast-qual \
 DIFFICULTFLAGS = -pedantic -Weffc++ -Wredundant-decls -Wshadow -Woverloaded-virtual -Wunreachable-code
 
 CC = g++
-CFLAGS = -DUNIX -O0 -g $(MAINFLAGS) $(EXTRAFLAGS) -Werror
-CFLAGS_RELEASE = -DUNIX -O2 -DNDEBUG $(MAINFLAGS)
+# CFLAGS = -DUNIX -O0 -g $(MAINFLAGS) $(EXTRAFLAGS) -Werror
+# CFLAGS_RELEASE = -DUNIX -O8 -g -DNDEBUG $(MAINFLAGS)
 LDFLAGS = 
+CFLAGS = -DUNIX -O0 -pg -g $(MAINFLAGS) $(EXTRAFLAGS) -Werror
+CFLAGS_RELEASE = -DUNIX -O2 -pg -g -DNDEBUG $(MAINFLAGS)
+LDFLAGS = -pg
 ARFLAGS = -r
-INCLUDES = -I $(includedir) -I $(includedir)/newbase -I $(includedir)/imagine -I /usr/include/freetype2
-LIBS = -L$(libdir) -limagine -lnewbase -lgpc -lfreetype -lpng -ljpeg -lz
+INCLUDES = -I $(includedir) -I $(includedir)/newbase -I $(includedir)/tron -I $(includedir)/imagine -I /usr/include/freetype2
+LIBS = -L$(libdir) -limagine -ltron -lnewbase -lgpc -lfreetype -lpng -ljpeg -lz
 
 # Common library compiling template
 

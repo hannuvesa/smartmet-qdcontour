@@ -226,6 +226,31 @@ const string preprocess_script(const string & theScript)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Flip fill inside out if contour limits are missing
+ *
+ * We assume the path has already been projected to pixel coordinates
+ * so that we can use reasonable values for the external box around
+ * the image.
+ *
+ */
+// ----------------------------------------------------------------------
+
+void invert_if_missing(NFmiPath & thePath,
+					   float lolimit,
+					   float hilimit)
+{
+  const float m = 10000;
+  if(lolimit != kFloatMissing || hilimit != kFloatMissing)
+	return;
+  thePath.MoveTo(-m,-m);
+  thePath.LineTo( m,-m);
+  thePath.LineTo( m, m);
+  thePath.LineTo(-m, m);
+  thePath.LineTo(-m,-m);
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Check input stream validity
  */
 // ----------------------------------------------------------------------
@@ -3487,21 +3512,11 @@ void draw_contour_fills(NFmiImage & theImage,
 	{
 	  // Contour the actual data
 	  
-	  bool exactlo = true;
-	  bool exacthi = (it->hilimit()!=kFloatMissing &&
-					  theSpec.exactHiLimit()!=kFloatMissing &&
-					  it->hilimit()==theSpec.exactHiLimit());
-	  
 	  NFmiPath path =
 		globals.calculator.contour(*globals.queryinfo,
 								   it->lolimit(),
 								   it->hilimit(),
-								   exactlo,
-								   exacthi,
-								   theSpec.dataLoLimit(),
-								   theSpec.dataHiLimit(),
-								   theInterpolation,
-								   globals.contourtriangles != 0);
+								   theInterpolation);
 	  
 	  if(globals.verbose && globals.calculator.wasCached())
 		cout << "Using cached "
@@ -3509,11 +3524,12 @@ void draw_contour_fills(NFmiImage & theImage,
 			 << it->hilimit() << endl;
 
 	  // Avoid unnecessary work if the path is empty
-	  if(path.Empty())
+	  if(path.Empty() && it->lolimit() != kFloatMissing && it->hilimit() != kFloatMissing)
 		continue;
 
 	  MeridianTools::Relocate(path,theArea);
 	  path.Project(&theArea);
+	  invert_if_missing(path,it->lolimit(),it->hilimit());
 
 	  // Augment the path with the contourmask if necessary
 
@@ -3528,13 +3544,7 @@ void draw_contour_fills(NFmiImage & theImage,
 			globals.maskcalculator.contour(*globals.maskqueryinfo,
 										   theSpec.contourMaskLoLimit(),
 										   theSpec.contourMaskHiLimit(),
-										   true,
-										   true,
-										   kFloatMissing,
-										   kFloatMissing,
-										   NFmiContourTree::kFmiContourLinear,
-										   true);
-		  
+										   NFmiContourTree::kFmiContourLinear);
 
 		  globals.maskqueryinfo->Param(oldid);
 
@@ -3544,6 +3554,8 @@ void draw_contour_fills(NFmiImage & theImage,
 
 		  MeridianTools::Relocate(mask,theArea);
 		  mask.Project(&theArea);
+
+		  invert_if_missing(mask,theSpec.contourMaskLoLimit(),theSpec.contourMaskHiLimit());
 
 		  path = NFmiGpcTools::And(path,mask);
 
@@ -3575,20 +3587,11 @@ void draw_contour_patterns(NFmiImage & theImage,
 
   for(it=begin ; it!=end; ++it)
 	{
-	  bool exactlo = true;
-	  bool exacthi = (it->hilimit()!=kFloatMissing &&
-					  theSpec.exactHiLimit()!=kFloatMissing &&
-					  it->hilimit()==theSpec.exactHiLimit());
-
 	  NFmiPath path =
 		globals.calculator.contour(*globals.queryinfo,
 								   it->lolimit(),
 								   it->hilimit(),
-								   exactlo, exacthi,
-								   theSpec.dataLoLimit(),
-								   theSpec.dataHiLimit(),
-								   theInterpolation,
-								   globals.contourtriangles != 0);
+								   theInterpolation);
 
 	  if(globals.verbose && globals.calculator.wasCached())
 		cout << "Using cached "
@@ -3600,6 +3603,7 @@ void draw_contour_patterns(NFmiImage & theImage,
 
 	  MeridianTools::Relocate(path,theArea);
 	  path.Project(&theArea);
+	  invert_if_missing(path,it->lolimit(),it->hilimit());
 	  path.Fill(theImage,pattern,rule,it->factor());
 
 	}
@@ -3628,10 +3632,7 @@ void draw_contour_strokes(NFmiImage & theImage,
 	  NFmiPath path =
 		globals.calculator.contour(*globals.queryinfo,
 								   it->value(),
-								   theSpec.dataLoLimit(),
-								   theSpec.dataHiLimit(),
-								   theInterpolation,
-								   globals.contourtriangles != 0);
+								   theInterpolation);
 
 	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
 	  MeridianTools::Relocate(path,theArea);
@@ -3672,10 +3673,7 @@ void save_contour_labels(NFmiImage & theImage,
 	  NFmiPath path =
 		globals.calculator.contour(*globals.queryinfo,
 								   it->value(),
-								   theSpec.dataLoLimit(),
-								   theSpec.dataHiLimit(),
-								   theInterpolation,
-								   globals.contourtriangles != 0);
+								   theInterpolation);
 
 	  MeridianTools::Relocate(path,theArea);
 	  path.Project(&theArea);

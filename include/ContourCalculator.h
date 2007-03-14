@@ -39,16 +39,11 @@ public:
 
   Imagine::NFmiPath contour(const LazyQueryData & theData,
 							float theLoLimit, float theHiLimit,
-							bool theLoIsExact, bool theHiIsExact,
-							float theDataLoLimit, float theDataHiLimit,
-							Imagine::NFmiContourTree::NFmiContourInterpolation theInterpolation,
-							bool theContourTrianglesOn);
+							Imagine::NFmiContourTree::NFmiContourInterpolation theInterpolation);
 
   Imagine::NFmiPath contour(const LazyQueryData & theData,
 							float theValue,
-							float theDataLoLimit, float theDataHiLimit,
-							Imagine::NFmiContourTree::NFmiContourInterpolation theInterpolation,
-							bool theContourTrianglesOn);
+							Imagine::NFmiContourTree::NFmiContourInterpolation theInterpolation);
 
   void data(const NFmiDataMatrix<float> & theData);
   void clearCache();
