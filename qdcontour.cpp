@@ -3634,6 +3634,9 @@ void draw_contour_strokes(NFmiImage & theImage,
 								   it->value(),
 								   theInterpolation);
 
+	  if(globals.verbose && globals.calculator.wasCached())
+		cout << "Using cached " << it->value() << endl;
+
 	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
 	  MeridianTools::Relocate(path,theArea);
 	  path.Project(&theArea);
