@@ -28,7 +28,7 @@
 <ol>
   <li>\ref querydata_section</li>
   <li>\ref multipledatas_section</li>
-  <li>\ref filename_section</li>
+  <li>\ref filename_section</hare/li>
   <li>\ref contour_section</li>
   <li>\ref contourmask_section</li>
   <li>\ref contourlabel_section</li>
@@ -1074,15 +1074,15 @@ environment settings in the <em>fmi.conf</em> file:
 <dd>This specifies the search path for the images given in the
     <em>background</em>, <em>foreground</em>, <em>combine</em>
     and <em>mask</em> commands.
-    The current default value in Linux is <em>/data/share/maps</em>.
+    The current default value in Linux is <em>/smartmet/share/maps</em>.
 </dd>
 <dt>imagine::shapes_path</dt>
 <dd>This specifies the search path for shape files given in the <em>shape</em>
-    command. The current setting for this in Linux is <em>/data/share/shapes</em>
+    command. The current setting for this in Linux is <em>/smartmet/share/shapes</em>
 </dd>
 <dt>imagine::hershey_path</dt>
 <dd>This specifies the search path for Hershey font files. The current
-    setting for this in Linux is <em>/data/share/fonts/hershey</em>.
+    setting for this in Linux is <em>/smartmet/share/fonts/hershey</em>.
 </dd>
 </dl>
 \endhtmlonly
