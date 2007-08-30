@@ -362,6 +362,10 @@ void write_image(NFmiImage & theImage,
 	theImage.ReduceColors();
 
   theImage.Write(theName,theFormat);
+
+  if(!globals.itsImageCacheOn)
+	globals.itsImageCache.clear();
+
 }
 
 // ----------------------------------------------------------------------
@@ -409,6 +413,22 @@ void do_cache(istream & theInput)
 
   globals.calculator.cache(flag != 0);
   globals.maskcalculator.cache(flag != 0);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle the "imagecache" command
+ */
+// ----------------------------------------------------------------------
+
+void do_imagecache(istream & theInput)
+{
+  int flag;
+  theInput >> flag;
+
+  check_errors(theInput,"imagecache");
+
+  globals.itsImageCacheOn = (flag != 0);
 }
 
 // ----------------------------------------------------------------------
@@ -2455,6 +2475,8 @@ void do_clear(istream & theInput)
 	  globals.calculator.clearCache();
 	  globals.maskcalculator.clearCache();
 	}
+  else if(command=="imagecache")
+	globals.itsImageCache.clear();
   else if(command=="arrows")
 	{
 	  globals.arrowpoints.clear();
@@ -4772,6 +4794,7 @@ int domain(int argc, const char *argv[])
 		  else if(cmd[0] == '#')					do_comment(in);
 		  else if(cmd == "//")						do_comment(in);
 		  else if(cmd == "cache")					do_cache(in);
+		  else if(cmd == "imagecache")				do_imagecache(in);
 		  else if(cmd == "querydata")				do_querydata(in);
 		  else if(cmd == "filter")					do_filter(in);
 		  else if(cmd == "timestepskip")			do_timestepskip(in);

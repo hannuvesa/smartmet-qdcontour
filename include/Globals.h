@@ -182,6 +182,7 @@ struct Globals
   UnitsConverter unitsconverter;
 
   ImageCache itsImageCache;
+  bool itsImageCacheOn;
   ArrowCache itsArrowCache;
 
 };
