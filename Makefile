@@ -19,7 +19,7 @@ CFLAGS_RELEASE = -DUNIX -O2 -g -DNDEBUG $(MAINFLAGS)
 LDFLAGS = 
 ARFLAGS = -r
 INCLUDES = -I $(includedir) -I $(includedir)/smartmet/newbase -I $(includedir)/smartmet/tron -I $(includedir)/smartmet/imagine -I $(includedir)/freetype2
-LIBS = -L$(libdir) -lsmartmet_imagine -lsmartmet_tron -lsmartmet_newbase -lsmartmet_gpc -lfreetype -lpng -ljpeg -lz
+LIBS = -L$(libdir) -lsmartmet_imagine -lsmartmet_tron -lsmartmet_newbase -lfreetype -lpng -ljpeg -lz
 
 # Common library compiling template
 
