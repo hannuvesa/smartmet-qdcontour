@@ -26,7 +26,6 @@
 #include "NFmiColorTools.h"
 #include "NFmiFace.h"
 #include "NFmiFreeType.h"
-#include "NFmiGpcTools.h"
 #include "NFmiImage.h"			// for rendering
 #include "NFmiGeoShape.h"		// for esri data
 
@@ -1499,10 +1498,6 @@ void do_param(istream & theInput)
 				   globals.smootherradius,
 				   globals.smootherfactor);
 
-  spec.contourMask(globals.contourmaskparam,
-				   globals.contourmasklolimit,
-				   globals.contourmaskhilimit);
-
   globals.specs.push_back(spec);
 }
 
@@ -1546,34 +1541,6 @@ void do_shape(istream & theInput)
 	}
 
   check_errors(theInput,"shape");
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Handle "contourmask" command
- */
-// ----------------------------------------------------------------------
-
-void do_contourmask(istream & theInput)
-{
-  string sparam,slo,shi;
-  theInput >> sparam >> slo >> shi;
-
-  check_errors(theInput,"contourmask");
-
-  float lo,hi;
-  if(slo == "-")
-	lo = kFloatMissing;
-  else
-	lo = NFmiStringTools::Convert<float>(slo);
-  if(shi == "-")
-	hi = kFloatMissing;
-  else
-	hi = NFmiStringTools::Convert<float>(shi);
-
-  globals.contourmaskparam = sparam;
-  globals.contourmasklolimit = lo;
-  globals.contourmaskhilimit = hi;
 }
 
 // ----------------------------------------------------------------------
@@ -2461,12 +2428,6 @@ void do_clear(istream & theInput)
 	  globals.imagelocator.clear();
 	  globals.highpressureimage.clear();
 	  globals.lowpressureimage.clear();
-	}
-  else if(command=="contourmask")
-	{
-	  globals.contourmaskparam = "";
-	  globals.contourmasklolimit = kFloatMissing;
-	  globals.contourmaskhilimit = kFloatMissing;
 	}
   else if(command=="shapes")
 	globals.shapespecs.clear();
@@ -3553,36 +3514,6 @@ void draw_contour_fills(NFmiImage & theImage,
 	  path.Project(&theArea);
 	  invert_if_missing(path,it->lolimit(),it->hilimit());
 
-	  // Augment the path with the contourmask if necessary
-
-	  if(!theSpec.contourMaskParam().empty())
-		{
-		  FmiParameterName oldid = FmiParameterName(globals.maskqueryinfo->GetParamIdent());
-		  FmiParameterName maskid = FmiParameterName(converter.ToEnum(theSpec.contourMaskParam()));
-
-		  globals.maskqueryinfo->Param(maskid);
-
-		  NFmiPath mask =
-			globals.maskcalculator.contour(*globals.maskqueryinfo,
-										   theSpec.contourMaskLoLimit(),
-										   theSpec.contourMaskHiLimit(),
-										   NFmiContourTree::kFmiContourLinear);
-
-		  globals.maskqueryinfo->Param(oldid);
-
-		  // Nothing to do if the mask is empty
-		  if(mask.Empty())
-			continue;
-
-		  MeridianTools::Relocate(mask,theArea);
-		  mask.Project(&theArea);
-
-		  invert_if_missing(mask,theSpec.contourMaskLoLimit(),theSpec.contourMaskHiLimit());
-
-		  path = NFmiGpcTools::And(path,mask);
-
-		}
-
 	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
 	  path.Fill(theImage,it->color(),rule);
 	  
@@ -4623,33 +4554,6 @@ void do_draw_contours(istream & theInput)
 		  globals.calculator.data(vals);
 
 
-		  if(!piter->contourMaskParam().empty())
-			{
-			  // Find the data with the mask parameter
-			  unsigned int masknro = 0;
-			  bool foundmask = false;
-			  FmiParameterName param = FmiParameterName(converter.ToEnum(piter->contourMaskParam()));
-			  for(masknro=0; masknro<globals.querystreams.size(); masknro++)
-				{
-				  FmiParameterName oldid = FmiParameterName(globals.querystreams[masknro]->GetParamIdent());
-				  globals.querystreams[masknro]->Param(param);
-				  foundmask = globals.querystreams[masknro]->IsParamUsable();
-				  if(foundmask)
-					{
-					  globals.querystreams[masknro]->Values(maskvalues);
-					  globals.unitsconverter.convert(FmiParameterName(globals.querystreams[masknro]->GetParamIdent()),maskvalues);
-					  globals.querystreams[masknro]->Param(oldid);
-					  break;
-					}
-				  globals.querystreams[masknro]->Param(oldid);
-				}
-			  if(!foundmask)
-				throw runtime_error("Could not find data with mask parameter '"+piter->contourMaskParam()+"'");
-
-			  globals.maskcalculator.data(maskvalues);
-			  globals.maskqueryinfo = globals.querystreams[masknro];
-			}
-
 		  // Save the data values at desired points for later
 		  // use, this lets us avoid using InterpolatedValue()
 		  // which does not use smoothened values.
@@ -4858,7 +4762,6 @@ int domain(int argc, const char *argv[])
 		  else if(cmd == "level")					do_level(in);
 		  else if(cmd == "param")					do_param(in);
 		  else if(cmd == "shape")					do_shape(in);
-		  else if(cmd == "contourmask")				do_contourmask(in);
 		  else if(cmd == "contourfill")				do_contourfill(in);
 		  else if(cmd == "contourpattern")			do_contourpattern(in);
 		  else if(cmd == "contoursymbol")			do_contoursymbol(in);

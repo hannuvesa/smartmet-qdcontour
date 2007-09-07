@@ -176,9 +176,6 @@ struct Globals
   std::list<ShapeSpec> shapespecs;
   std::list<ContourSpec> specs;
 
-  std::string contourmaskparam;
-  float contourmasklolimit;
-  float contourmaskhilimit;
   UnitsConverter unitsconverter;
 
   ImageCache itsImageCache;
