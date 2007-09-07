@@ -25,7 +25,7 @@ namespace NoiseTools
   void despeckle(NFmiDataMatrix<float> & theValues,
 				 float theLoLimit,
 				 float theHiLimit,
-				 unsigned int theRadius,
+				 size_t theRadius,
 				 float theWeight)
   {
 	NFmiDataMatrix<float> oldvalues(theValues);
@@ -34,8 +34,8 @@ namespace NoiseTools
 	std::vector<float> medianlist;
 	medianlist.reserve( (2*theRadius+1)*(2*theRadius+1) );
 
-	for(unsigned int j=0; j<theValues.NY(); j++)
-	  for(unsigned int i=0; i<theValues.NX(); i++)
+	for(size_t j=0; j<theValues.NY(); j++)
+	  for(size_t i=0; i<theValues.NX(); i++)
 		{
 		  medianlist.clear();
 
@@ -52,8 +52,8 @@ namespace NoiseTools
 
 		  // Do median filtering
 
-		  for(unsigned int jj=j-std::min(j,theRadius); jj<std::min(theValues.NY(),j+theRadius+1); ++jj)
-			for(unsigned int ii=i-std::min(i,theRadius); ii<std::min(theValues.NX(),i+theRadius+1); ++ii)
+		  for(size_t jj=j-std::min(j,theRadius); jj<std::min(theValues.NY(),j+theRadius+1); ++jj)
+			for(size_t ii=i-std::min(i,theRadius); ii<std::min(theValues.NX(),i+theRadius+1); ++ii)
 			  {
 				const float value = oldvalues[ii][jj];
 				if(value != kFloatMissing)
