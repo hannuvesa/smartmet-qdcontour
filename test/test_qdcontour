@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+$ret = system("which imagecompare >/dev/null 2>&1");
+die("imagecompare command is required for regression tests") if $ret!=0;
+
 $program = "../qdcontour";
 
 %usednames = ();
