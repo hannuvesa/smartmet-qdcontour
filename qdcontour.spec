@@ -21,8 +21,6 @@ rm -rf $RPM_BUILD_ROOT
 %setup -q -n %{BINNAME}
  
 %build
-make clean
-make depend
 make %{_smp_mflags} release
 
 %install

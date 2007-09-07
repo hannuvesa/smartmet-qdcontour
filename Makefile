@@ -138,7 +138,7 @@ html::
 objdir:
 	@mkdir -p $(objdir)
 
-rpm:
+rpm: clean depend
 	if [ -a $(BIN).spec ]; \
 	then \
 	  tar -C ../ -cf $(rpmsourcedir)/smartmet-$(BIN).tar $(BIN) ; \
