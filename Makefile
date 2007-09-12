@@ -60,15 +60,6 @@ ifeq ($(MAKECMDGOALS),release)
   CFLAGS = $(CFLAGS_RELEASE)
 endif
 
-ifneq (,$(findstring gmon,$(MAKECMDGOALS)))
- objdir := pgobj
- CFLAGS := -pg $(CFLAGS)
-endif
-
-PGLIB = subspg
-LIBFILE = libsubs.a
-PGLIBFILE = lib$(PGLIB).a
-
 # Compilation directories
 
 vpath %.cpp source
@@ -87,17 +78,15 @@ HDRS = $(patsubst include/%,%,$(wildcard *.h include/*.h))
 OBJS = $(SRCS:%.cpp=%.o)
 
 OBJFILES = $(OBJS:%.o=obj/%.o)
-PGOBJFILES = $(OBJS:%.o=pgobj/%.o)
 
 MAINSRCS = $(PROG:%=%.cpp)
 SUBSRCS = $(filter-out $(MAINSRCS),$(SRCS))
 SUBOBJS = $(SUBSRCS:%.cpp=%.o)
 SUBOBJFILES = $(SUBOBJS:%.o=obj/%.o)
-PGSUBOBJFILES = $(SUBOBJS:%.o=pgobj/%.o)
 
 INCLUDES := -I include $(INCLUDES)
 
-.PHONY: test gmon rpm
+.PHONY: test rpm
 
 # The rules
 
@@ -108,14 +97,8 @@ release: objdir $(PROG)
 $(PROG): % : $(SUBOBJS) %.o
 	$(CC) $(LDFLAGS) -o $@ obj/$@.o $(SUBOBJFILES) $(LIBS)
 
-$(LIBFILE): objdir $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBFILE) $(OBJFILES)
-
-$(PGLIBFILE): objdir $(OBJS)
-	$(AR) $(ARFLAGS) $(PGLIBFILE) $(PGOBJFILES)
-
 clean:
-	rm -f $(PROG) $(OBJFILES) $(PGOBJFILES) *~ source/*~ include/*~
+	rm -f $(PROG) $(OBJFILES) *~ source/*~ include/*~
 
 install:
 	mkdir -p $(bindir)
@@ -139,7 +122,7 @@ objdir:
 	@mkdir -p $(objdir)
 
 rpm: clean depend
-	if [ -a $(BIN).spec ]; \
+	if [ -e $(BIN).spec ]; \
 	then \
 	  tar -C ../ -cf $(rpmsourcedir)/smartmet-$(BIN).tar $(BIN) ; \
 	  gzip -f $(rpmsourcedir)/smartmet-$(BIN).tar ; \
@@ -147,20 +130,6 @@ rpm: clean depend
 	else \
 	  echo $(rpmerr); \
 	fi;
-
-
-gmon: objdir gmon.txt
-
-gmon.txt: $(SUBOBJS)
-	@echo Creating a temporary profiling program
-	@echo "int main(int argc, char ** argv){}" > foobar.cpp
-	@g++ -pg -o foobar foobar.cpp -Wl,-whole-archive -L. $(PGSUBOBJFILES) $(LIBS)
-	@./foobar
-	@rm -f foobar.cpp
-	@echo Created temporary gmon.out
-	@gprof -b -q -c -z foobar gmon.out > gmon.txt
-	@rm -f foobar gmon.out
-	@echo Created gmon.txt for analysis
 
 .SUFFIXES: $(SUFFIXES) .cpp
 
