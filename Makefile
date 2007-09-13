@@ -11,19 +11,36 @@ EXTRAFLAGS = -Wpointer-arith -Wcast-qual \
 DIFFICULTFLAGS = -pedantic -Weffc++ -Wredundant-decls -Wshadow -Woverloaded-virtual -Wunreachable-code
 
 CC = g++
-# CFLAGS = -DUNIX -O0 -g $(MAINFLAGS) $(EXTRAFLAGS) -Werror
-# CFLAGS_RELEASE = -DUNIX -O8 -g -DNDEBUG $(MAINFLAGS)
-LDFLAGS = 
-CFLAGS = -DUNIX -O0 -g $(MAINFLAGS) $(EXTRAFLAGS) -Werror
-CFLAGS_RELEASE = -DUNIX -O2 -g -DNDEBUG $(MAINFLAGS)
-LDFLAGS = 
-ARFLAGS = -r
-INCLUDES = -I $(includedir) -I $(includedir)/smartmet/newbase -I $(includedir)/smartmet/tron -I $(includedir)/smartmet/imagine -I $(includedir)/freetype2
-LIBS = -L$(libdir) -lsmartmet_imagine -lsmartmet_tron -lsmartmet_newbase -lfreetype -lpng -ljpeg -lz
+
+# Default compile options
+
+CFLAGS = -DUNIX -O2 -DNDEBUG $(MAINFLAGS)
+LDFLAGS = -s
+
+# Special modes
+
+CFLAGS_DEBUG = -DUNIX -O0 -g $(MAINFLAGS) $(EXTRAFLAGS) -Werror
+CFLAGS_PROFILE = -DUNIX -O2 -g -pg -DNDEBUG $(MAINFLAGS)
+
+LDFLAGS_DEBUG = 
+LDFLAGS_PROFILE = 
+
+INCLUDES = -I $(includedir) \
+	-I $(includedir)/smartmet/newbase \
+	-I $(includedir)/smartmet/tron \
+	-I $(includedir)/smartmet/imagine \
+	-I $(includedir)/freetype2
+
+LIBS = -L$(libdir) \
+	-lsmartmet_imagine \
+	-lsmartmet_tron \
+	-lsmartmet_newbase \
+	-lfreetype -lpng -ljpeg -lz
 
 # Common library compiling template
 
 # Installation directories
+
 prosessor := $(shell uname -p)
 
 ifeq ($(origin PREFIX), undefined)
@@ -48,16 +65,22 @@ else
 endif
 
 # rpm variables
+
 CWP = $(shell pwd)
 BIN = $(shell basename $(CWP))
 rpmsourcedir = /smartmet/src/redhat/SOURCES
 rpmerr = "There's no spec file ($(specfile)). RPM wasn't created. Please make a spec file or copy and rename it into $(BIN)"
 
+# Special modes
 
-# CFLAGS
+ifneq (,$(findstring debug,$(MAKECMDGOALS)))
+  CFLAGS = $(CFLAGS_DEBUG)
+  LDFLAGS = $(LDFLAGS_DEBUG)
+endif
 
-ifeq ($(MAKECMDGOALS),release)
-  CFLAGS = $(CFLAGS_RELEASE)
+ifneq (,$(findstring profile,$(MAKECMDGOALS)))
+  CFLAGS = $(CFLAGS_PROFILE)
+  LDFLAGS = $(LDFLAGS_PROFILE)
 endif
 
 # Compilation directories
@@ -93,6 +116,7 @@ INCLUDES := -I include $(INCLUDES)
 all: objdir $(PROG)
 debug: objdir $(PROG)
 release: objdir $(PROG)
+profile: objdir $(PROG)
 
 $(PROG): % : $(SUBOBJS) %.o
 	$(CC) $(LDFLAGS) -o $@ obj/$@.o $(SUBOBJFILES) $(LIBS)
