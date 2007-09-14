@@ -71,6 +71,9 @@ BIN = $(shell basename $(CWP))
 rpmsourcedir = /smartmet/src/redhat/SOURCES
 rpmerr = "There's no spec file ($(specfile)). RPM wasn't created. Please make a spec file or copy and rename it into $(BIN)"
 
+rpmversion := $(shell grep "^Version:" $(HTML).spec  | cut -d\  -f 2 | tr . _)
+rpmrelease := $(shell grep "^Release:" $(HTML).spec  | cut -d\  -f 2 | tr . _)
+
 # Special modes
 
 ifneq (,$(findstring debug,$(MAKECMDGOALS)))
@@ -154,6 +157,9 @@ rpm: clean depend
 	else \
 	  echo $(rpmerr); \
 	fi;
+
+tag:
+	cvs -f tag 'smartmet_$(HTML)_$(rpmversion)-$(rpmrelease)' .
 
 .SUFFIXES: $(SUFFIXES) .cpp
 

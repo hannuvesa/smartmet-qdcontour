@@ -2,7 +2,7 @@
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
 Version: 1.0.2
-Release: 2.el5.fmi
+Release: 3.el5.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -35,8 +35,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Sep 14 2007 mheiskan <mika.heiskanen@fmi.fi> - 1.0.1-3.el5.fmi
+- Added "make tag" feature.
 * Thu Sep 13 2007 mheiskan <mika.heiskanen@fmi.fi> - 1.0.1-2.el5.fmi
-- Improved make system
+- Improved make system.
 * Thu Jun  7 2007 tervo <tervo@xodin.weatherproof.fi> - 
 - Initial build.
 
