@@ -25,11 +25,11 @@ CFLAGS_PROFILE = -DUNIX -O2 -g -pg -DNDEBUG $(MAINFLAGS)
 LDFLAGS_DEBUG = 
 LDFLAGS_PROFILE = 
 
-INCLUDES = -I $(includedir) \
-	-I $(includedir)/smartmet/newbase \
-	-I $(includedir)/smartmet/tron \
-	-I $(includedir)/smartmet/imagine \
-	-I $(includedir)/freetype2
+INCLUDES = -I$(includedir) \
+	-I$(includedir)/smartmet/newbase \
+	-I$(includedir)/smartmet/tron \
+	-I$(includedir)/smartmet/imagine \
+	-I$(includedir)/freetype2
 
 LIBS = -L$(libdir) \
 	-lsmartmet_imagine \
@@ -41,7 +41,7 @@ LIBS = -L$(libdir) \
 
 # Installation directories
 
-prosessor := $(shell uname -p)
+processor := $(shell uname -p)
 
 ifeq ($(origin PREFIX), undefined)
   PREFIX = /usr
@@ -49,7 +49,7 @@ else
   PREFIX = $(PREFIX)
 endif
 
-ifeq ($(prosessor), x86_64)
+ifeq ($(processor), x86_64)
   libdir = $(PREFIX)/lib64
 else
   libdir = $(PREFIX)/lib
@@ -110,7 +110,11 @@ SUBSRCS = $(filter-out $(MAINSRCS),$(SRCS))
 SUBOBJS = $(SUBSRCS:%.cpp=%.o)
 SUBOBJFILES = $(SUBOBJS:%.o=obj/%.o)
 
-INCLUDES := -I include $(INCLUDES)
+INCLUDES := -Iinclude $(INCLUDES)
+
+# For make depend:
+
+ALLSRCS = $(wildcard *.cpp source/*.cpp)
 
 .PHONY: test rpm
 
@@ -136,7 +140,7 @@ install:
 	done
 
 depend:
-	makedepend $(INCLUDES)
+	gccmakedep -fDependencies -- $(CFLAGS) $(INCLUDES) -- $(ALLSRCS)
 
 test:
 	cd test && make test
@@ -166,5 +170,4 @@ tag:
 .cpp.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c -o $(objdir)/$@ $<
 
-# -include Dependencies
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+-include Dependencies
