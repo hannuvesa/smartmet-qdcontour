@@ -1785,6 +1785,23 @@ void do_contourlabels(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Handle "contourlabeltext" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourlabeltext(istream & theInput)
+{
+  string value, text;
+  theInput >> value >> text;
+  check_errors(theInput,"contourlabeltext");
+  if(globals.specs.empty())
+	throw runtime_error("Must define parameter before contourlabeltext");
+
+  globals.specs.back().addContourLabelText(NFmiStringTools::Convert<float>(value),text);
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Handle "contourlabelfont" command
  */
 // ----------------------------------------------------------------------
@@ -3695,7 +3712,12 @@ void draw_contour_labels(NFmiImage & theImage)
 		  ++cit)
 		{
 		  const float value = cit->first;
-		  const string text = NFmiStringTools::Convert(value);
+		  string text = NFmiStringTools::Convert(value);
+
+		  // Handle possible contourlabeltext override
+		  std::map<float,std::string>::const_iterator it = piter->contourLabelTexts().find(value);
+		  if(it != piter->contourLabelTexts().end())
+			text = it->second;
 
 		  for(LabelLocator::Coordinates::const_iterator it = cit->second.begin();
 			  it != cit->second.end();
@@ -4773,6 +4795,7 @@ int domain(int argc, const char *argv[])
 		  	
 		  else if(cmd == "contourlabel")			do_contourlabel(in);
 		  else if(cmd == "contourlabels")			do_contourlabels(in);
+		  else if(cmd == "contourlabeltext")        do_contourlabeltext(in);
 		  else if(cmd == "contourlabelfont")		do_contourlabelfont(in);
 		  else if(cmd == "contourlabelcolor")		do_contourlabelcolor(in);
 		  else if(cmd == "contourlabelbackground")	do_contourlabelbackground(in);

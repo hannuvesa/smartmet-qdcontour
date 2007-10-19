@@ -122,6 +122,10 @@ DoTest("contourlabels",
        "contourlabels.conf",
        "contourlabels_200210140600_200210140937.png");
 
+DoTest("contourlabeltexts",
+       "contourlabeltexts.conf",
+       "contourlabeltexts_200210140600_200210140937.png");
+
 # Test windarrows
 
 DoTest("windarrows at points",

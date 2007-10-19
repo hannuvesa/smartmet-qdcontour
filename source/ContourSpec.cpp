@@ -67,6 +67,7 @@ ContourSpec::ContourSpec(const std::string & theParam,
   , itsContourLabelBackgroundColor(Imagine::NFmiColorTools::MakeColor(180,180,180,32))
   , itsContourLabelBackgroundXMargin(2)
   , itsContourLabelBackgroundYMargin(2)
+  , itsContourLabelTexts()
 {
 }
 
@@ -133,6 +134,30 @@ const std::list<ContourSymbol> & ContourSpec::contourSymbols(void) const
 const std::list<ContourFont> & ContourSpec::contourFonts(void) const
 {
   return itsContourFonts;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Add a contour label text mapping
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::addContourLabelText(float theValue, const std::string & theText)
+{
+  itsContourLabelTexts[theValue]= theText;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return ContourLabelText map
+ *
+ * \return Reference to the internal map
+ */
+// ----------------------------------------------------------------------
+
+const std::map<float,std::string> & ContourSpec::contourLabelTexts() const
+{
+  return itsContourLabelTexts;
 }
 
 // ----------------------------------------------------------------------

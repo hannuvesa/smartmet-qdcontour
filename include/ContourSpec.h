@@ -43,6 +43,7 @@ public:
   const std::list<ContourSymbol> & contourSymbols(void) const;
   const std::list<ContourLabel> & contourLabels(void) const;
   const std::list<ContourFont> & contourFonts(void) const;
+  const std::map<float,std::string> & contourLabelTexts() const;
 
   const std::string & param(void) const;
   int level() const;
@@ -171,6 +172,9 @@ public:
   void contourLabelBackgroundXMargin(int theValue);
   void contourLabelBackgroundYMargin(int theValue);
 
+  void addContourLabelText(float theValue, const std::string & theText);
+
+
 private:
 
   ContourSpec(void);
@@ -240,6 +244,7 @@ private:
   int itsContourLabelBackgroundColor;
   int itsContourLabelBackgroundXMargin;
   int itsContourLabelBackgroundYMargin;
+  std::map<float,std::string> itsContourLabelTexts;
  
 };
 

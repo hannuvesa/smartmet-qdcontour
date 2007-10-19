@@ -498,6 +498,11 @@ contourlabelmindistdifferentvalue [value]	# default = 30
 contourlabelmindistdifferentparam [value]	# default = 30
 \endcode
 
+The text drawn for a single contour line can be changed with
+\code
+contourlabeltext [value] [text]
+\endcode
+
 \subsection symbol_section Drawing symbols at grid points
 
 Often for example thunder appears in such as small area that
