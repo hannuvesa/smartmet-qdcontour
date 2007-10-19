@@ -2,7 +2,7 @@
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
 Version: 1.0.2
-Release: 4.el5.fmi
+Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -35,6 +35,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Oct 19 2007 mheiskan <mika.heiskanen@fmi.fi> - 1.0.2-1.el5.fmi
+- Added "contourlabeltext" command.
 * Mon Sep 24 2007 mheiskan <mika.heiskanen@fmi.fi> - 1.0.1-4.el5.fmi
 - Fixed "make depend".
 * Fri Sep 14 2007 mheiskan <mika.heiskanen@fmi.fi> - 1.0.1-3.el5.fmi
