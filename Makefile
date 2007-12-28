@@ -35,6 +35,8 @@ LIBS = -L$(libdir) \
 	-lsmartmet_imagine \
 	-lsmartmet_tron \
 	-lsmartmet_newbase \
+	-lboost_regex \
+	-lboost_filesystem \
 	-lfreetype -lpng -ljpeg -lz
 
 # Common library compiling template
