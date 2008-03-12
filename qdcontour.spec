@@ -1,14 +1,14 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 8.1.30
+Version: 8.3.11
 Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
 Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot-%(%{__id_u} -n)
-BuildRequires: libsmartmet-newbase >= 8.1.25-3, libsmartmet-imagine >= 8.1.30-1, libsmartmet-tron >= 1.0.1-5, freetype-devel, libjpeg-devel, libpng-devel, zlib-devel, glibc-devel
+BuildRequires: libsmartmet-newbase >= 8.3.11-1, libsmartmet-imagine >= 8.3.11-1, libsmartmet-tron >= 1.0.1-5, freetype-devel, libjpeg-devel, libpng-devel, zlib-devel, glibc-devel
 Requires: freetype, libjpeg, libpng, zlib
 Provides: qdcontour
 
@@ -35,6 +35,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Mar 11 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.3.11-1.el5.fmi
+- Linked with latest newbase including wind interpolation fixes
 * Wed Jan 30 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.1.30-1.el5.fmi
 - New roadmodel parameter names are now recognized
 * Fri Dec 28 2007 mheiskan <mika.heiskanen@fmi.fi> - 1.0.6-1.el5.fmi
