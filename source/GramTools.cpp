@@ -65,8 +65,13 @@ namespace GramTools
 	const float half_unit = full_unit/2;
 	const float quarter_unit = full_unit/4;	// limit between rounding up and down
 	
-	const unsigned int long_segments = static_cast<unsigned int>(::floor((theSpeed+quarter_unit)/full_unit));
-	const unsigned int short_segments = static_cast<unsigned int>(::floor((theSpeed-long_segments*full_unit+quarter_unit)/half_unit));
+	// Note: Must use theSpeed+quarter_unit in both formulas in the same order,
+	// otherwise rounding errors may occur (causing a negative underflow).
+	// Using a separate intermediate variable makes the requirement explicit.
+
+	const float tmpspeed = theSpeed+quarter_unit;
+	const unsigned int long_segments = static_cast<unsigned int>(::floor(tmpspeed/full_unit));
+	const unsigned int short_segments = static_cast<unsigned int>(::floor((tmpspeed-long_segments*full_unit)/half_unit));
 	
 	const bool has_extra_up = (theSpeed >= quarter_unit && theSpeed < full_unit - quarter_unit);
 	

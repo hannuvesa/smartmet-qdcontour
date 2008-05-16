@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 8.3.11
+Version: 8.5.16
 Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
@@ -35,6 +35,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri May 16 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.5.16-1.el5.fmi
+- Fixed a memory leak caused by rounding errors in creating meteorological arrows
 * Tue Mar 11 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.3.11-1.el5.fmi
 - Linked with latest newbase including wind interpolation fixes
 * Wed Jan 30 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.1.30-1.el5.fmi
