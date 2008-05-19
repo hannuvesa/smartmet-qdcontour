@@ -8,7 +8,7 @@ Group: Development/Tools
 URL: http://www.weatherproof.fi
 Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot-%(%{__id_u} -n)
-BuildRequires: libsmartmet-newbase >= 8.4.15-1, libsmartmet-imagine >= 8.5.19-1, libsmartmet-tron >= 1.0.1-5, freetype-devel, libjpeg-devel, libpng-devel, zlib-devel, glibc-devel
+BuildRequires: libsmartmet-newbase >= 8.3.12-1, libsmartmet-imagine >= 8.5.19-1, libsmartmet-tron >= 1.0.1-5, freetype-devel, libjpeg-devel, libpng-devel, zlib-devel, glibc-devel
 Requires: freetype, libjpeg, libpng, zlib
 Provides: qdcontour
 
