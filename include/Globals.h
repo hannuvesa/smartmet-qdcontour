@@ -101,6 +101,8 @@ struct Globals
   std::string fillrule;				// normal filling rule
   std::string strokerule;			// normal stroking rule
 
+  float contourlinewidth;			// width of contour lines
+
   std::string directionparam;		// direction parameter for arrows
   std::string speedparam;			// speed parameter for arrows
   float arrowscale;					// scale factor for arrows

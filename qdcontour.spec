@@ -1,14 +1,14 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 8.5.16
+Version: 8.5.19
 Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
 Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot-%(%{__id_u} -n)
-BuildRequires: libsmartmet-newbase >= 8.3.11-1, libsmartmet-imagine >= 8.3.11-1, libsmartmet-tron >= 1.0.1-5, freetype-devel, libjpeg-devel, libpng-devel, zlib-devel, glibc-devel
+BuildRequires: libsmartmet-newbase >= 8.4.15-1, libsmartmet-imagine >= 8.5.19-1, libsmartmet-tron >= 1.0.1-5, freetype-devel, libjpeg-devel, libpng-devel, zlib-devel, glibc-devel
 Requires: freetype, libjpeg, libpng, zlib
 Provides: qdcontour
 
@@ -35,6 +35,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon May 19 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.5.19-1.el5.fmi
+- Added contourlinewidth command
 * Fri May 16 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.5.16-1.el5.fmi
 - Fixed a memory leak caused by rounding errors in creating meteorological arrows
 * Tue Mar 11 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.3.11-1.el5.fmi

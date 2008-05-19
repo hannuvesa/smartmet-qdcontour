@@ -1670,7 +1670,27 @@ void do_contourline(istream & theInput)
 
   NFmiColorTools::Color color = ColorTools::checkcolor(scolor);
   if(!globals.specs.empty())
-	globals.specs.back().add(ContourValue(value,color,globals.strokerule));
+	globals.specs.back().add(ContourValue(value,
+										  globals.contourlinewidth,
+										  color,
+										  globals.strokerule));
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "contourlinewidth" command
+ */
+// ----------------------------------------------------------------------
+
+void do_contourlinewidth(istream & theInput)
+{
+  theInput >> globals.contourlinewidth;
+
+  check_errors(theInput,"contourlinewidth");
+
+  if(globals.contourlinewidth <= 0)
+	throw runtime_error("conturlinewidth must be nonnegative");
+
 }
 
 // ----------------------------------------------------------------------
@@ -1734,6 +1754,7 @@ void do_contourlines(istream & theInput)
 		color = NFmiColorTools::Interpolate(color1,color2,i/static_cast<float>(steps));
 	  if(!globals.specs.empty())
 		globals.specs.back().add(ContourValue(tmplo,
+											  globals.contourlinewidth,
 											  color,
 											  globals.strokerule));
 	}
@@ -3611,7 +3632,11 @@ void draw_contour_strokes(NFmiImage & theImage,
 	  MeridianTools::Relocate(path,theArea);
 	  path.Project(&theArea);
 	  path.SimplifyLines(10);
-	  path.Stroke(theImage,it->color(),rule);
+	  float width = it->linewidth();
+	  if(width == 1)
+		path.Stroke(theImage,it->color(),rule);
+	  else
+		path.Stroke(theImage,width,it->color(),rule);
 
 	}
 }
@@ -4789,6 +4814,7 @@ int domain(int argc, const char *argv[])
 		  else if(cmd == "contoursymbol")			do_contoursymbol(in);
 		  else if(cmd == "contoursymbolmindist")	do_contoursymbolmindist(in);
 		  else if(cmd == "contourfont")				do_contourfont(in);
+		  else if(cmd == "contourlinewidth")		do_contourlinewidth(in);
 		  else if(cmd == "contourline")				do_contourline(in);
 		  else if(cmd == "contourfills")			do_contourfills(in);
 		  else if(cmd == "contourlines")			do_contourlines(in);

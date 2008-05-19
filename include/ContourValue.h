@@ -27,17 +27,20 @@ public:
 #endif
 
   ContourValue(float theValue,
+			   float theLineWidth,
 			   int theColor,
 			   const std::string & theRule="Atop");
   
-  float value(void) const;
-  int color(void) const;
-  const std::string & rule(void) const;
+  float linewidth() const;
+  float value() const;
+  int color() const;
+  const std::string & rule() const;
 private:
 
   ContourValue(void);
 
   float itsValue;
+  float itsLineWidth;
   int itsColor;
   std::string itsRule;
 };

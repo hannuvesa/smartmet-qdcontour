@@ -14,15 +14,18 @@ using namespace std;
  * \brief The constructor
  *
  * \param theValue The value on the contour
+ * \param theLineWidth The line width
  * \param theColor The color to draw the contour with
  * \param theRule The blending rule for the color
  */
 // ----------------------------------------------------------------------
 
 ContourValue::ContourValue(float theValue,
+						   float theLineWidth,
 						   int theColor,
 						   const std::string & theRule)
   : itsValue(theValue)
+  , itsLineWidth(theLineWidth)
   , itsColor(theColor)
   , itsRule(theRule)
 {
@@ -39,6 +42,19 @@ ContourValue::ContourValue(float theValue,
 float ContourValue::value() const
 {
   return itsValue;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return the line width
+ *
+ * \return The width
+ */
+// ----------------------------------------------------------------------
+
+float ContourValue::linewidth() const
+{
+  return itsLineWidth;
 }
 
 // ----------------------------------------------------------------------

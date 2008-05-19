@@ -84,6 +84,12 @@ DoTest("contourline",
        "contourline.conf",
        "contourline_200210140600_200210140937.png");
 
+# Test contourlinewidth
+
+DoTest("contourlinewidth",
+       "contourlinewidth.conf",
+       "contourlinewidth_200210140600_200210140937.png");
+
 # Test contourfill
 
 DoTest("contourfill",
