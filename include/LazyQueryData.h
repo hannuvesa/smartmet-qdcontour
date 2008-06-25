@@ -41,8 +41,6 @@ public:
   ~LazyQueryData();
   LazyQueryData();
 
-  bool IsOutdated() const;
-
   const std::string & Filename() const { return itsDataFile; }
 
   std::string GetParamName() const;

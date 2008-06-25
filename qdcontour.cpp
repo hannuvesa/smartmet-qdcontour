@@ -4355,13 +4355,6 @@ void do_draw_contours(istream & theInput)
   bool labeldxdydone = false;
   for(;;)
 	{
-	  if(!globals.force && globals.isOutdated())
-		{
-		  if(globals.verbose)
-			cout << "Aborting 'draw contour' since querydata has been updated" << endl;
-		  break;
-		}
-
 	  if(imagesdone>=globals.timesteps)
 		break;
 

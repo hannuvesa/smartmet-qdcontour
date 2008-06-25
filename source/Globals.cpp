@@ -337,24 +337,4 @@ void Globals::drawCombine(NFmiImage & theImage) const
 					 combinefactor);
 }
 
-// ----------------------------------------------------------------------
-/*!
- * \brief Check if any queryfile is outdated
- */
-// ----------------------------------------------------------------------
-
-bool Globals::isOutdated() const
-{
-  for(vector<boost::shared_ptr<LazyQueryData> >::const_iterator it = querystreams.begin();
-	  it != querystreams.end();
-	  ++it)
-	{
-	  if(*it == 0)
-		continue;
-	  if((*it)->IsOutdated())
-		return true;
-	}
-  return false;
-}
-
 // ======================================================================

@@ -45,8 +45,6 @@ struct Globals
   void drawCombine(NFmiImage & theImage) const;
   const Imagine::NFmiImage & getImage(const std::string & theFile) const;
 
-  bool isOutdated() const;
-
   // Command line options
 
   bool verbose;								// -v option

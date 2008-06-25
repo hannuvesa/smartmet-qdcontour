@@ -128,56 +128,11 @@ void LazyQueryData::Read(const std::string & theDataFile)
   itsInfo.reset(0);
   itsData.reset(0);
 
-  string filename = theDataFile;
-
-  if(NFmiFileSystem::DirectoryExists(filename))
-	{
-	  string newest = NFmiFileSystem::NewestFile(filename);
-	  if(newest.empty())
-		throw runtime_error("Directory "+filename+" is missing or empty");
-	  filename += '/' + newest;
-	}
-
-  NFmiQueryData * qdata = new NFmiQueryData;
-  ifstream in(filename.c_str(), ios::in|ios::binary);
-  if(!in) throw runtime_error("Could not open "+filename);
-  in >> *qdata;
-  in.close();
-
-  itsDataFile = filename;
+  NFmiQueryData * qdata = new NFmiQueryData(theDataFile);
+  itsDataFile = theDataFile;
 
   itsData.reset(qdata);
   itsInfo.reset(new NFmiFastQueryInfo(itsData.get()));
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Return true, if the original querydata is outdated
- */
-// ----------------------------------------------------------------------
-
-bool LazyQueryData::IsOutdated() const
-{
-  // Not outdated if not read yet
-  if(itsInputName.empty())
-	return false;
-
-  // Fixed files never become outdated
-
-  if(itsInputName == itsDataFile)
-	return false;
-
-  // Weird case - but makes this check safer
-  if(!NFmiFileSystem::DirectoryExists(itsInputName))
-	return false;
-
-  // And finally the actual case of a changed datafile
-
-  string filename = NFmiFileSystem::NewestFile(itsInputName);
-  filename = itsInputName + '/' + filename;
-
-  return (filename != itsDataFile);
-
 }
 
 // ----------------------------------------------------------------------
