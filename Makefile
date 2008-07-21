@@ -3,12 +3,27 @@ PROG = qdcontour
 
 MAINFLAGS = -Wall -W -Wno-unused-parameter
 
-EXTRAFLAGS = -Wpointer-arith -Wcast-qual \
-	-Wcast-align -Wwrite-strings -Wconversion -Winline \
-	-Wctor-dtor-privacy -Wnon-virtual-dtor -Wno-pmf-conversions \
-	-Wsign-promo -Wchar-subscripts -Wold-style-cast
+EXTRAFLAGS = \
+	-Wpointer-arith \
+	-Wcast-qual \
+	-Wcast-align \
+	-Wwrite-strings \
+	-Wconversion \
+	-Winline \
+	-Wnon-virtual-dtor \
+	-Wno-pmf-conversions \
+	-Wsign-promo \
+	-Wchar-subscripts
 
-DIFFICULTFLAGS = -pedantic -Weffc++ -Wredundant-decls -Wshadow -Woverloaded-virtual -Wunreachable-code
+DIFFICULTFLAGS = \
+	-pedantic \
+	-Weffc++ \
+	-Wredundant-decls \
+	-Wshadow \
+	-Wctor-dtor-privacy \
+	-Woverloaded-virtual \
+	-Wunreachable-code \
+	-Wold-style-cast
 
 CC = g++
 
@@ -29,14 +44,19 @@ INCLUDES = -I$(includedir) \
 	-I$(includedir)/smartmet/newbase \
 	-I$(includedir)/smartmet/tron \
 	-I$(includedir)/smartmet/imagine \
+	-I/usr/local/include/boost-1_35 \
 	-I$(includedir)/freetype2
 
 LIBS = -L$(libdir) \
 	-lsmartmet_imagine \
 	-lsmartmet_tron \
 	-lsmartmet_newbase \
-	-lboost_regex \
-	-lboost_filesystem \
+	-Wl,-rpath,/usr/local/lib \
+        -L /usr/local/lib \
+	-lboost_regex-gcc41-mt \
+	-lboost_filesystem-gcc41-mt \
+        -lboost_system-gcc41-mt \
+	-lboost_iostreams-gcc41-mt \
 	-lfreetype -lpng -ljpeg -lz
 
 # Common library compiling template
