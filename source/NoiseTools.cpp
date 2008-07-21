@@ -62,7 +62,7 @@ namespace NoiseTools
 
 		  if(medianlist.size() > 0)
 			{
-			  int pos = FmiRound((medianlist.size()-1) * theWeight / 100.0);
+			  int pos = static_cast<int>(round((medianlist.size()-1) * theWeight / 100.0));
 			  std::nth_element(medianlist.begin(),
 							   medianlist.begin()+pos,
 							   medianlist.end());

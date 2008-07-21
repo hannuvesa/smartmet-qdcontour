@@ -34,7 +34,7 @@ namespace
 	if(theCloudiness == kFloatMissing)
 	  return kFloatMissing;
 	else
-	  return static_cast<float>(FmiRound(theCloudiness/100*8));
+	  return round(theCloudiness/100*8);
   }
 
   // ----------------------------------------------------------------------

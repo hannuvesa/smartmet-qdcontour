@@ -100,8 +100,8 @@ bool IsMasked(const NFmiPoint & thePoint,
   if(theMask.empty())
 	return false;
   
-  int x = static_cast<int>(FmiRound(thePoint.X()));
-  int y = static_cast<int>(FmiRound(thePoint.Y()));
+  int x = static_cast<int>(round(thePoint.X()));
+  int y = static_cast<int>(round(thePoint.Y()));
 
   // Get the mask
 
@@ -2979,8 +2979,8 @@ void draw_label_markers(NFmiImage & theImage,
 	  theImage.Composite(marker,
 						 markerrule,
 						 kFmiAlignCenter,
-						 FmiRound(xy.X()),
-						 FmiRound(xy.Y()),
+						 static_cast<int>(round(xy.X())),
+						 static_cast<int>(round(xy.Y())),
 						 markeralpha);
 	}
 }
@@ -3073,8 +3073,8 @@ void draw_label_texts(NFmiImage & theImage,
 		// Set new text properties
 		
 		face.Draw(theImage,
-				  FmiRound(x + theSpec.labelOffsetX()),
-				  FmiRound(y + theSpec.labelOffsetY()),
+				  static_cast<int>(round(x + theSpec.labelOffsetX())),
+				  static_cast<int>(round(y + theSpec.labelOffsetY())),
 				  strvalue,
 				  AlignmentValue(theSpec.labelAlignment()),
 				  theSpec.labelColor(),
@@ -3085,8 +3085,8 @@ void draw_label_texts(NFmiImage & theImage,
 		if(!theSpec.labelCaption().empty())
 		  {
 			face.Draw(theImage,
-					  FmiRound(x + theSpec.labelCaptionDX()),
-					  FmiRound(y + theSpec.labelCaptionDY()),
+					  static_cast<int>(round(x + theSpec.labelCaptionDX())),
+					  static_cast<int>(round(y + theSpec.labelCaptionDY())),
 					  theSpec.labelCaption(),
 					  AlignmentValue(theSpec.labelCaptionAlignment()),
 					  theSpec.labelColor(),
@@ -3142,8 +3142,8 @@ void draw_label_texts(NFmiImage & theImage,
 		// Set new text properties
 		
 		face.Draw(theImage,
-				  FmiRound(x + theSpec.labelOffsetX()),
-				  FmiRound(y + theSpec.labelOffsetY()),
+				  static_cast<int>(round(x + theSpec.labelOffsetX())),
+				  static_cast<int>(round(y + theSpec.labelOffsetY())),
 				  strvalue,
 				  AlignmentValue(theSpec.labelAlignment()),
 				  theSpec.labelColor(),
@@ -3154,8 +3154,8 @@ void draw_label_texts(NFmiImage & theImage,
 		if(!theSpec.labelCaption().empty())
 		  {
 			face.Draw(theImage,
-					  FmiRound(x + theSpec.labelCaptionDX()),
-					  FmiRound(y + theSpec.labelCaptionDY()),
+					  static_cast<int>(round(x + theSpec.labelCaptionDX())),
+					  static_cast<int>(round(y + theSpec.labelCaptionDY())),
 					  theSpec.labelCaption(),
 					  AlignmentValue(theSpec.labelCaptionAlignment()),
 					  theSpec.labelColor(),
@@ -3683,8 +3683,8 @@ void save_contour_labels(NFmiImage & theImage,
 		  if((*pit).Oper() == kFmiLineTo)
 			{
 			  globals.labellocator.add(it->value(),
-									   FmiRound((*pit).X()),
-									   FmiRound((*pit).Y()));
+									   static_cast<int>(round((*pit).X())),
+									   static_cast<int>(round((*pit).Y())));
 			}
 		}
 	}
@@ -3809,8 +3809,8 @@ void save_contour_symbols(NFmiImage & theImage,
 				NFmiPoint xy = theArea.ToXY(latlon);
 
 				globals.imagelocator.add(z,
-										 FmiRound(xy.X()),
-										 FmiRound(xy.Y()));
+										 static_cast<int>(round(xy.X())),
+										 static_cast<int>(round(xy.Y())));
 			  }
 		  }
 	}
@@ -4033,8 +4033,8 @@ void save_contour_fonts(NFmiImage & theImage,
 			NFmiPoint xy = theArea.ToXY(latlon);
 
 			globals.symbollocator.add(theValues[i][j],
-									  FmiRound(xy.X()),
-									  FmiRound(xy.Y()));
+									  static_cast<int>(round(xy.X())),
+									  static_cast<int>(round(xy.Y())));
 		  }
 	  }
 }
@@ -4212,16 +4212,16 @@ void draw_pressure_markers(NFmiImage & theImage,
 			  theImage.Composite(globals.lowpressureimage,
 								 lowrule,
 								 kFmiAlignCenter,
-								 FmiRound(xy.X()),
-								 FmiRound(xy.Y()),
+								 static_cast<int>(round(xy.X())),
+								 static_cast<int>(round(xy.Y())),
 								 globals.lowpressurefactor);
 			  break;
 			case ExtremaLocator::Maximum:
 			  theImage.Composite(globals.highpressureimage,
 								 highrule,
 								 kFmiAlignCenter,
-								 FmiRound(xy.X()),
-								 FmiRound(xy.Y()),
+								 static_cast<int>(round(xy.X())),
+								 static_cast<int>(round(xy.Y())),
 								 globals.highpressurefactor);
 			  break;
 			}
