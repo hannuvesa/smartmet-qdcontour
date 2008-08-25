@@ -31,9 +31,11 @@ class NFmiArea;
 class NFmiFastQueryInfo;
 class NFmiGrid;
 class NFmiLevel;
-class NFmiMetTime;
+//class NFmiMetTime;
 class NFmiPoint;
 class NFmiQueryData;
+
+#include "NFmiMetTime.h"
 
 class LazyQueryData
 {

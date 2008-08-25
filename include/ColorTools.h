@@ -18,7 +18,6 @@
 
 namespace ColorTools
 {
-
   Imagine::NFmiColorTools::Color parsecolor(const std::string & theColor);
   Imagine::NFmiColorTools::Color checkcolor(const std::string & theColor);
 

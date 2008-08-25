@@ -24,9 +24,17 @@
 #include "ExtremaLocator.h"
 
 #include "NFmiColorTools.h"
-#include "NFmiFace.h"
-#include "NFmiFreeType.h"
-#include "NFmiImage.h"			// for rendering
+
+#ifdef IMAGINE_WITH_CAIRO
+  #include "ImagineXr.h"
+  typedef ImagineXr ImagineXr_or_NFmiImage;
+#else
+  #include "NFmiFreeType.h"
+  #include "NFmiImage.h"
+  #include "NFmiFace.h"
+  typedef Imagine::NFmiImage ImagineXr_or_NFmiImage;
+#endif
+
 #include "NFmiGeoShape.h"		// for esri data
 
 #include "NFmiCmdLine.h"			// command line options
@@ -75,6 +83,7 @@ void Usage(void)
 	   << "   -v\tVerbose mode" << endl
 	   << "   -f\tForce overwriting old images" << endl
 	   << "   -q [querydata]\tSpecify querydata to be rendered" << endl
+	   << "   -c \"config line\"\tPrecede with config line (i.e. \"format pdf\")" << endl
 	   << endl;
 }
 
@@ -94,18 +103,18 @@ void Usage(void)
  */
 // ----------------------------------------------------------------------
 
-bool IsMasked(const NFmiPoint & thePoint,
-			  const std::string & theMask)
+bool IsMasked( const NFmiPoint & thePoint,
+			   const std::string & theMask )
 {
   if(theMask.empty())
 	return false;
   
-  int x = static_cast<int>(round(thePoint.X()));
-  int y = static_cast<int>(round(thePoint.Y()));
+  int x = static_cast<int>( FmiRound( thePoint.X() ));
+  int y = static_cast<int>( FmiRound( thePoint.Y() ));
 
   // Get the mask
 
-  const NFmiImage & mask = globals.getImage(theMask);
+  const ImagineXr_or_NFmiImage & mask = globals.getImage(theMask);
 
   // Clip outside pixels
 
@@ -127,7 +136,7 @@ bool IsMasked(const NFmiPoint & thePoint,
 void parse_command_line(int argc, const char * argv[])
 {
 
-  NFmiCmdLine cmdline(argc,argv,"hvfq!");
+  NFmiCmdLine cmdline(argc,argv,"hvfq!c!");
 
   // Check for parsing errors
 
@@ -154,6 +163,12 @@ void parse_command_line(int argc, const char * argv[])
 
   if(cmdline.isOption('q'))
 	globals.cmdline_querydata = cmdline.OptionValue('q');
+
+  // AKa 22-Aug-2008: Added for allowing "format pdf" enforcing (or any other
+  //                  command) from the command line.
+  //
+  if(cmdline.isOption('c'))
+	globals.cmdline_conf = cmdline.OptionValue('c');
 
   // Read command filenames
 
@@ -350,6 +365,46 @@ void report_extrema(const string & theParam,
  */
 // ----------------------------------------------------------------------
 
+#ifdef IMAGINE_WITH_CAIRO
+static
+void write_image( const ImagineXr &xr ) {
+    const string filename= xr.Filename();
+    const string format= xr.Format();
+
+    if(globals.verbose)
+	   cout << "Writing '" << filename << "'" << endl;
+
+    if ((format=="pdf") || (format=="png" && (!globals.reducecolors))) {
+        // Cairo native writing (faster)
+        //
+        xr.Write();
+
+    } else {
+        // Convert to 'NFmiImage'
+        //
+        // Both Cairo and NFmiImage use ARGB_32 format, but NFmiImage has A
+        // as opaqueness (0..127, 0=transparent) while Cairo as alpha (0..255,
+        // 255=transparent).
+        //
+        unsigned n= xr.Width() * xr.Height();
+        NFmiColorTools::Color buf[n];
+
+        xr.NFmiColorBuf(buf);
+        NFmiImage img( xr.Width(), xr.Height(), buf );
+
+        globals.setImageModes( img );
+
+        if(globals.reducecolors)
+	       img.ReduceColors();
+
+        img.Write( filename, format );
+    }        
+
+    if(!globals.itsImageCacheOn)
+        globals.itsImageCache.clear();
+}
+#else
+static
 void write_image(NFmiImage & theImage,
 				 const string & theName,
 				 const string & theFormat)
@@ -366,6 +421,8 @@ void write_image(NFmiImage & theImage,
 	globals.itsImageCache.clear();
 
 }
+#endif
+
 
 // ----------------------------------------------------------------------
 /*!
@@ -377,10 +434,12 @@ void write_image(NFmiImage & theImage,
  */
 // ----------------------------------------------------------------------
 
+#ifndef IMAGINE_WITH_CAIRO
 Imagine::NFmiFace make_face(const string & theSpec)
 {
   return NFmiFace(theSpec);
 }
+#endif
 
 // ----------------------------------------------------------------------
 /*!
@@ -427,7 +486,9 @@ void do_imagecache(istream & theInput)
 
   check_errors(theInput,"imagecache");
 
+#ifdef USE_IMAGECACHE
   globals.itsImageCacheOn = (flag != 0);
+#endif
 }
 
 // ----------------------------------------------------------------------
@@ -1143,6 +1204,7 @@ void do_format(istream & theInput)
   check_errors(theInput,"format");
 
   if(globals.format != "png" &&
+	 globals.format != "pdf" &&    // AKa 15-Aug-2008
 	 globals.format != "jpg" &&
 	 globals.format != "jpeg" &&
 	 globals.format != "pnm" &&
@@ -1153,6 +1215,18 @@ void do_format(istream & theInput)
 	  throw runtime_error("Image format +'"+globals.format+"' is not supported");
 	}
 }
+
+
+/*
+* Handle "antialias" and other Cairo-specific commands
+*/
+#if 0   //def IMAGINE_WITH_CAIRO
+  void do_antialias( istream &in ) {
+    in >> globals.antialias;
+    check_errors(in,"antialias");
+  }
+#endif
+
 
 // ----------------------------------------------------------------------
 /*!
@@ -2475,7 +2549,11 @@ void do_clear(istream & theInput)
 	  globals.maskcalculator.clearCache();
 	}
   else if(command=="imagecache")
+    {
+#ifdef USE_IMAGECACHE
 	globals.itsImageCache.clear();
+#endif
+    }
   else if(command=="arrows")
 	{
 	  globals.arrowpoints.clear();
@@ -2507,7 +2585,7 @@ void do_clear(istream & theInput)
  */
 // ----------------------------------------------------------------------
 
-void do_draw_shapes(istream & theInput)
+void do_draw_shapes( istream & theInput )
 {
   // The output filename
 
@@ -2525,12 +2603,14 @@ void do_draw_shapes(istream & theInput)
   int imgheight = static_cast<int>(area->Height()+0.5);
 
   // Initialize the background
+#ifdef IMAGINE_WITH_CAIRO
+  ImagineXr image( imgwidth, imgheight, filename+"."+globals.format, globals.format );
 
+  image.Erase( ColorTools::checkcolor(globals.erase) );
+#else
   NFmiImage image(imgwidth, imgheight);
   globals.setImageModes(image);
-
-  NFmiColorTools::Color erasecolor = ColorTools::checkcolor(globals.erase);
-  image.Erase(erasecolor);
+#endif
 
   // Draw all the shapes
 
@@ -2540,30 +2620,35 @@ void do_draw_shapes(istream & theInput)
 
   for(iter=begin; iter!=end; ++iter)
 	{
-	  NFmiGeoShape geo(iter->filename(),kFmiGeoShapeEsri);
+	  NFmiGeoShape geo( iter->filename(), kFmiGeoShapeEsri );
 	  geo.ProjectXY(*area);
 
 	  if(iter->marker()=="")
 		{
 		  NFmiColorTools::NFmiBlendRule fillrule = ColorTools::checkrule(iter->fillrule());
 		  NFmiColorTools::NFmiBlendRule strokerule = ColorTools::checkrule(iter->strokerule());
-		  geo.Fill(image,iter->fillcolor(),fillrule);
-		  geo.Stroke(image,iter->strokecolor(),strokerule);
+		  
+		  geo.Fill( image, iter->fillcolor(), fillrule );
+		  geo.Stroke( image, iter->strokecolor(), strokerule );
 		}
 	  else
 		{
 		  NFmiColorTools::NFmiBlendRule markerrule = ColorTools::checkrule(iter->markerrule());
 
-		  const NFmiImage & marker = globals.getImage(iter->marker());
+		  const ImagineXr_or_NFmiImage & marker = globals.getImage( iter->marker() );
 		  geo.Mark(image,marker,markerrule,
 				   kFmiAlignCenter,
 				   iter->markeralpha());
 		}
 	}
 
-  write_image(image,
+#ifdef IMAGINE_WITH_CAIRO
+    write_image( image );
+#else
+    write_image( image,
 			  filename+'.'+globals.format,
 			  globals.format);
+#endif
 }
 
 // ----------------------------------------------------------------------
@@ -2853,10 +2938,10 @@ void add_label_grid_values(ContourSpec & theSpec,
  */
 // ----------------------------------------------------------------------
 
-void add_label_pixelgrid_values(ContourSpec & theSpec,
-								const NFmiArea & theArea,
-								const NFmiImage & theImage,
-								const NFmiDataMatrix<float> & theValues)
+void add_label_pixelgrid_values( ContourSpec & theSpec,
+								 const NFmiArea & theArea,
+								 const ImagineXr_or_NFmiImage &img,
+								 const NFmiDataMatrix<float> & theValues )
 {
   theSpec.clearPixelLabels();
 
@@ -2867,8 +2952,8 @@ void add_label_pixelgrid_values(ContourSpec & theSpec,
   
   if(dx>0 && dy>0)
 	{
-	  for(float y=y0; y<=theImage.Height(); y+=dy)
-		for(float x=x0; x<=theImage.Width(); x+=dx)
+	  for(float y=y0; y<=img.Height(); y+=dy)
+		for(float x=x0; x<=img.Width(); x+=dx)
 		  {
 			NFmiPoint latlon = theArea.ToLatLon(NFmiPoint(x,y));
 			NFmiPoint ij = globals.queryinfo->LatLonToGrid(latlon);
@@ -2930,9 +3015,10 @@ void add_label_point_values(ContourSpec & theSpec,
  */
 // ----------------------------------------------------------------------
 
-void draw_label_markers(NFmiImage & theImage,
-						const ContourSpec & theSpec,
-						const NFmiArea & theArea)
+void draw_label_markers( 
+                         ImagineXr_or_NFmiImage &img,
+						 const ContourSpec & theSpec,
+						 const NFmiArea & theArea )
 {
   if(theSpec.labelMarker().empty())
 	return;
@@ -2944,7 +3030,7 @@ void draw_label_markers(NFmiImage & theImage,
 
   // Establish the marker specs
 
-  const NFmiImage & marker = globals.getImage(theSpec.labelMarker());
+  const ImagineXr_or_NFmiImage & marker = globals.getImage(theSpec.labelMarker());
 
   NFmiColorTools::NFmiBlendRule markerrule = ColorTools::checkrule(theSpec.labelMarkerRule());
 
@@ -2976,11 +3062,11 @@ void draw_label_markers(NFmiImage & theImage,
 	  if(IsMasked(xy, globals.mask))
 		continue;
 
-	  theImage.Composite(marker,
+	  img.Composite(marker,
 						 markerrule,
 						 kFmiAlignCenter,
-						 static_cast<int>(round(xy.X())),
-						 static_cast<int>(round(xy.Y())),
+						 FmiRound(xy.X()),
+						 FmiRound(xy.Y()),
 						 markeralpha);
 	}
 }
@@ -2991,9 +3077,9 @@ void draw_label_markers(NFmiImage & theImage,
  */
 // ----------------------------------------------------------------------
 
-void draw_label_texts(NFmiImage & theImage,
-					  const ContourSpec & theSpec,
-					  const NFmiArea & theArea)
+void draw_label_texts( ImagineXr_or_NFmiImage &img,
+					   const ContourSpec & theSpec,
+					   const NFmiArea & theArea )
 {
   // Establish that something is to be done
 
@@ -3008,8 +3094,12 @@ void draw_label_texts(NFmiImage & theImage,
 
   // Create the face object to be used
 
+#ifdef IMAGINE_WITH_CAIRO
+  img.MakeFace( theSpec.labelFont() );
+#else
   Imagine::NFmiFace face = make_face(theSpec.labelFont());
   face.Background(false);
+#endif
 
   // Draw labels at specifing latlon points if requested
 
@@ -3047,8 +3137,8 @@ void draw_label_texts(NFmiImage & theImage,
 		const int safetymargin = 50;
 		if(x < -safetymargin ||
 		   y < -safetymargin ||
-		   x > theImage.Width()+safetymargin ||
-		   y > theImage.Height()+safetymargin)
+		   x > img.Width()+safetymargin ||
+		   y > img.Height()+safetymargin)
 		  continue;
 
 		// Skip rendering if the start point is masked
@@ -3070,11 +3160,35 @@ void draw_label_texts(NFmiImage & theImage,
 		if(strvalue.empty())
 		  continue;
 		
+#ifdef IMAGINE_WITH_CAIRO
+        /* Cairo text (must be in UTF-8!)
+        */
+		img.DrawFace( FmiRound(x + theSpec.labelOffsetX()),
+				      FmiRound(y + theSpec.labelOffsetY()),
+				      strvalue,
+				      theSpec.labelColor(),
+				      AlignmentValue(theSpec.labelAlignment()),
+				      ColorTools::checkrule(theSpec.labelRule()) 
+				      );
+		
+		// Then the label caption
+		
+		if(!theSpec.labelCaption().empty())
+		  {
+		      img.DrawFace( FmiRound(x + theSpec.labelCaptionDX()),
+					        FmiRound(y + theSpec.labelCaptionDY()),
+					        theSpec.labelCaption(),
+					        theSpec.labelColor(),
+					        AlignmentValue(theSpec.labelCaptionAlignment()),
+					        ColorTools::checkrule(theSpec.labelRule())
+					        );
+		  }
+#else
 		// Set new text properties
 		
-		face.Draw(theImage,
-				  static_cast<int>(round(x + theSpec.labelOffsetX())),
-				  static_cast<int>(round(y + theSpec.labelOffsetY())),
+		face.Draw(img,
+				  FmiRound(x + theSpec.labelOffsetX()),
+				  FmiRound(y + theSpec.labelOffsetY()),
 				  strvalue,
 				  AlignmentValue(theSpec.labelAlignment()),
 				  theSpec.labelColor(),
@@ -3084,14 +3198,15 @@ void draw_label_texts(NFmiImage & theImage,
 		
 		if(!theSpec.labelCaption().empty())
 		  {
-			face.Draw(theImage,
-					  static_cast<int>(round(x + theSpec.labelCaptionDX())),
-					  static_cast<int>(round(y + theSpec.labelCaptionDY())),
+			face.Draw(img,
+					  FmiRound(x + theSpec.labelCaptionDX()),
+					  FmiRound(y + theSpec.labelCaptionDY()),
 					  theSpec.labelCaption(),
 					  AlignmentValue(theSpec.labelCaptionAlignment()),
 					  theSpec.labelColor(),
 					  ColorTools::checkrule(theSpec.labelRule()));
 		  }
+#endif
 	  }
   }
 
@@ -3116,8 +3231,8 @@ void draw_label_texts(NFmiImage & theImage,
 		const int safetymargin = 50;
 		if(x < -safetymargin ||
 		   y < -safetymargin ||
-		   x > theImage.Width()+safetymargin ||
-		   y > theImage.Height()+safetymargin)
+		   x > img.Width()+safetymargin ||
+		   y > img.Height()+safetymargin)
 		  continue;
 
 		// Skip rendering if the start point is masked
@@ -3139,11 +3254,35 @@ void draw_label_texts(NFmiImage & theImage,
 		if(strvalue.empty())
 		  continue;
 		
+#ifdef IMAGINE_WITH_CAIRO
+        /* Cairo text (must be in UTF-8!)
+        */
 		// Set new text properties
 		
-		face.Draw(theImage,
-				  static_cast<int>(round(x + theSpec.labelOffsetX())),
-				  static_cast<int>(round(y + theSpec.labelOffsetY())),
+		img.DrawFace( FmiRound(x + theSpec.labelOffsetX()),
+				  FmiRound(y + theSpec.labelOffsetY()),
+				  strvalue,
+				  theSpec.labelColor(),
+				  AlignmentValue(theSpec.labelAlignment()),
+				  ColorTools::checkrule(theSpec.labelRule()));
+		
+		// Then the label caption
+		
+		if(!theSpec.labelCaption().empty())
+		  {
+			img.DrawFace( FmiRound(x + theSpec.labelCaptionDX()),
+					  FmiRound(y + theSpec.labelCaptionDY()),
+					  theSpec.labelCaption(),
+					  theSpec.labelColor(),
+					  AlignmentValue(theSpec.labelCaptionAlignment()),
+					  ColorTools::checkrule(theSpec.labelRule()));
+		  }
+#else
+		// Set new text properties
+		
+		face.Draw(img,
+				  FmiRound(x + theSpec.labelOffsetX()),
+				  FmiRound(y + theSpec.labelOffsetY()),
 				  strvalue,
 				  AlignmentValue(theSpec.labelAlignment()),
 				  theSpec.labelColor(),
@@ -3153,14 +3292,15 @@ void draw_label_texts(NFmiImage & theImage,
 		
 		if(!theSpec.labelCaption().empty())
 		  {
-			face.Draw(theImage,
-					  static_cast<int>(round(x + theSpec.labelCaptionDX())),
-					  static_cast<int>(round(y + theSpec.labelCaptionDY())),
+			face.Draw(img,
+					  FmiRound(x + theSpec.labelCaptionDX()),
+					  FmiRound(y + theSpec.labelCaptionDY()),
 					  theSpec.labelCaption(),
 					  AlignmentValue(theSpec.labelCaptionAlignment()),
 					  theSpec.labelColor(),
 					  ColorTools::checkrule(theSpec.labelRule()));
 		  }
+#endif
 	  }
   }
 }
@@ -3171,9 +3311,9 @@ void draw_label_texts(NFmiImage & theImage,
  */
 // ----------------------------------------------------------------------
 
-void draw_wind_arrows_points(NFmiImage & theImage,
-							 const NFmiArea & theArea,
-							 const NFmiPath & theArrow)
+void draw_wind_arrows_points( ImagineXr_or_NFmiImage &img,
+							  const NFmiArea & theArea,
+							  const NFmiPath & theArrow )
 {
   // Handle all given coordinates
   
@@ -3242,10 +3382,10 @@ void draw_wind_arrows_points(NFmiImage & theImage,
 	  
 	  // And render it
 	  
-	  thispath.Fill(theImage,
+	  thispath.Fill(img,
 					ColorTools::checkcolor(globals.arrowfillcolor),
 					ColorTools::checkrule(globals.arrowfillrule));
-	  thispath.Stroke(theImage,
+	  thispath.Stroke(img,
 					  ColorTools::checkcolor(globals.arrowstrokecolor),
 					  ColorTools::checkrule(globals.arrowstrokerule));
 	}
@@ -3257,9 +3397,9 @@ void draw_wind_arrows_points(NFmiImage & theImage,
  */
 // ----------------------------------------------------------------------
 
-void draw_wind_arrows_grid(NFmiImage & theImage,
-						   const NFmiArea & theArea,
-						   const NFmiPath & theArrow)
+void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
+						    const NFmiArea & theArea,
+						    const NFmiPath & theArrow )
 {
   // Draw the full grid if so desired
   
@@ -3308,8 +3448,8 @@ void draw_wind_arrows_grid(NFmiImage & theImage,
 		const int safetymargin = 50;
 		if(xy0.X() < -safetymargin ||
 		   xy0.Y() < -safetymargin ||
-		   xy0.X() > theImage.Width()+safetymargin ||
-		   xy0.Y() > theImage.Height()+safetymargin)
+		   xy0.X() > img.Width()+safetymargin ||
+		   xy0.Y() > img.Height()+safetymargin)
 		  continue;
 
 		// Render the arrow
@@ -3364,11 +3504,10 @@ void draw_wind_arrows_grid(NFmiImage & theImage,
 		thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 		
 		// And render it
-		
-		thispath.Fill(theImage,
+		thispath.Fill(img,
 					  ColorTools::checkcolor(globals.arrowfillcolor),
 					  ColorTools::checkrule(globals.arrowfillrule));
-		thispath.Stroke(theImage,
+		thispath.Stroke(img,
 						ColorTools::checkcolor(globals.arrowstrokecolor),
 						ColorTools::checkrule(globals.arrowstrokerule));
 	  }
@@ -3380,21 +3519,21 @@ void draw_wind_arrows_grid(NFmiImage & theImage,
  */
 // ----------------------------------------------------------------------
 
-void draw_wind_arrows_pixelgrid(NFmiImage & theImage,
-								const NFmiArea & theArea,
-								const NFmiPath & theArrow)
+void draw_wind_arrows_pixelgrid( ImagineXr_or_NFmiImage &img,
+								 const NFmiArea & theArea,
+								 const NFmiPath & theArrow )
 {
   // Draw the full grid if so desired
 
   if(globals.windarrowsxydx<=0 || globals.windarrowsxydy<=0)
 	return;
 
-  for(float y = globals.windarrowsxyy0;
-	  y <= theImage.Height();
-	  y += globals.windarrowsxydy)
-	for(float x = globals.windarrowsxyx0;
-		x <= theImage.Width();
-		x += globals.windarrowsxydx)
+  for( float y = globals.windarrowsxyy0;
+	   y <= img.Height();
+	   y += globals.windarrowsxydy )
+	for( float x = globals.windarrowsxyx0;
+		 x <= img.Width();
+		 x += globals.windarrowsxydx )
 	  {
 		NFmiPoint xy0(x,y);
 
@@ -3451,11 +3590,10 @@ void draw_wind_arrows_pixelgrid(NFmiImage & theImage,
 		thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 	  
 		// And render it
-		
-		thispath.Fill(theImage,
+		thispath.Fill(img,
 					  ColorTools::checkcolor(globals.arrowfillcolor),
 					  ColorTools::checkrule(globals.arrowfillrule));
-		thispath.Stroke(theImage,
+		thispath.Stroke(img,
 						ColorTools::checkcolor(globals.arrowstrokecolor),
 						ColorTools::checkrule(globals.arrowstrokerule));
 	  }
@@ -3464,12 +3602,12 @@ void draw_wind_arrows_pixelgrid(NFmiImage & theImage,
 
 // ----------------------------------------------------------------------
 /*!
- * \brief Draw wind arrows onto the image
+ * \brief Draw wind arrows onto the image
  */
 // ----------------------------------------------------------------------
 
-void draw_wind_arrows(NFmiImage & theImage,
-					  const NFmiArea & theArea)
+void draw_wind_arrows( ImagineXr_or_NFmiImage &img,
+					  const NFmiArea & theArea )
 {
   if((!globals.arrowpoints.empty() ||
 	  (globals.windarrowdx>0 && globals.windarrowdy>0) ||
@@ -3503,24 +3641,23 @@ void draw_wind_arrows(NFmiImage & theImage,
 		  arrowpath.Add(arr);
 		}
 	  
-	  draw_wind_arrows_points(theImage,theArea,arrowpath);
-	  draw_wind_arrows_grid(theImage,theArea,arrowpath);
-	  draw_wind_arrows_pixelgrid(theImage,theArea,arrowpath);
+	  draw_wind_arrows_points(img,theArea,arrowpath);
+	  draw_wind_arrows_grid(img,theArea,arrowpath);
+	  draw_wind_arrows_pixelgrid(img,theArea,arrowpath);
 
 	}
-
 }
 
 // ----------------------------------------------------------------------
 /*!
- * \brief Draw contour fills
+ * \brief Draw contour fills
  */
 // ----------------------------------------------------------------------
 
-void draw_contour_fills(NFmiImage & theImage,
+void draw_contour_fills( ImagineXr_or_NFmiImage &img,
 						const NFmiArea & theArea,
 						const ContourSpec & theSpec,
-						NFmiContourTree::NFmiContourInterpolation theInterpolation)
+						NFmiContourTree::NFmiContourInterpolation theInterpolation )
 {
   list<ContourRange>::const_iterator it;
   list<ContourRange>::const_iterator begin;
@@ -3553,8 +3690,8 @@ void draw_contour_fills(NFmiImage & theImage,
 	  invert_if_missing(path,it->lolimit(),it->hilimit());
 
 	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
-	  path.Fill(theImage,it->color(),rule);
-	  
+
+	  path.Fill(img,it->color(),rule);
 	}
 }
 
@@ -3564,10 +3701,10 @@ void draw_contour_fills(NFmiImage & theImage,
  */
 // ----------------------------------------------------------------------
 
-void draw_contour_patterns(NFmiImage & theImage,
+void draw_contour_patterns( ImagineXr_or_NFmiImage &img,
 						   const NFmiArea & theArea,
 						   const ContourSpec & theSpec,
-						   NFmiContourTree::NFmiContourInterpolation theInterpolation)
+						   NFmiContourTree::NFmiContourInterpolation theInterpolation )
 {
   list<ContourPattern>::const_iterator it;
   list<ContourPattern>::const_iterator begin;
@@ -3590,13 +3727,13 @@ void draw_contour_patterns(NFmiImage & theImage,
 			 << it->hilimit() << endl;
 
 	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
-	  const NFmiImage & pattern = globals.getImage(it->pattern());
+	  const ImagineXr_or_NFmiImage & pattern = globals.getImage(it->pattern());
 
 	  MeridianTools::Relocate(path,theArea);
 	  path.Project(&theArea);
 	  invert_if_missing(path,it->lolimit(),it->hilimit());
-	  path.Fill(theImage,pattern,rule,it->factor());
-
+	  
+	  path.Fill( img, pattern, rule, it->factor() );
 	}
 }
 
@@ -3606,10 +3743,10 @@ void draw_contour_patterns(NFmiImage & theImage,
  */
 // ----------------------------------------------------------------------
 
-void draw_contour_strokes(NFmiImage & theImage,
+void draw_contour_strokes( ImagineXr_or_NFmiImage &img,
 						  const NFmiArea & theArea,
 						  const ContourSpec & theSpec,
-						  NFmiContourTree::NFmiContourInterpolation theInterpolation)
+						  NFmiContourTree::NFmiContourInterpolation theInterpolation )
 {
   list<ContourValue>::const_iterator it;
   list<ContourValue>::const_iterator begin;
@@ -3634,9 +3771,9 @@ void draw_contour_strokes(NFmiImage & theImage,
 	  path.SimplifyLines(10);
 	  float width = it->linewidth();
 	  if(width == 1)
-		path.Stroke(theImage,it->color(),rule);
+		path.Stroke(img,it->color(),rule);
 	  else
-		path.Stroke(theImage,width,it->color(),rule);
+		path.Stroke(img,width,it->color(),rule);
 
 	}
 }
@@ -3647,10 +3784,10 @@ void draw_contour_strokes(NFmiImage & theImage,
  */
 // ----------------------------------------------------------------------
 
-void save_contour_labels(NFmiImage & theImage,
+void save_contour_labels( ImagineXr_or_NFmiImage &img,
 						 const NFmiArea & theArea,
 						 const ContourSpec & theSpec,
-						 NFmiContourTree::NFmiContourInterpolation theInterpolation)
+						 NFmiContourTree::NFmiContourInterpolation theInterpolation )
 {
   // The ID under which the coordinates will be stored
 
@@ -3680,11 +3817,11 @@ void save_contour_labels(NFmiImage & theImage,
 		  pit != path.Elements().end();
 		  ++pit)
 		{
-		  if((*pit).Oper() == kFmiLineTo)
+		  if(pit->op == kFmiLineTo)
 			{
 			  globals.labellocator.add(it->value(),
-									   static_cast<int>(round((*pit).X())),
-									   static_cast<int>(round((*pit).Y())));
+									   FmiRound(pit->x),
+									   FmiRound(pit->y) );
 			}
 		}
 	}
@@ -3696,7 +3833,7 @@ void save_contour_labels(NFmiImage & theImage,
  */
 // ----------------------------------------------------------------------
 
-void draw_contour_labels(NFmiImage & theImage)
+void draw_contour_labels( ImagineXr_or_NFmiImage &img )
 {
   const LabelLocator::ParamCoordinates & coords = globals.labellocator.chooseLabels();
 
@@ -3721,16 +3858,20 @@ void draw_contour_labels(NFmiImage & theImage)
 
 	  // Rended the contours
 
-	  const std::string & fontspec = piter->contourLabelFont();
 	  const int fontcolor = piter->contourLabelColor();
+	  const std::string & fontspec = piter->contourLabelFont();
 	  const int backcolor = piter->contourLabelBackgroundColor();
 	  const int xmargin = piter->contourLabelBackgroundXMargin();
 	  const int ymargin = piter->contourLabelBackgroundYMargin();
 
+#ifdef IMAGINE_WITH_CAIRO
+      img.MakeFace( fontspec, backcolor, xmargin, ymargin );
+#else
 	  Imagine::NFmiFace face = make_face(fontspec);
 	  face.Background(true);
 	  face.BackgroundColor(backcolor);
 	  face.BackgroundMargin(xmargin,ymargin);
+#endif
 
 	  for(LabelLocator::ContourCoordinates::const_iterator cit = pit->second.begin();
 		  cit != pit->second.end();
@@ -3748,12 +3889,22 @@ void draw_contour_labels(NFmiImage & theImage)
 			  it != cit->second.end();
 			  ++it)
 			{
-			  face.Draw(theImage,
+#ifdef IMAGINE_WITH_CAIRO
+              // 'text' must be in UTF-8!
+              //
+			  img.DrawFace( it->second.first,
+						it->second.second,
+						text, 
+						fontcolor,
+						Imagine::kFmiAlignCenter );
+#else
+			  face.Draw(img,
 						it->second.first,
 						it->second.second,
 						text,
 						Imagine::kFmiAlignCenter,
 						fontcolor);
+#endif
 			}
 		}
 	}
@@ -3765,7 +3916,7 @@ void draw_contour_labels(NFmiImage & theImage)
  */
 // ----------------------------------------------------------------------
 
-void save_contour_symbols(NFmiImage & theImage,
+void save_contour_symbols( ImagineXr_or_NFmiImage &img,
 						  const NFmiArea & theArea,
 						  const ContourSpec & theSpec,
 						  const LazyCoordinates & thePoints,
@@ -3809,8 +3960,8 @@ void save_contour_symbols(NFmiImage & theImage,
 				NFmiPoint xy = theArea.ToXY(latlon);
 
 				globals.imagelocator.add(z,
-										 static_cast<int>(round(xy.X())),
-										 static_cast<int>(round(xy.Y())));
+										 FmiRound(xy.X()),
+										 FmiRound(xy.Y()));
 			  }
 		  }
 	}
@@ -3822,7 +3973,7 @@ void save_contour_symbols(NFmiImage & theImage,
  */
 // ----------------------------------------------------------------------
 
-void draw_contour_symbols(NFmiImage & theImage)
+void draw_contour_symbols( ImagineXr_or_NFmiImage &img )
 {
   const LabelLocator::ParamCoordinates & paramcoords = globals.imagelocator.chooseLabels();
 
@@ -3884,14 +4035,14 @@ void draw_contour_symbols(NFmiImage & theImage)
 		  // Render the symbols
 
 		  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(fit->rule());
-		  const NFmiImage & symbol = globals.getImage(fit->pattern());
+		  const ImagineXr_or_NFmiImage & symbol = globals.getImage(fit->pattern());
 		  const float factor = fit->factor();
 		  
 		  for(LabelLocator::Coordinates::const_iterator it = cit->second.begin();
 			  it != cit->second.end();
 			  ++it)
 			{
-			  theImage.Composite(symbol,
+			  img.Composite(symbol,
 								 rule,
 								 kFmiAlignCenter,
 								 it->second.first,
@@ -3906,11 +4057,11 @@ void draw_contour_symbols(NFmiImage & theImage)
 
 // ----------------------------------------------------------------------
 /*!
- * \brief Draw contour fonts
+ * \brief Draw contour fonts
  */
 // ----------------------------------------------------------------------
 
-void draw_contour_fonts(NFmiImage & theImage)
+void draw_contour_fonts( ImagineXr_or_NFmiImage &img )
 {
   const LabelLocator::ParamCoordinates & paramcoords = globals.symbollocator.chooseLabels();
 
@@ -3960,27 +4111,40 @@ void draw_contour_fonts(NFmiImage & theImage)
 
 		  // Render the symbols
 
-		  const std::string & fontspec = fit->font();
 		  const int fontcolor = fit->color();
 		  const int symbol = fit->symbol();
 
 		  string text = "";
 		  text += symbol;
 		  
+		  const std::string & fontspec = fit->font();
+
+#ifdef IMAGINE_WITH_CAIRO
+          img.MakeFace( fontspec );
+#else
 		  Imagine::NFmiFace face = make_face(fontspec);
 		  face.Background(false);
-		  
+#endif		  
 		  for(LabelLocator::Coordinates::const_iterator it = cit->second.begin();
 			  it != cit->second.end();
 			  ++it)
 			{
-			  
-			  face.Draw(theImage,
+#ifdef IMAGINE_WITH_CAIRO
+            // 'text' must be in UTF-8!
+            //
+            img.DrawFace( it->second.first,
+						it->second.second,
+						text,
+						fontcolor,
+						Imagine::kFmiAlignCenter );
+#else
+			  face.Draw(img,
 						it->second.first,
 						it->second.second,
 						text,
 						Imagine::kFmiAlignCenter,
 						fontcolor);
+#endif
 			}
 		}
 	}
@@ -3989,15 +4153,15 @@ void draw_contour_fonts(NFmiImage & theImage)
 
 // ----------------------------------------------------------------------
 /*!
- * \brief Save contour font coordinates
+ * \brief Save contour font coordinates
  */
 // ----------------------------------------------------------------------
 
-void save_contour_fonts(NFmiImage & theImage,
+void save_contour_fonts( ImagineXr_or_NFmiImage &img,
 						const NFmiArea & theArea,
 						const ContourSpec & theSpec,
 						const LazyCoordinates & thePoints,
-						const NFmiDataMatrix<float> & theValues)
+						const NFmiDataMatrix<float> & theValues )
 {
   // The ID under which the coordinates will be stored
 
@@ -4033,8 +4197,8 @@ void save_contour_fonts(NFmiImage & theImage,
 			NFmiPoint xy = theArea.ToXY(latlon);
 
 			globals.symbollocator.add(theValues[i][j],
-									  static_cast<int>(round(xy.X())),
-									  static_cast<int>(round(xy.Y())));
+									  FmiRound(xy.X()),
+									  FmiRound(xy.Y()));
 		  }
 	  }
 }
@@ -4053,12 +4217,12 @@ void save_contour_fonts(NFmiImage & theImage,
  */
 // ----------------------------------------------------------------------
 
-int extrematype(const NFmiDataMatrix<float> & theValues,
+int extrematype( const NFmiDataMatrix<float> & theValues,
 				int i,
 				int j,
 				int DX,
 				int DY,
-				float mingradient)
+				float mingradient )
 {
   int smaller = 0;
   int bigger = 0;
@@ -4127,8 +4291,8 @@ int extrematype(const NFmiDataMatrix<float> & theValues,
  */
 // ----------------------------------------------------------------------
 
-void draw_pressure_markers(NFmiImage & theImage,
-						   const NFmiArea & theArea)
+void draw_pressure_markers( ImagineXr_or_NFmiImage &img,
+						    const NFmiArea & theArea )
 {
   // Establish which markers are to be drawn
 
@@ -4209,19 +4373,19 @@ void draw_pressure_markers(NFmiImage & theImage,
 		  switch(eit->first)
 			{
 			case ExtremaLocator::Minimum:
-			  theImage.Composite(globals.lowpressureimage,
+			  img.Composite(globals.lowpressureimage,
 								 lowrule,
 								 kFmiAlignCenter,
-								 static_cast<int>(round(xy.X())),
-								 static_cast<int>(round(xy.Y())),
+								 FmiRound(xy.X()),
+								 FmiRound(xy.Y()),
 								 globals.lowpressurefactor);
 			  break;
 			case ExtremaLocator::Maximum:
-			  theImage.Composite(globals.highpressureimage,
+			  img.Composite(globals.highpressureimage,
 								 highrule,
 								 kFmiAlignCenter,
-								 static_cast<int>(round(xy.X())),
-								 static_cast<int>(round(xy.Y())),
+								 FmiRound(xy.X()),
+								 FmiRound(xy.Y()),
 								 globals.highpressurefactor);
 			  break;
 			}
@@ -4235,17 +4399,17 @@ void draw_pressure_markers(NFmiImage & theImage,
  */
 // ----------------------------------------------------------------------
 
-void draw_foreground(NFmiImage & theImage)
+void draw_foreground( ImagineXr_or_NFmiImage &img )
 {
   if(globals.foreground.empty())
 	return;
 
   NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(globals.foregroundrule);
 
-  theImage.Composite(globals.getImage(globals.foreground),
-					 rule,
-					 kFmiAlignNorthWest,
-					 0,0,1);
+  img.Composite( globals.getImage(globals.foreground),
+					  rule,
+					  kFmiAlignNorthWest,
+					  0,0,1 );
 }
 
 
@@ -4493,36 +4657,51 @@ void do_draw_contours(istream & theInput)
 
 	  NFmiColorTools::Color erasecolor = ColorTools::checkcolor(globals.erase);
 
-	  auto_ptr<NFmiImage> image;
-	  if(globals.background.empty())
-		image.reset(new NFmiImage(imgwidth,imgheight,erasecolor));
-	  else
+#ifdef IMAGINE_WITH_CAIRO
+      ImagineXr *xr= new ImagineXr( imgwidth,imgheight, filename, globals.format );
+
+	    if (globals.background.empty()) {
+	       xr->Erase( erasecolor );
+	    } else {
+	       const ImagineXr &xr2= globals.getImage(globals.background);
+
+           if ( (xr2.Width() != xr->Width()) || (xr2.Height() != xr->Height()) )
+                throw runtime_error("Background image size does not match area size");
+
+	       xr->Composite( xr2 );
+        }
+#else
+	  auto_ptr< Imagine::NFmiImage > image;
+	  if(globals.background.empty()) {
+		image.reset(new Imagine::NFmiImage(imgwidth,imgheight,erasecolor));
+	  } else
 		{
-		  image.reset(new NFmiImage(globals.getImage(globals.background)));
+		  image.reset(new Imagine::NFmiImage(globals.getImage(globals.background)));
 		  if(imgwidth != image->Width() ||
 			 imgheight != image->Height())
 			{
 			  throw runtime_error("Background image size does not match area size");
 			}
 		}
-
 	  if(image.get()==0)
 		throw runtime_error("Failed to allocate a new image for rendering");
 
 	  globals.setImageModes(*image);
+	  #define xr image     /* HACK */
+#endif
 
 	  // Initialize label locator bounding box
 
 	  globals.labellocator.boundingBox(globals.contourlabelimagexmargin,
 									   globals.contourlabelimageymargin,
-									   image->Width()-globals.contourlabelimagexmargin,
-									   image->Height()-globals.contourlabelimageymargin);
+									   xr->Width() - globals.contourlabelimagexmargin,
+									   xr->Height() - globals.contourlabelimageymargin);
 
 	  // Initialize symbol locator bounding box with reasonably safety
 	  // for large symbols
 
-	  globals.symbollocator.boundingBox(-30,-30,image->Width()+30,image->Height()+30);
-	  globals.imagelocator.boundingBox(-30,-30,image->Width()+30,image->Height()+30);
+	  globals.symbollocator.boundingBox(-30,-30,xr->Width()+30,xr->Height()+30);
+	  globals.imagelocator.boundingBox(-30,-30,xr->Width()+30,xr->Height()+30);
 
 	  // Loop over all parameters
 	  // The loop collects all contour label information, but
@@ -4609,75 +4788,75 @@ void do_draw_contours(istream & theInput)
 		  // every time. Note! We assume the following calling order!
 
 		  add_label_point_values(*piter,*area,vals);
-		  add_label_pixelgrid_values(*piter,*area,*image,vals);
+		  add_label_pixelgrid_values(*piter,*area,*xr,vals);
 
 		  // Fill the contours
 
-		  draw_contour_fills(*image,*area,*piter,interp);
+		  draw_contour_fills(*xr,*area,*piter,interp);
 
 		  // Pattern fill the contours
 
-		  draw_contour_patterns(*image,*area,*piter,interp);
+		  draw_contour_patterns(*xr,*area,*piter,interp);
 
 		  // Stroke the contours
 
-		  draw_contour_strokes(*image,*area,*piter,interp);
+		  draw_contour_strokes(*xr,*area,*piter,interp);
 
 		  // Save contour symbol coordinates
 
-		  save_contour_symbols(*image,*area,*piter,worldpts,vals);
+		  save_contour_symbols(*xr,*area,*piter,worldpts,vals);
 
 		  // Save symbol fill coordinates
 
-		  save_contour_fonts(*image,*area,*piter,worldpts,vals);
+		  save_contour_fonts(*xr,*area,*piter,worldpts,vals);
 
 		  // Save contour label coordinates
 
-		  save_contour_labels(*image,*area,*piter,interp);
+		  save_contour_labels(*xr,*area,*piter,interp);
 
 		}
 
 	  // Bang the foreground
 
-	  draw_foreground(*image);
+	  draw_foreground(*xr);
 
 	  // Draw wind arrows if so requested
 
-	  draw_wind_arrows(*image,*area);
+	  draw_wind_arrows(*xr,*area);
 
 	  // Draw contour symbols
 
-	  draw_contour_symbols(*image);
+	  draw_contour_symbols(*xr);
 
 	  // Draw contour fonts
 
-	  draw_contour_fonts(*image);
+	  draw_contour_fonts(*xr);
 
 	  // Label the contours
 
-	  draw_contour_labels(*image);
+	  draw_contour_labels(*xr);
 
 	  // Draw labels
 
 	  for(piter=pbegin; piter!=pend; ++piter)
 		{
-		  draw_label_markers(*image,*piter,*area);
-		  draw_label_texts(*image,*piter,*area);
+		  draw_label_markers(*xr,*piter,*area);
+		  draw_label_texts(*xr,*piter,*area);
 		}
 
 	  // Draw high/low pressure markers
 
-	  draw_pressure_markers(*image,*area);
+	  draw_pressure_markers(*xr,*area);
 
 	  // Bang the combine image (legend, logo, whatever)
 
-	  globals.drawCombine(*image);
+	  globals.drawCombine(*xr);
 
 	  // Finally, draw a time stamp on the image if so
 	  // requested
 
 	  const string stamp = globals.getImageStampText(t);
-	  globals.drawImageStampText(*image,stamp);
+	  globals.drawImageStampText(*xr,stamp);
 
 	  // dx and dy labels have now been extracted into a list,
 	  // disable adding them again and again and again..
@@ -4686,7 +4865,13 @@ void do_draw_contours(istream & theInput)
 
 	  // Save
 
+    assert( xr->Filename() != "" );
+#ifdef IMAGINE_WITH_CAIRO
+      write_image( *xr );
+      delete xr;
+#else
 	  write_image(*image,filename,globals.format);
+#endif
 
 	  // Advance in time
 
@@ -4697,6 +4882,152 @@ void do_draw_contours(istream & theInput)
 
 	}
 }
+
+/****/
+static
+void process_cmd( const string &text ) {
+  istringstream in(text);
+  string cmd;
+  while( in >> cmd)
+    {
+      // Handle comments
+
+      if(cmd == "#")							do_comment(in);
+      else if(cmd[0] == '#')					do_comment(in);
+      else if(cmd == "//")						do_comment(in);
+      else if(cmd == "cache")					do_cache(in);
+      else if(cmd == "imagecache")				do_imagecache(in);
+      else if(cmd == "querydata")				do_querydata(in);
+      else if(cmd == "filter")					do_filter(in);
+      else if(cmd == "timestepskip")			do_timestepskip(in);
+      else if(cmd == "timestep")				do_timestep(in);
+      else if(cmd == "timeinterval")			do_timeinterval(in);
+      else if(cmd == "timesteps")				do_timesteps(in);
+      else if(cmd == "timestamp")				do_timestamp(in);
+      else if(cmd == "timestampzone")			do_timestampzone(in);
+      else if(cmd == "timesteprounding")		do_timesteprounding(in);
+      else if(cmd == "timestampimage")			do_timestampimage(in);
+      else if(cmd == "timestampimagexy")		do_timestampimagexy(in);
+      else if(cmd == "timestampimageformat")	do_timestampimageformat(in);
+      else if(cmd == "timestampimagefont")		do_timestampimagefont(in);
+      else if(cmd == "timestampimagecolor")		do_timestampimagecolor(in);
+      else if(cmd == "timestampimagebackground")	do_timestampimagebackground(in);
+      else if(cmd == "timestampimagemargin")	do_timestampimagemargin(in);
+      else if(cmd == "projection")				do_projection(in);
+      else if(cmd == "erase")					do_erase(in);
+      else if(cmd == "fillrule")				do_fillrule(in);
+      else if(cmd == "strokerule")				do_strokerule(in);
+      else if(cmd == "directionparam")			do_directionparam(in);
+      else if(cmd == "speedparam")				do_speedparam(in);
+      else if(cmd == "arrowscale")				do_arrowscale(in);
+      else if(cmd == "windarrowscale")			do_windarrowscale(in);
+      else if(cmd == "arrowfill")				do_arrowfill(in);
+      else if(cmd == "arrowstroke")				do_arrowstroke(in);
+      else if(cmd == "arrowpath")				do_arrowpath(in);
+      else if(cmd == "windarrow")				do_windarrow(in);
+      else if(cmd == "windarrows")				do_windarrows(in);
+      else if(cmd == "windarrowsxy")			do_windarrowsxy(in);
+      else if(cmd == "background")				do_background(in);
+      else if(cmd == "foreground")				do_foreground(in);
+      else if(cmd == "mask")					do_mask(in);
+      else if(cmd == "combine")					do_combine(in);
+      else if(cmd == "foregroundrule")			do_foregroundrule(in);
+      else if(cmd == "savepath")				do_savepath(in);
+      else if(cmd == "prefix")					do_prefix(in);
+      else if(cmd == "suffix")					do_suffix(in);
+      else if(cmd == "format")					do_format(in);
+#if 0   //def IMAGINE_WITH_CAIRO
+    // AKa 22-Aug-2008: Extension conf for Cairo
+    //
+      else if(cmd == "antialias")				do_antialias(in);
+#endif
+      else if(cmd == "gamma")					do_gamma(in);
+      else if(cmd == "intent")					do_intent(in);
+      else if(cmd == "pngquality")				do_pngquality(in);
+      else if(cmd == "jpegquality")				do_jpegquality(in);
+      else if(cmd == "savealpha")				do_savealpha(in);
+      else if(cmd == "reducecolors")			do_reducecolors(in);
+      else if(cmd == "wantpalette")				do_wantpalette(in);
+      else if(cmd == "forcepalette")			do_forcepalette(in);
+      else if(cmd == "alphalimit")				do_alphalimit(in);
+      else if(cmd == "hilimit")					do_hilimit(in);
+      else if(cmd == "datalolimit")				do_datalolimit(in);
+      else if(cmd == "datahilimit")				do_datahilimit(in);
+      else if(cmd == "datareplace")				do_datareplace(in);
+      else if(cmd == "despeckle")				do_despeckle(in);
+      else if(cmd == "expanddata")				do_expanddata(in);
+      else if(cmd == "contourdepth")			do_contourdepth(in);
+      else if(cmd == "contourinterpolation")	do_contourinterpolation(in);
+      else if(cmd == "contourtriangles")		do_contourtriangles(in);
+      else if(cmd == "smoother")				do_smoother(in);
+      else if(cmd == "smootherradius")			do_smootherradius(in);
+      else if(cmd == "smootherfactor")			do_smootherfactor(in);
+      else if(cmd == "level")					do_level(in);
+      else if(cmd == "param")					do_param(in);
+      else if(cmd == "shape")					do_shape(in);
+      else if(cmd == "contourfill")				do_contourfill(in);
+      else if(cmd == "contourpattern")			do_contourpattern(in);
+      else if(cmd == "contoursymbol")			do_contoursymbol(in);
+      else if(cmd == "contoursymbolmindist")	do_contoursymbolmindist(in);
+      else if(cmd == "contourfont")				do_contourfont(in);
+      else if(cmd == "contourlinewidth")		do_contourlinewidth(in);
+      else if(cmd == "contourline")				do_contourline(in);
+      else if(cmd == "contourfills")			do_contourfills(in);
+      else if(cmd == "contourlines")			do_contourlines(in);
+          
+      else if(cmd == "contourlabel")			do_contourlabel(in);
+      else if(cmd == "contourlabels")			do_contourlabels(in);
+      else if(cmd == "contourlabeltext")        do_contourlabeltext(in);
+      else if(cmd == "contourlabelfont")		do_contourlabelfont(in);
+      else if(cmd == "contourlabelcolor")		do_contourlabelcolor(in);
+      else if(cmd == "contourlabelbackground")	do_contourlabelbackground(in);
+      else if(cmd == "contourlabelmargin")		do_contourlabelmargin(in);
+      else if(cmd == "contourlabelimagemargin")	do_contourlabelimagemargin(in);
+      else if(cmd == "contourlabelmindistsamevalue") do_contourlabelmindistsamevalue(in);
+      else if(cmd == "contourlabelmindistdifferentvalue") do_contourlabelmindistdifferentvalue(in);
+      else if(cmd == "contourlabelmindistdifferentparam") do_contourlabelmindistdifferentparam(in);
+      else if(cmd == "contourfontmindistsamevalue") do_contourfontmindistsamevalue(in);
+      else if(cmd == "contourfontmindistdifferentvalue") do_contourfontmindistdifferentvalue(in);
+      else if(cmd == "contourfontmindistdifferentparam") do_contourfontmindistdifferentparam(in);
+
+      else if(cmd == "highpressure")			do_highpressure(in);
+      else if(cmd == "lowpressure")				do_lowpressure(in);
+      else if(cmd == "lowpressuremaximum")		do_lowpressuremaximum(in);
+      else if(cmd == "highpressureminimum")		do_highpressureminimum(in);
+      else if(cmd == "pressuremindistsame")		do_pressuremindistsame(in);
+      else if(cmd == "pressuremindistdifferent") do_pressuremindistdifferent(in);
+      else if(cmd == "labelmarker")				do_labelmarker(in);
+      else if(cmd == "labelfont")				do_labelfont(in);
+      else if(cmd == "labelcolor")				do_labelcolor(in);
+      else if(cmd == "labelrule")				do_labelrule(in);
+      else if(cmd == "labelalign")				do_labelalign(in);
+      else if(cmd == "labelformat")				do_labelformat(in);
+      else if(cmd == "labelmissing")			do_labelmissing(in);
+      else if(cmd == "labeloffset")				do_labeloffset(in);
+      else if(cmd == "labelcaption")			do_labelcaption(in);
+      else if(cmd == "label")					do_label(in);
+      else if(cmd == "labelxy")					do_labelxy(in);
+      else if(cmd == "labels")					do_labels(in);
+      else if(cmd == "labelsxy")				do_labelsxy(in);
+      else if(cmd == "labelfile")				do_labelfile(in);
+      else if(cmd == "units")					do_units(in);
+      else if(cmd == "clear")					do_clear(in);
+
+      else if(cmd == "draw")
+        {
+          in >> cmd;
+
+          if(cmd == "shapes")				do_draw_shapes(in);
+          else if(cmd == "imagemap")		do_draw_imagemap(in);
+          else if(cmd == "contours")		do_draw_contours(in);
+          else
+            throw runtime_error("draw " + cmd + " not implemented");
+        }
+      else
+        throw runtime_error("Unknown command " + cmd);
+    }
+}
+
 
 // ----------------------------------------------------------------------
 // Main program.
@@ -4711,6 +5042,12 @@ int domain(int argc, const char *argv[])
   // Parse command line
 
   parse_command_line(argc,argv);
+
+  // Handle command line config text; if any
+  //
+  if (!globals.cmdline_conf.empty()) {
+    process_cmd(globals.cmdline_conf);
+  }
 
   // Process all command files
   // ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -4728,141 +5065,7 @@ int domain(int argc, const char *argv[])
 
       // Process the commands
 
-	  istringstream in(text);
-      string cmd;
-      while( in >> cmd)
-		{
-		  // Handle comments
-
-		  if(cmd == "#")							do_comment(in);
-		  else if(cmd[0] == '#')					do_comment(in);
-		  else if(cmd == "//")						do_comment(in);
-		  else if(cmd == "cache")					do_cache(in);
-		  else if(cmd == "imagecache")				do_imagecache(in);
-		  else if(cmd == "querydata")				do_querydata(in);
-		  else if(cmd == "filter")					do_filter(in);
-		  else if(cmd == "timestepskip")			do_timestepskip(in);
-		  else if(cmd == "timestep")				do_timestep(in);
-		  else if(cmd == "timeinterval")			do_timeinterval(in);
-		  else if(cmd == "timesteps")				do_timesteps(in);
-		  else if(cmd == "timestamp")				do_timestamp(in);
-		  else if(cmd == "timestampzone")			do_timestampzone(in);
-		  else if(cmd == "timesteprounding")		do_timesteprounding(in);
-		  else if(cmd == "timestampimage")			do_timestampimage(in);
-		  else if(cmd == "timestampimagexy")		do_timestampimagexy(in);
-		  else if(cmd == "timestampimageformat")	do_timestampimageformat(in);
-		  else if(cmd == "timestampimagefont")		do_timestampimagefont(in);
-		  else if(cmd == "timestampimagecolor")		do_timestampimagecolor(in);
-		  else if(cmd == "timestampimagebackground")	do_timestampimagebackground(in);
-		  else if(cmd == "timestampimagemargin")	do_timestampimagemargin(in);
-		  else if(cmd == "projection")				do_projection(in);
-		  else if(cmd == "erase")					do_erase(in);
-		  else if(cmd == "fillrule")				do_fillrule(in);
-		  else if(cmd == "strokerule")				do_strokerule(in);
-		  else if(cmd == "directionparam")			do_directionparam(in);
-		  else if(cmd == "speedparam")				do_speedparam(in);
-		  else if(cmd == "arrowscale")				do_arrowscale(in);
-		  else if(cmd == "windarrowscale")			do_windarrowscale(in);
-		  else if(cmd == "arrowfill")				do_arrowfill(in);
-		  else if(cmd == "arrowstroke")				do_arrowstroke(in);
-		  else if(cmd == "arrowpath")				do_arrowpath(in);
-		  else if(cmd == "windarrow")				do_windarrow(in);
-		  else if(cmd == "windarrows")				do_windarrows(in);
-		  else if(cmd == "windarrowsxy")			do_windarrowsxy(in);
-		  else if(cmd == "background")				do_background(in);
-		  else if(cmd == "foreground")				do_foreground(in);
-		  else if(cmd == "mask")					do_mask(in);
-		  else if(cmd == "combine")					do_combine(in);
-		  else if(cmd == "foregroundrule")			do_foregroundrule(in);
-		  else if(cmd == "savepath")				do_savepath(in);
-		  else if(cmd == "prefix")					do_prefix(in);
-		  else if(cmd == "suffix")					do_suffix(in);
-		  else if(cmd == "format")					do_format(in);
-		  else if(cmd == "gamma")					do_gamma(in);
-		  else if(cmd == "intent")					do_intent(in);
-		  else if(cmd == "pngquality")				do_pngquality(in);
-		  else if(cmd == "jpegquality")				do_jpegquality(in);
-		  else if(cmd == "savealpha")				do_savealpha(in);
-		  else if(cmd == "reducecolors")			do_reducecolors(in);
-		  else if(cmd == "wantpalette")				do_wantpalette(in);
-		  else if(cmd == "forcepalette")			do_forcepalette(in);
-		  else if(cmd == "alphalimit")				do_alphalimit(in);
-		  else if(cmd == "hilimit")					do_hilimit(in);
-		  else if(cmd == "datalolimit")				do_datalolimit(in);
-		  else if(cmd == "datahilimit")				do_datahilimit(in);
-		  else if(cmd == "datareplace")				do_datareplace(in);
-		  else if(cmd == "despeckle")				do_despeckle(in);
-		  else if(cmd == "expanddata")				do_expanddata(in);
-		  else if(cmd == "contourdepth")			do_contourdepth(in);
-		  else if(cmd == "contourinterpolation")	do_contourinterpolation(in);
-		  else if(cmd == "contourtriangles")		do_contourtriangles(in);
-		  else if(cmd == "smoother")				do_smoother(in);
-		  else if(cmd == "smootherradius")			do_smootherradius(in);
-		  else if(cmd == "smootherfactor")			do_smootherfactor(in);
-		  else if(cmd == "level")					do_level(in);
-		  else if(cmd == "param")					do_param(in);
-		  else if(cmd == "shape")					do_shape(in);
-		  else if(cmd == "contourfill")				do_contourfill(in);
-		  else if(cmd == "contourpattern")			do_contourpattern(in);
-		  else if(cmd == "contoursymbol")			do_contoursymbol(in);
-		  else if(cmd == "contoursymbolmindist")	do_contoursymbolmindist(in);
-		  else if(cmd == "contourfont")				do_contourfont(in);
-		  else if(cmd == "contourlinewidth")		do_contourlinewidth(in);
-		  else if(cmd == "contourline")				do_contourline(in);
-		  else if(cmd == "contourfills")			do_contourfills(in);
-		  else if(cmd == "contourlines")			do_contourlines(in);
-		  	
-		  else if(cmd == "contourlabel")			do_contourlabel(in);
-		  else if(cmd == "contourlabels")			do_contourlabels(in);
-		  else if(cmd == "contourlabeltext")        do_contourlabeltext(in);
-		  else if(cmd == "contourlabelfont")		do_contourlabelfont(in);
-		  else if(cmd == "contourlabelcolor")		do_contourlabelcolor(in);
-		  else if(cmd == "contourlabelbackground")	do_contourlabelbackground(in);
-		  else if(cmd == "contourlabelmargin")		do_contourlabelmargin(in);
-		  else if(cmd == "contourlabelimagemargin")	do_contourlabelimagemargin(in);
-		  else if(cmd == "contourlabelmindistsamevalue") do_contourlabelmindistsamevalue(in);
-		  else if(cmd == "contourlabelmindistdifferentvalue") do_contourlabelmindistdifferentvalue(in);
-		  else if(cmd == "contourlabelmindistdifferentparam") do_contourlabelmindistdifferentparam(in);
-		  else if(cmd == "contourfontmindistsamevalue") do_contourfontmindistsamevalue(in);
-		  else if(cmd == "contourfontmindistdifferentvalue") do_contourfontmindistdifferentvalue(in);
-		  else if(cmd == "contourfontmindistdifferentparam") do_contourfontmindistdifferentparam(in);
-
-		  else if(cmd == "highpressure")			do_highpressure(in);
-		  else if(cmd == "lowpressure")				do_lowpressure(in);
-		  else if(cmd == "lowpressuremaximum")		do_lowpressuremaximum(in);
-		  else if(cmd == "highpressureminimum")		do_highpressureminimum(in);
-		  else if(cmd == "pressuremindistsame")		do_pressuremindistsame(in);
-		  else if(cmd == "pressuremindistdifferent") do_pressuremindistdifferent(in);
-		  else if(cmd == "labelmarker")				do_labelmarker(in);
-		  else if(cmd == "labelfont")				do_labelfont(in);
-		  else if(cmd == "labelcolor")				do_labelcolor(in);
-		  else if(cmd == "labelrule")				do_labelrule(in);
-		  else if(cmd == "labelalign")				do_labelalign(in);
-		  else if(cmd == "labelformat")				do_labelformat(in);
-		  else if(cmd == "labelmissing")			do_labelmissing(in);
-		  else if(cmd == "labeloffset")				do_labeloffset(in);
-		  else if(cmd == "labelcaption")			do_labelcaption(in);
-		  else if(cmd == "label")					do_label(in);
-		  else if(cmd == "labelxy")					do_labelxy(in);
-		  else if(cmd == "labels")					do_labels(in);
-		  else if(cmd == "labelsxy")				do_labelsxy(in);
-		  else if(cmd == "labelfile")				do_labelfile(in);
-		  else if(cmd == "units")					do_units(in);
-		  else if(cmd == "clear")					do_clear(in);
-
-		  else if(cmd == "draw")
-			{
-			  in >> cmd;
-
-			  if(cmd == "shapes")				do_draw_shapes(in);
-			  else if(cmd == "imagemap")		do_draw_imagemap(in);
-			  else if(cmd == "contours")		do_draw_contours(in);
-			  else
-				throw runtime_error("draw " + cmd + " not implemented");
-			}
-		  else
-			throw runtime_error("Unknown command " + cmd);
-		}
+      process_cmd(text);
     }
   return 0;
 }

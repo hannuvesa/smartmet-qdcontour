@@ -5,9 +5,10 @@
  */
 // ======================================================================
 
-#include "ColorTools.h"
 #include <stdexcept>
 #include <vector>
+
+#include "ColorTools.h"
 
 using namespace std;
 
@@ -66,6 +67,9 @@ namespace
 		g = hex2int(theColor.substr(4,2));
 		b = hex2int(theColor.substr(6,2));
 	  }
+    else {
+        a=r=g=b= 0;     // avoid "may be used uninitialized"
+    }
 	if(r>=0 && g>=0 && b>=0 && a>=0)
 	  return Imagine::NFmiColorTools::MakeColor(r,g,b,a);
 
@@ -248,7 +252,7 @@ namespace ColorTools
 	throw runtime_error("Unknown blending rule "+theRule);
   }
 
-
 } // namespace ColorTools
+
 
 // ======================================================================

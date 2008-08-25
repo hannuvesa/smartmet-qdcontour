@@ -1,14 +1,15 @@
 // ======================================================================
 /*!
  * \file
- * \brief Implementation of class ContourCache
+ * \brief Implementation of class ContourCache
  */
 // ======================================================================
 
 #include "ContourCache.h"
 #include "LazyQueryData.h"
-#include "NFmiPath.h"
+
 #include "NFmiMetTime.h"
+
 #include <sstream>
 
 using namespace std;

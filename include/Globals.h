@@ -12,12 +12,19 @@
 #include "ContourCalculator.h"
 #include "ContourSpec.h"
 #include "ExtremaLocator.h"
+
 #include "ImageCache.h"
+
 #include "LabelLocator.h"
 #include "ShapeSpec.h"
 #include "UnitsConverter.h"
 
-#include "NFmiColorTools.h"
+#ifdef IMAGINE_WITH_CAIRO
+# include "ImagineXr.h"
+#else
+# include "NFmiColorTools.h"
+#endif
+
 #include "NFmiImage.h"
 #include "NFmiPoint.h"
 
@@ -31,25 +38,28 @@
 class LazyQueryData;
 class NFmiTime;
 
-using Imagine::NFmiImage;
+//using Imagine::NFmiImage;
 
 struct Globals
 {
   ~Globals();
   Globals();
 
-  void setImageModes(NFmiImage & theImage) const;
+  void setImageModes( Imagine::NFmiImage & ) const;
   std::auto_ptr<NFmiArea> createArea() const;
   const std::string getImageStampText(const NFmiTime & theTime) const;
-  void drawImageStampText(NFmiImage & theImage, const std::string & theText) const;
-  void drawCombine(NFmiImage & theImage) const;
-  const Imagine::NFmiImage & getImage(const std::string & theFile) const;
+
+  void drawImageStampText( ImagineXr_or_NFmiImage &d, const std::string &text ) const;
+  void drawCombine( ImagineXr_or_NFmiImage &d ) const;
+
+  const ImagineXr_or_NFmiImage & getImage( const std::string & filename ) const;
 
   // Command line options
 
   bool verbose;								// -v option
   bool force;								// -f option
   std::string cmdline_querydata;			// -q option
+  std::string cmdline_conf;			        // -c option
   std::list<std::string> cmdline_files;		// command line parameters
 
   // Status variables
@@ -61,13 +71,20 @@ struct Globals
   std::string prefix;				// filename prefix
   std::string suffix;				// filename suffix
   std::string format;				// image format name
+
+#if 0   //def IMAGINE_WITH_CAIRO
+  bool antialias;                   // on/off
+#endif
+
   float gamma;						// image gamma correction
   std::string intent;				// image rendering intent
   int alphalimit;					// alpha limit for binary alpha conversion
   int pngquality;					// png quality, -1 = default
   int jpegquality;					// jpeg quality, -1 = default
   bool savealpha;					// save alpha channel?
+
   bool reducecolors;				// reduce colors before saving?
+
   bool wantpalette;					// attempt to save as palette image?
   bool forcepalette;				// force palette image?
 
@@ -180,6 +197,7 @@ struct Globals
 
   ImageCache itsImageCache;
   bool itsImageCacheOn;
+
   ArrowCache itsArrowCache;
 
 };

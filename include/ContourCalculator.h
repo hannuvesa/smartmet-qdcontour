@@ -5,7 +5,7 @@
  */
 // ======================================================================
 /*!
- * \class ContourCalculator
+ * \class ContourCalculator
  * \brief Calculates and caches contours
  *
  * The ContourCalculator is able to calculate contours from the
@@ -19,6 +19,7 @@
 #define CONTOURCALCULATOR_H
 
 #include <memory>
+
 #include "NFmiContourTree.h"
 
 template <typename T> class NFmiDataMatrix;

@@ -3,34 +3,69 @@ PROG = qdcontour
 
 MAINFLAGS = -Wall -W -Wno-unused-parameter
 
-EXTRAFLAGS = \
-	-Wpointer-arith \
-	-Wcast-qual \
-	-Wcast-align \
-	-Wwrite-strings \
-	-Wconversion \
-	-Winline \
-	-Wnon-virtual-dtor \
-	-Wno-pmf-conversions \
-	-Wsign-promo \
-	-Wchar-subscripts
+EXTRAFLAGS = -Wpointer-arith -Wcast-qual \
+	-Wcast-align -Wwrite-strings -Wconversion -Winline \
+	-Wnon-virtual-dtor -Wno-pmf-conversions \
+	-Wsign-promo -Wchar-subscripts
 
-DIFFICULTFLAGS = \
-	-pedantic \
-	-Weffc++ \
-	-Wredundant-decls \
-	-Wshadow \
-	-Wctor-dtor-privacy \
-	-Woverloaded-virtual \
-	-Wunreachable-code \
-	-Wold-style-cast
+# Comment this out to compile as non-Cairo (NFmiImage)
+#
+# TBD: This should really come from the Imagine library, via one way or the other
+#      (it can be compiled with IMAGINE_WITH_CAIRO or not, but that affects
+#       us, too)
+#
+CAIRO_CFLAGS=-DIMAGINE_WITH_CAIRO
+
+
+# Exposes ArrowCache, ContourCache, ... (most likely does not like them being
+# without explicity constructor?)
+#
+# -Wctor-dtor-privacy
+
+# Boost has old type casts
+#
+# -Wold-style-cast
+
+DIFFICULTFLAGS = -pedantic -Weffc++ -Wredundant-decls -Wshadow -Woverloaded-virtual -Wunreachable-code
 
 CC = g++
+
+INCLUDES = -I../imagine/include
+LIBS = -L../imagine -lsmartmet_imagine
+
+# Use the CVS version of Newbase (not the system installed one, which is old)
+#   -- AKa 17-Jul-2008
+#
+ifeq "$(shell uname -s)" "Darwin"
+  NEWBASE_PATH = $(HOME)/Work/IL/cvs/newbase
+  #IMAGINE_PATH = $(HOME)/Work/IL/cvs/imagine
+  TRON_PATH = $(HOME)/Work/IL/cvs/tron
+
+  # OS X (Boost from fink)
+  INCLUDES += -I/sw/include -I../Imagine
+  LIBS += -L/sw/lib -lboost_regex -lboost_filesystem -lboost_system
+else
+  NEWBASE_PATH = /home/kauppi/IL/cvs/newbase
+  #IMAGINE_PATH = /home/kauppi/IL/cvs/imagine
+  TRON_PATH = /home/kauppi/IL/cvs/tron
+  
+  # Linux
+  INCLUDES += -I/usr/local/include/boost-1_35
+  LIBS += -L/usr/local/lib \
+    -lboost_regex-gcc41-mt \
+	-lboost_filesystem-gcc41-mt \
+	-lboost_system-gcc41-mt
+endif
 
 # Default compile options
 
 CFLAGS = -DUNIX -O2 -DNDEBUG $(MAINFLAGS)
-LDFLAGS = -s
+LDFLAGS =
+
+CFLAGS += $(CAIRO_CFLAGS)
+
+# "-s is obsolete and being ignored" (gcc 4.01, AKa 17-Jul-2008)
+#LDFLAGS = -s
 
 # Special modes
 
@@ -40,24 +75,37 @@ CFLAGS_PROFILE = -DUNIX -O2 -g -pg -DNDEBUG $(MAINFLAGS)
 LDFLAGS_DEBUG = 
 LDFLAGS_PROFILE = 
 
-INCLUDES = -I$(includedir) \
-	-I$(includedir)/smartmet/newbase \
-	-I$(includedir)/smartmet/tron \
-	-I$(includedir)/smartmet/imagine \
-	-I/usr/local/include/boost-1_35 \
-	-I$(includedir)/freetype2
+# Platform independent Freetype2 support
+#
+FT2_LIBS= $(shell freetype-config --libs)
+FT2_CFLAGS= $(shell freetype-config --cflags)
 
-LIBS = -L$(libdir) \
-	-lsmartmet_imagine \
-	-lsmartmet_tron \
-	-lsmartmet_newbase \
-	-Wl,-rpath,/usr/local/lib \
-        -L /usr/local/lib \
-	-lboost_regex-gcc41-mt \
-	-lboost_filesystem-gcc41-mt \
-        -lboost_system-gcc41-mt \
-	-lboost_iostreams-gcc41-mt \
-	-lfreetype -lpng -ljpeg -lz
+INCLUDES += \
+	-I$(NEWBASE_PATH)/include \
+	-I$(TRON_PATH)/include \
+	$(FT2_CFLAGS) \
+	-I.
+
+#INCLUDES += -I$(includedir) \
+#	-I$(includedir)/smartmet/newbase \
+#	-I$(includedir)/smartmet/tron \
+#	-I$(includedir)/smartmet/imagine \
+#	-I$(includedir)/freetype2
+
+LIBS += \
+	-L$(TRON_PATH) -lsmartmet_tron \
+	-L$(NEWBASE_PATH) -lsmartmet_newbase \
+	$(FT2_LIBS) -lpng -ljpeg -lz
+
+# Rendering either with Cairo or Imagine
+#
+ifeq "$(IMAGINE_PATH)" ""
+  INCLUDES += $(shell pkg-config --cflags cairomm-1.0)
+  LIBS += $(shell pkg-config --libs cairomm-1.0)
+else
+  INCLUDES += -DUSE_OLD_IMAGINE -I$(IMAGINE_PATH)/include
+  LIBS += -L$(IMAGINE_PATH) -lsmartmet_imagine
+endif
 
 # Common library compiling template
 
@@ -164,8 +212,11 @@ install:
 depend:
 	gccmakedep -fDependencies -- $(CFLAGS) $(INCLUDES) -- $(ALLSRCS)
 
-test:
-	cd test && make test
+test: $(PROG)
+	cd test && LD_LIBRARY_PATH=/usr/local/lib make test
+
+perltest: $(PROG)
+	cd test && LD_LIBRARY_PATH=/usr/local/lib make perltest
 
 html::
 	mkdir -p ../../../../html/bin/$(HTML)

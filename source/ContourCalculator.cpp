@@ -9,10 +9,10 @@
 #include "ContourCache.h"
 #include "LazyQueryData.h"
 #include "DataMatrixAdapter.h"
-#include "PathAdapter.h"
 
 #include "NFmiDataMatrix.h"
-#include "NFmiPath.h"
+
+#include "PathAdapter.h"
 
 #include "Contourer.h"
 #include "Hints.h"

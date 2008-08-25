@@ -6,6 +6,8 @@
 
 #include "ImageCache.h"
 
+//#include <iostream>
+
 using namespace Imagine;
 using namespace std;
 
@@ -26,15 +28,13 @@ void ImageCache::clear() const
  */
 // ----------------------------------------------------------------------
 
-#include <iostream>
-
-const NFmiImage & ImageCache::getImage(const string & theFile) const
+const ImagineXr_or_NFmiImage & ImageCache::getImage(const string & theFile) const
 {
   storage_type::const_iterator it = itsCache.find(theFile);
   if(it != itsCache.end())
 	return it->second;
 
-  pair<storage_type::const_iterator,bool> ret = itsCache.insert(storage_type::value_type(theFile,NFmiImage(theFile)));
+  pair<storage_type::const_iterator,bool> ret = itsCache.insert( storage_type::value_type( theFile, ImagineXr_or_NFmiImage( theFile ) ));
 
   if(ret.second)
 	return ret.first->second;

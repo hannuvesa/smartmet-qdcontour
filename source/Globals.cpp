@@ -11,8 +11,14 @@
 #include "TimeTools.h"
 
 #include "NFmiEsriBox.h"
-#include "NFmiFace.h"
-#include "NFmiFreeType.h"
+
+#ifdef IMAGINE_WITH_CAIRO
+# include "ImagineXr.h"
+#else
+# include "NFmiFace.h"
+# include "NFmiFreeType.h"
+#endif
+
 #include "NFmiPath.h"
 
 #include "NFmiAreaFactory.h"
@@ -22,7 +28,7 @@
 #include <string>
 
 using NFmiSettings::Optional;
-using namespace Imagine;
+//using namespace Imagine;
 using namespace std;
 
 // ----------------------------------------------------------------------
@@ -41,7 +47,10 @@ Globals::Globals()
   , savepath(".")
   , prefix()
   , suffix()
-  , format("png")
+  , format("png")   // default format
+#if 0   //def IMAGINE_WITH_CAIRO
+  , antialias(true)
+#endif
   , gamma(-1)
   , intent()
   , alphalimit(-1)
@@ -105,8 +114,8 @@ Globals::Globals()
   , timestampimagey(0)
   , timestampimageformat("hourdateyear")
   , timestampimagefont("misc/6x13B.pcf.gz:6x13")
-  , timestampimagecolor(NFmiColorTools::Black)
-  , timestampimagebackground(NFmiColorTools::NoColor)
+  , timestampimagecolor( Imagine::NFmiColorTools::Black )
+  , timestampimagebackground( Imagine::NFmiColorTools::NoColor )
   , timestampimagexmargin(2)
   , timestampimageymargin(2)
   , contourlabelimagexmargin(20)
@@ -160,7 +169,7 @@ Globals::~Globals()
  */
 // ----------------------------------------------------------------------
 
-const NFmiImage & Globals::getImage(const string & theFile) const
+const ImagineXr_or_NFmiImage & Globals::getImage(const string & theFile) const
 {
   return itsImageCache.getImage(theFile);
 }
@@ -171,7 +180,7 @@ const NFmiImage & Globals::getImage(const string & theFile) const
  */
 // ----------------------------------------------------------------------
 
-void Globals::setImageModes(NFmiImage & theImage) const
+void Globals::setImageModes( Imagine::NFmiImage &theImage ) const
 {
   theImage.SaveAlpha(savealpha);
   theImage.WantPalette(wantpalette);
@@ -287,13 +296,36 @@ const std::string Globals::getImageStampText(const NFmiTime & theTime) const
  */
 // ----------------------------------------------------------------------
 
-void Globals::drawImageStampText(NFmiImage & theImage,
-								 const std::string & theText) const
+#ifdef IMAGINE_WITH_CAIRO
+void Globals::drawImageStampText( ImagineXr &img,
+								  const std::string & text ) const
+{
+    if (text.empty())
+        return;
+
+    int x = timestampimagex;
+    int y = timestampimagey;
+  
+    if (x<0) x+= img.Width();
+    if (y<0) y+= img.Height();
+
+    // ImagineXr version (AKa 5-Aug-2008)
+    //
+    img.MakeFace( timestampimagefont,
+                  timestampimagebackground );
+
+    img.DrawFace( x,y, text,                 // should be UTF-8
+                  timestampimagecolor );  // font color
+}
+#else
+/*** NFmiImage version (original) ***/
+void Globals::drawImageStampText( Imagine::NFmiImage &theImage,
+								  const std::string & theText ) const
 {
   if(theText.empty())
-	return;
+    return;
 
-  NFmiFace face(timestampimagefont);
+  Imagine::NFmiFace face(timestampimagefont);
   face.Background(true);
   
   int x = timestampimagex;
@@ -302,7 +334,7 @@ void Globals::drawImageStampText(NFmiImage & theImage,
   if(x<0) x+= theImage.Width();
   if(y<0) y+= theImage.Height();
 
-  if(timestampimagebackground != NFmiColorTools::NoColor)
+  if(timestampimagebackground != Imagine::NFmiColorTools::NoColor)
 	{
 	  face.Background(true);
 	  face.BackgroundMargin(timestampimagexmargin,timestampimageymargin);
@@ -312,9 +344,11 @@ void Globals::drawImageStampText(NFmiImage & theImage,
   face.Draw(theImage,
 			x,y,
 			theText,
-			kFmiAlignNorthWest,
+			Imagine::kFmiAlignNorthWest,
 			timestampimagecolor);
 }
+#endif
+
 
 // ----------------------------------------------------------------------
 /*!
@@ -322,19 +356,36 @@ void Globals::drawImageStampText(NFmiImage & theImage,
  */
 // ----------------------------------------------------------------------
 
-void Globals::drawCombine(NFmiImage & theImage) const
+#ifdef IMAGINE_WITH_CAIRO
+void Globals::drawCombine( ImagineXr &xr ) const
+{
+    if(combine.empty())
+        return;
+
+    Imagine::NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule( combinerule );
+
+    xr.Composite( getImage(combine),
+				  rule,
+				  Imagine::kFmiAlignNorthWest,
+				  combinex, combiney, combinefactor );
+}
+#else
+/*** NFmiImage code (original) ***/
+void Globals::drawCombine( Imagine::NFmiImage &theImage ) const
 {
   if(combine.empty())
 	return;
 
-  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(combinerule);
+  Imagine::NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(combinerule);
 
   theImage.Composite(getImage(combine),
 					 rule,
-					 kFmiAlignNorthWest,
+					 Imagine::kFmiAlignNorthWest,
 					 combinex,
 					 combiney,
 					 combinefactor);
 }
+#endif
+
 
 // ======================================================================

@@ -5,8 +5,10 @@
 // ======================================================================
 
 #include "MeridianTools.h"
-#include "NFmiEdgeTree.h"
+
 #include <set>
+
+#include "NFmiEdgeTree.h"
 
 using namespace Imagine;
 
@@ -94,16 +96,16 @@ namespace MeridianTools
 		it!=thePath.Elements().end();
 		++it)
 	  {
-		switch(it->Oper())
+		switch( it->op )
 		  {
 		  case kFmiMoveTo:
-			path.MoveTo(it->X()+shift,it->Y());
+			path.MoveTo( it->x+shift, it->y );
 			break;
 		  case kFmiLineTo:
-			path.LineTo(it->X()+shift,it->Y());
+			path.LineTo( it->x+shift, it->y );
 			break;
 		  case kFmiGhostLineTo:
-			path.GhostLineTo(it->X()+shift,it->Y());
+			path.GhostLineTo( it->x+shift, it->y );
 			break;
 		  default:
 			break;

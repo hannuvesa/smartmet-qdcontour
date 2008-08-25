@@ -7,18 +7,19 @@
 
 #include "ContourSpec.h"
 #include "NoiseTools.h"
+
 #include "NFmiColorTools.h"
 
 // ----------------------------------------------------------------------
 /*!
- * \brief Constructor
+ * \brief Constructor
  *
- * \param theParam The parameter
+ * \param theParam The parameter
  * \param theInterpolation The interpolation method
  * \param theSmoother The smoothing method
  * \param theLevel The level
  * \param theSmootherRadius The smoother search radius
- * \param theSmootherFactor The smoother sharpness factor
+ * \param theSmootherFactor The smoother sharpness factor
  * \param theHiLimit The absolute high limit of the data
  */
 // ----------------------------------------------------------------------

@@ -42,13 +42,10 @@
 #ifndef CONTOURCACHE_H
 #define CONTOURCACHE_H
 
+#include "NFmiPath.h"
+
 #include <map>
 #include <string>
-
-namespace Imagine
-{
-  class NFmiPath;
-}
 
 class LazyQueryData;
 
@@ -56,8 +53,8 @@ class ContourCache
 {
 private:
 
-  typedef std::map<std::string, Imagine::NFmiPath> storage_type;
-  storage_type itsData;
+typedef std::map<std::string, Imagine::NFmiPath> storage_type;
+storage_type itsData;
 
 public:
 
