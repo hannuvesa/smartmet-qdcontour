@@ -1,30 +1,23 @@
 all: test
 
 #---
-# Tests used to be run by a Perl script, but makefile is actually better
-# (stops at failures etc.)
+# perltest:
+# 
+# Old test using Perl script and self-made 'imagecompare'
 #
 perltest:
 	LD_LIBRARY_PATH=/usr/local/lib \
-	  ./test_qdcontour
+	  ./perltest.pl
 
 clean:
-	rm -f *~ */*~ results/*.png
+	rm -f *~ */*~ results/* results_diff/*
 
 #---
-PROGRAM=../qdcontour
-IMAGE_COMPARE=../tools/imagecompare
+# New tests, done solely by Make and Imagemagick
+#
+PROGRAM=LD_LIBRARY_PATH=/usr/local/lib ../qdcontour
 
-koe:
-	-@$(MAKE) _check TEST=koe1
-	-@$(MAKE) _check TEST=koe2
-	-@$(MAKE) _check TEST=koe3
-	-@$(MAKE) _check TEST=koe4
-	-@$(MAKE) _check TEST=koe5
-	-@$(MAKE) _check TEST=koe6
-	-@$(MAKE) _check TEST=koe7
-	-@$(MAKE) _check TEST=koe8
-
+_CHECK=_check
 
 # Misc tests that have issues:
 #
@@ -51,7 +44,6 @@ meta_wind_chill \
 meta_t2m_advection \
 meta_thermal_front \
 arrows_and_labels \
-koe4 koe5 \
 :
 	-@$(MAKE) _check TEST=$@
 
@@ -59,71 +51,72 @@ meta_wind_chill_pdf \
 :
 	-@$(MAKE) _check_pdf TEST=$(@:_pdf=)
 
-# All tests:   (TBD: some are disabled)
-#
-test new_test:
-	-@$(MAKE) _check TEST=timestampimage
-	-@$(MAKE) _check TEST=timestampimage2
-	-@$(MAKE) _check TEST=timestampimageutc
-	-@$(MAKE) _check TEST=shape_fill
-	-@$(MAKE) _check TEST=shape_stroke
-	-@$(MAKE) _check TEST=shape_mark
-	-@$(MAKE) _check TEST=shape_mark_alpha_factor
-	-@$(MAKE) _check TEST=shape_combined
-	-@$(MAKE) _check TEST=automatic_width
-	-@$(MAKE) _check TEST=automatic_height
-	-@$(MAKE) _check TEST=center
-	-@$(MAKE) _check TEST=scale
-	-@$(MAKE) _check TEST=trivial
-	-@$(MAKE) _check TEST=contourline
-	-@$(MAKE) _check TEST=contourlinewidth
-	-@$(MAKE) _check TEST=contourfill
-	-@$(MAKE) _check TEST=contourpattern
-	-@$(MAKE) _check TEST=contoursymbol
-	-@$(MAKE) _check TEST=contourfont
-	-@$(MAKE) _check TEST=contourfont2
-	-@$(MAKE) _check TEST=contourfont_grid
-	-@$(MAKE) _check TEST=contourlabels
-	-@$(MAKE) _check TEST=contourlabeltexts
-	-@$(MAKE) _check TEST=windarrow_grid
-	-@$(MAKE) _check TEST=windarrow_grid_step
-	-@$(MAKE) _check TEST=windarrow_grid_masked
-	-@$(MAKE) _check TEST=windarrow_pixelgrid
-	-@$(MAKE) _check TEST=windarrow_pixelgrid_masked
-	-@$(MAKE) _check TEST=windarrowscale
-	-@$(MAKE) _check TEST=directionparam
-	-@$(MAKE) _check TEST=speedparam
-	-@$(MAKE) _check TEST=labels_points
-	-@$(MAKE) _check TEST=labels_grid
-	-@$(MAKE) _check TEST=labels_grid_masked
-	-@$(MAKE) _check TEST=labels_grid_step
-	-@$(MAKE) _check TEST=labelformat
-	-@$(MAKE) _check TEST=labels_integers
-	-@$(MAKE) _check TEST=labels_and_arrows
-	-@$(MAKE) _check TEST=arrows_and_labels
-	-@$(MAKE) _check TEST=labels_pixelgrid
-	-@$(MAKE) _check TEST=labels_pixelgrid_masked
-	-@$(MAKE) _check TEST=meteorological_arrows
-	-@$(MAKE) _check TEST=meteorological_arrows_and_labels
-	-@$(MAKE) _check TEST=meta_elevation_angle
-	-@$(MAKE) _check TEST=meta_wind_chill
-	-@$(MAKE) _check TEST=meta_t2m_advection
-	-@$(MAKE) _check TEST=meta_thermal_front
-	-@$(MAKE) _check TEST=missing_values
-	-@$(MAKE) _check TEST=expanddata
-	-@$(MAKE) _check TEST=fahrenheit
-	-@$(MAKE) _check TEST=despeckle_none
-	-@$(MAKE) _check TEST=despeckle_median1
-	-@$(MAKE) _check TEST=despeckle_median2
-	-@$(MAKE) _check TEST=despeckle_median1_iter2
-	-@$(MAKE) _check TEST=despeckle_median1_upper
-	-@$(MAKE) _check TEST=despeckle_median1_lower
-	-@$(MAKE) _check TEST=despeckle_median1_lower_range
+test_pdf:
+	-@$(MAKE) test _CHECK=_check_pdf
+
+test:
+	-@$(MAKE) $(_CHECK) TEST=timestampimage
+	-@$(MAKE) $(_CHECK) TEST=timestampimage2
+	-@$(MAKE) $(_CHECK) TEST=timestampimageutc
+	-@$(MAKE) $(_CHECK) TEST=shape_fill
+	-@$(MAKE) $(_CHECK) TEST=shape_stroke
+	-@$(MAKE) $(_CHECK) TEST=shape_mark
+	-@$(MAKE) $(_CHECK) TEST=shape_mark_alpha_factor
+	-@$(MAKE) $(_CHECK) TEST=shape_combined
+	-@$(MAKE) $(_CHECK) TEST=automatic_width
+	-@$(MAKE) $(_CHECK) TEST=automatic_height
+	-@$(MAKE) $(_CHECK) TEST=center
+	-@$(MAKE) $(_CHECK) TEST=scale
+	-@$(MAKE) $(_CHECK) TEST=trivial
+	-@$(MAKE) $(_CHECK) TEST=contourline
+	-@$(MAKE) $(_CHECK) TEST=contourlinewidth
+	-@$(MAKE) $(_CHECK) TEST=contourfill
+	-@$(MAKE) $(_CHECK) TEST=contourpattern
+	-@$(MAKE) $(_CHECK) TEST=contoursymbol
+	-@$(MAKE) $(_CHECK) TEST=contourfont
+	-@$(MAKE) $(_CHECK) TEST=contourfont2
+	-@$(MAKE) $(_CHECK) TEST=contourfont_grid
+	-@$(MAKE) $(_CHECK) TEST=contourlabels
+	-@$(MAKE) $(_CHECK) TEST=contourlabeltexts
+	-@$(MAKE) $(_CHECK) TEST=windarrow_grid
+	-@$(MAKE) $(_CHECK) TEST=windarrow_grid_step
+	-@$(MAKE) $(_CHECK) TEST=windarrow_grid_masked
+	-@$(MAKE) $(_CHECK) TEST=windarrow_pixelgrid
+	-@$(MAKE) $(_CHECK) TEST=windarrow_pixelgrid_masked
+	-@$(MAKE) $(_CHECK) TEST=windarrowscale
+	-@$(MAKE) $(_CHECK) TEST=directionparam
+	-@$(MAKE) $(_CHECK) TEST=speedparam
+	-@$(MAKE) $(_CHECK) TEST=labels_points
+	-@$(MAKE) $(_CHECK) TEST=labels_grid
+	-@$(MAKE) $(_CHECK) TEST=labels_grid_masked
+	-@$(MAKE) $(_CHECK) TEST=labels_grid_step
+	-@$(MAKE) $(_CHECK) TEST=labelformat
+	-@$(MAKE) $(_CHECK) TEST=labels_integers
+	-@$(MAKE) $(_CHECK) TEST=labels_and_arrows
+	-@$(MAKE) $(_CHECK) TEST=arrows_and_labels
+	-@$(MAKE) $(_CHECK) TEST=labels_pixelgrid
+	-@$(MAKE) $(_CHECK) TEST=labels_pixelgrid_masked
+	-@$(MAKE) $(_CHECK) TEST=meteorological_arrows
+	-@$(MAKE) $(_CHECK) TEST=meteorological_arrows_and_labels
+	-@$(MAKE) $(_CHECK) TEST=meta_elevation_angle
+	-@$(MAKE) $(_CHECK) TEST=meta_wind_chill
+	-@$(MAKE) $(_CHECK) TEST=meta_t2m_advection
+	-@$(MAKE) $(_CHECK) TEST=meta_thermal_front
+	-@$(MAKE) $(_CHECK) TEST=missing_values
+	-@$(MAKE) $(_CHECK) TEST=expanddata
+	-@$(MAKE) $(_CHECK) TEST=fahrenheit
+	-@$(MAKE) $(_CHECK) TEST=despeckle_none
+	-@$(MAKE) $(_CHECK) TEST=despeckle_median1
+	-@$(MAKE) $(_CHECK) TEST=despeckle_median2
+	-@$(MAKE) $(_CHECK) TEST=despeckle_median1_iter2
+	-@$(MAKE) $(_CHECK) TEST=despeckle_median1_upper
+	-@$(MAKE) $(_CHECK) TEST=despeckle_median1_lower
+	-@$(MAKE) $(_CHECK) TEST=despeckle_median1_lower_range
 	
 # 
-# Note: The current implementation of '_check' does not stop if there
-#       are differing pixels. This is intentional in the transition to Cairo.
-#           -- AKa 14-Aug-2008
+# ImageMagick usage was throw to a separate shell script. It should return 0
+# for approvable differences, and non-zero for once that could stop the make
+# (currently, all tests are run through anyhow).
 #
 PNG=$(notdir $(wildcard results_ok/$(TEST)_*.png)$(wildcard results_ok/$(TEST).png))
 _check:
@@ -133,15 +126,16 @@ _check:
 	@# Need to clear all previous output; 'qdcontour' will otherwise think they
 	@# are up to date (even with '-f', really??).
 	@#
-	#-@rm results/$(PNG)
+	@#-@rm results/$(PNG)
+	@-mkdir -p results_diff
 	$(PROGRAM) -f conf/$(TEST).conf
-	$(IMAGE_COMPARE) results_ok/$(PNG) results/$(PNG)
+	-./pngdiff.sh results_ok/$(PNG) results/$(PNG) results_diff/$(PNG)
 
 _check_pdf:
 	@echo
 	@echo "*** $(TEST) ***"
 	@echo
-	$(PROGRAM) -c "format pdf" -f conf/$(TEST).conf
+	$(PROGRAM) -f -c "format pdf" conf/$(TEST).conf
 
 echo:
 	@echo $(PNG)
