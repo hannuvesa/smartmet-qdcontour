@@ -30,12 +30,8 @@ DIFFICULTFLAGS = -pedantic -Weffc++ -Wredundant-decls -Wshadow -Woverloaded-virt
 
 CC = g++
 
-INCLUDES = -I../imagine/include
-LIBS = -L../imagine -lsmartmet_imagine
-
 # Use the CVS version of Newbase (not the system installed one, which is old)
-#   -- AKa 17-Jul-2008
-#
+
 ifeq "$(shell uname -s)" "Darwin"
   NEWBASE_PATH = $(HOME)/Work/IL/cvs/newbase
   #IMAGINE_PATH = $(HOME)/Work/IL/cvs/imagine
@@ -57,12 +53,22 @@ else
 	-lboost_system-gcc41-mt
 endif
 
+# Rendering either with Cairo or Imagine
+
+ifeq "$(IMAGINE_PATH)" ""
+  INCLUDES += $(shell pkg-config --cflags cairomm-1.0)
+  LIBS += $(shell pkg-config --libs cairomm-1.0)
+else
+  INCLUDES += -DUSE_OLD_IMAGINE -I$(IMAGINE_PATH)/include
+  LIBS += -L$(IMAGINE_PATH) -lsmartmet_imagine
+endif
+
+MAINFLAGS += $(CAIRO_CFLAGS)
+
 # Default compile options
 
 CFLAGS = -DUNIX -O2 -DNDEBUG $(MAINFLAGS)
 LDFLAGS =
-
-CFLAGS += $(CAIRO_CFLAGS)
 
 # "-s is obsolete and being ignored" (gcc 4.01, AKa 17-Jul-2008)
 #LDFLAGS = -s
@@ -80,32 +86,29 @@ LDFLAGS_PROFILE =
 FT2_LIBS= $(shell freetype-config --libs)
 FT2_CFLAGS= $(shell freetype-config --cflags)
 
-INCLUDES += \
-	-I$(NEWBASE_PATH)/include \
-	-I$(TRON_PATH)/include \
-	$(FT2_CFLAGS) \
-	-I.
+#INCLUDES += \
+#	-I$(NEWBASE_PATH)/include \
+#	-I$(TRON_PATH)/include \
+#	$(FT2_CFLAGS)
+#	-I.
 
-#INCLUDES += -I$(includedir) \
-#	-I$(includedir)/smartmet/newbase \
-#	-I$(includedir)/smartmet/tron \
-#	-I$(includedir)/smartmet/imagine \
-#	-I$(includedir)/freetype2
+INCLUDES += -I$(includedir) \
+	-I$(includedir)/smartmet/newbase \
+	-I$(includedir)/smartmet/tron \
+	-I$(includedir)/smartmet/imagine \
+	$(FT2_CFLAGS)
 
 LIBS += \
 	-L$(TRON_PATH) -lsmartmet_tron \
 	-L$(NEWBASE_PATH) -lsmartmet_newbase \
+	-lsmartmet_imagine \
+	-Wl,-rpath,/usr/local/lib \
+	-L /usr/local/lib \
+	-lboost_regex-gcc41-mt \
+	-lboost_filesystem-gcc41-mt \
+	-lboost_system-gcc41-mt \
+	-lboost_iostreams-gcc41-mt \
 	$(FT2_LIBS) -lpng -ljpeg -lz
-
-# Rendering either with Cairo or Imagine
-#
-ifeq "$(IMAGINE_PATH)" ""
-  INCLUDES += $(shell pkg-config --cflags cairomm-1.0)
-  LIBS += $(shell pkg-config --libs cairomm-1.0)
-else
-  INCLUDES += -DUSE_OLD_IMAGINE -I$(IMAGINE_PATH)/include
-  LIBS += -L$(IMAGINE_PATH) -lsmartmet_imagine
-endif
 
 # Common library compiling template
 
