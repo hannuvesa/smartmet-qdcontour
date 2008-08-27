@@ -109,8 +109,8 @@ bool IsMasked( const NFmiPoint & thePoint,
   if(theMask.empty())
 	return false;
   
-  int x = static_cast<int>( FmiRound( thePoint.X() ));
-  int y = static_cast<int>( FmiRound( thePoint.Y() ));
+  int x = static_cast<int>( round( thePoint.X() ));
+  int y = static_cast<int>( round( thePoint.Y() ));
 
   // Get the mask
 
@@ -3063,11 +3063,11 @@ void draw_label_markers(
 		continue;
 
 	  img.Composite(marker,
-						 markerrule,
-						 kFmiAlignCenter,
-						 FmiRound(xy.X()),
-						 FmiRound(xy.Y()),
-						 markeralpha);
+					markerrule,
+					kFmiAlignCenter,
+					static_cast<int>(round(xy.X())),
+					static_cast<int>(round(xy.Y())),
+					markeralpha);
 	}
 }
 
@@ -3163,32 +3163,32 @@ void draw_label_texts( ImagineXr_or_NFmiImage &img,
 #ifdef IMAGINE_WITH_CAIRO
         /* Cairo text (must be in UTF-8!)
         */
-		img.DrawFace( FmiRound(x + theSpec.labelOffsetX()),
-				      FmiRound(y + theSpec.labelOffsetY()),
-				      strvalue,
-				      theSpec.labelColor(),
-				      AlignmentValue(theSpec.labelAlignment()),
-				      ColorTools::checkrule(theSpec.labelRule()) 
-				      );
+		img.DrawFace(static_cast<int>(round(x + theSpec.labelOffsetX())),
+					 static_cast<int>(round(y + theSpec.labelOffsetY())),
+					 strvalue,
+					 theSpec.labelColor(),
+					 AlignmentValue(theSpec.labelAlignment()),
+					 ColorTools::checkrule(theSpec.labelRule()) 
+					 );
 		
 		// Then the label caption
 		
 		if(!theSpec.labelCaption().empty())
 		  {
-		      img.DrawFace( FmiRound(x + theSpec.labelCaptionDX()),
-					        FmiRound(y + theSpec.labelCaptionDY()),
-					        theSpec.labelCaption(),
-					        theSpec.labelColor(),
-					        AlignmentValue(theSpec.labelCaptionAlignment()),
-					        ColorTools::checkrule(theSpec.labelRule())
-					        );
+			img.DrawFace(static_cast<int>(round(x + theSpec.labelCaptionDX())),
+						 static_cast<int>(round(y + theSpec.labelCaptionDY())),
+						 theSpec.labelCaption(),
+						 theSpec.labelColor(),
+						 AlignmentValue(theSpec.labelCaptionAlignment()),
+						 ColorTools::checkrule(theSpec.labelRule())
+						 );
 		  }
 #else
 		// Set new text properties
 		
 		face.Draw(img,
-				  FmiRound(x + theSpec.labelOffsetX()),
-				  FmiRound(y + theSpec.labelOffsetY()),
+				  round(x + theSpec.labelOffsetX()),
+				  round(y + theSpec.labelOffsetY()),
 				  strvalue,
 				  AlignmentValue(theSpec.labelAlignment()),
 				  theSpec.labelColor(),
@@ -3199,8 +3199,8 @@ void draw_label_texts( ImagineXr_or_NFmiImage &img,
 		if(!theSpec.labelCaption().empty())
 		  {
 			face.Draw(img,
-					  FmiRound(x + theSpec.labelCaptionDX()),
-					  FmiRound(y + theSpec.labelCaptionDY()),
+					  round(x + theSpec.labelCaptionDX()),
+					  round(y + theSpec.labelCaptionDY()),
 					  theSpec.labelCaption(),
 					  AlignmentValue(theSpec.labelCaptionAlignment()),
 					  theSpec.labelColor(),
@@ -3259,30 +3259,30 @@ void draw_label_texts( ImagineXr_or_NFmiImage &img,
         */
 		// Set new text properties
 		
-		img.DrawFace( FmiRound(x + theSpec.labelOffsetX()),
-				  FmiRound(y + theSpec.labelOffsetY()),
-				  strvalue,
-				  theSpec.labelColor(),
-				  AlignmentValue(theSpec.labelAlignment()),
-				  ColorTools::checkrule(theSpec.labelRule()));
+		img.DrawFace(static_cast<int>(round(x + theSpec.labelOffsetX())),
+					 static_cast<int>(round(y + theSpec.labelOffsetY())),
+					 strvalue,
+					 theSpec.labelColor(),
+					 AlignmentValue(theSpec.labelAlignment()),
+					 ColorTools::checkrule(theSpec.labelRule()));
 		
 		// Then the label caption
 		
 		if(!theSpec.labelCaption().empty())
 		  {
-			img.DrawFace( FmiRound(x + theSpec.labelCaptionDX()),
-					  FmiRound(y + theSpec.labelCaptionDY()),
-					  theSpec.labelCaption(),
-					  theSpec.labelColor(),
-					  AlignmentValue(theSpec.labelCaptionAlignment()),
-					  ColorTools::checkrule(theSpec.labelRule()));
+			img.DrawFace(static_cast<int>(round(x + theSpec.labelCaptionDX())),
+						 static_cast<int>(round(y + theSpec.labelCaptionDY())),
+						 theSpec.labelCaption(),
+						 theSpec.labelColor(),
+						 AlignmentValue(theSpec.labelCaptionAlignment()),
+						 ColorTools::checkrule(theSpec.labelRule()));
 		  }
 #else
 		// Set new text properties
 		
 		face.Draw(img,
-				  FmiRound(x + theSpec.labelOffsetX()),
-				  FmiRound(y + theSpec.labelOffsetY()),
+				  round(x + theSpec.labelOffsetX()),
+				  round(y + theSpec.labelOffsetY()),
 				  strvalue,
 				  AlignmentValue(theSpec.labelAlignment()),
 				  theSpec.labelColor(),
@@ -3293,8 +3293,8 @@ void draw_label_texts( ImagineXr_or_NFmiImage &img,
 		if(!theSpec.labelCaption().empty())
 		  {
 			face.Draw(img,
-					  FmiRound(x + theSpec.labelCaptionDX()),
-					  FmiRound(y + theSpec.labelCaptionDY()),
+					  round(x + theSpec.labelCaptionDX()),
+					  round(y + theSpec.labelCaptionDY()),
 					  theSpec.labelCaption(),
 					  AlignmentValue(theSpec.labelCaptionAlignment()),
 					  theSpec.labelColor(),
@@ -3820,8 +3820,9 @@ void save_contour_labels( ImagineXr_or_NFmiImage &img,
 		  if(pit->op == kFmiLineTo)
 			{
 			  globals.labellocator.add(it->value(),
-									   FmiRound(pit->x),
-									   FmiRound(pit->y) );
+									   static_cast<int>(round(pit->x)),
+									   static_cast<int>(round(pit->y))
+									   );
 			}
 		}
 	}
@@ -3960,8 +3961,8 @@ void save_contour_symbols( ImagineXr_or_NFmiImage &img,
 				NFmiPoint xy = theArea.ToXY(latlon);
 
 				globals.imagelocator.add(z,
-										 FmiRound(xy.X()),
-										 FmiRound(xy.Y()));
+										 static_cast<int>(round(xy.X())),
+										 static_cast<int>(round(xy.Y())));
 			  }
 		  }
 	}
@@ -4197,8 +4198,8 @@ void save_contour_fonts( ImagineXr_or_NFmiImage &img,
 			NFmiPoint xy = theArea.ToXY(latlon);
 
 			globals.symbollocator.add(theValues[i][j],
-									  FmiRound(xy.X()),
-									  FmiRound(xy.Y()));
+									  static_cast<int>(round(xy.X())),
+									  static_cast<int>(round(xy.Y())));
 		  }
 	  }
 }
@@ -4374,19 +4375,19 @@ void draw_pressure_markers( ImagineXr_or_NFmiImage &img,
 			{
 			case ExtremaLocator::Minimum:
 			  img.Composite(globals.lowpressureimage,
-								 lowrule,
-								 kFmiAlignCenter,
-								 FmiRound(xy.X()),
-								 FmiRound(xy.Y()),
-								 globals.lowpressurefactor);
+							lowrule,
+							kFmiAlignCenter,
+							static_cast<int>(round(xy.X())),
+							static_cast<int>(round(xy.Y())),
+							globals.lowpressurefactor);
 			  break;
 			case ExtremaLocator::Maximum:
 			  img.Composite(globals.highpressureimage,
-								 highrule,
-								 kFmiAlignCenter,
-								 FmiRound(xy.X()),
-								 FmiRound(xy.Y()),
-								 globals.highpressurefactor);
+							highrule,
+							kFmiAlignCenter,
+							static_cast<int>(round(xy.X())),
+							static_cast<int>(round(xy.Y())),
+							globals.highpressurefactor);
 			  break;
 			}
 		}
