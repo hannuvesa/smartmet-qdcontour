@@ -7,13 +7,24 @@
 # Ref: ImageMagick Comparing: 
 #       <http://www.imagemagick.org/Usage/compare/>
 #
+# Recommended:
+#       ImageMagick >= 6.4.0    (works crippled with IM 6.2.x)
+#
 
 OK_PNG=$1
 PNG=$2
 DIFF_PNG=$3
 
+COL_RED="$(tput setaf 1)"
+COL_GREEN="$(tput setaf 2)"
+COL_YELLOW="$(tput setaf 3)"
+COL_NORM="$(tput setaf 9)"
+
+COL_BOLD="$(tput bold)"
+COL_OFF="$(tput sgr0)"
+
 if [ \! -f $PNG ]; then
-    echo "*** FAILED: 'results/${PNG}' not created"
+    echo "${COL_RED}*** FAILED:${COL_NORM} 'results/${PNG}' not created"
     exit -1
 fi
 
@@ -38,20 +49,36 @@ composite $OK_PNG $PNG -compose DIFFERENCE png:- | \
 #V="$(compare 2>&1 -metric AE -fuzz 5% ${OK_PNG} ${PNG} ${DIFF_PNG})"
 
 # Note: IM 6.4.x outputs just the PSNR number (i.e. 22.432) but 6.2.8 outputs
-#       "22.432 dB\n300,300,PNG" which is... troublesome
+#	"22.432 dB\n300,300,PNG" which is... troublesome
 #
 #V="$(compare 2>&1 -metric PSNR ${OK_PNG} ${PNG} ${DIFF_PNG} | head -1 | sed "-es/ dB//")"
 
-V=$(compare 2>&1 -metric PSNR ${OK_PNG} ${PNG} ${DIFF_PNG} | head -1 | sed "-es/ dB//" || exit 255)
-
-COL_RED="$(tput setaf 1)"
-COL_GREEN="$(tput setaf 2)"
-COL_YELLOW="$(tput setaf 3)"
-COL_NORM="$(tput setaf 9)"
-
-# Note: Need to use 'bc' to make non-integer value integer
+# Note: IM 6.2.x seems to have trouble with opacity; gives many
+#       "image opacity differs" errors; 6.4.x gives not.
 #
-if [ $(echo "$V >= 20" | bc) = 1 ]; then
+V=$((compare 2>&1 -metric PSNR ${OK_PNG} ${PNG} /dev/null | head -1 | sed "-es/ dB//") || exit 255)
+
+# Cut non-decimal values (error string) out
+#
+# Note: Need to use 'bc' to handle non-integer comparisons. 'expr' would handle
+#       decimals as string comparison, i.e. 'expr "7.1" \> 10' --> 1.
+#
+#echo "<<$V232321>>" | sed -es/[1-9.]//g
+#echo "<<$V>>" | sed -es/[1-9.]//g
+#
+#if [ -n $(echo "$V" | sed -es/[1-9.]//g) ]; then
+#    echo "${COL_RED}FAIL:${COL_NORM} $V"
+#    exit 100
+
+# HACK: A real hack. Did not get the above code to work.
+#
+if [ $(echo "$V" | grep compare | wc -l) = 1 ]; then
+    echo "${COL_RED}FAIL:${COL_NORM} $V"
+    if [ $(echo "$V" | grep "opacity differs" | wc -l) = 1 ]; then
+        echo "${COL_BOLD}ImageMagick >= 6.4.x is needed for this test${COL_OFF}"
+    fi
+    exit 100
+elif [ $(echo "$V >= 20" | bc) = 1 -o "$V" = inf ]; then
     echo "${COL_GREEN}OK:${COL_NORM} PSNR >= 20dB ($V dB)"
     exit 0
 elif [ $(echo "$V >= 10" | bc) = 1 ]; then
@@ -59,9 +86,6 @@ elif [ $(echo "$V >= 10" | bc) = 1 ]; then
     exit 0
 elif [ $(echo "$V >= 0" | bc) = 1 ]; then
     echo "${COL_RED}FAIL:${COL_NORM} PSNR < 10dB ($V dB)"
-    exit 100
-else
-    echo "${COL_RED}FAIL:${COL_NORM} $V"
     exit 100
 fi
 
