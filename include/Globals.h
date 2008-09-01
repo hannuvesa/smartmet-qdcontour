@@ -19,6 +19,7 @@
 #include "ShapeSpec.h"
 #include "UnitsConverter.h"
 
+#include "imagine-config.h"
 #ifdef IMAGINE_WITH_CAIRO
 # include "ImagineXr.h"
 #else
