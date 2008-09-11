@@ -81,7 +81,7 @@ test: $(PROG)
 perltest: $(PROG)
 	cd test && LD_LIBRARY_PATH=/usr/local/lib make perltest
 
-html::
+html:
 	mkdir -p ../../../../html/bin/$(HTML)
 	doxygen $(HTML).dox
 
@@ -97,7 +97,3 @@ rpm: clean
 
 tag:
 	cvs -f tag 'smartmet_$(HTML)_$(rpmversion)-$(rpmrelease)' .
-
-.SUFFIXES: $(SUFFIXES) .cpp
-
--include Dependencies
