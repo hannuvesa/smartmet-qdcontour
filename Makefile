@@ -1,93 +1,10 @@
 HTML = qdcontour
 PROG = qdcontour
 
-MAINFLAGS = -Wall -W -Wno-unused-parameter
-
-EXTRAFLAGS = -Wpointer-arith -Wcast-qual \
-	-Wcast-align -Wwrite-strings -Wconversion -Winline \
-	-Wnon-virtual-dtor -Wno-pmf-conversions \
-	-Wsign-promo -Wchar-subscripts
-
-# Exposes ArrowCache, ContourCache, ... (most likely does not like them being
-# without explicity constructor?)
 #
-# -Wctor-dtor-privacy
-
-# Boost has old type casts
+# To build serially (helps get the error messages right): make debug SCONS_FLAGS=""
 #
-# -Wold-style-cast
-
-DIFFICULTFLAGS = -pedantic -Weffc++ -Wredundant-decls -Wshadow -Woverloaded-virtual -Wunreachable-code
-
-CC = g++
-
-ifeq "$(shell uname -s)" "Darwin"
-  NEWBASE_PATH = $(HOME)/Work/IL/cvs/newbase
-  IMAGINE_PATH = $(HOME)/Work/IL/cvs/imagine
-  TRON_PATH = $(HOME)/Work/IL/cvs/tron
-
-  # OS X (Boost from fink)
-  INCLUDES += -I/sw/include
-  LIBS += -L/sw/lib -lboost_regex -lboost_filesystem -lboost_system -lboost_iostreams
-
-  INCLUDES += -I$(NEWBASE_PATH)/include -I$(IMAGINE_PATH)/include -I$(TRON_PATH)/include
-  LIBS += -L$(TRON_PATH) -L$(NEWBASE_PATH) -L$(IMAGINE_PATH)
-else
-  # Linux
-  INCLUDES += -I/usr/local/include/boost-1_35
-  LIBS += -L/usr/local/lib \
-    -lboost_regex-gcc41-mt \
-	-lboost_filesystem-gcc41-mt \
-	-lboost_system-gcc41-mt \
-	-lboost_iostreams-gcc41-mt
-endif
-
-# Default compile options
-
-CFLAGS = -DUNIX -O2 -DNDEBUG $(MAINFLAGS)
-LDFLAGS =
-
-# "-s is obsolete and being ignored" (gcc 4.01, AKa 17-Jul-2008)
-#LDFLAGS = -s
-
-# Special modes
-
-CFLAGS_DEBUG = -DUNIX -O0 -g $(MAINFLAGS) $(EXTRAFLAGS) -Werror
-CFLAGS_PROFILE = -DUNIX -O2 -g -pg -DNDEBUG $(MAINFLAGS)
-
-LDFLAGS_DEBUG = 
-LDFLAGS_PROFILE = 
-
-# Platform independent Freetype2 support
-#
-FT2_LIBS= $(shell freetype-config --libs)
-FT2_CFLAGS= $(shell freetype-config --cflags)
-
-CAIROMM_LIBS= $(shell pkg-config --libs cairomm-1.0)
-CAIROMM_CFLAGS= $(shell pkg-config --cflags cairomm-1.0)
-
-#INCLUDES += \
-#	-I$(NEWBASE_PATH)/include \
-#	-I$(TRON_PATH)/include \
-#	$(FT2_CFLAGS)
-#	-I.
-
-INCLUDES += -I$(includedir) \
-	-I$(includedir)/smartmet/newbase \
-	-I$(includedir)/smartmet/tron \
-	-I$(includedir)/smartmet/imagine \
-	$(FT2_CFLAGS) \
-	$(CAIROMM_CFLAGS)
-
-LIBS += \
-	-lsmartmet_tron \
-	-lsmartmet_newbase \
-	-lsmartmet_imagine \
-	-Wl,-rpath,/usr/local/lib \
-	$(FT2_LIBS) -lpng -ljpeg -lz \
-	$(CAIROMM_LIBS)
-
-# Common library compiling template
+SCONS_FLAGS=-j 4
 
 # Installation directories
 
@@ -124,62 +41,31 @@ rpmerr = "There's no spec file ($(specfile)). RPM wasn't created. Please make a 
 rpmversion := $(shell grep "^Version:" $(HTML).spec  | cut -d\  -f 2 | tr . _)
 rpmrelease := $(shell grep "^Release:" $(HTML).spec  | cut -d\  -f 2 | tr . _)
 
-# Special modes
-
-ifneq (,$(findstring debug,$(MAKECMDGOALS)))
-  CFLAGS = $(CFLAGS_DEBUG)
-  LDFLAGS = $(LDFLAGS_DEBUG)
-endif
-
-ifneq (,$(findstring profile,$(MAKECMDGOALS)))
-  CFLAGS = $(CFLAGS_PROFILE)
-  LDFLAGS = $(LDFLAGS_PROFILE)
-endif
-
-# Compilation directories
-
-vpath %.cpp source
-vpath %.h include
-vpath %.o $(objdir)
-
 # How to install
 
 INSTALL_PROG = install -m 775
 INSTALL_DATA = install -m 664
 
-# The files to be compiled
-
-SRCS = $(patsubst source/%,%,$(wildcard *.cpp source/*.cpp))
-HDRS = $(patsubst include/%,%,$(wildcard *.h include/*.h))
-OBJS = $(SRCS:%.cpp=%.o)
-
-OBJFILES = $(OBJS:%.o=obj/%.o)
-
-MAINSRCS = $(PROG:%=%.cpp)
-SUBSRCS = $(filter-out $(MAINSRCS),$(SRCS))
-SUBOBJS = $(SUBSRCS:%.cpp=%.o)
-SUBOBJFILES = $(SUBOBJS:%.o=obj/%.o)
-
-INCLUDES := -Iinclude $(INCLUDES)
-
-# For make depend:
-
-ALLSRCS = $(wildcard *.cpp source/*.cpp)
-
 .PHONY: test rpm
 
+#
 # The rules
+#
+SCONS_FLAGS += objdir=$(objdir) prefix=$(PREFIX)
 
-all: objdir $(PROG)
-debug: objdir $(PROG)
-release: objdir $(PROG)
-profile: objdir $(PROG)
+all release $(PROG):
+	scons $(SCONS_FLAGS) $(PROG)
 
-$(PROG): % : $(SUBOBJS) %.o
-	$(CC) $(LDFLAGS) -o $@ obj/$@.o $(SUBOBJFILES) $(LIBS)
+debug:
+	scons $(SCONS_FLAGS) debug=1 $(PROG)
+
+profile:
+	scons $(SCONS_FLAGS) profile=1 $(PROG)
 
 clean:
-	rm -f $(PROG) $(OBJFILES) *~ source/*~ include/*~
+	@#scons -c objdir=$(objdir)
+	-rm -f $(PROG) *~ source/*~ include/*~
+	-rm -rf $(objdir)
 
 install:
 	mkdir -p $(bindir)
@@ -188,9 +74,6 @@ install:
 	  echo $(INSTALL_PROG) $$prog $(bindir)/$$prog; \
 	  $(INSTALL_PROG) $$prog $(bindir)/$$prog; \
 	done
-
-depend:
-	gccmakedep -fDependencies -- $(CFLAGS) $(INCLUDES) -- $(ALLSRCS)
 
 test: $(PROG)
 	cd test && LD_LIBRARY_PATH=/usr/local/lib make test
@@ -202,10 +85,7 @@ html::
 	mkdir -p ../../../../html/bin/$(HTML)
 	doxygen $(HTML).dox
 
-objdir:
-	@mkdir -p $(objdir)
-
-rpm: clean depend
+rpm: clean
 	if [ -e $(BIN).spec ]; \
 	then \
 	  tar -C ../ -cf $(rpmsourcedir)/smartmet-$(BIN).tar $(BIN) ; \
@@ -219,8 +99,5 @@ tag:
 	cvs -f tag 'smartmet_$(HTML)_$(rpmversion)-$(rpmrelease)' .
 
 .SUFFIXES: $(SUFFIXES) .cpp
-
-.cpp.o:
-	$(CC) $(CFLAGS) $(INCLUDES) -c -o $(objdir)/$@ $<
 
 -include Dependencies
