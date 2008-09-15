@@ -13,6 +13,7 @@
 #           -- AKa 11-Sep-2008
 #
 # Change log:
+#       AKa 15-Sep-2008: Simplified (using just one build environment)
 #       AKa 11-Sep-2008: Initial version (same as existing Makefile)
 #
 
@@ -34,7 +35,7 @@ PREFIX=     ARGUMENTS.get("prefix","/usr")
 #
 # Base settings
 #
-env= DefaultEnvironment()
+env= Environment()
 
 LINUX=  env["PLATFORM"]=="posix"
 OSX=    env["PLATFORM"]=="darwin"
@@ -42,7 +43,9 @@ WINDOWS= env["PLATFORM"]=="windows"
 
 env.Append( CPPPATH= [ "./include" ] )
 
-if not WINDOWS: 
+if WINDOWS: 
+    { }     # TBD
+else:
     env.Append( CPPDEFINES= ["UNIX"] )
     env.Append( CXXFLAGS= [
         # MAINFLAGS from orig. Makefile
@@ -105,86 +108,78 @@ if not WINDOWS:
     env.ParseConfig("freetype-config --cflags --libs") 
     env.ParseConfig("pkg-config --cflags --libs cairomm-1.0")
     
-env.Append( LIBS= [ "png", "jpeg", "z" ] )
-
 # From original Makefile (not sure if needed?)
 #
 if LINUX:
 	env.Append( LIBFLAGS= "-Wl,-rpath,/usr/local/lib" )
 
+env.Append( LIBS= [ "png", "jpeg", "z" ] )
+
 
 #
 # Debug settings
 #
-env_debug= env.Clone() 
+if DEBUG:
+    if WINDOWS:
+        { }     # TBD
+    else:
+        env.Append( CXXFLAGS=[ "-O0", "-g", "-Werror",
 
-if not WINDOWS: 
-    debug_flags= [
-	    "-Werror",
-
-        # EXTRAFLAGS from orig. Makefile (for 'debug' target)
-        #
-        "-Wpointer-arith",
-        "-Wcast-qual",
-        "-Wcast-align",
-        "-Wwrite-strings",
-        "-Wconversion",
-        "-Winline",
-        "-Wnon-virtual-dtor",
-        "-Wno-pmf-conversions",
-        "-Wsign-promo",
-        "-Wchar-subscripts",
-    ]
-else:
-    debug_flags= []
-
-env_debug.Append( CXXFLAGS=[ "-O0", "-g" ] + debug_flags )
-
+            # EXTRAFLAGS from orig. Makefile (for 'debug' target)
+            #
+            "-Wpointer-arith",
+            "-Wcast-qual",
+            "-Wcast-align",
+            "-Wwrite-strings",
+            "-Wconversion",
+            "-Winline",
+            "-Wnon-virtual-dtor",
+            "-Wno-pmf-conversions",
+            "-Wsign-promo",
+            "-Wchar-subscripts",
+        ] )
 
 #
 # Release settings
 #
-env_release= env.Clone() 
+if RELEASE or PROFILE:
+    if WINDOWS:
+        { }     # TBD
+    else:
+        env.Append( CPPDEFINES="NDEBUG",
+                    CXXFLAGS= ["-O2",
 
-if not WINDOWS: 
-    release_flags= [
-        # RELEASEFLAGS from orig. Makefile (for 'release' and 'profile' targets)
-        #
-        "-Wuninitialized",
-    ]
-else:
-    release_flags= []
-
-env_release.Append( CXXFLAGS="-O2", CPPDEFINES="NDEBUG" )
-env_release.Append( CXXFLAGS= release_flags )
-
+            # RELEASEFLAGS from orig. Makefile (for 'release' and 'profile' targets)
+            #
+            "-Wuninitialized",
+        ] )
 
 #
 # Profile settings
 #
-env_profile= env_release.Clone() 
-
-if not WINDOWS: 
-    env_profile.Append( CXXFLAGS="-g -pg" )
+if PROFILE:
+    if WINDOWS:
+        { }     # TBD
+    else: 
+        env.Append( CXXFLAGS="-g -pg" )
 
 
 #---
 # Force objects to 'objdir'
 #
-objs= []
+# Note: Samples show 'env.Replace( OBJDIR=... )' to be able to do this, but
+#       it did not work.    -- AKa 15-Sep-2008
+#
+#env.Replace( OBJDIR=OBJDIR )
+#env.Program( "qdcontour", Glob("source/*.cpp") )
 
-if DEBUG:
-    e= env_debug
-elif PROFILE:
-    e= env_profile
-else:
-    e= env_release
+objs= []
 
 for fn in Glob("source/*.cpp"): 
     s= os.path.basename( str(fn) )
-    objs += e.Object( OBJDIR+"/"+ s.replace(".cpp",""), fn )
+    objs += env.Object( OBJDIR+"/"+ s.replace(".cpp",""), fn )
 
-objs += e.Object( OBJDIR+"/qdcontour", "qdcontour.cpp" )
+objs += env.Object( OBJDIR+"/qdcontour", "qdcontour.cpp" )
 
-e.Program( "qdcontour", objs )
+env.Program( "qdcontour", objs )
 
