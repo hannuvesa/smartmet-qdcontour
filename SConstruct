@@ -25,6 +25,8 @@ Help("""
     Or just use 'make release|debug|profile', which point right back to us.
 """) 
 
+Decider("MD5-timestamp") 
+
 DEBUG=      int( ARGUMENTS.get("debug", 0) ) != 0
 PROFILE=    int( ARGUMENTS.get("profile", 0) ) != 0
 RELEASE=    (not DEBUG) and (not PROFILE)     # default
