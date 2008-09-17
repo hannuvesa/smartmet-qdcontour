@@ -134,11 +134,10 @@ env.Append( LIBS= [ BOOST_PREFIX+"boost_regex"+BOOST_POSTFIX,
 #
 if WINDOWS:
     env.Append( CPPPATH= [ "../cairomm-1.6.4" ] )
-    env.Append( LIBPATH= [ "../cairomm-1.6.4/MSVC_Net2005/cairomm/Release" ] )
-    env.Append( LIBS= "cairomm-1.0" )
+    env.Append( LIBS= [ "../cairomm-1.6.4/MSVC_Net2005/cairomm/Release/cairomm-1.0.lib" ] )
 
-    #env.Append( CPPPATH= [ "../cairo-1.6.4/include" ] )
-    #env.Append( LIBS= "../cairo-1.6.4/release/cairo-static.lib" )
+    env.Append( CPPPATH= [ "../cairo-1.6.4/src" ] )
+    #env.Append( LIBS= "../cairo-1.6.4/src/release/cairo-static.lib" )
 else:
     env.ParseConfig("freetype-config --cflags --libs") 
     env.ParseConfig("pkg-config --cflags --libs cairomm-1.0")
