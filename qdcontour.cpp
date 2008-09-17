@@ -387,11 +387,16 @@ void write_image( const ImagineXr &xr ) {
         // 255=transparent).
         //
         unsigned n= xr.Width() * xr.Height();
-        NFmiColorTools::Color buf[n];
-
+#if 0
+        NFmiColorTools::Color buf[n];   // does not compile with VC++
+#else
+        { NFmiColorTools::Color *buf) new NFmiColorTools::Color[n];
+#endif
         xr.NFmiColorBuf(buf);
         NFmiImage img( xr.Width(), xr.Height(), buf );
-
+#if 1
+        delete[] buf; }
+#endif
         globals.setImageModes( img );
 
         if(globals.reducecolors)

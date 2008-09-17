@@ -41,12 +41,20 @@ env= Environment()
 
 LINUX=  env["PLATFORM"]=="posix"
 OSX=    env["PLATFORM"]=="darwin"
-WINDOWS= env["PLATFORM"]=="windows"
+WINDOWS= env["PLATFORM"]=="win32"
+
+#
+# SCons does not pass env.vars automatically through to executing commands.
+# On Windows, we want it to get them all (Visual C++ 2008).
+#
+if WINDOWS:
+    env.Replace( ENV= os.environ )
 
 env.Append( CPPPATH= [ "./include" ] )
 
 if WINDOWS: 
-    { }     # TBD
+    if env["CC"]=="cl":
+        env.Append( CXXFLAGS= ["/EHsc"] )
 else:
     env.Append( CPPDEFINES= ["UNIX"] )
     env.Append( CXXFLAGS= [
@@ -69,7 +77,29 @@ else:
 	    #"-Wold-style-cast",       Boost 1.35 has old style casts
     ] )
 
-if LINUX:
+BOOST_POSTFIX=""
+BOOST_PREFIX=""
+
+if WINDOWS:
+    # Installed from 'boost_1_35_0_setup.exe' from BoostPro Internet page.
+    #
+    BOOST_INSTALL_PATH= "D:/Boost/1_35_0"
+    env.Append( CPPPATH= [ BOOST_INSTALL_PATH ] )
+    env.Append( LIBPATH= [ BOOST_INSTALL_PATH + "/lib" ] )
+    if DEBUG:
+        BOOST_POSTFIX= "-vc90-mt-gd-1_35"
+    else:
+        BOOST_POSTFIX= "-vc90-mt-1_35"
+        BOOST_PREFIX= "lib"
+
+    # Newbase etc. from nearby
+    #
+    env.Append( CPPPATH= [ "../newbase/include","../imagine/include", "../tron/include" ] )
+    env.Append( LIBPATH= [ "../newbase","../imagine", "../tron" ] )
+
+elif LINUX:
+    BOOST_POSTFIX= "-gcc41-mt"
+
     # Newbase, Imagine & Tron from system install
     #
     env.Append( CPPPATH= [ PREFIX+"/include/smartmet/newbase",
@@ -94,19 +124,22 @@ elif OSX:
 
 env.Append( LIBS= [ "smartmet_newbase", "smartmet_imagine", "smartmet_tron" ] )
 
-BOOST_POSTFIX= ""
-if LINUX:
-    BOOST_POSTFIX= "-gcc41-mt"
-
-env.Append( LIBS= [ "boost_regex"+BOOST_POSTFIX, 
-                    "boost_filesystem"+BOOST_POSTFIX,
-                    "boost_system"+BOOST_POSTFIX,
-                    "boost_iostreams"+BOOST_POSTFIX ] )
+env.Append( LIBS= [ BOOST_PREFIX+"boost_regex"+BOOST_POSTFIX, 
+                    BOOST_PREFIX+"boost_filesystem"+BOOST_POSTFIX,
+                    BOOST_PREFIX+"boost_system"+BOOST_POSTFIX,
+                    BOOST_PREFIX+"boost_iostreams"+BOOST_POSTFIX ] )
 
 #
 # Freetype2, Cairomm-1.0, ...
 #
-if not WINDOWS:
+if WINDOWS:
+    env.Append( CPPPATH= [ "../cairomm-1.6.4" ] )
+    env.Append( LIBPATH= [ "../cairomm-1.6.4/MSVC_Net2005/cairomm/Release" ] )
+    env.Append( LIBS= "cairomm-1.0" )
+
+    #env.Append( CPPPATH= [ "../cairo-1.6.4/include" ] )
+    #env.Append( LIBS= "../cairo-1.6.4/release/cairo-static.lib" )
+else:
     env.ParseConfig("freetype-config --cflags --libs") 
     env.ParseConfig("pkg-config --cflags --libs cairomm-1.0")
     
@@ -115,7 +148,14 @@ if not WINDOWS:
 if LINUX:
 	env.Append( LIBFLAGS= "-Wl,-rpath,/usr/local/lib" )
 
-env.Append( LIBS= [ "png", "jpeg", "z" ] )
+#
+# Other libs
+#
+if WINDOWS:
+    { }
+    env.Append( LIBS= [ "../lpng1231/libpng.lib", "../zlib123/zlib.lib" ] )
+else:
+    env.Append( LIBS= [ "png", "jpeg", "z" ] )
 
 
 #
@@ -123,7 +163,12 @@ env.Append( LIBS= [ "png", "jpeg", "z" ] )
 #
 if DEBUG:
     if WINDOWS:
-        { }     # TBD
+        if env["CC"]=="cl":
+            env.AppendUnique( CPPDEFINES=["_DEBUG","DEBUG"] )
+            # Debug multithreaded DLL runtime, no opt.
+            env.AppendUnique( CCFLAGS=["/MDd", "/Od"] )
+            # Each obj gets own .PDB so parallel building (-jN) works
+            env.AppendUnique( CCFLAGS=["/Zi", "/Fd${TARGET}.pdb"] )
     else:
         env.Append( CXXFLAGS=[ "-O0", "-g", "-Werror",
 
@@ -146,7 +191,9 @@ if DEBUG:
 #
 if RELEASE or PROFILE:
     if WINDOWS:
-        { }     # TBD
+        if env["CC"]=="cl":
+            # multithreaded DLL runtime, reasonable opt.
+            env.AppendUnique( CCFLAGS=["/MD", "/Ox"] )
     else:
         env.Append( CPPDEFINES="NDEBUG",
                     CXXFLAGS= ["-O2",
