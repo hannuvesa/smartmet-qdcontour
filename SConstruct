@@ -106,11 +106,6 @@ elif LINUX:
                            PREFIX+"/include/smartmet/imagine",
                            PREFIX+"/include/smartmet/tron" ] )
 
-    # Boost 1.35 built to /usr/local
-    #
-    env.Append( CPPPATH= [ "/usr/local/include/boost-1_35" ] )
-    env.Append( LIBPATH= [ "/usr/local/lib" ] )
-
 elif OSX:
     # Newbase, Imagine & Tron from local CVS
     #
@@ -142,14 +137,8 @@ else:
     env.ParseConfig("freetype-config --cflags --libs") 
     env.ParseConfig("pkg-config --cflags --libs cairomm-1.0")
     
-# From original Makefile (not sure if needed?)
-#
-if LINUX:
-	env.Append( LIBFLAGS= "-Wl,-rpath,/usr/local/lib" )
-
-#
 # Other libs
-#
+
 if WINDOWS:
     { }
     env.Append( LIBS= [ "../lpng1231/libpng.lib", "../zlib123/zlib.lib" ] )
@@ -157,9 +146,8 @@ else:
     env.Append( LIBS= [ "png", "jpeg", "z" ] )
 
 
-#
 # Debug settings
-#
+
 if DEBUG:
     if WINDOWS:
         if env["CC"]=="cl":
