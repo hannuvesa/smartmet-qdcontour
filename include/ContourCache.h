@@ -42,7 +42,7 @@
 #ifndef CONTOURCACHE_H
 #define CONTOURCACHE_H
 
-#include "NFmiPath.h"
+#include <imagine/NFmiPath.h>
 
 #include <map>
 #include <string>

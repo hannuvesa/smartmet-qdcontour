@@ -14,14 +14,13 @@
 
 #include "PathAdapter.h"
 
-#include "Contourer.h"
-#include "Hints.h"
-#include "Missing.h"
-#include "LinearInterpolation.h"
-#include "NearestNeighbourInterpolation.h"
-#include "DiscreteInterpolation.h"
-#include "Missing.h"
-#include "Traits.h"
+#include <tron/Contourer.h>
+#include <tron/Hints.h>
+#include <tron/LinearInterpolation.h>
+#include <tron/NearestNeighbourInterpolation.h>
+#include <tron/DiscreteInterpolation.h>
+#include <tron/Missing.h>
+#include <tron/Traits.h>
 
 #include <memory>
 #include <stdexcept>

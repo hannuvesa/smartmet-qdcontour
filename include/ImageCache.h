@@ -7,12 +7,12 @@
 #ifndef IMAGECACHE_H
 #define IMAGECACHE_H
 
-#include "imagine-config.h"
+#include <imagine/imagine-config.h>
 #ifdef IMAGINE_WITH_CAIRO
-# include "ImagineXr.h"
+#include <imagine/ImagineXr.h>
 #endif
 
-#include "NFmiImage.h"
+#include <imagine/NFmiImage.h>
 
 #include <map>
 #include <string>
@@ -24,7 +24,7 @@ public:
   void clear() const;
 
 private:
-  typedef std::map< std::string, ImagineXr_or_NFmiImage > storage_type;
+  typedef std::map<std::string, ImagineXr_or_NFmiImage> storage_type;
   mutable storage_type itsCache;
 
 };

@@ -6,7 +6,7 @@
 // ======================================================================
 
 #include "ArrowCache.h"
-#include "NFmiStringTools.h"
+#include <newbase/NFmiStringTools.h>
 #include <fstream>
 #include <stdexcept>
 

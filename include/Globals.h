@@ -19,15 +19,15 @@
 #include "ShapeSpec.h"
 #include "UnitsConverter.h"
 
-#include "imagine-config.h"
+#include <imagine/imagine-config.h>
 #ifdef IMAGINE_WITH_CAIRO
-# include "ImagineXr.h"
+# include <imagine/ImagineXr.h>
 #else
-# include "NFmiColorTools.h"
+# include <imagine/NFmiColorTools.h>
 #endif
 
-#include "NFmiImage.h"
-#include "NFmiPoint.h"
+#include <imagine/NFmiImage.h>
+#include <newbase/NFmiPoint.h>
 
 #include <boost/shared_ptr.hpp>
 

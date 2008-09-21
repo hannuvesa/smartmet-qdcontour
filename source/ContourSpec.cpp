@@ -8,7 +8,7 @@
 #include "ContourSpec.h"
 #include "NoiseTools.h"
 
-#include "NFmiColorTools.h"
+#include <imagine/NFmiColorTools.h>
 
 // ----------------------------------------------------------------------
 /*!

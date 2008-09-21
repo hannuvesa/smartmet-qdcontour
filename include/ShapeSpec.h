@@ -14,7 +14,7 @@
 #ifndef SHAPESPEC_H
 #define SHAPESPEC_H
 
-#include "NFmiColorTools.h"
+#include <imagine/NFmiColorTools.h>
 
 class ShapeSpec
 {
