@@ -35,7 +35,7 @@ despeckle_median1_lower_range \
 windarrow_grid_normal \
 windarrow_grid_step \
 windarrow_grid_masked \
-windarrow_pixelgrid \
+windarrow_pixelgrid_normal \
 windarrow_pixelgrid_masked \
 windarrowscale \
 meta_elevation_angle \
@@ -81,7 +81,7 @@ test:
 	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_grid_normal
 	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_grid_step
 	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_grid_masked
-	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_pixelgrid
+	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_pixelgrid_normal
 	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_pixelgrid_masked
 	-@$(MAKE) --quiet $(_CHECK) TEST=windarrowscale
 	-@$(MAKE) --quiet $(_CHECK) TEST=directionparam
