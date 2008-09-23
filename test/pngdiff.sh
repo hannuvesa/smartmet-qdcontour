@@ -78,14 +78,14 @@ if [ $(echo "$V" | grep compare | wc -l) = 1 ]; then
         echo "${COL_BOLD}ImageMagick >= 6.4.x is needed for this test${COL_OFF}"
     fi
     exit 100
-elif [ $(echo "$V >= 20" | bc) = 1 -o "$V" = inf ]; then
-    echo "${COL_GREEN}OK:${COL_NORM} PSNR >= 20dB ($V dB)"
+elif [ $(echo "$V >= 50" | bc) = 1 -o "$V" = inf ]; then
+    echo "${COL_GREEN}OK:${COL_NORM} PSNR >= 50dB ($V dB)"
     exit 0
-elif [ $(echo "$V >= 10" | bc) = 1 ]; then
-    echo "${COL_YELLOW}WARNING:${COL_NORM} 10dB <= PSNR < 20dB ($V dB)"
+elif [ $(echo "$V >= 20" | bc) = 1 ]; then
+    echo "${COL_YELLOW}WARNING:${COL_NORM} 20dB <= PSNR < 50dB ($V dB)"
     exit 0
 elif [ $(echo "$V >= 0" | bc) = 1 ]; then
-    echo "${COL_RED}FAIL:${COL_NORM} PSNR < 10dB ($V dB)"
+    echo "${COL_RED}FAIL:${COL_NORM} PSNR < 20dB ($V dB)"
     exit 100
 fi
 
