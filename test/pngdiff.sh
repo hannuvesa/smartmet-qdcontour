@@ -24,7 +24,7 @@ COL_BOLD="$(tput bold)"
 COL_OFF="$(tput sgr0)"
 
 if [ \! -f $PNG ]; then
-    echo "${COL_RED}*** FAILED:${COL_NORM} 'results/${PNG}' not created"
+    echo "${COL_RED}*** FAILED:${COL_NORM} '${PNG}' not created"
     exit -1
 fi
 

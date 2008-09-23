@@ -22,17 +22,17 @@ _CHECK=_check
 #
 labels_grid_masked missing_values shape_combined shape_fill shape_mark shape_mark_alpha_factor shape_stroke \
 contourpattern contoursymbol contoursymbol2 \
-contourfont contourfont2 contourfont_grid \
-contourlabeltexts contourlabels \
+contourfont1 contourfont2 contourfont_grid \
+contourlabeltexts contourlabels contourlabelcolors \
 center automatic_width \
 despeckle_none \
-despeckle_median1 \
-despeckle_median2 \
+despeckle_median1_normal \
+despeckle_median2_normal \
 despeckle_median1_iter2 \
 despeckle_median1_upper \
 despeckle_median1_lower \
 despeckle_median1_lower_range \
-windarrow_grid \
+windarrow_grid_normal \
 windarrow_grid_step \
 windarrow_grid_masked \
 windarrow_pixelgrid \
@@ -72,12 +72,13 @@ test:
 	-@$(MAKE) --quiet $(_CHECK) TEST=contourfill
 	-@$(MAKE) --quiet $(_CHECK) TEST=contourpattern
 	-@$(MAKE) --quiet $(_CHECK) TEST=contoursymbol
-	-@$(MAKE) --quiet $(_CHECK) TEST=contourfont
+	-@$(MAKE) --quiet $(_CHECK) TEST=contourfont1
 	-@$(MAKE) --quiet $(_CHECK) TEST=contourfont2
 	-@$(MAKE) --quiet $(_CHECK) TEST=contourfont_grid
 	-@$(MAKE) --quiet $(_CHECK) TEST=contourlabels
 	-@$(MAKE) --quiet $(_CHECK) TEST=contourlabeltexts
-	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_grid
+	-@$(MAKE) --quiet $(_CHECK) TEST=contourlabelcolors
+	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_grid_normal
 	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_grid_step
 	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_grid_masked
 	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_pixelgrid
@@ -86,16 +87,16 @@ test:
 	-@$(MAKE) --quiet $(_CHECK) TEST=directionparam
 	-@$(MAKE) --quiet $(_CHECK) TEST=speedparam
 	-@$(MAKE) --quiet $(_CHECK) TEST=labels_points
-	-@$(MAKE) --quiet $(_CHECK) TEST=labels_grid
+	-@$(MAKE) --quiet $(_CHECK) TEST=labels_grid_normal
 	-@$(MAKE) --quiet $(_CHECK) TEST=labels_grid_masked
 	-@$(MAKE) --quiet $(_CHECK) TEST=labels_grid_step
 	-@$(MAKE) --quiet $(_CHECK) TEST=labelformat
 	-@$(MAKE) --quiet $(_CHECK) TEST=labels_integers
 	-@$(MAKE) --quiet $(_CHECK) TEST=labels_and_arrows
 	-@$(MAKE) --quiet $(_CHECK) TEST=arrows_and_labels
-	-@$(MAKE) --quiet $(_CHECK) TEST=labels_pixelgrid
+	-@$(MAKE) --quiet $(_CHECK) TEST=labels_pixelgrid_normal
 	-@$(MAKE) --quiet $(_CHECK) TEST=labels_pixelgrid_masked
-	-@$(MAKE) --quiet $(_CHECK) TEST=meteorological_arrows
+	-@$(MAKE) --quiet $(_CHECK) TEST=meteorological_arrows_normal
 	-@$(MAKE) --quiet $(_CHECK) TEST=meteorological_arrows_and_labels
 	-@$(MAKE) --quiet $(_CHECK) TEST=meta_elevation_angle
 	-@$(MAKE) --quiet $(_CHECK) TEST=meta_wind_chill
@@ -105,11 +106,11 @@ test:
 	-@$(MAKE) --quiet $(_CHECK) TEST=expanddata
 	-@$(MAKE) --quiet $(_CHECK) TEST=fahrenheit
 	-@$(MAKE) --quiet $(_CHECK) TEST=despeckle_none
-	-@$(MAKE) --quiet $(_CHECK) TEST=despeckle_median1
-	-@$(MAKE) --quiet $(_CHECK) TEST=despeckle_median2
+	-@$(MAKE) --quiet $(_CHECK) TEST=despeckle_median1_normal
+	-@$(MAKE) --quiet $(_CHECK) TEST=despeckle_median2_normal
 	-@$(MAKE) --quiet $(_CHECK) TEST=despeckle_median1_iter2
 	-@$(MAKE) --quiet $(_CHECK) TEST=despeckle_median1_upper
-	-@$(MAKE) --quiet $(_CHECK) TEST=despeckle_median1_lower
+	-@$(MAKE) --quiet $(_CHECK) TEST=despeckle_median1_lower_normal
 	-@$(MAKE) --quiet $(_CHECK) TEST=despeckle_median1_lower_range
 
 # ImageMagick usage was throw to a separate shell script. It should return 0
