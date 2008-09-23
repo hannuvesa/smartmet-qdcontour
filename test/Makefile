@@ -21,7 +21,7 @@ _CHECK=_check
 # Misc tests that have issues:
 #
 labels_grid_masked missing_values shape_combined shape_fill shape_mark shape_mark_alpha_factor shape_stroke \
-contourpattern contoursymbol contoursymbol2 \
+contourpattern contoursymbol1 contoursymbol2 \
 contourfont1 contourfont2 contourfont_grid \
 contourlabeltexts contourlabels contourlabelcolors \
 center automatic_width \
@@ -71,7 +71,8 @@ test:
 	-@$(MAKE) --quiet $(_CHECK) TEST=contourlinewidth
 	-@$(MAKE) --quiet $(_CHECK) TEST=contourfill
 	-@$(MAKE) --quiet $(_CHECK) TEST=contourpattern
-	-@$(MAKE) --quiet $(_CHECK) TEST=contoursymbol
+	-@$(MAKE) --quiet $(_CHECK) TEST=contoursymbol1
+	-@$(MAKE) --quiet $(_CHECK) TEST=contoursymbol2
 	-@$(MAKE) --quiet $(_CHECK) TEST=contourfont1
 	-@$(MAKE) --quiet $(_CHECK) TEST=contourfont2
 	-@$(MAKE) --quiet $(_CHECK) TEST=contourfont_grid
