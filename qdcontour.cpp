@@ -2610,12 +2610,11 @@ void do_draw_shapes( istream & theInput )
   // Initialize the background
 #ifdef IMAGINE_WITH_CAIRO
   ImagineXr image( imgwidth, imgheight, filename+"."+globals.format, globals.format );
-
-  image.Erase( ColorTools::checkcolor(globals.erase) );
 #else
   NFmiImage image(imgwidth, imgheight);
   globals.setImageModes(image);
 #endif
+  image.Erase( ColorTools::checkcolor(globals.erase) );
 
   // Draw all the shapes
 
