@@ -1,7 +1,7 @@
 #
-# Usage: make [SCONS_FLAGS=-j4]
+# Usage: make [SCONS_FLAGS=""]
 #
-SCONS_FLAGS=
+SCONS_FLAGS=-j4
 
 HTML = qdcontour
 PROG = qdcontour

@@ -224,5 +224,9 @@ for fn in Glob("source/*.cpp"):
 
 objs += env.Object( OBJDIR+"/qdcontour", "qdcontour.cpp" )
 
-env.Program( "qdcontour", objs )
+out= env.Program( "qdcontour", objs )
 
+# Notice if the static lib has changed (and recompile)
+#
+if LINUX:
+    Depends( out, PREFIX+"/lib64/libsmartmet_imagine.a" )
