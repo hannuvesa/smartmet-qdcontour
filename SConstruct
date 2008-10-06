@@ -54,13 +54,14 @@ env.Append( CPPPATH= [ "./include" ] )
 
 if WINDOWS: 
     if env["CC"]=="cl":
-        env.Append( CXXFLAGS= ["/EHsc"] )
+        env.Append( CPPFLAGS= ["/EHsc"] )
 else:
-    env.Append( CPPDEFINES= ["UNIX"] )
-    env.Append( CXXFLAGS= [
+    env.Append( CPPDEFINES= ["UNIX"],
+                CPPFLAGS= [
         # MAINFLAGS from orig. Makefile
         #
         "-Wall", 
+        "-W",
         "-Wno-unused-parameter",
 	    
 	    # DIFFICULTFLAGS from orig. Makefile
@@ -84,8 +85,8 @@ if WINDOWS:
     # Installed from 'boost_1_35_0_setup.exe' from BoostPro Internet page.
     #
     BOOST_INSTALL_PATH= "D:/Boost/1_35_0"
-    env.Append( CPPPATH= [ BOOST_INSTALL_PATH ] )
-    env.Append( LIBPATH= [ BOOST_INSTALL_PATH + "/lib" ] )
+    env.Append( CPPPATH= [ BOOST_INSTALL_PATH ],
+                LIBPATH= [ BOOST_INSTALL_PATH + "/lib" ] )
     if DEBUG:
         BOOST_POSTFIX= "-vc90-mt-gd-1_35"
     else:
@@ -94,28 +95,29 @@ if WINDOWS:
 
     # Newbase etc. from nearby
     #
-    env.Append( CPPPATH= [ "../newbase/include","../imagine/include", "../tron/include" ] )
-    env.Append( LIBPATH= [ "../newbase","../imagine", "../tron" ] )
+    env.Append( CPPPATH= [ "../newbase/include","../imagine/include", "../tron/include" ],
+                LIBPATH= [ "../newbase","../imagine", "../tron" ] )
 
 elif LINUX:
-    BOOST_POSTFIX= "-gcc41-mt"
+    BOOST_POSTFIX= "-mt"    # Boost 1.36
 
     # Newbase, Imagine & Tron from system install
     #
-    env.Append( CPPPATH= [ PREFIX+"/include/smartmet/newbase",
+    env.Append( CPPPATH= [ PREFIX+"/include/smartmet/",
+                           PREFIX+"/include/smartmet/newbase",
                            PREFIX+"/include/smartmet/imagine",
                            PREFIX+"/include/smartmet/tron" ] )
 
 elif OSX:
     # Newbase, Imagine & Tron from local CVS
     #
-    env.Append( CPPPATH= [ "../newbase/include", "../imagine/include", "../tron/include" ] )
-    env.Append( LIBPATH= [ "../newbase", "../imagine", "../tron" ] )
+    env.Append( CPPPATH= [ "../newbase/include", "../imagine/include", "../tron/include" ],
+                LIBPATH= [ "../newbase", "../imagine", "../tron" ] )
 
     # Boost from Fink
     #
-    env.Append( CPPPATH= [ "/sw/include" ] )
-    env.Append( LIBPATH= [ "/sw/lib" ] )
+    env.Append( CPPPATH= [ "/sw/include" ],
+                LIBPATH= [ "/sw/lib" ] )
 
 env.Append( LIBS= [ "smartmet_newbase", "smartmet_imagine", "smartmet_tron" ] )
 
@@ -128,22 +130,25 @@ env.Append( LIBS= [ BOOST_PREFIX+"boost_regex"+BOOST_POSTFIX,
 # Freetype2, Cairomm-1.0, ...
 #
 if WINDOWS:
-    env.Append( CPPPATH= [ "../cairomm-1.6.4" ] )
-    env.Append( LIBS= [ "../cairomm-1.6.4/MSVC_Net2005/cairomm/Release/cairomm-1.0.lib" ] )
+    env.Append( CPPPATH= [ "../cairomm-1.6.4" ],
+                LIBS= [ "../cairomm-1.6.4/MSVC_Net2005/cairomm/Release/cairomm-1.0.lib" ] )
 
-    env.Append( CPPPATH= [ "../cairo-1.6.4/src" ] )
-    #env.Append( LIBS= "../cairo-1.6.4/src/release/cairo-static.lib" )
+    env.Append( CPPPATH= [ "../cairo-1.6.4/src" ],
+                #LIBS= "../cairo-1.6.4/src/release/cairo-static.lib" 
+                )
 else:
     env.ParseConfig("freetype-config --cflags --libs") 
     env.ParseConfig("pkg-config --cflags --libs cairomm-1.0")
-    
+
+print( env["CPPPATH"] )
+
 # Other libs
 
 if WINDOWS:
     { }
     env.Append( LIBS= [ "../lpng1231/libpng.lib", "../zlib123/zlib.lib" ] )
 else:
-    env.Append( LIBS= [ "png", "jpeg", "z" ] )
+    env.Append( LIBS= [ "pthread", "png", "jpeg", "z", "bz2" ] )
 
 
 # Debug settings
@@ -157,7 +162,7 @@ if DEBUG:
             # Each obj gets own .PDB so parallel building (-jN) works
             env.AppendUnique( CCFLAGS=["/Zi", "/Fd${TARGET}.pdb"] )
     else:
-        env.Append( CXXFLAGS=[ "-O0", "-g", "-Werror",
+        env.Append( CPPFLAGS=[ "-O0", "-g", "-Werror",
 
             # EXTRAFLAGS from orig. Makefile (for 'debug' target)
             #
@@ -167,10 +172,12 @@ if DEBUG:
             "-Wwrite-strings",
             "-Wconversion",
             "-Winline",
+            #"-Wctor-dtor-privacy",
             "-Wnon-virtual-dtor",
             "-Wno-pmf-conversions",
             "-Wsign-promo",
             "-Wchar-subscripts",
+            #"-Wold-style-cast",
         ] )
 
 #
@@ -183,7 +190,7 @@ if RELEASE or PROFILE:
             env.AppendUnique( CCFLAGS=["/MD", "/Ox"] )
     else:
         env.Append( CPPDEFINES="NDEBUG",
-                    CXXFLAGS= ["-O2",
+                    CPPFLAGS= ["-O2",
 
             # RELEASEFLAGS from orig. Makefile (for 'release' and 'profile' targets)
             #
@@ -197,7 +204,7 @@ if PROFILE:
     if WINDOWS:
         { }     # TBD
     else: 
-        env.Append( CXXFLAGS="-g -pg" )
+        env.Append( CPPFLAGS="-g -pg" )
 
 
 #---
