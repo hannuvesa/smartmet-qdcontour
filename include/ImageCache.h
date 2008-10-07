@@ -7,12 +7,12 @@
 #ifndef IMAGECACHE_H
 #define IMAGECACHE_H
 
-#include <imagine/imagine-config.h>
+#include "imagine-config.h"
 #ifdef IMAGINE_WITH_CAIRO
-#include <imagine/ImagineXr.h>
+#include "ImagineXr.h"
 #endif
 
-#include <imagine/NFmiImage.h>
+#include "NFmiImage.h"
 
 #include <map>
 #include <string>

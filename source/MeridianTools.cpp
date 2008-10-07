@@ -8,7 +8,9 @@
 
 #include <set>
 
-#include <imagine/NFmiEdgeTree.h>
+// Imagine headers
+//
+#include "NFmiEdgeTree.h"
 
 using namespace Imagine;
 

@@ -7,7 +7,7 @@
 #ifndef PATHADAPTER_H
 #define PATHADAPTER_H
 
-#include <imagine/NFmiPath.h>
+#include "NFmiPath.h"
 
 class PathAdapter
 {

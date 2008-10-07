@@ -1,9 +1,6 @@
 #
 # SConstruct for building QDContour
 #
-# Usage:
-#       scons [-j 4] [-Q] [debug=1|profile=1] [objdir=<path>] [prefix=<path>]
-#
 # Notes:
 #       The three variants share the same output and object file names;
 #       changing from one version to another will cause a full recompile.
@@ -21,6 +18,7 @@ import os.path
 
 Help(""" 
     Usage: scons [-j 4] [-Q] [debug=1|profile=1] [objdir=<path>] [prefix=<path>]
+                 [windows_boost_path=<path>] [windows_prebuilt_path=<path>]
     
     Or just use 'make release|debug|profile', which point right back to us.
 """) 
@@ -33,6 +31,9 @@ RELEASE=    (not DEBUG) and (not PROFILE)     # default
 
 OBJDIR=     ARGUMENTS.get("objdir","obj")
 PREFIX=     ARGUMENTS.get("prefix","/usr")
+
+WINDOWS_BOOST_PATH= ARGUMENTS.get("windows_boost_path","")
+WINDOWS_PREBUILT_PATH= ARGUMENTS.get("windows_prebuilt_path","")
 
 #
 # Base settings
@@ -82,15 +83,14 @@ BOOST_POSTFIX=""
 BOOST_PREFIX=""
 
 if WINDOWS:
-    # Installed from 'boost_1_35_0_setup.exe' from BoostPro Internet page.
+    # Installed from 'boost_1_36_0_setup.exe' from BoostPro Internet page.
     #
-    BOOST_INSTALL_PATH= "D:/Boost/1_35_0"
-    env.Append( CPPPATH= [ BOOST_INSTALL_PATH ],
-                LIBPATH= [ BOOST_INSTALL_PATH + "/lib" ] )
+    env.Append( CPPPATH= [ WINDOWS_BOOST_PATH ],
+                LIBPATH= [ WINDOWS_BOOST_PATH + "/lib" ] )
     if DEBUG:
-        BOOST_POSTFIX= "-vc90-mt-gd-1_35"
+        BOOST_POSTFIX= "-vc90-mt-gd-1_36"
     else:
-        BOOST_POSTFIX= "-vc90-mt-1_35"
+        BOOST_POSTFIX= "-vc90-mt-1_36"
         BOOST_PREFIX= "lib"
 
     # Newbase etc. from nearby
@@ -130,11 +130,10 @@ env.Append( LIBS= [ BOOST_PREFIX+"boost_regex"+BOOST_POSTFIX,
 # Freetype2, Cairomm-1.0, ...
 #
 if WINDOWS:
-    env.Append( CPPPATH= [ "../cairomm-1.6.4" ],
-                LIBS= [ "../cairomm-1.6.4/MSVC_Net2005/cairomm/Release/cairomm-1.0.lib" ] )
+    env.Append( CPPPATH= [ WINDOWS_PREBUILT_PATH+"/cairomm-1.6.4" ],
+                LIBS= [ WINDOWS_PREBUILT_PATH+"/cairomm-1.6.4/MSVC_Net2005/cairomm/Release/cairomm-1.0.lib" ] )
 
-    env.Append( CPPPATH= [ "../cairo-1.6.4/src" ],
-                #LIBS= "../cairo-1.6.4/src/release/cairo-static.lib" 
+    env.Append( CPPPATH= [ WINDOWS_PREBUILT_PATH+"/cairo-1.6.4/src" ],
                 )
 else:
     env.ParseConfig("freetype-config --cflags --libs") 
@@ -145,8 +144,8 @@ print( env["CPPPATH"] )
 # Other libs
 
 if WINDOWS:
-    { }
-    env.Append( LIBS= [ "../lpng1231/libpng.lib", "../zlib123/zlib.lib" ] )
+    env.Append( LIBS= [ WINDOWS_PREBUILT_PATH+"/lpng1231/lpng1231/libpng.lib", 
+                        WINDOWS_PREBUILT_PATH+"/zlib123/zlib.lib" ] )
 else:
     env.Append( LIBS= [ "pthread", "png", "jpeg", "z", "bz2" ] )
 
@@ -156,11 +155,12 @@ else:
 if DEBUG:
     if WINDOWS:
         if env["CC"]=="cl":
-            env.AppendUnique( CPPDEFINES=["_DEBUG","DEBUG"] )
-            # Debug multithreaded DLL runtime, no opt.
-            env.AppendUnique( CCFLAGS=["/MDd", "/Od"] )
-            # Each obj gets own .PDB so parallel building (-jN) works
-            env.AppendUnique( CCFLAGS=["/Zi", "/Fd${TARGET}.pdb"] )
+            env.AppendUnique( CPPDEFINES=["_DEBUG","DEBUG"],
+
+                              CCFLAGS=[ "/MDd", "/Od",  # debug DLL runtime, no opt.
+                                        "/Zi", "/Fd${TARGET}.pdb"   # each obj gets own .PDB so parallel building works
+                                      ],
+                              )
     else:
         env.Append( CPPFLAGS=[ "-O0", "-g", "-Werror",
 
@@ -197,15 +197,18 @@ if RELEASE or PROFILE:
             "-Wuninitialized",
         ] )
 
+if WINDOWS and env["CC"]=="cl":
+    if DEBUG:
+        env.AppendUnique( LINKFLAGS=["/NODEFAULTLIB:MSVCRT"] )
+    else:
+        env.AppendUnique( LINKFLAGS=["/NODEFAULTLIB:MSVCRTD"] )
+
 #
 # Profile settings
 #
 if PROFILE:
-    if WINDOWS:
-        { }     # TBD
-    else: 
+    if LINUX:
         env.Append( CPPFLAGS="-g -pg" )
-
 
 #---
 # Force objects to 'objdir'
@@ -228,5 +231,11 @@ out= env.Program( "qdcontour", objs )
 
 # Notice if the static lib has changed (and recompile)
 #
-if LINUX:
+if WINDOWS:
+    Depends( out, "../newbase/smartmet_newbase.lib" )
+    Depends( out, "../imagine/smartmet_imagine.lib" )
+    Depends( out, "../tron/smartmet_tron.lib" )
+elif LINUX:
+    Depends( out, PREFIX+"/lib64/libsmartmet_newbase.a" )
     Depends( out, PREFIX+"/lib64/libsmartmet_imagine.a" )
+    Depends( out, PREFIX+"/lib64/libsmartmet_tron.a" )

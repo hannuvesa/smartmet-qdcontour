@@ -10,20 +10,20 @@
 #include "LazyQueryData.h"
 #include "TimeTools.h"
 
-#include <imagine/NFmiEsriBox.h>
+#include "NFmiEsriBox.h"
 
 #ifdef IMAGINE_WITH_CAIRO
-# include <imagine/ImagineXr.h>
+# include "ImagineXr.h"
 #else
-# include <imagine/NFmiFace.h>
-# include <imagine/NFmiFreeType.h>
+# include "NFmiFace.h"
+# include "NFmiFreeType.h"
 #endif
 
-#include <imagine/NFmiPath.h>
+#include "NFmiPath.h"
 
-#include <newbase/NFmiAreaFactory.h>
-#include <newbase/NFmiSettings.h>
-#include <newbase/NFmiTime.h>
+#include "NFmiAreaFactory.h"
+#include "NFmiSettings.h"
+#include "NFmiTime.h"
 
 #include <string>
 

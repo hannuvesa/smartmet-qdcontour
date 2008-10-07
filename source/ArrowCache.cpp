@@ -6,9 +6,12 @@
 // ======================================================================
 
 #include "ArrowCache.h"
-#include <newbase/NFmiStringTools.h>
 #include <fstream>
 #include <stdexcept>
+
+// <newbase/NFmixxx.h> won't be good for Windows compilation off cvs checkout dir.
+//
+#include "NFmiStringTools.h"
 
 using namespace std;
 

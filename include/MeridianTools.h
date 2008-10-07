@@ -7,8 +7,8 @@
 #ifndef MERIDIANTOOLS_H
 #define MERIDIANTOOLS_H
 
-#include <newbase/NFmiArea.h>
-#include <imagine/NFmiPath.h>
+#include "NFmiArea.h"
+#include "NFmiPath.h"
 
 namespace MeridianTools
 {

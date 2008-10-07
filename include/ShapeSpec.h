@@ -14,7 +14,9 @@
 #ifndef SHAPESPEC_H
 #define SHAPESPEC_H
 
-#include <imagine/NFmiColorTools.h>
+// <imagine/NFmixxx.h> won't be good for Windows compilation off cvs checkout dir.
+//
+#include "NFmiColorTools.h"
 
 class ShapeSpec
 {
