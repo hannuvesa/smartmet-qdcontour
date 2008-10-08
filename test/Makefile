@@ -1,3 +1,5 @@
+PROGRAM=../qdcontour
+
 all: test
 
 #---
@@ -5,8 +7,11 @@ all: test
 # 
 # Old test using Perl script and self-made 'imagecompare'
 #
-perltest:
+perltest: $(PROGRAM)
 	./perltest.pl
+
+$(PROGRAM):
+	cd .. && make
 
 clean:
 	rm -f *~ */*~ results/* results_diff/*
@@ -14,8 +19,6 @@ clean:
 #---
 # New tests, done solely by Make and Imagemagick
 #
-PROGRAM=../qdcontour
-
 _CHECK=_check
 
 # Misc tests that have issues:
@@ -120,13 +123,13 @@ test:
 
 PNG=$(notdir $(wildcard results_ok/$(TEST)_*.png)$(wildcard results_ok/$(TEST).png))
 
-_check:
+_check: $(PROGRAM)
 	@echo -n "$(TEST)..........................................." | sed -e 's/^\(.\{40\}\).*/\1/g'
 	@-mkdir -p results_diff
 	$(PROGRAM) -f conf/$(TEST).conf
 	-./pngdiff.sh results_ok/$(PNG) results/$(PNG) results_diff/$(PNG)
 
-_check_pdf:
+_check_pdf: $(PROGRAM)
 	@echo
 	@echo "*** $(TEST) ***"
 	@echo

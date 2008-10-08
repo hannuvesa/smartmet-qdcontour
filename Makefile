@@ -77,7 +77,7 @@ install:
 	  $(INSTALL_PROG) $$prog $(bindir)/$$prog; \
 	done
 
-test:
+test:   $(PROG)
 	cd test && make --quiet test
 
 html:
