@@ -54,7 +54,7 @@ INSTALL_DATA = install -m 664
 
 # The rules
 
-SCONS_FLAGS += objdir=$(objdir) prefix=$(PREFIX)
+SCONS_FLAGS += objdir=$(objdir) prefix=$(PREFIX) libdir=$(libdir)
 
 all release $(PROG):
 	scons $(SCONS_FLAGS) $(PROG)
