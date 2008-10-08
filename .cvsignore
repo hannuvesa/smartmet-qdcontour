@@ -2,4 +2,7 @@ qdcontour
 ._*
 .DS_Store
 .sconsign.dblite
+*.exe
+*.exe.manifest
+*.dll
 
