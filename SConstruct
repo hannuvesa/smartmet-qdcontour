@@ -45,6 +45,8 @@ LINUX=  env["PLATFORM"]=="posix"
 OSX=    env["PLATFORM"]=="darwin"
 WINDOWS= env["PLATFORM"]=="win32"
 
+out_postfix= WINDOWS and (DEBUG and "_debug" or "_release") or ""
+
 #
 # SCons does not pass env.vars automatically through to executing commands.
 # On Windows, we want it to get them all (Visual C++ 2008).
@@ -120,7 +122,9 @@ elif OSX:
     env.Append( CPPPATH= [ "/sw/include" ],
                 LIBPATH= [ "/sw/lib" ] )
 
-env.Append( LIBS= [ "smartmet_newbase", "smartmet_imagine", "smartmet_tron" ] )
+env.Append( LIBS= [ "smartmet_newbase"+out_postfix, 
+                    "smartmet_imagine"+out_postfix,
+                    "smartmet_tron"+out_postfix ] )
 
 env.Append( LIBS= [ BOOST_PREFIX+"boost_regex"+BOOST_POSTFIX, 
                     BOOST_PREFIX+"boost_filesystem"+BOOST_POSTFIX,
@@ -198,11 +202,11 @@ if RELEASE or PROFILE:
             "-Wuninitialized",
         ] )
 
-if WINDOWS and env["CC"]=="cl":
-    if DEBUG:
-        env.AppendUnique( LINKFLAGS=["/NODEFAULTLIB:MSVCRT"] )
-    else:
-        env.AppendUnique( LINKFLAGS=["/NODEFAULTLIB:MSVCRTD"] )
+#if WINDOWS and env["CC"]=="cl":
+#    if DEBUG:
+#        env.AppendUnique( LINKFLAGS=["/NODEFAULTLIB:MSVCRT"] )
+#    else:
+#        env.AppendUnique( LINKFLAGS=["/NODEFAULTLIB:MSVCRTD"] )
 
 #
 # Profile settings
@@ -233,9 +237,9 @@ out= env.Program( "qdcontour", objs )
 # Notice if the static lib has changed (and recompile)
 #
 if WINDOWS:
-    Depends( out, "../newbase/smartmet_newbase.lib" )
-    Depends( out, "../imagine/smartmet_imagine.lib" )
-    Depends( out, "../tron/smartmet_tron.lib" )
+    Depends( out, "../newbase/smartmet_newbase"+out_postfix+".lib" )
+    Depends( out, "../imagine/smartmet_imagine"+out_postfix+".lib" )
+    Depends( out, "../tron/smartmet_tron"+out_postfix+".lib" )
 elif LINUX:
     Depends( out, LIBDIR+"/libsmartmet_newbase.a" )
     Depends( out, LIBDIR+"/libsmartmet_imagine.a" )
