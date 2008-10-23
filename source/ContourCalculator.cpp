@@ -19,27 +19,24 @@
 #include <memory>
 #include <stdexcept>
 
-typedef Tron::Traits<float,float> MyTraits;
+typedef Tron::Traits<float,float,Tron::FmiMissing> MyTraits;
 
 typedef Tron::Contourer<DataMatrixAdapter,
 						PathAdapter,
 						MyTraits,
-						Tron::LinearInterpolation,
-						Tron::FmiMissing> MyLinearContourer;
+						Tron::LinearInterpolation> MyLinearContourer;
 
 typedef Tron::Contourer<DataMatrixAdapter,
 						PathAdapter,MyTraits,
-						Tron::NearestNeighbourInterpolation,
-						Tron::FmiMissing> MyNearestContourer;
+						Tron::NearestNeighbourInterpolation> MyNearestContourer;
 
 typedef Tron::Contourer<DataMatrixAdapter,
 						PathAdapter,
 						MyTraits,
-						Tron::DiscreteInterpolation,
-						Tron::FmiMissing> MyDiscreteContourer;
+						Tron::DiscreteInterpolation> MyDiscreteContourer;
 
 // typedef MyLinearContourer::hints_type MyHints;
-typedef Tron::Hints<DataMatrixAdapter,MyTraits,Tron::FmiMissing> MyHints;
+typedef Tron::Hints<DataMatrixAdapter,MyTraits> MyHints;
 
 // ----------------------------------------------------------------------
 /*!
