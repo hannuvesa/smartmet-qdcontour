@@ -999,6 +999,30 @@ void do_arrowpath(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Handle "graticule" command
+ *
+ * graticule lon1 lon2 dlon lat1 lat2 dlat color
+ */
+// ----------------------------------------------------------------------
+
+void do_graticule(istream & theInput)
+{
+  theInput >> globals.graticulelon1
+		   >> globals.graticulelon2
+		   >> globals.graticuledx
+		   >> globals.graticulelat1
+		   >> globals.graticulelat2
+		   >> globals.graticuledy
+		   >> globals.graticulecolor;
+
+  check_errors(theInput,"graticule");
+
+  ColorTools::checkcolor(globals.graticulecolor);
+
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Handle "windarrow" command
  */
 // ----------------------------------------------------------------------
@@ -2584,6 +2608,8 @@ void do_clear(istream & theInput)
 	}
   else if(command=="units")
 	globals.unitsconverter.clear();
+  else if(command=="graticule")
+	globals.graticulecolor = "";
   else
 	throw runtime_error("Unknown clear target: " + command);
 }
@@ -3315,6 +3341,39 @@ void draw_label_texts( ImagineXr_or_NFmiImage &img,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Calculate direction of north on paper coordinates
+ */
+// ----------------------------------------------------------------------
+
+double paper_north(const NFmiArea & theArea,
+				   const NFmiPoint & theLatLon)
+{
+  const NFmiPoint origo = theArea.ToXY(theLatLon);
+
+  const float pi = 3.141592658979323f;
+  const double latstep = 0.1;		// degrees to north
+  double lat = theLatLon.Y()+latstep;
+
+  if(lat > 0)
+	{
+	  NFmiPoint north = theArea.ToXY(NFmiPoint(theLatLon.X(),lat));
+	  float alpha = static_cast<float>(atan2(origo.X()-north.X(),
+											 origo.Y()-north.Y()));
+	  return alpha*180/pi;
+	}
+  else
+	{
+	  lat = theLatLon.Y()-latstep;
+	  NFmiPoint south = theArea.ToXY(NFmiPoint(theLatLon.X(),lat));
+	  float alpha = static_cast<float>(atan2(origo.X()-south.X(),
+											 origo.Y()-south.Y()));
+	  alpha -= pi;
+	  return alpha*180/pi;
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Draw the listed wind arrow points
  */
 // ----------------------------------------------------------------------
@@ -3358,21 +3417,9 @@ void draw_wind_arrows_points( ImagineXr_or_NFmiImage &img,
 	  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
 	  
 	  // Direction calculations
-	  
-	  const float pi = 3.141592658979323f;
-	  const float length = 0.1f;	// degrees
-	  
-	  double x1 = latlon.X()+sin(dir*pi/180)*length;
-	  double y1 = latlon.Y()+cos(dir*pi/180)*length;
-	  
-	  NFmiPoint xy1 = MeridianTools::Relocate(NFmiPoint(x1,y1),theArea);
-	  xy1 = theArea.ToXY(xy1);
-	  
-	  // Calculate the actual angle
-	  
-	  float alpha = static_cast<float>(atan2(xy1.X()-xy0.X(),
-											 xy1.Y()-xy0.Y()));
-	  
+
+	  const float north = paper_north(theArea,latlon);
+
 	  // Create a new path
 	  
 	  NFmiPath thispath;
@@ -3385,7 +3432,7 @@ void draw_wind_arrows_points( ImagineXr_or_NFmiImage &img,
 	  if(speed>0 && speed!=kFloatMissing)
 		thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
 	  thispath.Scale(globals.arrowscale);
-	  thispath.Rotate(alpha*180/pi);
+	  thispath.Rotate(-dir+north+180);
 	  thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 	  
 	  // And render it
@@ -3482,22 +3529,8 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
 		
 		// Direction calculations
 		
-		const double pi = 3.141592658979323;
-		const double length = 0.1;	// degrees
-		
-		double x0 = latlon.X();
-		double y0 = latlon.Y();
-		
-		double x1 = x0+sin(dir*pi/180)*length;
-		double y1 = y0+cos(dir*pi/180)*length;
-		
-		NFmiPoint xy1 = theArea.ToXY(NFmiPoint(x1,y1));
-		
-		// Calculate the actual angle
-		
-		double alpha = atan2(xy1.X()-xy0.X(),
-							 xy1.Y()-xy0.Y());
-		
+		const float north = paper_north(theArea,latlon);
+
 		// Create a new path
 			
 		NFmiPath thispath;
@@ -3508,7 +3541,7 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
 		if(speed>0 && speed != kFloatMissing)
 		  thispath.Scale(static_cast<float>(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC));
 		thispath.Scale(globals.arrowscale);
-		thispath.Rotate(static_cast<float>(alpha*180/pi));
+		thispath.Rotate(-dir+north+180);
 		thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 		
 		// And render it
@@ -3568,20 +3601,9 @@ void draw_wind_arrows_pixelgrid( ImagineXr_or_NFmiImage &img,
 		globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
 		
 		// Direction calculations
-		
-		const float pi = 3.141592658979323f;
-		const float length = 0.1f;	// degrees
-		
-		double x1 = latlon.X()+sin(dir*pi/180)*length;
-		double y1 = latlon.Y()+cos(dir*pi/180)*length;
-		
-		NFmiPoint xy1 = theArea.ToXY(NFmiPoint(x1,y1));
-		
-		// Calculate the actual angle
-		
-		float alpha = static_cast<float>(atan2(xy1.X()-xy0.X(),
-											   xy1.Y()-xy0.Y()));
-		
+
+		const float north = paper_north(theArea,latlon);
+
 		// Create a new path
 		
 		NFmiPath thispath;
@@ -3594,7 +3616,7 @@ void draw_wind_arrows_pixelgrid( ImagineXr_or_NFmiImage &img,
 		if(speed>0 && speed!=kFloatMissing)
 		  thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
 		thispath.Scale(globals.arrowscale);
-		thispath.Rotate(alpha*180/pi);
+		thispath.Rotate(-dir+north+180);
 		thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 	  
 		// And render it
@@ -4404,6 +4426,45 @@ void draw_pressure_markers( ImagineXr_or_NFmiImage &img,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Draw graticule
+ */
+// ----------------------------------------------------------------------
+
+void draw_graticule( ImagineXr_or_NFmiImage &img,
+					 const NFmiArea & theArea)
+{
+  if(globals.graticulecolor.empty())
+	return;
+
+  NFmiPath path;
+
+  for(double lon=globals.graticulelon1; lon<=globals.graticulelon2; lon+=globals.graticuledx)
+	{
+	  path.MoveTo(lon,globals.graticulelat1);
+	  for(double lat=globals.graticulelat1+globals.graticuledy;
+		  lat<=globals.graticulelat2;
+		  lat+=1.0)
+		path.LineTo(lon,lat);
+	}
+
+  for(double lat=globals.graticulelat1; lat<=globals.graticulelat2; lat+=globals.graticuledy)
+	{
+	  path.MoveTo(globals.graticulelon1,lat);
+	  for(double lon=globals.graticulelon1+globals.graticuledx;
+		  lon<=globals.graticulelon2;
+		  lon+=1.0)
+		path.LineTo(lon,lat);
+	}
+
+  MeridianTools::Relocate(path,theArea);
+  path.Project(&theArea);
+
+  NFmiColorTools::Color color = ColorTools::checkcolor(globals.graticulecolor);
+  path.Stroke(img,color,NFmiColorTools::kFmiColorCopy);
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Draw the foreground onto the image
  */
 // ----------------------------------------------------------------------
@@ -4825,6 +4886,10 @@ void do_draw_contours(istream & theInput)
 
 		}
 
+	  // Draw graticule
+
+	  draw_graticule(*xr,*area);
+
 	  // Bang the foreground
 
 	  draw_foreground(*xr);
@@ -4950,6 +5015,7 @@ void process_cmd( const string &text ) {
     //
       else if(cmd == "antialias")				do_antialias(in);
 #endif
+	  else if(cmd == "graticule")				do_graticule(in);
       else if(cmd == "gamma")					do_gamma(in);
       else if(cmd == "intent")					do_intent(in);
       else if(cmd == "pngquality")				do_pngquality(in);

@@ -1,15 +1,25 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 8.10.8
+Version: 8.12.29
 Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
 Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot-%(%{__id_u} -n)
-BuildRequires: libsmartmet-newbase >= 8.9.29-1, libsmartmet-imagine >= 8.9.29-1, libsmartmet-tron >= 8.10.8-1, freetype-devel, libjpeg-devel, libpng-devel, zlib-devel, glibc-devel
-Requires: freetype, libjpeg, libpng, zlib
+BuildRequires: freetype-devel
+BuildRequires: glibc-devel
+BuildRequires: libjpeg-devel
+BuildRequires: libpng-devel
+BuildRequires: libsmartmet-imagine >= 8.11.12-1
+BuildRequires: libsmartmet-newbase >= 8.12.18-1
+BuildRequires: libsmartmet-tron >= 8.10.23-1
+BuildRequires: zlib-devel
+Requires: freetype
+Requires: libjpeg
+Requires: libpng
+Requires: zlib
 Provides: qdcontour
 
 %description
@@ -35,6 +45,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Dec 29 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.12.29-1.el5.fmi
+- Fixed wind arrows to calculate north correctly
+- Added graticule command
 * Wed Oct  8 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.10.8-1.el5.fmi
 - Bugfix in tron polygon builder
 * Mon Sep 29 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.9.29-1.el5.fmi
