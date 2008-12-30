@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 8.12.29
+Version: 8.12.30
 Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
@@ -45,6 +45,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Dec 30 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.12.30-1.el5.fmi
+- Added safety checks for polar regions in wind arrow calculations
 * Mon Dec 29 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.12.29-1.el5.fmi
 - Fixed wind arrows to calculate north correctly
 - Added graticule command

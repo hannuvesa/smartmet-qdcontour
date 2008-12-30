@@ -3348,28 +3348,21 @@ void draw_label_texts( ImagineXr_or_NFmiImage &img,
 double paper_north(const NFmiArea & theArea,
 				   const NFmiPoint & theLatLon)
 {
+  // Safety against polar regions just in case
+
+  if(theLatLon.Y() <= -89.9 || theLatLon.Y() >= 89.9)
+	return 0;
+
   const NFmiPoint origo = theArea.ToXY(theLatLon);
 
   const float pi = 3.141592658979323f;
-  const double latstep = 0.1;		// degrees to north
-  double lat = theLatLon.Y()+latstep;
+  const double latstep = 0.01;		// degrees to north
 
-  if(lat > 0)
-	{
-	  NFmiPoint north = theArea.ToXY(NFmiPoint(theLatLon.X(),lat));
-	  float alpha = static_cast<float>(atan2(origo.X()-north.X(),
-											 origo.Y()-north.Y()));
-	  return alpha*180/pi;
-	}
-  else
-	{
-	  lat = theLatLon.Y()-latstep;
-	  NFmiPoint south = theArea.ToXY(NFmiPoint(theLatLon.X(),lat));
-	  float alpha = static_cast<float>(atan2(origo.X()-south.X(),
-											 origo.Y()-south.Y()));
-	  alpha -= pi;
-	  return alpha*180/pi;
-	}
+  const double lat = theLatLon.Y()+latstep;
+  const NFmiPoint north = theArea.ToXY(NFmiPoint(theLatLon.X(),lat));
+  const float alpha = static_cast<float>(atan2(origo.X()-north.X(),
+											   origo.Y()-north.Y()));
+  return alpha*180/pi;
 }
 
 // ----------------------------------------------------------------------
