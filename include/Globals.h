@@ -201,6 +201,15 @@ struct Globals
 
   ArrowCache itsArrowCache;
 
+  std::string graticulecolor;
+  double graticulelon1;
+  double graticulelat1;
+  double graticulelon2;
+  double graticulelat2;
+  double graticuledx;
+  double graticuledy;
+
+
 };
 
 // For global use

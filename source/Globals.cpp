@@ -142,6 +142,13 @@ Globals::Globals()
   , itsImageCache()
   , itsImageCacheOn(true)
   , itsArrowCache()
+  , graticulecolor("")
+  , graticulelon1()
+  , graticulelat1()
+  , graticulelon2()
+  , graticulelat2()
+  , graticuledx()
+  , graticuledy()
 {
   symbollocator.minDistanceToDifferentParameter(8);
   symbollocator.minDistanceToDifferentValue(8);
