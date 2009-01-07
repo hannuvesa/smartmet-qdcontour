@@ -1,13 +1,6 @@
 #!/usr/bin/perl
 
-# TBD: AKa uses a local imagecompare in '../tools/'
-#
-$imagecompare = "../tools/imagecompare";
-if (! -e "$imagecompare") {
-    $ret = system("which imagecompare >/dev/null 2>&1");
-    die("imagecompare command is required for regression tests") if $ret!=0;
-    $imagecompare = "imagecompare";
-}
+$imagecompare = "imagecompare";
 
 # Use '-c "format pdf"' to force all output in PDF (default: PNG)
 #
@@ -15,6 +8,63 @@ if (! -e "$imagecompare") {
 $program = "../qdcontour";
 
 %usednames = ();
+
+# A trivial test
+
+DoTest("trivial contour",
+       "trivial.conf",
+       "trivial_200210140600_200210140937.png");
+
+# Test contourline
+
+DoTest("contourline",
+       "contourline.conf",
+       "contourline_200210140600_200210140937.png");
+
+# Test contourlinewidth
+
+DoTest("contourlinewidth",
+       "contourlinewidth.conf",
+       "contourlinewidth_200210140600_200210140937.png");
+
+# Test contourfill
+
+DoTest("contourfill",
+       "contourfill.conf",
+       "contourfill_200210140600_200210140937.png");
+
+# Test contourpattern
+
+DoTest("contourpattern",
+       "contourpattern.conf",
+       "contourpattern_200210140600_200210140937.png");
+
+# Test contoursymbol
+
+DoTest("contoursymbol1",
+       "contoursymbol1.conf",
+       "contoursymbol1_200210140600_200210140937.png");
+
+DoTest("contoursymbol2",
+       "contoursymbol2.conf",
+       "contoursymbol2_200210140600_200210140937.png");
+
+# Test contourfont
+#
+# AKa 22-Aug-2008: These tests disabled since non-UTF-8 codes cause exception
+#                  and delay speed tests.
+#
+#DoTest("contourfont",
+#       "contourfont.conf",
+#       "contourfont_200210140600_200210140937.png");
+#
+#DoTest("contourfont2",
+#       "contourfont2.conf",
+#       "contourfont2_200210140600_200210140937.png");
+#
+#DoTest("contourfont_grid",
+#       "contourfont_grid.conf",
+#       "contourfont_grid_200210140600_200210140937.png");
 
 # Timestamping
 
@@ -81,59 +131,6 @@ DoTest("scale",
        "scale.conf",
        "scale.png");
 
-# A trivial test
-
-DoTest("trivial contour",
-       "trivial.conf",
-       "trivial_200210140600_200210140937.png");
-
-# Test contourline
-
-DoTest("contourline",
-       "contourline.conf",
-       "contourline_200210140600_200210140937.png");
-
-# Test contourlinewidth
-
-DoTest("contourlinewidth",
-       "contourlinewidth.conf",
-       "contourlinewidth_200210140600_200210140937.png");
-
-# Test contourfill
-
-DoTest("contourfill",
-       "contourfill.conf",
-       "contourfill_200210140600_200210140937.png");
-
-# Test contourpattern
-
-DoTest("contourpattern",
-       "contourpattern.conf",
-       "contourpattern_200210140600_200210140937.png");
-
-# Test contoursymbol
-
-DoTest("contoursymbol",
-       "contoursymbol.conf",
-       "contoursymbol_200210140600_200210140937.png");
-
-# Test contourfont
-#
-# AKa 22-Aug-2008: These tests disabled since non-UTF-8 codes cause exception
-#                  and delay speed tests.
-#
-#DoTest("contourfont",
-#       "contourfont.conf",
-#       "contourfont_200210140600_200210140937.png");
-#
-#DoTest("contourfont2",
-#       "contourfont2.conf",
-#       "contourfont2_200210140600_200210140937.png");
-#
-#DoTest("contourfont_grid",
-#       "contourfont_grid.conf",
-#       "contourfont_grid_200210140600_200210140937.png");
-
 # Test contourlabels
 
 DoTest("contourlabels",
@@ -151,8 +148,8 @@ DoTest("windarrows at points",
        "windarrow_points200210140600_200210140937.png");
 
 DoTest("windarrows in a grid",
-       "windarrow_grid.conf",
-       "windarrow_grid200210140600_200210140937.png");
+       "windarrow_grid_normal.conf",
+       "windarrow_grid_normal_200210140600_200210140937.png");
 
 DoTest("windarrows in a grid with fractional step",
        "windarrow_grid_step.conf",
@@ -163,8 +160,8 @@ DoTest("windarrows in a grid masked",
        "windarrow_grid_masked_200210140600_200210140937.png");
 
 DoTest("windarrows in a pixel grid",
-       "windarrow_pixelgrid.conf",
-       "windarrow_pixelgrid200210140600_200210140937.png");
+       "windarrow_pixelgrid_normal.conf",
+       "windarrow_pixelgrid_normal_200210140600_200210140937.png");
 
 DoTest("windarrows in a pixelgrid masked",
        "windarrow_pixelgrid_masked.conf",
@@ -189,8 +186,8 @@ DoTest("labels at points",
        "labels_points_200210140600_200210140937.png");
 
 DoTest("labels at gridpoints",
-       "labels_grid.conf",
-       "labels_grid_200210140600_200210140937.png");
+       "labels_grid_normal.conf",
+       "labels_grid_normal_200210140600_200210140937.png");
 
 DoTest("labels at masked gridpoints",
        "labels_grid_masked.conf",
@@ -222,9 +219,8 @@ DoTest("labels on top of arrows regardless of definition order",
 # Test pixellabels
 
 DoTest("labels at pixelgridpoints",
-       "labels_pixelgrid.conf",
-       "labels_pixelgrid_200210140600_200210140937.png",
-       "labels_pixelgrid2_200210140600_200210140937.png");
+       "labels_pixelgrid_normal.conf",
+       "labels_pixelgrid_normal_200210140600_200210140937.png");
 
 DoTest("labels at masked pixelgridpoints",
        "labels_pixelgrid_masked.conf",
@@ -233,8 +229,8 @@ DoTest("labels at masked pixelgridpoints",
 # Meteorological arrows
 
 DoTest("meteorological arrows",
-       "meteorological_arrows.conf",
-       "meteorological_arrows_200210140600_200210140937.png");
+       "meteorological_arrows_normal.conf",
+       "meteorological_arrows_normal_200210140600_200210140937.png");
 
 DoTest("meteorological arrows with labels",
        "meteorological_arrows_and_labels.conf",
@@ -278,7 +274,7 @@ DoTest("expanding data",
 
 DoTest("fahrenheit conversion",
        "fahrenheit.conf",
-       "fahrenheit200210140600_200210140937.png");
+       "fahrenheit_200210140600_200210140937.png");
 
 # Test despeckling
 
@@ -287,12 +283,12 @@ DoTest("despeckle_none",
        "despeckle_none_200605090000.png");
 
 DoTest("despeckle_median1",
-       "despeckle_median1.conf",
-       "despeckle_median1_200605090000.png");
+       "despeckle_median1_normal.conf",
+       "despeckle_median1_normal_200605090000.png");
 
 DoTest("despeckle_median2",
-       "despeckle_median2.conf",
-       "despeckle_median2_200605090000.png");
+       "despeckle_median2_normal.conf",
+       "despeckle_median2_normal_200605090000.png");
 
 DoTest("despeckle_median1_iter2",
        "despeckle_median1_iter2.conf",
@@ -303,8 +299,8 @@ DoTest("despeckle_median1_upper",
        "despeckle_median1_upper_200605090000.png");
 
 DoTest("despeckle_median1_lower",
-       "despeckle_median1_lower.conf",
-       "despeckle_median1_lower_200605090000.png");
+       "despeckle_median1_lower_normal.conf",
+       "despeckle_median1_lower_normal_200605090000.png");
 
 DoTest("despeckle_median1_lower_range",
        "despeckle_median1_lower_range.conf",
@@ -347,42 +343,35 @@ sub DoTest
     $extratext = "";
     foreach $outputfile(@outputfiles)
     {
-	$expected = "results/$outputfile.ok";
+	$expected = "results_ok/$outputfile";
 	$actual = "results/$outputfile";
 
-# AKa 22-Aug-2008: disabled imagecompare for now; not useful in checking PDF
-#                  output etc. (and should be done using ImageMagick picture
-#                  subtraction pipelines, anyways...)
-#
+	$diff = imagedifference($expected,$actual);
+	if($diff == 0)
+	{
+	    # If compared ok, remove the actual output
+	    unlink($actual);
+	}
+	elsif($diff == -1)
+	{
+	    $failed++;
+	    $extratext .= "(files $expected and $actual differ in size)\n";
+	}
+	else
+	{
+	    $failed++;
+	    $extratext .= "(files $expected and $actual differ in $diff pixels)\n";
+	}
+    
+	if($failed==0)
+	{
+	    print "ok\n";
+	}
+	else
+	{
+	    print "FAILED\n$extratext";
+	}
     }
-    print "(not compared)\n";
-
-#	$diff = imagedifference($expected,$actual);
-#	if($diff == 0)
-#	{
-#       # If compared ok, remove the actual output (why...?)
-#	    unlink($actual);
-#	}
-#	elsif($diff == -1)
-#	{
-#	    $failed++;
-#	    $extratext .= "(files $expected and $actual differ in size)\n";
-#	}
-#	else
-#	{
-#	    $failed++;
-#	    $extratext .= "(files $expected and $actual differ in $diff pixels)\n";
-#	}
-#    }
-#    
-#    if($failed==0)
-#    {
-#	print "ok\n";
-#    }
-#    else
-#    {
-#	print "FAILED\n$extratext";
-#    }
 }
 
 # ----------------------------------------------------------------------
@@ -410,6 +399,8 @@ sub padname
 sub imagedifference
 {
     my($file1,$file2) = @_;
+
+    # print "$imagecompare $file1 $file2\n";
 
     # Files must exits
 
