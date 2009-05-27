@@ -41,6 +41,9 @@ windarrow_grid_masked \
 windarrow_pixelgrid_normal \
 windarrow_pixelgrid_masked \
 windarrowscale \
+roundarrow_grid_normal \
+roundarrow_grid_colors \
+roundarrow_grid_sizes \
 meta_elevation_angle \
 meta_wind_chill \
 meta_t2m_advection \
@@ -57,6 +60,15 @@ test_pdf:
 	-@$(MAKE) test _CHECK=_check_pdf
 
 test:
+	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_grid_normal
+	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_grid_step
+	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_grid_masked
+	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_pixelgrid_normal
+	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_pixelgrid_masked
+	-@$(MAKE) --quiet $(_CHECK) TEST=windarrowscale
+	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_normal
+	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_colors
+	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_sizes
 	-@$(MAKE) --quiet $(_CHECK) TEST=timestampimage
 	-@$(MAKE) --quiet $(_CHECK) TEST=timestampimage2
 	-@$(MAKE) --quiet $(_CHECK) TEST=timestampimageutc
@@ -82,12 +94,6 @@ test:
 	-@$(MAKE) --quiet $(_CHECK) TEST=contourlabels
 	-@$(MAKE) --quiet $(_CHECK) TEST=contourlabeltexts
 	-@$(MAKE) --quiet $(_CHECK) TEST=contourlabelcolors
-	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_grid_normal
-	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_grid_step
-	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_grid_masked
-	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_pixelgrid_normal
-	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_pixelgrid_masked
-	-@$(MAKE) --quiet $(_CHECK) TEST=windarrowscale
 	-@$(MAKE) --quiet $(_CHECK) TEST=directionparam
 	-@$(MAKE) --quiet $(_CHECK) TEST=speedparam
 	-@$(MAKE) --quiet $(_CHECK) TEST=labels_points
