@@ -41,6 +41,43 @@ class NFmiTime;
 
 //using Imagine::NFmiImage;
 
+struct RoundArrowColor
+{
+  float lolimit;
+  float hilimit;
+  Imagine::NFmiColorTools::Color circlecolor;
+  Imagine::NFmiColorTools::Color trianglecolor;
+
+  RoundArrowColor(Imagine::NFmiColorTools::Color c = Imagine::NFmiColorTools::NoColor)
+	: lolimit(kFloatMissing)
+	, hilimit(kFloatMissing)
+	, circlecolor(c)
+	, trianglecolor(c)
+  {
+  }
+};
+
+struct RoundArrowSize
+{
+  float lolimit;
+  float hilimit;
+  float circleradius;
+  float triangleradius;
+  float trianglewidth;
+  float triangleangle;
+
+  RoundArrowSize()
+	: lolimit(kFloatMissing)
+	, hilimit(kFloatMissing)
+	, circleradius(9)
+	, triangleradius(8)
+	, trianglewidth(9)
+	, triangleangle(60)
+  { }
+
+};
+
+
 struct Globals
 {
   ~Globals();
@@ -54,6 +91,10 @@ struct Globals
   void drawCombine( ImagineXr_or_NFmiImage &d ) const;
 
   const ImagineXr_or_NFmiImage & getImage( const std::string & filename ) const;
+
+  RoundArrowColor getRoundArrowFillColor(float speed) const;
+  RoundArrowColor getRoundArrowStrokeColor(float speed) const;
+  RoundArrowSize getRoundArrowSize(float speed) const;
 
   // Command line options
 
@@ -209,6 +250,9 @@ struct Globals
   double graticuledx;
   double graticuledy;
 
+  std::list<RoundArrowColor> roundarrowfillcolors;
+  std::list<RoundArrowColor> roundarrowstrokecolors;
+  std::list<RoundArrowSize> roundarrowsizes;
 
 };
 

@@ -25,6 +25,8 @@
 #include "NFmiSettings.h"
 #include "NFmiTime.h"
 
+#include <boost/foreach.hpp>
+
 #include <string>
 
 using NFmiSettings::Optional;
@@ -394,5 +396,50 @@ void Globals::drawCombine( Imagine::NFmiImage &theImage ) const
 }
 #endif
 
+// ----------------------------------------------------------------------
+// Get specs for round arrows
+// ----------------------------------------------------------------------
+
+bool rangefits(float speed, float lolimit, float hilimit)
+{
+  if(speed == kFloatMissing)
+	return false;
+  if(lolimit != kFloatMissing && speed < lolimit)
+	return false;
+  if(hilimit != kFloatMissing && speed >= hilimit)
+	return false;
+  return true;
+
+}
+
+RoundArrowColor Globals::getRoundArrowFillColor(float speed) const
+{
+  BOOST_FOREACH(const RoundArrowColor & c, roundarrowfillcolors)
+	{
+	  if(rangefits(speed,c.lolimit,c.hilimit))
+		return c;
+	}
+  return RoundArrowColor(Imagine::NFmiColorTools::MakeColor(255,255,255));
+}
+
+RoundArrowColor Globals::getRoundArrowStrokeColor(float speed) const
+{
+  BOOST_FOREACH(const RoundArrowColor & c, roundarrowstrokecolors)
+	{
+	  if(rangefits(speed,c.lolimit,c.hilimit))
+		return c;
+	}
+  return RoundArrowColor(Imagine::NFmiColorTools::Black);
+}
+
+RoundArrowSize Globals::getRoundArrowSize(float speed) const
+{
+  BOOST_FOREACH(const RoundArrowSize & sz, roundarrowsizes)
+	{
+	  if(rangefits(speed,sz.lolimit,sz.hilimit))
+		return sz;
+	}
+  return RoundArrowSize();
+}
 
 // ======================================================================

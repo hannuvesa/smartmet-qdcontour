@@ -53,6 +53,7 @@
 #include "NFmiPreProcessor.h"
 
 #include <boost/shared_ptr.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <fstream>
 #include <iomanip>
@@ -65,6 +66,9 @@
 using namespace std;
 using namespace boost;
 using namespace Imagine;
+
+const float pi = 3.141592658979323f;
+
 
 // ----------------------------------------------------------------------
 // Global instance of enum converter for speed
@@ -990,8 +994,9 @@ void do_arrowpath(istream & theInput)
 
   check_errors(theInput,"arrowpath");
 
-  if(!NFmiFileSystem::FileExists(globals.arrowfile) &&
-	 globals.arrowfile != "meteorological")
+  if(globals.arrowfile != "meteorological" &&
+	 globals.arrowfile != "roundarrow" &&
+	 !NFmiFileSystem::FileExists(globals.arrowfile))
 	{
 	  throw runtime_error("The arrowpath file '"+globals.arrowfile+"' does not exist");
 	}
@@ -999,25 +1004,71 @@ void do_arrowpath(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
- * \brief Handle "graticule" command
- *
- * graticule lon1 lon2 dlon lat1 lat2 dlat color
+ * \brief Handle "roundarrowfill" command
  */
 // ----------------------------------------------------------------------
 
-void do_graticule(istream & theInput)
+void do_roundarrowfill(istream & theInput)
 {
-  theInput >> globals.graticulelon1
-		   >> globals.graticulelon2
-		   >> globals.graticuledx
-		   >> globals.graticulelat1
-		   >> globals.graticulelat2
-		   >> globals.graticuledy
-		   >> globals.graticulecolor;
+  string slo, shi, scircle, striangle;
+  theInput >> slo >> shi >> scircle >> striangle;
+  check_errors(theInput,"roundarrowfill");
 
-  check_errors(theInput,"graticule");
+  RoundArrowColor color;
+  color.lolimit = (slo == "-" ? kFloatMissing : boost::lexical_cast<float>(slo));
+  color.hilimit = (shi == "-" ? kFloatMissing : boost::lexical_cast<float>(shi));
 
-  ColorTools::checkcolor(globals.graticulecolor);
+  color.circlecolor = ColorTools::checkcolor(scircle);
+  color.trianglecolor = ColorTools::checkcolor(striangle);
+
+  globals.roundarrowfillcolors.push_back(color);
+
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "roundarrowstroke" command
+ */
+// ----------------------------------------------------------------------
+
+void do_roundarrowstroke(istream & theInput)
+{
+  string slo, shi, scircle, striangle;
+  theInput >> slo >> shi >> scircle >> striangle;
+  check_errors(theInput,"roundarrowstroke");
+
+  RoundArrowColor color;
+  color.lolimit = (slo == "-" ? kFloatMissing : boost::lexical_cast<float>(slo));
+  color.hilimit = (shi == "-" ? kFloatMissing : boost::lexical_cast<float>(shi));
+
+  color.circlecolor = ColorTools::checkcolor(scircle);
+  color.trianglecolor = ColorTools::checkcolor(striangle);
+
+  globals.roundarrowstrokecolors.push_back(color);
+
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "roundarrowsize" command
+ */
+// ----------------------------------------------------------------------
+
+void do_roundarrowsize(istream & theInput)
+{
+  RoundArrowSize sz;
+
+  string slo, shi;
+  theInput >> slo >> shi
+		   >> sz.circleradius >> sz.triangleradius
+		   >> sz.trianglewidth >> sz.triangleangle;
+
+  check_errors(theInput,"roundarrowsize");
+
+  sz.lolimit = (slo == "-" ? kFloatMissing : boost::lexical_cast<float>(slo));
+  sz.hilimit = (shi == "-" ? kFloatMissing : boost::lexical_cast<float>(shi));
+
+  globals.roundarrowsizes.push_back(sz);
 
 }
 
@@ -2595,6 +2646,12 @@ void do_clear(istream & theInput)
 	  globals.windarrowsxydx = -1;
 	  globals.windarrowsxydy = -1;
 	}
+  else if(command=="roundarrow")
+	{
+	  globals.roundarrowfillcolors.clear();
+	  globals.roundarrowstrokecolors.clear();
+	  globals.roundarrowsizes.clear();
+	}
   else if(command=="labels")
 	{
 	  list<ContourSpec>::iterator it;
@@ -2608,8 +2665,6 @@ void do_clear(istream & theInput)
 	}
   else if(command=="units")
 	globals.unitsconverter.clear();
-  else if(command=="graticule")
-	globals.graticulecolor = "";
   else
 	throw runtime_error("Unknown clear target: " + command);
 }
@@ -3367,6 +3422,90 @@ double paper_north(const NFmiArea & theArea,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Return the circle for a round arrow
+ */
+// ----------------------------------------------------------------------
+
+NFmiPath roundarrow_circle(const NFmiPoint & xy,
+						   const RoundArrowSize & sz)
+{
+  NFmiPath path;
+
+  if(sz.circleradius <= 0)
+	return path;
+
+  float circumference = 2*pi*sz.circleradius;
+  int segments = static_cast<int>(circumference/5);
+
+  for(int i=0; i<segments; i++)
+	{
+	  float angle = i*2*pi/segments;
+	  float x = xy.X() + sz.circleradius * sin(angle);
+	  float y = xy.Y() + sz.circleradius * cos(angle);
+	  if(i==0)
+		path.MoveTo(x,y);
+	  else
+		path.LineTo(x,y);
+	}
+  path.CloseLineTo();
+
+  return path;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return the triangle for a round arrow
+ */
+// ----------------------------------------------------------------------
+
+NFmiPath roundarrow_triangle(const NFmiPoint & xy,
+							 float angle,
+							 const RoundArrowSize & sz)
+{
+  NFmiPath path;
+
+  if(sz.trianglewidth <= 0)
+	return path;
+
+  float triangleh = sz.trianglewidth/2 / tan(pi*sz.triangleangle/2/180);
+  path.MoveTo(0,-sz.triangleradius-triangleh);
+  path.LineTo(sz.trianglewidth/2,-sz.triangleradius);
+  path.LineTo(-sz.trianglewidth/2,-sz.triangleradius);
+  path.CloseLineTo();
+  path.Rotate(angle);
+  path.Translate(xy.X(),xy.Y());
+
+  return path;
+}
+
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Draw the standard round arrow
+ */
+// ----------------------------------------------------------------------
+
+void draw_roundarrow(NFmiImage & img,
+					 const NFmiPoint & xy,
+					 float speed,
+					 float angle)
+{
+  RoundArrowColor fillcolor = globals.getRoundArrowFillColor(speed);
+  RoundArrowColor strokecolor = globals.getRoundArrowStrokeColor(speed);
+  RoundArrowSize sz = globals.getRoundArrowSize(speed);
+
+  NFmiPath circle = roundarrow_circle(xy,sz);
+  NFmiPath triangle = roundarrow_triangle(xy,angle,sz);
+
+  triangle.Fill(img,fillcolor.trianglecolor);
+  triangle.Stroke(img,strokecolor.trianglecolor);
+
+  circle.Fill(img,fillcolor.circlecolor);
+  circle.Stroke(img,strokecolor.circlecolor);
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Draw the listed wind arrow points
  */
 // ----------------------------------------------------------------------
@@ -3410,32 +3549,38 @@ void draw_wind_arrows_points( ImagineXr_or_NFmiImage &img,
 	  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
 	  
 	  // Direction calculations
-
+	  
 	  const float north = paper_north(theArea,latlon);
 
-	  // Create a new path
-	  
-	  NFmiPath thispath;
-	  
-	  if(globals.arrowfile == "meteorological")
-		thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
+	  // Render the arrow
+
+	  if(globals.arrowfile == "roundarrow")
+		{
+		  draw_roundarrow(img,xy0,speed,-dir+north+180);
+		}
 	  else
-		thispath.Add(theArrow);
-	  
-	  if(speed>0 && speed!=kFloatMissing)
-		thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
-	  thispath.Scale(globals.arrowscale);
-	  thispath.Rotate(-dir+north+180);
-	  thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
-	  
-	  // And render it
-	  
-	  thispath.Fill(img,
-					ColorTools::checkcolor(globals.arrowfillcolor),
-					ColorTools::checkrule(globals.arrowfillrule));
-	  thispath.Stroke(img,
-					  ColorTools::checkcolor(globals.arrowstrokecolor),
-					  ColorTools::checkrule(globals.arrowstrokerule));
+		{
+		  NFmiPath thispath;
+		  if(globals.arrowfile == "meteorological")
+			thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
+		  else
+			thispath.Add(theArrow);
+		  
+		  if(speed>0 && speed!=kFloatMissing)
+			thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
+		  thispath.Scale(globals.arrowscale);
+		  thispath.Rotate(-dir+north+180);
+		  thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
+		  
+		  // And render it
+		  
+		  thispath.Fill(img,
+						ColorTools::checkcolor(globals.arrowfillcolor),
+						ColorTools::checkrule(globals.arrowfillrule));
+		  thispath.Stroke(img,
+						  ColorTools::checkcolor(globals.arrowstrokecolor),
+						  ColorTools::checkrule(globals.arrowstrokerule));
+		}
 	}
 }
 
@@ -3524,26 +3669,33 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
 		
 		const float north = paper_north(theArea,latlon);
 
-		// Create a new path
-			
-		NFmiPath thispath;
-		if(globals.arrowfile == "meteorological")
-		  thispath.Add(GramTools::metarrow(static_cast<float>(speed*globals.windarrowscaleC)));
+		// Render the arrow
+
+		if(globals.arrowfile == "roundarrow")
+		  {
+			draw_roundarrow(img,xy0,speed,-dir+north+180);
+		  }
 		else
-		  thispath.Add(theArrow);
-		if(speed>0 && speed != kFloatMissing)
-		  thispath.Scale(static_cast<float>(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC));
-		thispath.Scale(globals.arrowscale);
-		thispath.Rotate(-dir+north+180);
-		thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
-		
-		// And render it
-		thispath.Fill(img,
-					  ColorTools::checkcolor(globals.arrowfillcolor),
-					  ColorTools::checkrule(globals.arrowfillrule));
-		thispath.Stroke(img,
-						ColorTools::checkcolor(globals.arrowstrokecolor),
-						ColorTools::checkrule(globals.arrowstrokerule));
+		  {
+			NFmiPath thispath;
+			if(globals.arrowfile == "meteorological")
+			  thispath.Add(GramTools::metarrow(static_cast<float>(speed*globals.windarrowscaleC)));
+			else
+			  thispath.Add(theArrow);
+			if(speed>0 && speed != kFloatMissing)
+			  thispath.Scale(static_cast<float>(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC));
+			thispath.Scale(globals.arrowscale);
+			thispath.Rotate(-dir+north+180);
+			thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
+			
+			// And render it
+			thispath.Fill(img,
+						  ColorTools::checkcolor(globals.arrowfillcolor),
+						  ColorTools::checkrule(globals.arrowfillrule));
+			thispath.Stroke(img,
+							ColorTools::checkcolor(globals.arrowstrokecolor),
+							ColorTools::checkrule(globals.arrowstrokerule));
+		  }
 	  }
 }
 
@@ -3594,31 +3746,38 @@ void draw_wind_arrows_pixelgrid( ImagineXr_or_NFmiImage &img,
 		globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
 		
 		// Direction calculations
-
+		
 		const float north = paper_north(theArea,latlon);
-
-		// Create a new path
 		
-		NFmiPath thispath;
+		// Render the arrow
 		
-		if(globals.arrowfile == "meteorological")
-		  thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
+		if(globals.arrowfile == "roundarrow")
+		  {
+			draw_roundarrow(img,xy0,speed,-dir+north+180);
+		  }
 		else
-		  thispath.Add(theArrow);
-		
-		if(speed>0 && speed!=kFloatMissing)
-		  thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
-		thispath.Scale(globals.arrowscale);
-		thispath.Rotate(-dir+north+180);
-		thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
-	  
-		// And render it
-		thispath.Fill(img,
-					  ColorTools::checkcolor(globals.arrowfillcolor),
-					  ColorTools::checkrule(globals.arrowfillrule));
-		thispath.Stroke(img,
-						ColorTools::checkcolor(globals.arrowstrokecolor),
-						ColorTools::checkrule(globals.arrowstrokerule));
+		  {
+			NFmiPath thispath;
+			
+			if(globals.arrowfile == "meteorological")
+			  thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
+			else
+			  thispath.Add(theArrow);
+			
+			if(speed>0 && speed!=kFloatMissing)
+			  thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
+			thispath.Scale(globals.arrowscale);
+			thispath.Rotate(-dir+north+180);
+			thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
+			
+			// And render it
+			thispath.Fill(img,
+						  ColorTools::checkcolor(globals.arrowfillcolor),
+						  ColorTools::checkrule(globals.arrowfillrule));
+			thispath.Stroke(img,
+							ColorTools::checkcolor(globals.arrowstrokecolor),
+							ColorTools::checkrule(globals.arrowstrokerule));
+		  }
 	  }
 }
 
@@ -3658,7 +3817,8 @@ void draw_wind_arrows( ImagineXr_or_NFmiImage &img,
 	  // Read the arrow definition
 
 	  NFmiPath arrowpath;
-	  if(globals.arrowfile != "meteorological")
+	  if(globals.arrowfile != "meteorological" &&
+		 globals.arrowfile != "roundarrow")
 		{
 		  const string & arr = globals.itsArrowCache.find(globals.arrowfile);
 		  arrowpath.Add(arr);
@@ -4419,45 +4579,6 @@ void draw_pressure_markers( ImagineXr_or_NFmiImage &img,
 
 // ----------------------------------------------------------------------
 /*!
- * \brief Draw graticule
- */
-// ----------------------------------------------------------------------
-
-void draw_graticule( ImagineXr_or_NFmiImage &img,
-					 const NFmiArea & theArea)
-{
-  if(globals.graticulecolor.empty())
-	return;
-
-  NFmiPath path;
-
-  for(double lon=globals.graticulelon1; lon<=globals.graticulelon2; lon+=globals.graticuledx)
-	{
-	  path.MoveTo(lon,globals.graticulelat1);
-	  for(double lat=globals.graticulelat1+globals.graticuledy;
-		  lat<=globals.graticulelat2;
-		  lat+=1.0)
-		path.LineTo(lon,lat);
-	}
-
-  for(double lat=globals.graticulelat1; lat<=globals.graticulelat2; lat+=globals.graticuledy)
-	{
-	  path.MoveTo(globals.graticulelon1,lat);
-	  for(double lon=globals.graticulelon1+globals.graticuledx;
-		  lon<=globals.graticulelon2;
-		  lon+=1.0)
-		path.LineTo(lon,lat);
-	}
-
-  MeridianTools::Relocate(path,theArea);
-  path.Project(&theArea);
-
-  NFmiColorTools::Color color = ColorTools::checkcolor(globals.graticulecolor);
-  path.Stroke(img,color,NFmiColorTools::kFmiColorCopy);
-}
-
-// ----------------------------------------------------------------------
-/*!
  * \brief Draw the foreground onto the image
  */
 // ----------------------------------------------------------------------
@@ -4879,10 +5000,6 @@ void do_draw_contours(istream & theInput)
 
 		}
 
-	  // Draw graticule
-
-	  draw_graticule(*xr,*area);
-
 	  // Bang the foreground
 
 	  draw_foreground(*xr);
@@ -4991,6 +5108,9 @@ void process_cmd( const string &text ) {
       else if(cmd == "arrowfill")				do_arrowfill(in);
       else if(cmd == "arrowstroke")				do_arrowstroke(in);
       else if(cmd == "arrowpath")				do_arrowpath(in);
+	  else if(cmd == "roundarrowfill")          do_roundarrowfill(in);
+	  else if(cmd == "roundarrowstroke")        do_roundarrowstroke(in);
+	  else if(cmd == "roundarrowsize")          do_roundarrowsize(in);
       else if(cmd == "windarrow")				do_windarrow(in);
       else if(cmd == "windarrows")				do_windarrows(in);
       else if(cmd == "windarrowsxy")			do_windarrowsxy(in);
@@ -5008,7 +5128,6 @@ void process_cmd( const string &text ) {
     //
       else if(cmd == "antialias")				do_antialias(in);
 #endif
-	  else if(cmd == "graticule")				do_graticule(in);
       else if(cmd == "gamma")					do_gamma(in);
       else if(cmd == "intent")					do_intent(in);
       else if(cmd == "pngquality")				do_pngquality(in);
