@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 8.12.30
+Version: 9.5.28
 Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
@@ -12,8 +12,8 @@ BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: libsmartmet-imagine >= 8.11.12-1
-BuildRequires: libsmartmet-newbase >= 8.12.18-1
+BuildRequires: libsmartmet-imagine >= 9.4.6-1
+BuildRequires: libsmartmet-newbase >= 9.4.21-1
 BuildRequires: libsmartmet-tron >= 8.10.23-1
 BuildRequires: zlib-devel
 Requires: freetype
@@ -32,6 +32,7 @@ rm -rf $RPM_BUILD_ROOT
  
 %build
 make %{_smp_mflags}
+make --quiet test
 
 %install
 %makeinstall
@@ -45,6 +46,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu May 28 2009 mheiskan <mika.heiskanen@fmi.fi> - 9.5.28-1.el5.fmi
+- Added roundarrow support
+* Fri Jan 23 2009 mheiskan <mika.heiskanen@fmi.fi> - 9.1.23-1.el5.fmi
+- Recompile for recognizing new newbase parameternames
 * Tue Dec 30 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.12.30-1.el5.fmi
 - Added safety checks for polar regions in wind arrow calculations
 * Mon Dec 29 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.12.29-1.el5.fmi
