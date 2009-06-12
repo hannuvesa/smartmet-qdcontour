@@ -261,6 +261,9 @@ const std::string Globals::getImageStampText(const NFmiTime & theTime) const
 	  else if(timestampimageformat == "hourdate") // hh:mi dd.mm.
 		sprintf(buffer,"%02d:%02d %02d.%02d.",obshh,obsmi,obsdd,obsmm);
 
+	  else if(timestampimageformat == "datehour") // d.m h:mi.
+		sprintf(buffer,"%d.%d. %d:%02d",obsdd,obsmm,obshh,obsmi);
+
 	  else // hh:mi dd.mm.yyyy
 		sprintf(buffer,"%02d:%02d %02d.%02d.%04d",obshh,obsmi,obsdd,obsmm,obsyy);
 	  stamp = buffer;
@@ -271,6 +274,8 @@ const std::string Globals::getImageStampText(const NFmiTime & theTime) const
 		sprintf(buffer,"%02d:%02d",forhh,formi);
 	  else if(timestampimageformat == "hourdate") // hh:mi dd.mm.
 		sprintf(buffer,"%02d:%02d %02d.%02d.",forhh,formi,fordd,formm);
+	  else if(timestampimageformat == "datehour") // d.m h:mi
+		sprintf(buffer,"%d.%d. %d:%02d",fordd,formm,forhh,formi);
 	  else // hh:mi dd.mm.yyyy
 		sprintf(buffer,"%02d:%02d %02d.%02d.%04d",forhh,formi,fordd,formm,foryy);
 	  stamp = buffer;
@@ -281,6 +286,8 @@ const std::string Globals::getImageStampText(const NFmiTime & theTime) const
 		sprintf(buffer,"%02d:%02d",forhh,formi);
 	  else if(timestampimageformat == "hourdate") // dd.mm. hh:mi + hh
 		sprintf(buffer,"%02d.%02d. %02d:%02d",fordd,formm,forhh,formi);
+	  else if(timestampimageformat == "datehour") // d.m. h:mi + hh
+		sprintf(buffer,"%d.%d. %d:%02d",fordd,formm,forhh,formi);
 	  else // dd.mm.yy hh:mi +hh
 		sprintf(buffer,"%02d.%02d.%04d %02d:%02d",
 				fordd,formm,foryy,forhh,formi);
