@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 9.5.28
+Version: 9.6.12
 Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
@@ -46,6 +46,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Jun 12 2009 mheiskan <mika.heiskanen@fmi.fi> - 9.6.12-1.el5.fmi
+- Added datehour timestamp formatting for YLE
 * Thu May 28 2009 mheiskan <mika.heiskanen@fmi.fi> - 9.5.28-1.el5.fmi
 - Added roundarrow support
 * Fri Jan 23 2009 mheiskan <mika.heiskanen@fmi.fi> - 9.1.23-1.el5.fmi

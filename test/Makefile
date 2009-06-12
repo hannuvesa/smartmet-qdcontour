@@ -60,6 +60,10 @@ test_pdf:
 	-@$(MAKE) test _CHECK=_check_pdf
 
 test:
+	-@$(MAKE) --quiet $(_CHECK) TEST=timestampimage_forobs
+	-@$(MAKE) --quiet $(_CHECK) TEST=timestampimage2
+	-@$(MAKE) --quiet $(_CHECK) TEST=timestampimageutc
+	-@$(MAKE) --quiet $(_CHECK) TEST=timestampimage_datehour
 	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_grid_normal
 	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_grid_step
 	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_grid_masked
@@ -69,9 +73,6 @@ test:
 	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_normal
 	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_colors
 	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_sizes
-	-@$(MAKE) --quiet $(_CHECK) TEST=timestampimage
-	-@$(MAKE) --quiet $(_CHECK) TEST=timestampimage2
-	-@$(MAKE) --quiet $(_CHECK) TEST=timestampimageutc
 	-@$(MAKE) --quiet $(_CHECK) TEST=shape_fill
 	-@$(MAKE) --quiet $(_CHECK) TEST=shape_stroke
 	-@$(MAKE) --quiet $(_CHECK) TEST=shape_mark

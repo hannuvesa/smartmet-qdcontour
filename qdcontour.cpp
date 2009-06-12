@@ -758,6 +758,7 @@ void do_timestampimageformat(istream & theInput)
 
   if(globals.timestampimageformat != "hour" &&
 	 globals.timestampimageformat != "hourdate" &&
+	 globals.timestampimageformat != "datehour" &&
 	 globals.timestampimageformat != "hourdateyear")
 	{
 	  throw runtime_error("Unrecognized timestampimageformat '"+globals.timestampimageformat+"'");
