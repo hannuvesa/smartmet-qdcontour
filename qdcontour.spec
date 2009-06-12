@@ -2,7 +2,7 @@
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
 Version: 9.6.12
-Release: 1.el5.fmi
+Release: 2.el5.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
