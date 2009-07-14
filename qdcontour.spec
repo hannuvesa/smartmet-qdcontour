@@ -1,19 +1,20 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 9.6.12
-Release: 2.el5.fmi
+Version: 9.7.14
+Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
 Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot-%(%{__id_u} -n)
+BuildRequires: boost-devel >= 1.39
 BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: libsmartmet-imagine >= 9.4.6-1
-BuildRequires: libsmartmet-newbase >= 9.4.21-1
+BuildRequires: libsmartmet-imagine >= 9.7.14-1
+BuildRequires: libsmartmet-newbase >= 9.7.14-1
 BuildRequires: libsmartmet-tron >= 8.10.23-1
 BuildRequires: zlib-devel
 Requires: freetype
@@ -46,6 +47,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Jul 14 2009 mheiskan <mika.heiskanen@fmi.fi> - 9.7.14-1.el5.fmi
+- Upgrade to boost 1.39
 * Fri Jun 12 2009 mheiskan <mika.heiskanen@fmi.fi> - 9.6.12-1.el5.fmi
 - Added datehour timestamp formatting for YLE
 * Thu May 28 2009 mheiskan <mika.heiskanen@fmi.fi> - 9.5.28-1.el5.fmi

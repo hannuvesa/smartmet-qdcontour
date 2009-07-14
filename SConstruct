@@ -102,7 +102,7 @@ if WINDOWS:
                 LIBPATH= [ "../newbase","../imagine", "../tron" ] )
 
 elif LINUX:
-    BOOST_POSTFIX= "-mt"    # Boost 1.36
+    BOOST_POSTFIX= ""    # Boost 1.36
 
     # Newbase, Imagine & Tron from system install
     #
