@@ -23,7 +23,7 @@ _CHECK=_check
 
 # Misc tests that have issues:
 #
-labels_grid_masked missing_values shape_combined shape_fill shape_mark shape_mark_alpha_factor shape_stroke \
+labelmarker labels_grid_masked missing_values shape_combined shape_fill shape_mark shape_mark_alpha_factor shape_stroke \
 contourpattern contoursymbol1 contoursymbol2 \
 contourfont1 contourfont2 contourfont_grid \
 contourlabeltexts contourlabels contourlabelcolors \
@@ -60,6 +60,8 @@ test_pdf:
 	-@$(MAKE) test _CHECK=_check_pdf
 
 test:
+	-@$(MAKE) --quiet $(_CHECK) TEST=labels_with_ttf
+	-@$(MAKE) --quiet $(_CHECK) TEST=labelmarker
 	-@$(MAKE) --quiet $(_CHECK) TEST=timestampimage_forobs
 	-@$(MAKE) --quiet $(_CHECK) TEST=timestampimage2
 	-@$(MAKE) --quiet $(_CHECK) TEST=timestampimageutc
