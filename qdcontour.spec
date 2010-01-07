@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 9.7.14
+Version: 10.1.7
 Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
@@ -13,7 +13,7 @@ BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: libsmartmet-imagine >= 9.7.14-1
+BuildRequires: libsmartmet-imagine >= 10.1.5-1
 BuildRequires: libsmartmet-newbase >= 9.7.14-1
 BuildRequires: libsmartmet-tron >= 8.10.23-1
 BuildRequires: zlib-devel
@@ -47,6 +47,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Jan  7 2010 mheiskan <mika.heiskanen@fmi.fi> - 10.1.7-1.el5.fmi
+- Fixed label rendering (imagine lib)
 * Tue Jul 14 2009 mheiskan <mika.heiskanen@fmi.fi> - 9.7.14-1.el5.fmi
 - Upgrade to boost 1.39
 * Fri Jun 12 2009 mheiskan <mika.heiskanen@fmi.fi> - 9.6.12-1.el5.fmi
