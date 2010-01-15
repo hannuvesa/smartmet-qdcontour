@@ -60,6 +60,8 @@ test_pdf:
 	-@$(MAKE) test _CHECK=_check_pdf
 
 test:
+	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_labels_normal
+	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_labels_ttf
 	-@$(MAKE) --quiet $(_CHECK) TEST=labels_with_ttf
 	-@$(MAKE) --quiet $(_CHECK) TEST=labelmarker
 	-@$(MAKE) --quiet $(_CHECK) TEST=timestampimage_forobs

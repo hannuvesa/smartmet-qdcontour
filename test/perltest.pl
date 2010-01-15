@@ -15,6 +15,10 @@ DoTest("trivial contour",
        "trivial.conf",
        "trivial_200210140600_200210140937.png");
 
+DoTest("labels with truetype",
+       "labels_grid_ttf.conf",
+       "labels_grid_ttf_200210140600_200210140937.png");
+
 # Test contourline
 
 DoTest("contourline",
