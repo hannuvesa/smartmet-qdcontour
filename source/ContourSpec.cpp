@@ -69,6 +69,7 @@ ContourSpec::ContourSpec(const std::string & theParam,
   , itsContourLabelBackgroundXMargin(2)
   , itsContourLabelBackgroundYMargin(2)
   , itsContourLabelTexts()
+  , itsOverlay()
 {
 }
 
@@ -1368,6 +1369,29 @@ void ContourSpec::despeckle(NFmiDataMatrix<float> & theValues) const
 						itsDespeckleWeight,
 						itsDespeckleIterations);
 }
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Get the overlay
+ */
+// ----------------------------------------------------------------------
+
+const std::string & ContourSpec::overlay() const
+{
+  return itsOverlay;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Set the overlay
+ */
+// ----------------------------------------------------------------------
+
+void ContourSpec::overlay(const std::string & theOverlay)
+{
+  itsOverlay = theOverlay;
+}
+
 
 // ======================================================================
 

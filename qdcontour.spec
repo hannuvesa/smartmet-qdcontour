@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 10.1.15
+Version: 10.1.20
 Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
@@ -47,6 +47,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jan 20 2010 mheiskan <mika.heiskanen@fmi.fi> - 10.1.20-1.el5.fmi
+- Added the "overlay" command
 * Fri Jan 15 2010 mheiskan <mika.heiskanen@fmi.fi> - 10.1.15-1.el5.fmi
 - Upgrade to boost 1.41
 * Thu Jan  7 2010 mheiskan <mika.heiskanen@fmi.fi> - 10.1.7-1.el5.fmi

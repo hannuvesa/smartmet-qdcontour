@@ -55,12 +55,15 @@ public:
   float dataHiLimit(void) const;
   float dataLoLimit(void) const;
 
+  const std::string & overlay(void) const;
+
   void level(int theValue);
   void contourInterpolation(const std::string & theValue);
   void smoother(const std::string & theValue);
   void smootherRadius(float theRadius);
   void smootherFactor(int theFactor);
   void exactHiLimit(float theLimit);
+  void overlay(const std::string & theOverlay);
   
   void dataLoLimit(float theLimit);
   void dataHiLimit(float theLimit);
@@ -245,6 +248,8 @@ private:
   int itsContourLabelBackgroundXMargin;
   int itsContourLabelBackgroundYMargin;
   std::map<float,std::string> itsContourLabelTexts;
+
+  std::string itsOverlay;
  
 };
 

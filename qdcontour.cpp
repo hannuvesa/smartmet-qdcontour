@@ -52,6 +52,7 @@
 #include "NFmiStringTools.h"
 #include "NFmiPreProcessor.h"
 
+#include <boost/foreach.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -1185,6 +1186,34 @@ void do_mask(istream & theInput)
 	globals.mask = FileComplete(globals.mask,
 								globals.mapspath);
 }
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "overlay" command
+ */
+// ----------------------------------------------------------------------
+
+void do_overlay(istream & theInput)
+{
+  string paramname, imgname;
+
+  theInput >> paramname >> imgname;
+
+  if(imgname == "-" || imgname == "none")
+	imgname = "";
+
+  check_errors(theInput,"overlay");
+
+  BOOST_FOREACH(ContourSpec & spec, globals.specs)
+	{
+	  if(spec.param() == paramname)
+		{
+		  spec.overlay(imgname);
+		  break;
+		}
+	}
+}
+
 
 // ----------------------------------------------------------------------
 /*!
@@ -4390,6 +4419,24 @@ void save_contour_fonts( ImagineXr_or_NFmiImage &img,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Draw overlay
+ */
+// ----------------------------------------------------------------------
+
+void draw_overlay(ImagineXr_or_NFmiImage &img,
+				  const ContourSpec & theSpec)
+{
+  if(theSpec.overlay().empty())
+	return;
+
+  img.Composite(globals.getImage(theSpec.overlay()),
+				NFmiColorTools::kFmiColorOver,
+				kFmiAlignNorthWest,
+				0,0,1 );
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Establish the type of extremum at the given point
  *
  * \param theValues The matrix of values
@@ -4999,6 +5046,11 @@ void do_draw_contours(istream & theInput)
 
 		  save_contour_labels(*xr,*area,*piter,interp);
 
+		  // Draw optional overlay
+
+		  draw_overlay(*xr,*piter);
+
+
 		}
 
 	  // Bang the foreground
@@ -5118,6 +5170,7 @@ void process_cmd( const string &text ) {
       else if(cmd == "background")				do_background(in);
       else if(cmd == "foreground")				do_foreground(in);
       else if(cmd == "mask")					do_mask(in);
+	  else if(cmd == "overlay")					do_overlay(in);
       else if(cmd == "combine")					do_combine(in);
       else if(cmd == "foregroundrule")			do_foregroundrule(in);
       else if(cmd == "savepath")				do_savepath(in);
