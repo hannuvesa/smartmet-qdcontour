@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 10.1.20
+Version: 10.6.7
 Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
@@ -14,7 +14,7 @@ BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: libsmartmet-imagine >= 10.1.15-1
-BuildRequires: libsmartmet-newbase >= 10.1.15-1
+BuildRequires: libsmartmet-newbase >= 10.6.7-1
 BuildRequires: libsmartmet-tron >= 8.10.23-1
 BuildRequires: zlib-devel
 Requires: freetype
@@ -47,6 +47,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Jun  7 2010 mheiskan <mika.heiskanen@fmni.fi> - 10.6.7-1.el5.fmi
+- Output directories are now created automatically
+- Now supports pkj projection via new newbase
 * Wed Jan 20 2010 mheiskan <mika.heiskanen@fmi.fi> - 10.1.20-1.el5.fmi
 - Added the "overlay" command
 * Fri Jan 15 2010 mheiskan <mika.heiskanen@fmi.fi> - 10.1.15-1.el5.fmi

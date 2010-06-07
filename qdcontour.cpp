@@ -1276,7 +1276,8 @@ void do_savepath(istream & theInput)
   check_errors(theInput,"savepath");
 
   if(!NFmiFileSystem::DirectoryExists(globals.savepath))
-	throw runtime_error("savepath "+globals.savepath+" does not exist");
+	NFmiFileSystem::CreateDirectory(globals.savepath);
+
 }
 
 // ----------------------------------------------------------------------
@@ -4865,10 +4866,20 @@ void do_draw_contours(istream & theInput)
 			}
 		}
 
-	  filename +=
-		globals.suffix
-		+ "."
-		+ globals.format;
+	  filename += globals.suffix;
+
+	  // Make sure the directory exists
+
+	  if(!NFmiFileSystem::DirectoryExists(filename))
+		{
+		  if(globals.verbose)
+			cout << "Creating directory " << filename << endl;
+		  NFmiFileSystem::CreateDirectory(filename);
+		}
+
+	  // And complete the filename with the suffix
+	  
+	  filename += "." + globals.format;
 
 	  // In force-mode we always write, but otherwise
 	  // we first check if the output image already
