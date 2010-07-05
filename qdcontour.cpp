@@ -4866,20 +4866,7 @@ void do_draw_contours(istream & theInput)
 			}
 		}
 
-	  filename += globals.suffix;
-
-	  // Make sure the directory exists
-
-	  if(!NFmiFileSystem::DirectoryExists(filename))
-		{
-		  if(globals.verbose)
-			cout << "Creating directory " << filename << endl;
-		  NFmiFileSystem::CreateDirectory(filename);
-		}
-
-	  // And complete the filename with the suffix
-	  
-	  filename += "." + globals.format;
+	  filename += globals.suffix + "." + globals.format;
 
 	  // In force-mode we always write, but otherwise
 	  // we first check if the output image already
