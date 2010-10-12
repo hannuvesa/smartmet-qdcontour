@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 10.7.5
+Version: 10.10.12
 Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
@@ -47,6 +47,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Oct 12 2010 mheiskan <mika.heiskanen@fmi.fi> - 10.10.12-1.el5.fmi
+- timestampbackground is now by default 185,185,185,185
 * Mon Jul  5 2010 mheiskan <mika.heiskanen@fmi.fi> - 10.7.5-1.el5.fmi
 - Upgrade to newbase 10.7.5-1
 * Mon Jun  7 2010 mheiskan <mika.heiskanen@fmi.fi> - 10.6.7-1.el5.fmi
