@@ -117,7 +117,7 @@ Globals::Globals()
   , timestampimageformat("hourdateyear")
   , timestampimagefont("misc/6x13B.pcf.gz:6x13")
   , timestampimagecolor( Imagine::NFmiColorTools::Black )
-  , timestampimagebackground( Imagine::NFmiColorTools::NoColor )
+  , timestampimagebackground( Imagine::NFmiColorTools::MakeColor(185,185,185,185) )
   , timestampimagexmargin(2)
   , timestampimageymargin(2)
   , contourlabelimagexmargin(20)
@@ -342,7 +342,6 @@ void Globals::drawImageStampText( Imagine::NFmiImage &theImage,
     return;
 
   Imagine::NFmiFace face(timestampimagefont);
-  face.Background(true);
   
   int x = timestampimagex;
   int y = timestampimagey;
