@@ -47,7 +47,7 @@ public:
 
   std::string GetParamName() const;
   unsigned long GetParamIdent() const;
-  int GetLevelNumber() const;
+  float GetLevelNumber() const;
 
   // These do not require the data values
 

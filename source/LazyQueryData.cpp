@@ -105,7 +105,7 @@ unsigned long LazyQueryData::GetParamIdent() const
  */
 // ----------------------------------------------------------------------
 
-int LazyQueryData::GetLevelNumber() const
+float LazyQueryData::GetLevelNumber() const
 {
   requireInfo();
   return (itsInfo->Level()->LevelValue());

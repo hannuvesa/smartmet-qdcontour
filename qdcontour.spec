@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 10.10.12
+Version: 11.2.2
 Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
@@ -13,8 +13,8 @@ BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: libsmartmet-imagine >= 10.7.5-2
-BuildRequires: libsmartmet-newbase >= 10.7.5-2
+BuildRequires: libsmartmet-imagine >= 11.2.2-1
+BuildRequires: libsmartmet-newbase >= 11.2.2-1
 BuildRequires: libsmartmet-tron >= 8.10.23-1
 BuildRequires: zlib-devel
 Requires: freetype
@@ -47,6 +47,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Feb  2 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.2.2-1.el5.fmi
+- Updated to latest newbase with new parameter names
 * Tue Oct 12 2010 mheiskan <mika.heiskanen@fmi.fi> - 10.10.12-1.el5.fmi
 - timestampbackground is now by default 185,185,185,185
 * Mon Jul  5 2010 mheiskan <mika.heiskanen@fmi.fi> - 10.7.5-1.el5.fmi
