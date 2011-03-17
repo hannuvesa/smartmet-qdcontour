@@ -1,8 +1,8 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 11.2.2
-Release: 1.el5.fmi
+Version: 11.3.17
+Release: 1.el6.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -14,8 +14,8 @@ BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: libsmartmet-imagine >= 11.2.2-1
-BuildRequires: libsmartmet-newbase >= 11.2.2-1
-BuildRequires: libsmartmet-tron >= 8.10.23-1
+BuildRequires: libsmartmet-newbase >= 11.3.17-1
+BuildRequires: libsmartmet-tron >= 11.3.17-1
 BuildRequires: zlib-devel
 Requires: freetype
 Requires: libjpeg
@@ -47,6 +47,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Mar 17 2011 keranen <pekka.keranen@geosaaga.fi> - 11.3.17-1.el6.fmi
+- RHEL6 build with compilation fixes
 * Wed Feb  2 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.2.2-1.el5.fmi
 - Updated to latest newbase with new parameter names
 * Tue Oct 12 2010 mheiskan <mika.heiskanen@fmi.fi> - 10.10.12-1.el5.fmi
