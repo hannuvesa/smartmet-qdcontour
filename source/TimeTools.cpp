@@ -56,12 +56,12 @@ namespace TimeTools
   NFmiTime ToUTC(::time_t theTime)
   {
 	struct ::tm * t = ::gmtime(&theTime);
-	return NFmiTime(t->tm_year + 1900,
-					t->tm_mon + 1,
-					t->tm_mday,
-					t->tm_hour,
-					t->tm_min,
-					t->tm_sec);
+	return NFmiTime(static_cast<short>(t->tm_year + 1900),
+					static_cast<short>(t->tm_mon + 1),
+					static_cast<short>(t->tm_mday),
+					static_cast<short>(t->tm_hour),
+					static_cast<short>(t->tm_min),
+					static_cast<short>(t->tm_sec));
   }
 } // namespace TimeTools
 

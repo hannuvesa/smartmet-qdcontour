@@ -370,8 +370,8 @@ float LabelLocator::distanceToBorder(float theX, float theY) const
   if(!itHasBBox)
 	return 0;
 
-  double xdist = min(abs(theX-itsBBoxX1),abs(theX-itsBBoxX2));
-  double ydist = min(abs(theY-itsBBoxY1),abs(theY-itsBBoxY2));
+  double xdist = min(abs(theX-static_cast<float>(itsBBoxX1)),abs(theX-static_cast<float>(itsBBoxX2)));
+  double ydist = min(abs(theY-static_cast<float>(itsBBoxY1)),abs(theY-static_cast<float>(itsBBoxY2)));
   return static_cast<float>(min(xdist,ydist));
 }
 

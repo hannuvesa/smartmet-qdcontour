@@ -138,7 +138,7 @@ namespace
 	  return Imagine::NFmiColorTools::ColorValue(theColor);
 
 	int value = -1;
-	for(unsigned int i=pos+1; i<theColor.length(); i++)
+	for(size_t i=pos+1; i<theColor.length(); i++)
 	  {
 		const char ch = theColor[i];
 		if(ch>='0' && ch<='9')

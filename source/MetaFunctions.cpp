@@ -315,8 +315,8 @@ namespace
 	// we overwrite wspd with the results
 	
 	// grid resolution in meters for difference formulas
-	const float dx = static_cast<float>((theQI.Area()->WorldXYWidth()) / (theQI.Grid()->XNumber()));
-	const float dy = static_cast<float>((theQI.Area()->WorldXYHeight()) / (theQI.Grid()->YNumber()));
+	const float dx = static_cast<float>((static_cast<float>(theQI.Area()->WorldXYWidth())) / (static_cast<float>(theQI.Grid()->XNumber())));
+	const float dy = static_cast<float>((static_cast<float>(theQI.Area()->WorldXYHeight())) / (static_cast<float>(theQI.Grid()->YNumber())));
 
 	const float pirad=3.14159265358979323f/360.f;
 
@@ -384,8 +384,8 @@ namespace
 	// thermal front parameter = (-nabla |nabla T|) dot (nabla T /|nabla T|)
 
 	// grid resolution in meters for difference formulas
-	const float dx = static_cast<float>((theQI.Area()->WorldXYWidth()) / (theQI.Grid()->XNumber()));
-	const float dy = static_cast<float>((theQI.Area()->WorldXYHeight()) / (theQI.Grid()->YNumber()));
+	const float dx = (static_cast<float>(theQI.Area()->WorldXYWidth())) / (static_cast<float>(theQI.Grid()->XNumber()));
+	const float dy = (static_cast<float>(theQI.Area()->WorldXYHeight())) / (static_cast<float>((theQI.Grid()->YNumber())));
 
 	NFmiDataMatrix<float> nablatx, nablaty;
 	matrix_nabla(t2m,dx,dy,nablatx,nablaty);
@@ -449,7 +449,7 @@ namespace
 		  else if(rh[i][j] == kFloatMissing)
 			t2m[i][j] = kFloatMissing;
 		  else
-			t2m[i][j] = 100*(1-1/(1+exp(22-2.7*t2m[i][j]-0.2*rh[i][j])));
+			t2m[i][j] = static_cast<float>(100*(1-1/(1+exp(22-2.7*t2m[i][j]-0.2*rh[i][j]))));
 		}
 	return t2m;
   }
@@ -492,7 +492,7 @@ namespace
 			  float T = t2m[i][j];
 			  float RH = rh[i][j];
 			  float P = p[i][j];
-			  t2m[i][j] =  (273.15+T)*pow(1000.0/P,0.286)+(3*(RH*(3.884266*pow(10.0,((7.5*T)/(237.7+T))))/100)) - 273.15;
+			  t2m[i][j] =  static_cast<float>((273.15+T)*pow(1000.0/P,0.286)+(3*(RH*(3.884266*pow(10.0,((7.5*T)/(237.7+T))))/100)) - 273.15);
 			}
 		}
 	return t2m;

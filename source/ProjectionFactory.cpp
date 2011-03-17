@@ -57,8 +57,8 @@ namespace ProjectionFactory
 		
 		NFmiPoint c = area.LatLonToWorldXY(theCenter);
 		
-		NFmiPoint bl(c.X()-theScale*1000*theWidth, c.Y()-theScale*1000*theHeight);
-		NFmiPoint tr(c.X()+theScale*1000*theWidth, c.Y()+theScale*1000*theHeight);
+		NFmiPoint bl(c.X()-theScale*1000*static_cast<float>(theWidth), c.Y()-theScale*1000*static_cast<float>(theHeight));
+		NFmiPoint tr(c.X()+theScale*1000*static_cast<float>(theWidth), c.Y()+theScale*1000*static_cast<float>(theHeight));
 		
 		bottomleft = area.WorldXYToLatLon(bl);
 		topright = area.WorldXYToLatLon(tr);

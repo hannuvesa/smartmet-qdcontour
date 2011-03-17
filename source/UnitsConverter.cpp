@@ -39,7 +39,7 @@ inline float celsius_to_fahrenheit(float theValue)
   if(theValue == kFloatMissing)
 	return kFloatMissing;
   else
-	return (1.8*theValue+32);
+	return (1.8f*theValue+32);
 }
 
 // ----------------------------------------------------------------------
@@ -53,7 +53,7 @@ inline float fahrenheit_to_celsius(float theValue)
   if(theValue == kFloatMissing)
 	return kFloatMissing;
   else
-	return (theValue-32)/1.8;
+	return (theValue-32)/1.8f;
 }
 
 // ----------------------------------------------------------------------
@@ -69,7 +69,7 @@ inline float meterspersecond_to_knots(float theValue)
   if(theValue == kFloatMissing)
 	return kFloatMissing;
   else
-	return theValue / 0.51444444444444444444444444;
+	return theValue / 0.51444444444444444444444444f;
 }
 
 // ----------------------------------------------------------------------
@@ -85,7 +85,7 @@ inline float meters_to_feet(float theValue)
   if(theValue == kFloatMissing)
 	return kFloatMissing;
   else
-	return theValue / 0.3048;
+	return theValue / 0.3048f;
 }
 
 // ----------------------------------------------------------------------
@@ -101,7 +101,7 @@ inline float kilometers_to_feet(float theValue)
   if(theValue == kFloatMissing)
 	return kFloatMissing;
   else
-	return 1000.0 * theValue / 0.3048;
+	return 1000.0f * theValue / 0.3048f;
 }
 
 // ----------------------------------------------------------------------
@@ -117,7 +117,7 @@ inline float kilometers_to_flightlevel(float theValue)
   if(theValue == kFloatMissing)
 	return kFloatMissing;
   else
-	return 10.0 * theValue / 0.3048;
+	return 10.0f * theValue / 0.3048f;
 }
 
 // ----------------------------------------------------------------------

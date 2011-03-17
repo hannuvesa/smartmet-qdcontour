@@ -71,7 +71,7 @@ namespace GramTools
 
 	const float tmpspeed = theSpeed+quarter_unit;
 	const unsigned int long_segments = static_cast<unsigned int>(::floor(tmpspeed/full_unit));
-	const unsigned int short_segments = static_cast<unsigned int>(::floor((tmpspeed-long_segments*full_unit)/half_unit));
+	const unsigned int short_segments = static_cast<unsigned int>(::floor((tmpspeed-static_cast<float>(long_segments)*full_unit)/half_unit));
 	
 	const bool has_extra_up = (theSpeed >= quarter_unit && theSpeed < full_unit - quarter_unit);
 	
@@ -80,7 +80,7 @@ namespace GramTools
 	path.MoveTo(0,spot_size);
 	path.LineTo(0,spot_size
 				+ initial_length
-				+ (std::max(1u,long_segments+short_segments)-1)*flag_interval
+				+ static_cast<float>((std::max(1u,long_segments+short_segments)-1))*flag_interval
 				+ (has_extra_up ? flag_interval : 0));
 	
 	// First the short segments (should be only one, according to present settings)
@@ -91,7 +91,7 @@ namespace GramTools
 	  for(unsigned int i=0; i<short_segments; i++)
 		{
 		  path.MoveTo(0,y);
-		  path.LineTo(-flag_length/2*::sin(flag_angle),y+flag_length/2*::cos(flag_angle));
+		  path.LineTo(static_cast<float>(-flag_length/2*::sin(flag_angle)),static_cast<float>(y+flag_length/2*::cos(flag_angle)));
 		  y += flag_interval;
 		}
 	
@@ -101,7 +101,7 @@ namespace GramTools
 	  for(unsigned int j=0; j<long_segments; j++)
 		{
 		  path.MoveTo(0,y);
-		  path.LineTo(-flag_length*::sin(flag_angle),y+flag_length*::cos(flag_angle));
+		  path.LineTo(static_cast<float>(-flag_length*::sin(flag_angle)),static_cast<float>(y+flag_length*::cos(flag_angle)));
 		  y += flag_interval;
 		}
 
