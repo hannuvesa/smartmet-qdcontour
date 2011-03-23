@@ -6,5 +6,6 @@ obj
 *.exe
 *.exe.manifest
 *.dll
-test/results
-test/results_diff
+test/results/
+test/results_diff/
+
