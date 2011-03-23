@@ -15,8 +15,8 @@ public:
         return itsMatrix[i][j];
   }
 
-  float x(size_type i, size_type j) const { return static_cast<float>(i); }
-  float y(size_type i, size_type j) const { return static_cast<float>(j); }
+  coord_type x(size_type i, size_type j) const { return static_cast<float>(i); }
+  coord_type y(size_type i, size_type j) const { return static_cast<float>(j); }
 
   size_type width()  const { return itsMatrix.NX(); }
   size_type height() const { return itsMatrix.NY(); }
