@@ -142,7 +142,7 @@ if WINDOWS:
                 )
 else:
     env.ParseConfig("freetype-config --cflags --libs") 
-    env.ParseConfig("pkg-config --cflags --libs cairomm-1.0")
+    # env.ParseConfig("pkg-config --cflags --libs cairomm-1.0")
 
 print( env["CPPPATH"] )
 
