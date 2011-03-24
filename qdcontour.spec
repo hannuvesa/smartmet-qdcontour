@@ -1,21 +1,21 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 11.3.17
+Version: 11.3.24
 Release: 1.el6.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
 Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot-%(%{__id_u} -n)
-BuildRequires: boost-devel >= 1.41
+BuildRequires: boost-devel >= 1.46
 BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: libsmartmet-imagine >= 11.2.2-1
-BuildRequires: libsmartmet-newbase >= 11.3.17-1
-BuildRequires: libsmartmet-tron >= 11.3.17-1
+BuildRequires: libsmartmet-imagine >= 11.3.24-1
+BuildRequires: libsmartmet-newbase >= 11.3.24-1
+BuildRequires: libsmartmet-tron >= 11.3.24-1
 BuildRequires: zlib-devel
 Requires: freetype
 Requires: libjpeg
@@ -47,6 +47,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Mar 24 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.3.24-1.el5.fmi
+- Fixed meteorological arrows
+- Upgrade to boost 1.46 and new base libraries
 * Thu Mar 17 2011 keranen <pekka.keranen@geosaaga.fi> - 11.3.17-1.el6.fmi
 - RHEL6 build with compilation fixes
 * Wed Feb  2 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.2.2-1.el5.fmi
