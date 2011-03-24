@@ -60,6 +60,8 @@ test_pdf:
 	-@$(MAKE) test _CHECK=_check_pdf
 
 test:
+	-@$(MAKE) --quiet $(_CHECK) TEST=meteorological_arrows_normal
+	-@$(MAKE) --quiet $(_CHECK) TEST=meteorological_arrows_and_labels
 	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_labels_normal
 	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_labels_ttf
 	-@$(MAKE) --quiet $(_CHECK) TEST=labels_with_ttf
@@ -111,8 +113,6 @@ test:
 	-@$(MAKE) --quiet $(_CHECK) TEST=arrows_and_labels
 	-@$(MAKE) --quiet $(_CHECK) TEST=labels_pixelgrid_normal
 	-@$(MAKE) --quiet $(_CHECK) TEST=labels_pixelgrid_masked
-	-@$(MAKE) --quiet $(_CHECK) TEST=meteorological_arrows_normal
-	-@$(MAKE) --quiet $(_CHECK) TEST=meteorological_arrows_and_labels
 	-@$(MAKE) --quiet $(_CHECK) TEST=meta_elevation_angle
 	-@$(MAKE) --quiet $(_CHECK) TEST=meta_wind_chill
 	-@$(MAKE) --quiet $(_CHECK) TEST=meta_t2m_advection

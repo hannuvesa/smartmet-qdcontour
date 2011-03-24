@@ -6,6 +6,7 @@
 // ======================================================================
 
 #include "GramTools.h"
+#include "UnitsConverter.h"
 
 namespace GramTools
 {
@@ -17,19 +18,8 @@ namespace GramTools
    * The arrow is suitable only for stroking, not filling.
    * If the speed is negative or missing, and empty path is returned.
    *
-   * Note the following details
-   * \code
-   *  1.25- 3.75 = 1 short on the side, plus on upward extra segment
-   *  3.75- 6.25 = 1 long
-   *  6.25- 8.75 = 1 long, 1 short
-   *  8.75-11.25 = 2 long
-   * 11.25-13.75 = 2 long, 1 short
-   * \endcode
-   *
-   * \param theSpeed The wind speed
+   * \param theSpeed The wind speed in meters/second
    * \return The arrow as a strokable path object
-   *
-   * \todo Speeds over 50 are not properly supported
    */
   // ----------------------------------------------------------------------
 
@@ -40,70 +30,100 @@ namespace GramTools
 	// Handle bad cases
 	if(theSpeed<0 || theSpeed==kFloatMissing)
 	  return path;
-	
-	// The details of the flag
-	
-	const float spot_size = 0.75;		// size of the spot at the origin
-	const float initial_length = 14;	// length of the initial line for speed 0
-	const float flag_interval = 4;		// the spacing between the speed indicators
-	const float flag_length = 12;		// the length of a full speed indicator
-	
-	const float flag_angle_deg = 60;	// angle from the direction the wind is coming from
-	
-	const float flag_angle = flag_angle_deg/180*3.14159265358979323846f;
-	
+
+	// size of the spot at the origin
+	const float spot_size = 0.75;
+
+	// length of the initial line before flags are added
+	const float stem_length = 18;
+
+	// Separation between barbs
+	const float barb_interval = stem_length/5;
+
+	// Barb length
+	const float barb_length = 12;
+
+	// Barb angle
+	const float barb_angle = 45.f / 180.f*3.14159265358979323846f;
+
+	// Flag side length
+	const float flag_length = 7;
+
+	// The actual speed in knots
+	const float speed = theSpeed / 0.5144444444f;
+
+	// The respective number of flags
+	const int flags = static_cast<int>(floor(speed/50));
+
+	// The number of long barbs
+	const int long_barbs = static_cast<int>(floor((speed-flags*50)/10));
+
+	// The number of short barbs
+	const int short_barbs = static_cast<int>(floor((speed-flags*50-long_barbs*10)/5));
+
+	// The full length of the stem
+	const float full_stem_length = stem_length + (flags == 0 ? 0 : flags * flag_length + barb_interval);
+
+
 	// Mark the spot with a small dot
 	path.MoveTo(spot_size,spot_size);
 	path.LineTo(spot_size,-spot_size);
 	path.LineTo(-spot_size,-spot_size);
 	path.LineTo(-spot_size,spot_size);
 	path.LineTo(spot_size,spot_size);
-	
-	// Start rendering
-	
-	const float full_unit = 5;
-	const float half_unit = full_unit/2;
-	const float quarter_unit = full_unit/4;	// limit between rounding up and down
-	
-	// Note: Must use theSpeed+quarter_unit in both formulas in the same order,
-	// otherwise rounding errors may occur (causing a negative underflow).
-	// Using a separate intermediate variable makes the requirement explicit.
 
-	const float tmpspeed = theSpeed+quarter_unit;
-	const unsigned int long_segments = static_cast<unsigned int>(::floor(tmpspeed/full_unit));
-	const unsigned int short_segments = static_cast<unsigned int>(::floor((tmpspeed-static_cast<float>(long_segments)*full_unit)/half_unit));
-	
-	const bool has_extra_up = (theSpeed >= quarter_unit && theSpeed < full_unit - quarter_unit);
-	
-	// The long streak upwards
-	
 	path.MoveTo(0,spot_size);
-	path.LineTo(0,spot_size
-				+ initial_length
-				+ static_cast<float>((std::max(1u,long_segments+short_segments)-1))*flag_interval
-				+ (has_extra_up ? flag_interval : 0));
 	
-	// First the short segments (should be only one, according to present settings)
+	// The stem
 	
-	float y = spot_size + initial_length;
+	float y = spot_size + full_stem_length;
+
+	if(flags>0 || long_barbs>0 || short_barbs>0)
+	  {
+		path.LineTo(0,y);
+	  }
 	
-	if(short_segments>0)
-	  for(unsigned int i=0; i<short_segments; i++)
-		{
-		  path.MoveTo(0,y);
-		  path.LineTo(static_cast<float>(-flag_length/2*::sin(flag_angle)),static_cast<float>(y+flag_length/2*::cos(flag_angle)));
-		  y += flag_interval;
-		}
-	
-	// Then the long ones
-	
-	if(long_segments>0)
-	  for(unsigned int j=0; j<long_segments; j++)
-		{
-		  path.MoveTo(0,y);
-		  path.LineTo(static_cast<float>(-flag_length*::sin(flag_angle)),static_cast<float>(y+flag_length*::cos(flag_angle)));
-		  y += flag_interval;
-		}
+	// Flags
+
+	for(int i=0; i<flags; i++)
+	  {
+		path.LineTo(barb_length*cos(barb_angle),
+					y - flag_length + barb_length*sin(barb_angle));
+		y -= flag_length;
+		path.LineTo(0,y);
+	  }
+
+	// Long barbs
+
+	if(flags > 0)
+	  {
+		y -= barb_interval;
+	  }
+
+	for(int i=0; i<long_barbs; i++)
+	  {
+		path.LineTo(0,y);
+		path.LineTo(barb_length*cos(barb_angle),
+					y + barb_length*sin(barb_angle));
+		path.MoveTo(0,y);
+		y -= barb_interval;
+	  }
+
+	// Short barbs. We use factor 1.5 to make 5 knot arrow more readable
+
+	if(long_barbs==0 && flags==0 && short_barbs>0)
+	  y -= 1.5*barb_interval;
+
+	for(int i=0; i<short_barbs; i++)
+	  {
+		path.LineTo(0,y);
+		path.LineTo(0.5*barb_length*cos(barb_angle),
+					y + 0.5*barb_length*sin(barb_angle));
+		path.MoveTo(0,y);
+		y -= barb_interval;
+	  }
+
+	// path.LineTo(0,0);
 
 	return path;
   }
