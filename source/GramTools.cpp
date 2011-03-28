@@ -87,7 +87,7 @@ namespace GramTools
 
 	for(int i=0; i<flags; i++)
 	  {
-		path.LineTo(barb_length*cos(barb_angle),
+		path.LineTo(-barb_length*cos(barb_angle),
 					y - flag_length + barb_length*sin(barb_angle));
 		y -= flag_length;
 		path.LineTo(0,y);
@@ -103,7 +103,7 @@ namespace GramTools
 	for(int i=0; i<long_barbs; i++)
 	  {
 		path.LineTo(0,y);
-		path.LineTo(barb_length*cos(barb_angle),
+		path.LineTo(-barb_length*cos(barb_angle),
 					y + barb_length*sin(barb_angle));
 		path.MoveTo(0,y);
 		y -= barb_interval;
@@ -117,7 +117,7 @@ namespace GramTools
 	for(int i=0; i<short_barbs; i++)
 	  {
 		path.LineTo(0,y);
-		path.LineTo(0.5*barb_length*cos(barb_angle),
+		path.LineTo(-0.5*barb_length*cos(barb_angle),
 					y + 0.5*barb_length*sin(barb_angle));
 		path.MoveTo(0,y);
 		y -= barb_interval;

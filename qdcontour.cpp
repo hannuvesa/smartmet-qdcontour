@@ -3593,7 +3593,7 @@ void draw_wind_arrows_points( ImagineXr_or_NFmiImage &img,
 		{
 		  NFmiPath thispath;
 		  if(globals.arrowfile == "meteorological")
-			thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
+			thispath.Add(GramTools::metarrow(speed));
 		  else
 			thispath.Add(theArrow);
 		  
@@ -3710,7 +3710,7 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
 		  {
 			NFmiPath thispath;
 			if(globals.arrowfile == "meteorological")
-			  thispath.Add(GramTools::metarrow(static_cast<float>(speed*globals.windarrowscaleC)));
+			  thispath.Add(GramTools::metarrow(speed));
 			else
 			  thispath.Add(theArrow);
 			if(speed>0 && speed != kFloatMissing)
@@ -3791,7 +3791,7 @@ void draw_wind_arrows_pixelgrid( ImagineXr_or_NFmiImage &img,
 			NFmiPath thispath;
 			
 			if(globals.arrowfile == "meteorological")
-			  thispath.Add(GramTools::metarrow(speed*globals.windarrowscaleC));
+			  thispath.Add(GramTools::metarrow(speed));
 			else
 			  thispath.Add(theArrow);
 			

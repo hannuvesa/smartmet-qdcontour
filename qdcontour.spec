@@ -1,8 +1,8 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 11.3.24
-Release: 1.el6.fmi
+Version: 11.3.28
+Release: 2.el6.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -47,6 +47,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Mar 28 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.3.28-2.el5.fmi
+- Flipped metorological arrows to get the flags on the correct side
+- Fixed meteorological arrow speed values
 * Thu Mar 24 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.3.24-1.el5.fmi
 - Fixed meteorological arrows
 - Upgrade to boost 1.46 and new base libraries
