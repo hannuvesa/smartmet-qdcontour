@@ -1,8 +1,8 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 11.3.28
-Release: 2.el6.fmi
+Version: 11.7.8
+Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -13,8 +13,8 @@ BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: libsmartmet-imagine >= 11.3.24-1
-BuildRequires: libsmartmet-newbase >= 11.3.24-1
+BuildRequires: libsmartmet-imagine >= 11.5.20-1
+BuildRequires: libsmartmet-newbase >= 11.7.7-1
 BuildRequires: libsmartmet-tron >= 11.3.24-1
 BuildRequires: zlib-devel
 Requires: freetype
@@ -47,10 +47,14 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Jul  8 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.7.8-1.el5.fmi
+- Recompiled to get new biomass parameter names into use
+* Fri May 20 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.5.20-1.el6.fmi
+- RHEL6 release
 * Mon Mar 28 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.3.28-2.el5.fmi
 - Flipped metorological arrows to get the flags on the correct side
 - Fixed meteorological arrow speed values
-* Thu Mar 24 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.3.24-1.el5.fmi
+* Thu Mar 24 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.5.20-1.el5.fmi
 - Fixed meteorological arrows
 - Upgrade to boost 1.46 and new base libraries
 * Thu Mar 17 2011 keranen <pekka.keranen@geosaaga.fi> - 11.3.17-1.el6.fmi

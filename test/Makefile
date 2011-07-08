@@ -60,6 +60,10 @@ test_pdf:
 	-@$(MAKE) test _CHECK=_check_pdf
 
 test:
+	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_tipcolors
+	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_normal
+	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_colors
+	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_sizes
 	-@$(MAKE) --quiet $(_CHECK) TEST=meteorological_arrows_normal
 	-@$(MAKE) --quiet $(_CHECK) TEST=meteorological_arrows_and_labels
 	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_labels_normal
@@ -76,9 +80,6 @@ test:
 	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_pixelgrid_normal
 	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_pixelgrid_masked
 	-@$(MAKE) --quiet $(_CHECK) TEST=windarrowscale
-	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_normal
-	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_colors
-	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_sizes
 	-@$(MAKE) --quiet $(_CHECK) TEST=shape_fill
 	-@$(MAKE) --quiet $(_CHECK) TEST=shape_stroke
 	-@$(MAKE) --quiet $(_CHECK) TEST=shape_mark
