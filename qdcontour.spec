@@ -1,21 +1,21 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 11.7.8
+Version: 11.7.20
 Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
 Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot-%(%{__id_u} -n)
-BuildRequires: boost-devel >= 1.46
+BuildRequires: boost-devel >= 1.47
 BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: libsmartmet-imagine >= 11.5.20-1
-BuildRequires: libsmartmet-newbase >= 11.7.7-1
-BuildRequires: libsmartmet-tron >= 11.3.24-1
+BuildRequires: libsmartmet-imagine >= 11.7.20-1
+BuildRequires: libsmartmet-newbase >= 11.7.20-1
+BuildRequires: libsmartmet-tron >= 11.7.20-1
 BuildRequires: zlib-devel
 Requires: freetype
 Requires: libjpeg
@@ -47,6 +47,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jul 20 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.7.20-1.el5.fmi
+- Upgrade to boost 1.47
 * Fri Jul  8 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.7.8-1.el5.fmi
 - Recompiled to get new biomass parameter names into use
 * Fri May 20 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.5.20-1.el6.fmi
