@@ -175,7 +175,7 @@ if DEBUG:
             "-Wcast-qual",
             "-Wcast-align",
             "-Wwrite-strings",
-            "-Wconversion",
+            # "-Wconversion",
             "-Winline",
             #"-Wctor-dtor-privacy",
             "-Wnon-virtual-dtor",
