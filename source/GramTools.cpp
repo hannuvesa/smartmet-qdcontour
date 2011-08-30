@@ -56,13 +56,13 @@ namespace GramTools
 	const int flags = static_cast<int>(floor(speed/50));
 
 	// The number of long barbs
-	const int long_barbs = static_cast<int>(floor((speed-flags*50)/10));
+	const int long_barbs = static_cast<int>(floor((speed-flags*50.0)/10.0));
 
 	// The number of short barbs
-	const int short_barbs = static_cast<int>(floor((speed-flags*50-long_barbs*10)/5));
+	const int short_barbs = static_cast<int>(floor((speed-flags*50.0-long_barbs*10.0)/5.0));
 
 	// The full length of the stem
-	const float full_stem_length = stem_length + (flags == 0 ? 0 : flags * flag_length + barb_interval);
+	const float full_stem_length = stem_length + (flags == 0.0 ? 0.0 : flags * flag_length + barb_interval);
 
 
 	// Mark the spot with a small dot
