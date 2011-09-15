@@ -1006,6 +1006,28 @@ void do_arrowpath(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Handle "graticule" command
+ *
+ * graticule lon1 lon2 dlon lat1 lat2 dlat color
+ */
+// ----------------------------------------------------------------------
+
+void do_graticule(istream & theInput)
+{
+  theInput >> globals.graticulelon1
+		   >> globals.graticulelon2
+		   >> globals.graticuledx
+		   >> globals.graticulelat1
+		   >> globals.graticulelat2
+		   >> globals.graticuledy
+		   >> globals.graticulecolor;
+  check_errors(theInput,"graticule");
+  ColorTools::checkcolor(globals.graticulecolor);
+
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Handle "roundarrowfill" command
  */
 // ----------------------------------------------------------------------
@@ -2696,6 +2718,8 @@ void do_clear(istream & theInput)
 	}
   else if(command=="units")
 	globals.unitsconverter.clear();
+  else if(command=="graticule")
+	globals.graticulecolor = "";
   else
 	throw runtime_error("Unknown clear target: " + command);
 }
@@ -2810,6 +2834,46 @@ void do_draw_imagemap(istream & theInput)
 	}
   out.close();
 }
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Draw graticule
+ */
+// ----------------------------------------------------------------------
+
+void draw_graticule( ImagineXr_or_NFmiImage &img,
+					 const NFmiArea & theArea)
+{
+  if(globals.graticulecolor.empty())
+	return;
+  
+  NFmiPath path;
+  
+  for(double lon=globals.graticulelon1; lon<=globals.graticulelon2; lon+=globals.graticuledx)
+	{
+	  path.MoveTo(lon,globals.graticulelat1);
+	  for(double lat=globals.graticulelat1+globals.graticuledy;
+		  lat<=globals.graticulelat2;
+		  lat+=1.0)
+		path.LineTo(lon,lat);
+	}
+  
+  for(double lat=globals.graticulelat1; lat<=globals.graticulelat2; lat+=globals.graticuledy)
+	{
+	  path.MoveTo(globals.graticulelon1,lat);
+	  for(double lon=globals.graticulelon1+globals.graticuledx;
+		  lon<=globals.graticulelon2;
+		  lon+=1.0)
+		path.LineTo(lon,lat);
+	}
+
+  MeridianTools::Relocate(path,theArea);
+  path.Project(&theArea);
+  
+  NFmiColorTools::Color color = ColorTools::checkcolor(globals.graticulecolor);
+  path.Stroke(img,color,NFmiColorTools::kFmiColorCopy);
+}
+
 
 // ----------------------------------------------------------------------
 /*!
@@ -5051,6 +5115,10 @@ void do_draw_contours(istream & theInput)
 
 		}
 
+	  // Draw graticule
+
+	  draw_graticule(*xr,*area);
+
 	  // Bang the foreground
 
 	  draw_foreground(*xr);
@@ -5175,6 +5243,7 @@ void process_cmd( const string &text ) {
       else if(cmd == "prefix")					do_prefix(in);
       else if(cmd == "suffix")					do_suffix(in);
       else if(cmd == "format")					do_format(in);
+	  else if(cmd == "graticule")               do_graticule(in);
 #if 0   //def IMAGINE_WITH_CAIRO
     // AKa 22-Aug-2008: Extension conf for Cairo
     //

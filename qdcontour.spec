@@ -1,8 +1,8 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 11.7.20
-Release: 1.el5.fmi
+Version: 11.9.15
+Release: 1.el6.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -47,6 +47,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Sep 15 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.9.15-1.el5.fmi
+- Returned graticule command which was lost in some cvs merge or something
 * Wed Jul 20 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.7.20-1.el5.fmi
 - Upgrade to boost 1.47
 * Fri Jul  8 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.7.8-1.el5.fmi
