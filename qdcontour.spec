@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 11.9.15
+Version: 11.10.5
 Release: 1.el6.fmi
 License: FMI
 Group: Development/Tools
@@ -14,7 +14,7 @@ BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: libsmartmet-imagine >= 11.7.20-1
-BuildRequires: libsmartmet-newbase >= 11.7.20-1
+BuildRequires: libsmartmet-newbase >= 11.9.21-1
 BuildRequires: libsmartmet-tron >= 11.7.20-1
 BuildRequires: zlib-devel
 Requires: freetype
@@ -47,6 +47,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Oct  5 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.10-5-1.el5.fmi
+- Upgraded to latest newbase
 * Thu Sep 15 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.9.15-1.el5.fmi
 - Returned graticule command which was lost in some cvs merge or something
 * Wed Jul 20 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.7.20-1.el5.fmi
