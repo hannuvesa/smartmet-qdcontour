@@ -3669,9 +3669,12 @@ void draw_wind_arrows_points( ImagineXr_or_NFmiImage &img,
 		  
 		  // And render it
 		  
-		  thispath.Fill(img,
-						ColorTools::checkcolor(globals.arrowfillcolor),
-						ColorTools::checkrule(globals.arrowfillrule));
+		  if(globals.arrowfile != "meteorological")
+			{
+			  thispath.Fill(img,
+							ColorTools::checkcolor(globals.arrowfillcolor),
+							ColorTools::checkrule(globals.arrowfillrule));
+			}
 		  thispath.Stroke(img,
 						  ColorTools::checkcolor(globals.arrowstrokecolor),
 						  ColorTools::checkrule(globals.arrowstrokerule));

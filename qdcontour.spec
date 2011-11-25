@@ -1,8 +1,8 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 11.10.17
-Release: 1.el5.fmi
+Version: 11.11.25
+Release: 1.el6.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -14,7 +14,7 @@ BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: libsmartmet-imagine >= 11.10.17-2
-BuildRequires: libsmartmet-newbase >= 11.10.17-2
+BuildRequires: libsmartmet-newbase >= 11.11.24-1
 BuildRequires: libsmartmet-tron >= 11.7.20-1
 BuildRequires: zlib-devel
 Requires: freetype
@@ -47,6 +47,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Nov 25 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.11.25-1.el5.fmi
+- fillarrow has no effect on meteorological arrows anymore
+* Thu Nov 24 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.11.24-1.el5.fmi
+- Upgraded to latest newbase which defines RadarBorder parameter
 * Mon Oct 17 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.10.17-1.el5.fmi
 - Upgraded to latest newbase
 * Wed Oct  5 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.10.5-1.el5.fmi
