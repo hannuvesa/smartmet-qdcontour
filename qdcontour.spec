@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 11.11.25
+Version: 12.2.7
 Release: 1.el6.fmi
 License: FMI
 Group: Development/Tools
@@ -14,7 +14,7 @@ BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: libsmartmet-imagine >= 11.10.17-2
-BuildRequires: libsmartmet-newbase >= 11.11.24-1
+BuildRequires: libsmartmet-newbase >= 12.2.7-1
 BuildRequires: libsmartmet-tron >= 11.7.20-1
 BuildRequires: zlib-devel
 Requires: freetype
@@ -47,6 +47,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Feb  7 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.2.7-1.el5.fmi
+- New parametername Friction
+- Fixed wind chill formula
 * Fri Nov 25 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.11.25-1.el5.fmi
 - fillarrow has no effect on meteorological arrows anymore
 * Thu Nov 24 2011 mheiskan <mika.heiskanen@fmi.fi> - 11.11.24-1.el5.fmi
