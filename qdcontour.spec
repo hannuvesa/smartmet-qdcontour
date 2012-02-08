@@ -1,8 +1,8 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 12.2.7
-Release: 1.el6.fmi
+Version: 12.2.8
+Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -14,7 +14,7 @@ BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: libsmartmet-imagine >= 11.10.17-2
-BuildRequires: libsmartmet-newbase >= 12.2.7-1
+BuildRequires: libsmartmet-newbase >= 12.2.8-1
 BuildRequires: libsmartmet-tron >= 11.7.20-1
 BuildRequires: zlib-devel
 Requires: freetype
@@ -47,6 +47,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Feb  8 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.2.8-1.el6.fmi
+- New parameternames: IceSpeed, IceDirection
 * Tue Feb  7 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.2.7-1.el5.fmi
 - New parametername Friction
 - Fixed wind chill formula
