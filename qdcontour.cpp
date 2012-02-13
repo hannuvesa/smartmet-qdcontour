@@ -3713,16 +3713,20 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
   if(globals.windarrowdx<=0 || globals.windarrowdy<=0)
 	return;
 
+  bool speedok = false;
   NFmiDataMatrix<float> speedvalues;
   if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
 	{
+	  speedok = true;
 	  globals.queryinfo->Values(speedvalues);
+	  speedvalues.Replace(speed_src,speed_dst);
 	  globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),speedvalues);
 	}
-  
+
   NFmiDataMatrix<float> dirvalues;
   globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
   globals.queryinfo->Values(dirvalues);
+  dirvalues.Replace(direction_src,direction_dst);
   globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),dirvalues);
   
   shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(theArea);
@@ -3769,9 +3773,6 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
 													dirvalues.At(i+1,j,kFloatMissing),
 													360);
 		
-		if(dir == direction_src)
-		  dir = direction_dst;
-
 		if(dir==kFloatMissing)	// ignore missing
 		  continue;
 		
@@ -3782,9 +3783,9 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
 												   speedvalues.At(i,j,kFloatMissing),
 												   speedvalues.At(i+1,j,kFloatMissing));
 
-		if(speed == speed_src)
-		  speed = speed_dst;
-		
+		if(speedok && speed==kFloatMissing)	// ignore missing
+		  continue;
+
 		// Direction calculations
 		
 		const float north = paper_north(theArea,latlon);
@@ -3978,7 +3979,7 @@ void draw_wind_arrows( ImagineXr_or_NFmiImage &img,
 			  speed_dst = piter->replaceTargetValue();
 			}
 		}
-	  
+
 	  draw_wind_arrows_points(img,theArea,arrowpath,direction_src,direction_dst,speed_src,speed_dst);
 	  draw_wind_arrows_grid(img,theArea,arrowpath,direction_src,direction_dst,speed_src,speed_dst);
 	  draw_wind_arrows_pixelgrid(img,theArea,arrowpath,direction_src,direction_dst,speed_src,speed_dst);
