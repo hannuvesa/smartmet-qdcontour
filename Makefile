@@ -92,7 +92,7 @@ objdir:
 rpm: clean
 	if [ -e $(BIN).spec ]; \
 	then \
-	  tar --exclude-vcs -C ../ -cf $(rpmsourcedir)/smartmet-$(BIN).tar $(BIN) ; \
+	  tar -C ../ -cf $(rpmsourcedir)/smartmet-$(BIN).tar $(BIN) ; \
 	  gzip -f $(rpmsourcedir)/smartmet-$(BIN).tar ; \
 	  rpmbuild -ta $(rpmsourcedir)/smartmet-$(BIN).tar.gz ; \
 	else \

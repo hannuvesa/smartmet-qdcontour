@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 12.2.8
+Version: 12.2.13
 Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
@@ -47,6 +47,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Feb 13 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.2.13-1.el5.fmi
+- datareplace now works for arrow rendering too
 * Wed Feb  8 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.2.8-1.el6.fmi
 - New parameternames: IceSpeed, IceDirection
 * Tue Feb  7 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.2.7-1.el5.fmi

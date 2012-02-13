@@ -3607,7 +3607,11 @@ void draw_roundarrow(NFmiImage & img,
 
 void draw_wind_arrows_points( ImagineXr_or_NFmiImage &img,
 							  const NFmiArea & theArea,
-							  const NFmiPath & theArrow )
+							  const NFmiPath & theArrow,
+							  float direction_src,
+							  float direction_dst,
+							  float speed_src,
+							  float speed_dst)
 {
   // Handle all given coordinates
   
@@ -3628,8 +3632,13 @@ void draw_wind_arrows_points( ImagineXr_or_NFmiImage &img,
 		continue;
 	  
 	  float dir = globals.queryinfo->InterpolatedValue(*iter);
+
+	  if(dir == direction_src)
+		dir = direction_dst;
+
 	  dir = globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),
 										   dir);
+
 
 	  if(dir==kFloatMissing)	// ignore missing
 		continue;
@@ -3639,6 +3648,9 @@ void draw_wind_arrows_points( ImagineXr_or_NFmiImage &img,
 	  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
 		{
 		  speed = globals.queryinfo->InterpolatedValue(*iter);
+		  if(speed == speed_src)
+			speed = speed_dst;
+
 		  speed = globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),speed);
 		}
 	  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
@@ -3690,7 +3702,11 @@ void draw_wind_arrows_points( ImagineXr_or_NFmiImage &img,
 
 void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
 						    const NFmiArea & theArea,
-						    const NFmiPath & theArrow )
+						    const NFmiPath & theArrow,
+							float direction_src,
+							float direction_dst,
+							float speed_src,
+							float speed_dst)
 {
   // Draw the full grid if so desired
   
@@ -3753,6 +3769,9 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
 													dirvalues.At(i+1,j,kFloatMissing),
 													360);
 		
+		if(dir == direction_src)
+		  dir = direction_dst;
+
 		if(dir==kFloatMissing)	// ignore missing
 		  continue;
 		
@@ -3762,6 +3781,9 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
 												   speedvalues.At(i+1,j+1,kFloatMissing),
 												   speedvalues.At(i,j,kFloatMissing),
 												   speedvalues.At(i+1,j,kFloatMissing));
+
+		if(speed == speed_src)
+		  speed = speed_dst;
 		
 		// Direction calculations
 		
@@ -3805,7 +3827,11 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
 
 void draw_wind_arrows_pixelgrid( ImagineXr_or_NFmiImage &img,
 								 const NFmiArea & theArea,
-								 const NFmiPath & theArrow )
+								 const NFmiPath & theArrow,
+								 float direction_src,
+								 float direction_dst,
+								 float speed_src,
+								 float speed_dst)
 {
   // Draw the full grid if so desired
 
@@ -3831,6 +3857,10 @@ void draw_wind_arrows_pixelgrid( ImagineXr_or_NFmiImage &img,
 
 		// Calculate the speed values
 		float dir = globals.queryinfo->InterpolatedValue(latlon);
+
+		if(dir == direction_src)
+		  dir = direction_dst;
+
 		dir = globals.unitsconverter.convert(FmiParameterName(converter.ToEnum(globals.directionparam)),dir);
 		if(dir==kFloatMissing)
 		  continue;
@@ -3839,6 +3869,8 @@ void draw_wind_arrows_pixelgrid( ImagineXr_or_NFmiImage &img,
 		if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
 		  {
 			speed = globals.queryinfo->InterpolatedValue(latlon);
+			if(speed == speed_src)
+			  speed = speed_dst;
 			speed = globals.unitsconverter.convert(FmiParameterName(converter.ToEnum(globals.speedparam)),speed);
 		  }
 		globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
@@ -3921,10 +3953,35 @@ void draw_wind_arrows( ImagineXr_or_NFmiImage &img,
 		  const string & arr = globals.itsArrowCache.find(globals.arrowfile);
 		  arrowpath.Add(arr);
 		}
+
+	  // Establish data replacement values
+
+	  list<ContourSpec>::iterator piter;
+	  list<ContourSpec>::iterator pbegin = globals.specs.begin();
+	  list<ContourSpec>::iterator pend   = globals.specs.end();
+
+	  float direction_src = kFloatMissing;
+	  float direction_dst = kFloatMissing;
+	  float speed_src = kFloatMissing;
+	  float speed_dst = kFloatMissing;
+
+	  for(piter=pbegin; piter!=pend; ++piter)
+		{
+		  if(piter->param() == globals.directionparam && piter->replace())
+			{
+			  direction_src = piter->replaceSourceValue();
+			  direction_dst = piter->replaceTargetValue();
+			}
+		  else if(piter->param() == globals.speedparam && piter->replace())
+			{
+			  speed_src = piter->replaceSourceValue();
+			  speed_dst = piter->replaceTargetValue();
+			}
+		}
 	  
-	  draw_wind_arrows_points(img,theArea,arrowpath);
-	  draw_wind_arrows_grid(img,theArea,arrowpath);
-	  draw_wind_arrows_pixelgrid(img,theArea,arrowpath);
+	  draw_wind_arrows_points(img,theArea,arrowpath,direction_src,direction_dst,speed_src,speed_dst);
+	  draw_wind_arrows_grid(img,theArea,arrowpath,direction_src,direction_dst,speed_src,speed_dst);
+	  draw_wind_arrows_pixelgrid(img,theArea,arrowpath,direction_src,direction_dst,speed_src,speed_dst);
 
 	}
 }
