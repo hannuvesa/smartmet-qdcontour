@@ -2,7 +2,7 @@
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
 Version: 12.2.13
-Release: 2.el5.fmi
+Release: 3.el6.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -47,6 +47,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Feb 13 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.2.13-3.el5.fmi
+- Ignore fill colour of meteorological wind arrows for all rendering methods
 * Mon Feb 13 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.2.13-2.el5.fmi
 - Fixed arrow rendering to check whether the speed value is missing
 * Mon Feb 13 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.2.13-1.el5.fmi

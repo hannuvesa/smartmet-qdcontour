@@ -3810,9 +3810,12 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
 			thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 			
 			// And render it
-			thispath.Fill(img,
-						  ColorTools::checkcolor(globals.arrowfillcolor),
-						  ColorTools::checkrule(globals.arrowfillrule));
+			if(globals.arrowfile != "meteorological")
+			  {
+				thispath.Fill(img,
+							  ColorTools::checkcolor(globals.arrowfillcolor),
+							  ColorTools::checkrule(globals.arrowfillrule));
+			  }
 			thispath.Stroke(img,
 							ColorTools::checkcolor(globals.arrowstrokecolor),
 							ColorTools::checkrule(globals.arrowstrokerule));
@@ -3902,9 +3905,12 @@ void draw_wind_arrows_pixelgrid( ImagineXr_or_NFmiImage &img,
 			thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 			
 			// And render it
-			thispath.Fill(img,
-						  ColorTools::checkcolor(globals.arrowfillcolor),
-						  ColorTools::checkrule(globals.arrowfillrule));
+			if(globals.arrowfile != "meteorological")
+			  {
+				thispath.Fill(img,
+							  ColorTools::checkcolor(globals.arrowfillcolor),
+							  ColorTools::checkrule(globals.arrowfillrule));
+			  }
 			thispath.Stroke(img,
 							ColorTools::checkcolor(globals.arrowstrokecolor),
 							ColorTools::checkrule(globals.arrowstrokerule));
