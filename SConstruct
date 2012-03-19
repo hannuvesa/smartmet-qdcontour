@@ -129,7 +129,8 @@ env.Append( LIBS= [ "smartmet_newbase"+out_postfix,
 env.Append( LIBS= [ BOOST_PREFIX+"boost_regex"+BOOST_POSTFIX, 
                     BOOST_PREFIX+"boost_filesystem"+BOOST_POSTFIX,
                     BOOST_PREFIX+"boost_system"+BOOST_POSTFIX,
-                    BOOST_PREFIX+"boost_iostreams"+BOOST_POSTFIX ] )
+                    BOOST_PREFIX+"boost_iostreams"+BOOST_POSTFIX,
+                    BOOST_PREFIX+"boost_thread"+BOOST_POSTFIX ] )
 
 #
 # Freetype2, Cairomm-1.0, ...

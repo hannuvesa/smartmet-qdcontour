@@ -1,8 +1,8 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 12.2.13
-Release: 3.el6.fmi
+Version: 12.3.19
+Release: 1.el6.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -14,7 +14,7 @@ BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: libsmartmet-imagine >= 11.10.17-2
-BuildRequires: libsmartmet-newbase >= 12.2.8-1
+BuildRequires: libsmartmet-newbase >= 12.3.16-1
 BuildRequires: libsmartmet-tron >= 11.7.20-1
 BuildRequires: zlib-devel
 Requires: freetype
@@ -47,6 +47,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Mar 19 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.2.19-1.el6.fmi
+- New LAPS parameter names now recognized
 * Mon Feb 13 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.2.13-3.el5.fmi
 - Ignore fill colour of meteorological wind arrows for all rendering methods
 * Mon Feb 13 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.2.13-2.el5.fmi
