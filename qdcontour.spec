@@ -1,20 +1,20 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 12.3.19
+Version: 12.7.4
 Release: 1.el6.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
 Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot-%(%{__id_u} -n)
-BuildRequires: boost-devel >= 1.47
+BuildRequires: boost-devel >= 1.49
 BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: libsmartmet-imagine >= 11.10.17-2
-BuildRequires: libsmartmet-newbase >= 12.3.16-1
+BuildRequires: libsmartmet-newbase >= 12.7.4-1
 BuildRequires: libsmartmet-tron >= 11.7.20-1
 BuildRequires: zlib-devel
 Requires: freetype
@@ -47,6 +47,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jul  4 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.7.4-1.el6.fmi
+- New newbase parameter names for wind fractiles
+* Mon May 28 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.5.28-1.el6.fmi
+- Parameters can now be specified by their number
 * Mon Mar 19 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.2.19-1.el6.fmi
 - New LAPS parameter names now recognized
 * Mon Feb 13 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.2.13-3.el5.fmi

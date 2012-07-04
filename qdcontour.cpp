@@ -75,7 +75,24 @@ const float pi = 3.141592658979323f;
 // Global instance of enum converter for speed
 // ----------------------------------------------------------------------
 
-static NFmiEnumConverter converter;
+
+// ----------------------------------------------------------------------
+// Convert parameter description to a enum
+// ----------------------------------------------------------------------
+
+FmiParameterName toparam(const string & name)
+{
+  static NFmiEnumConverter converter;
+
+  try
+	{
+	  return FmiParameterName(boost::lexical_cast<int>(name));
+	}
+  catch(...)
+	{
+	  return FmiParameterName(converter.ToEnum(name));
+	}
+}
 
 // ----------------------------------------------------------------------
 // Usage
@@ -901,7 +918,7 @@ void do_directionparam(istream & theInput)
 
   check_errors(theInput,"directionparam");
 
-  if(converter.ToEnum(globals.directionparam) == kFmiBadParameter)
+  if(toparam(globals.directionparam) == kFmiBadParameter)
 	throw runtime_error("Unrecognized directionparam '"+globals.directionparam+"'");
 }
 
@@ -917,7 +934,7 @@ void do_speedparam(istream & theInput)
 
   check_errors(theInput,"speedparam");
 
-  if(converter.ToEnum(globals.speedparam) == kFmiBadParameter)
+  if(toparam(globals.speedparam) == kFmiBadParameter)
 	throw runtime_error("Unrecognized speedparam '"+globals.speedparam+"'");
 }
 
@@ -2648,7 +2665,7 @@ void do_units(istream & theInput)
 
   check_errors(theInput,"units");
 
-  FmiParameterName param = FmiParameterName(converter.ToEnum(paramname));
+  FmiParameterName param = toparam(paramname);
   if(param == kFmiBadParameter)
 	throw runtime_error("Unknown parametername '"+paramname+"'");
   globals.unitsconverter.setConversion(param,conversion);
@@ -2891,7 +2908,7 @@ int paramid(const string & theParam)
   if(MetaFunctions::isMeta(theParam))
 	return MetaFunctions::id(theParam);
   else
-	return converter.ToEnum(theParam);
+	return toparam(theParam);
 }
 
 // ----------------------------------------------------------------------
@@ -2915,7 +2932,7 @@ unsigned int choose_queryinfo(const string & theName,
 	{
 	  // Find the proper queryinfo to be used
 	  
-	  FmiParameterName param = FmiParameterName(converter.ToEnum(theName));
+	  FmiParameterName param = toparam(theName);
 
 	  for(unsigned int qi=0; qi<globals.querystreams.size(); qi++)
 		{
@@ -3645,7 +3662,7 @@ void draw_wind_arrows_points( ImagineXr_or_NFmiImage &img,
 	  
 	  float speed = -1;
 	  
-	  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
+	  if(globals.queryinfo->Param(toparam(globals.speedparam)))
 		{
 		  speed = globals.queryinfo->InterpolatedValue(*iter);
 		  if(speed == speed_src)
@@ -3653,7 +3670,7 @@ void draw_wind_arrows_points( ImagineXr_or_NFmiImage &img,
 
 		  speed = globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),speed);
 		}
-	  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
+	  globals.queryinfo->Param(toparam(globals.directionparam));
 	  
 	  // Direction calculations
 	  
@@ -3715,7 +3732,7 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
 
   bool speedok = false;
   NFmiDataMatrix<float> speedvalues;
-  if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
+  if(globals.queryinfo->Param(toparam(globals.speedparam)))
 	{
 	  speedok = true;
 	  globals.queryinfo->Values(speedvalues);
@@ -3724,7 +3741,7 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
 	}
 
   NFmiDataMatrix<float> dirvalues;
-  globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
+  globals.queryinfo->Param(toparam(globals.directionparam));
   globals.queryinfo->Values(dirvalues);
   dirvalues.Replace(direction_src,direction_dst);
   globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),dirvalues);
@@ -3865,19 +3882,19 @@ void draw_wind_arrows_pixelgrid( ImagineXr_or_NFmiImage &img,
 		if(dir == direction_src)
 		  dir = direction_dst;
 
-		dir = globals.unitsconverter.convert(FmiParameterName(converter.ToEnum(globals.directionparam)),dir);
+		dir = globals.unitsconverter.convert(toparam(globals.directionparam),dir);
 		if(dir==kFloatMissing)
 		  continue;
 		
 		float speed = -1;
-		if(globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.speedparam))))
+		if(globals.queryinfo->Param(toparam(globals.speedparam)))
 		  {
 			speed = globals.queryinfo->InterpolatedValue(latlon);
 			if(speed == speed_src)
 			  speed = speed_dst;
-			speed = globals.unitsconverter.convert(FmiParameterName(converter.ToEnum(globals.speedparam)),speed);
+			speed = globals.unitsconverter.convert(toparam(globals.speedparam),speed);
 		  }
-		globals.queryinfo->Param(FmiParameterName(converter.ToEnum(globals.directionparam)));
+		globals.queryinfo->Param(toparam(globals.directionparam));
 		
 		// Direction calculations
 		
@@ -3933,7 +3950,7 @@ void draw_wind_arrows( ImagineXr_or_NFmiImage &img,
 	  (globals.windarrowsxydx>0 && globals.windarrowsxydy>0)) &&
 	 (globals.arrowfile!=""))
 	{
-	  FmiParameterName param = FmiParameterName(converter.ToEnum(globals.directionparam));
+	  FmiParameterName param = toparam(globals.directionparam);
 	  if(param==kFmiBadParameter)
 		throw runtime_error("Unknown parameter "+globals.directionparam);
 
