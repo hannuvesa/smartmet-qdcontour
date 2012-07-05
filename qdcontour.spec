@@ -1,21 +1,21 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 12.7.4
+Version: 12.7.5
 Release: 1.el6.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
 Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot-%(%{__id_u} -n)
-BuildRequires: boost-devel >= 1.49
+BuildRequires: boost-devel >= 1.50
 BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: libsmartmet-imagine >= 11.10.17-2
-BuildRequires: libsmartmet-newbase >= 12.7.4-1
-BuildRequires: libsmartmet-tron >= 11.7.20-1
+BuildRequires: libsmartmet-imagine >= 12.7.5-1
+BuildRequires: libsmartmet-newbase >= 12.7.5-1
+BuildRequires: libsmartmet-tron >= 12.7.5-1
 BuildRequires: zlib-devel
 Requires: freetype
 Requires: libjpeg
@@ -47,6 +47,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Jul  5 2012 Mika Heiskanen <mika.heiskanen@fmi.fi> - 12.7.5-1.el6.fmi
+- Migration to boost 1.50
 * Wed Jul  4 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.7.4-1.el6.fmi
 - New newbase parameter names for wind fractiles
 * Mon May 28 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.5.28-1.el6.fmi
