@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 12.7.5
+Version: 12.10.2
 Release: 1.el6.fmi
 License: FMI
 Group: Development/Tools
@@ -14,7 +14,7 @@ BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: libsmartmet-imagine >= 12.7.5-1
-BuildRequires: libsmartmet-newbase >= 12.7.5-1
+BuildRequires: libsmartmet-newbase >= 12.9.27-1
 BuildRequires: libsmartmet-tron >= 12.7.5-1
 BuildRequires: zlib-devel
 Requires: freetype
@@ -47,6 +47,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Oct  2 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.10.2-1.el6.fmi
+- New parameter names for ice storage from newbase
 * Thu Jul  5 2012 Mika Heiskanen <mika.heiskanen@fmi.fi> - 12.7.5-1.el6.fmi
 - Migration to boost 1.50
 * Wed Jul  4 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.7.4-1.el6.fmi
