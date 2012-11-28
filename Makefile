@@ -45,6 +45,8 @@ rpmerr = "There's no spec file ($(specfile)). RPM wasn't created. Please make a 
 rpmversion := $(shell grep "^Version:" $(HTML).spec  | cut -d\  -f 2 | tr . _)
 rpmrelease := $(shell grep "^Release:" $(HTML).spec  | cut -d\  -f 2 | tr . _)
 
+rpmexcludevcs := $(shell tar --help | grep -m 1 -o -- '--exclude-vcs')
+
 # How to install
 
 INSTALL_PROG = install -m 775
@@ -92,7 +94,7 @@ objdir:
 rpm: clean
 	if [ -e $(BIN).spec ]; \
 	then \
-	  tar -C ../ -cf $(rpmsourcedir)/smartmet-$(BIN).tar $(BIN) ; \
+	  tar $(rpmexcludevcs) -C ../ -cf $(rpmsourcedir)/smartmet-$(BIN).tar $(BIN) ; \
 	  gzip -f $(rpmsourcedir)/smartmet-$(BIN).tar ; \
 	  rpmbuild -ta $(rpmsourcedir)/smartmet-$(BIN).tar.gz ; \
 	else \
