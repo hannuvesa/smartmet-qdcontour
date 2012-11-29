@@ -21,6 +21,7 @@ Requires: freetype
 Requires: libjpeg
 Requires: libpng
 Requires: zlib
+Requires: xorg-x11-fonts-misc
 Provides: qdcontour
 
 %description
