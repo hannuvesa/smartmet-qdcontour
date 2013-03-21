@@ -207,7 +207,7 @@ void Globals::setImageModes( Imagine::NFmiImage &theImage ) const
  */
 // ----------------------------------------------------------------------
 
-std::auto_ptr<NFmiArea> Globals::createArea() const
+boost::shared_ptr<NFmiArea> Globals::createArea() const
 {
   if(projection.empty())
 	throw runtime_error("A projection specification is required");

@@ -64,6 +64,7 @@ else:
                 CPPFLAGS= [
         # MAINFLAGS from orig. Makefile
         #
+	"-std=c++0x",
         "-Wall", 
         "-W",
         "-Wno-unused-parameter",

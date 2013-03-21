@@ -104,8 +104,8 @@ private:
 
   std::string itsInputName;
   std::string itsDataFile;
-  std::auto_ptr<NFmiFastQueryInfo> itsInfo;
-  std::auto_ptr<NFmiQueryData> itsData;
+  boost::shared_ptr<NFmiFastQueryInfo> itsInfo;
+  boost::shared_ptr<NFmiQueryData> itsData;
 
   mutable boost::shared_ptr<Coordinates> itsLocations;
   mutable boost::shared_ptr<Coordinates> itsLocationsWorldXY;

@@ -2756,7 +2756,7 @@ void do_draw_shapes( istream & theInput )
 
   check_errors(theInput,"draw shapes");
 
-  auto_ptr<NFmiArea> area = globals.createArea();
+  boost::shared_ptr<NFmiArea> area = globals.createArea();
 
   if(globals.verbose)
 	report_area(*area);
@@ -2827,7 +2827,7 @@ void do_draw_imagemap(istream & theInput)
 
   check_errors(theInput,"draw imagemap");
 
-  auto_ptr<NFmiArea> area = globals.createArea();
+  boost::shared_ptr<NFmiArea> area = globals.createArea();
 
   // Generate map from all shapes in the list
 
@@ -3746,7 +3746,7 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
   dirvalues.Replace(direction_src,direction_dst);
   globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),dirvalues);
   
-  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(theArea);
+  boost::shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(theArea);
   for(float y=0; y<=worldpts->NY()-1; y+=globals.windarrowdy)
 	for(float x=0; x<=worldpts->NX()-1; x+=globals.windarrowdx)
 	  {
@@ -4689,7 +4689,7 @@ void draw_pressure_markers( ImagineXr_or_NFmiImage &img,
 
   choose_queryinfo("Pressure",0);
 
-  shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(theArea);
+  boost::shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(theArea);
 
   NFmiDataMatrix<float> vals;
   globals.queryinfo->Values(vals);
@@ -4825,7 +4825,7 @@ void do_draw_contours(istream & theInput)
   if(globals.querystreams.empty())
 	throw runtime_error("No query data has been read!");
 
-  auto_ptr<NFmiArea> area = globals.createArea();
+  boost::shared_ptr<NFmiArea> area = globals.createArea();
 
   // This message intentionally ignores globals.verbose
 
@@ -5049,7 +5049,7 @@ void do_draw_contours(istream & theInput)
 	       xr->Composite( xr2 );
         }
 #else
-	  auto_ptr< Imagine::NFmiImage > image;
+		boost::shared_ptr< Imagine::NFmiImage > image;
 	  if(globals.background.empty()) {
 		image.reset(new Imagine::NFmiImage(imgwidth,imgheight,erasecolor));
 	  } else

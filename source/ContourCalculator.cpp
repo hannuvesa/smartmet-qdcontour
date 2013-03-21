@@ -60,9 +60,9 @@ public:
   ContourCache itsLineCache;
   bool isCacheOn;
   bool itWasCached;
-  std::auto_ptr<DataMatrixAdapter> itsData;	// does not own!
+  boost::shared_ptr<DataMatrixAdapter> itsData;	// does not own!
   bool itsHintsOK;
-  std::auto_ptr<MyHints> itsHints;
+  boost::shared_ptr<MyHints> itsHints;
 
   void require_hints();
   

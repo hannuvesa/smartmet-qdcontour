@@ -124,14 +124,9 @@ float LazyQueryData::GetLevelNumber() const
 void LazyQueryData::Read(const std::string & theDataFile)
 {
   itsInputName = theDataFile;
-
-  itsInfo.reset(0);
-  itsData.reset(0);
-
-  NFmiQueryData * qdata = new NFmiQueryData(theDataFile);
   itsDataFile = theDataFile;
 
-  itsData.reset(qdata);
+  itsData.reset(new NFmiQueryData(theDataFile));
   itsInfo.reset(new NFmiFastQueryInfo(itsData.get()));
 }
 

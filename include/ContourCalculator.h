@@ -56,7 +56,7 @@ private:
   ContourCalculator(const ContourCalculator & theCalc);
   ContourCalculator & operator=(const ContourCalculator & theCalc);
 
-  std::auto_ptr<ContourCalculatorPimple> itsPimple;
+  boost::shared_ptr<ContourCalculatorPimple> itsPimple;
 
 }; // class ContourCalculator
 
