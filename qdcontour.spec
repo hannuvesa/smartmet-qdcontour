@@ -1,20 +1,20 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 12.10.2
+Version: 13.3.25
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
 Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot-%(%{__id_u} -n)
-BuildRequires: boost-devel >= 1.50
+BuildRequires: boost-devel >= 1.52
 BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: libsmartmet-imagine >= 12.7.5-1
-BuildRequires: libsmartmet-newbase >= 12.9.27-1
+BuildRequires: libsmartmet-imagine >= 13.3.21-1
+BuildRequires: libsmartmet-newbase >= 13.3.21-2
 BuildRequires: libsmartmet-tron >= 12.7.5-1
 BuildRequires: zlib-devel
 Requires: freetype
@@ -48,6 +48,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Mar 25 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.3.25-1.fmi
+- arrowfill and arrowstroke can now be specified for speed ranges
 * Tue Oct  2 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.10.2-1.fmi
 - New parameter names for ice storage from newbase
 * Thu Jul  5 2012 Mika Heiskanen <mika.heiskanen@fmi.fi> - 12.7.5-1.el6.fmi
