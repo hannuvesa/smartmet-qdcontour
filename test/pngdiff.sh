@@ -18,7 +18,7 @@ DIFF_PNG=$3
 COL_RED="$(tput setaf 1)"
 COL_GREEN="$(tput setaf 2)"
 COL_YELLOW="$(tput setaf 3)"
-COL_NORM="$(tput setaf 9)"
+COL_NORM="$(tput setaf 0)"
 
 COL_BOLD="$(tput bold)"
 COL_OFF="$(tput sgr0)"

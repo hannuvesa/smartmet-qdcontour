@@ -418,26 +418,27 @@ bool rangefits(float speed, float lolimit, float hilimit)
 
 }
 
-ArrowColor Globals::getArrowFillColor(float speed) const
+ArrowStyle Globals::getArrowFill(float speed) const
 {
-  BOOST_FOREACH(const ArrowColor & c, arrowfillcolors)
+  BOOST_FOREACH(const ArrowStyle & c, arrowfillstyles)
 	{
 	  if(rangefits(speed,c.lolimit,c.hilimit))
 		return c;
 	}
-  return ArrowColor(ColorTools::parsecolor(arrowfillcolor));
+  return ArrowStyle(ColorTools::parsecolor(arrowfillcolor),
+					ColorTools::checkrule(arrowfillrule));
 }
 
-ArrowColor Globals::getArrowStrokeColor(float speed) const
+ArrowStyle Globals::getArrowStroke(float speed) const
 {
-  BOOST_FOREACH(const ArrowColor & c, arrowstrokecolors)
+  BOOST_FOREACH(const ArrowStyle & c, arrowstrokestyles)
 	{
 	  if(rangefits(speed,c.lolimit,c.hilimit))
 		return c;
 	}
-  return ArrowColor(ColorTools::parsecolor(arrowstrokecolor));
+  return ArrowStyle(ColorTools::parsecolor(arrowstrokecolor),
+					ColorTools::checkrule(arrowstrokerule));
 }
-
 
 RoundArrowColor Globals::getRoundArrowFillColor(float speed) const
 {

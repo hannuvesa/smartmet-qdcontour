@@ -989,19 +989,21 @@ void do_arrowfill(istream & theInput)
 
 	  globals.arrowfillcolor = token1;
 	  globals.arrowfillrule = token2;
-	  globals.arrowfillcolors.clear();
+	  globals.arrowfillstyles.clear();
 	}
   catch(...)
 	{
-	  string scolor;
-	  theInput >> scolor;
+	  string scolor, srule;
+	  theInput >> scolor >> srule;
 	  check_errors(theInput,"arrowfill");
 
-	  ArrowColor color;
-	  color.lolimit = (token1 == "-" ? kFloatMissing : boost::lexical_cast<float>(token1));
-	  color.hilimit = (token2 == "-" ? kFloatMissing : boost::lexical_cast<float>(token2));
-	  color.color = ColorTools::parsecolor(scolor);
-	  globals.arrowfillcolors.push_back(color);
+	  ArrowStyle style;
+	  style.lolimit = (token1 == "-" ? kFloatMissing : boost::lexical_cast<float>(token1));
+	  style.hilimit = (token2 == "-" ? kFloatMissing : boost::lexical_cast<float>(token2));
+	  style.color = ColorTools::parsecolor(scolor);
+	  style.rule = ColorTools::checkrule(srule);
+
+	  globals.arrowfillstyles.push_back(style);
 	}
 }
 
@@ -1025,19 +1027,21 @@ void do_arrowstroke(istream & theInput)
 
 	  globals.arrowstrokecolor = token1;
 	  globals.arrowstrokerule = token2;
-	  globals.arrowstrokecolors.clear();
+	  globals.arrowstrokestyles.clear();
 	}
   catch(...)
 	{
-	  string scolor;
-	  theInput >> scolor;
+	  string scolor, srule;
+	  theInput >> scolor >> srule;
 	  check_errors(theInput,"arrowstroke");
 
-	  ArrowColor color;
-	  color.lolimit = (token1 == "-" ? kFloatMissing : boost::lexical_cast<float>(token1));
-	  color.hilimit = (token2 == "-" ? kFloatMissing : boost::lexical_cast<float>(token2));
-	  color.color = ColorTools::parsecolor(scolor);
-	  globals.arrowstrokecolors.push_back(color);
+	  ArrowStyle style;
+	  style.lolimit = (token1 == "-" ? kFloatMissing : boost::lexical_cast<float>(token1));
+	  style.hilimit = (token2 == "-" ? kFloatMissing : boost::lexical_cast<float>(token2));
+	  style.color = ColorTools::parsecolor(scolor);
+	  style.rule = ColorTools::checkrule(srule);
+
+	  globals.arrowstrokestyles.push_back(style);
 	}
 }
 
@@ -3740,13 +3744,12 @@ void draw_wind_arrows_points( ImagineXr_or_NFmiImage &img,
 		  
 		  if(globals.arrowfile != "meteorological")
 			{
-			  thispath.Fill(img,
-							globals.getArrowFillColor(speed).color,
-							ColorTools::checkrule(globals.arrowfillrule));
+			  ArrowStyle style = globals.getArrowFill(speed);
+			  thispath.Fill(img,style.color,style.rule);
 			}
-		  thispath.Stroke(img,
-						  globals.getArrowStrokeColor(speed).color,
-						  ColorTools::checkrule(globals.arrowstrokerule));
+
+		  ArrowStyle style = globals.getArrowStroke(speed);
+		  thispath.Stroke(img,style.color,style.rule);
 		}
 	}
 }
@@ -3869,13 +3872,11 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
 			// And render it
 			if(globals.arrowfile != "meteorological")
 			  {
-				thispath.Fill(img,
-							  globals.getArrowFillColor(speed).color,
-							  ColorTools::checkrule(globals.arrowfillrule));
+				ArrowStyle style = globals.getArrowFill(speed);
+				thispath.Fill(img,style.color,style.rule);
 			  }
-			thispath.Stroke(img,
-							globals.getArrowStrokeColor(speed).color,
-							ColorTools::checkrule(globals.arrowstrokerule));
+			ArrowStyle style = globals.getArrowStroke(speed);
+			thispath.Stroke(img,style.color,style.rule);
 		  }
 	  }
 }
@@ -3964,13 +3965,11 @@ void draw_wind_arrows_pixelgrid( ImagineXr_or_NFmiImage &img,
 			// And render it
 			if(globals.arrowfile != "meteorological")
 			  {
-				thispath.Fill(img,
-							  globals.getArrowFillColor(speed).color,
-							  ColorTools::checkrule(globals.arrowfillrule));
+				ArrowStyle style = globals.getArrowFill(speed);
+				thispath.Fill(img,style.color,style.rule);
 			  }
-			thispath.Stroke(img,
-							globals.getArrowStrokeColor(speed).color,
-							ColorTools::checkrule(globals.arrowstrokerule));
+			ArrowStyle style = globals.getArrowStroke(speed);
+			thispath.Stroke(img,style.color,style.rule);
 		  }
 	  }
 }

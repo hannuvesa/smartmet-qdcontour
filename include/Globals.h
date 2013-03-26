@@ -41,16 +41,19 @@ class NFmiTime;
 
 //using Imagine::NFmiImage;
 
-struct ArrowColor
+struct ArrowStyle
 {
   float lolimit;
   float hilimit;
   Imagine::NFmiColorTools::Color color;
+  Imagine::NFmiColorTools::NFmiBlendRule rule;
 
-  ArrowColor(Imagine::NFmiColorTools::Color c = Imagine::NFmiColorTools::NoColor)
+  ArrowStyle(Imagine::NFmiColorTools::Color c = Imagine::NFmiColorTools::NoColor,
+			 Imagine::NFmiColorTools::NFmiBlendRule r = Imagine::NFmiColorTools::kFmiColorOver)
 	: lolimit(kFloatMissing)
 	, hilimit(kFloatMissing)
 	, color(c)
+	, rule(r)
   {
   }
 };
@@ -110,8 +113,8 @@ struct Globals
   RoundArrowColor getRoundArrowStrokeColor(float speed) const;
   RoundArrowSize getRoundArrowSize(float speed) const;
 
-  ArrowColor getArrowFillColor(float speed) const;
-  ArrowColor getArrowStrokeColor(float speed) const;
+  ArrowStyle getArrowFill(float speed) const;
+  ArrowStyle getArrowStroke(float speed) const;
 
   // Command line options
 
@@ -271,8 +274,8 @@ struct Globals
   std::list<RoundArrowColor> roundarrowstrokecolors;
   std::list<RoundArrowSize> roundarrowsizes;
 
-  std::list<ArrowColor> arrowfillcolors;
-  std::list<ArrowColor> arrowstrokecolors;
+  std::list<ArrowStyle> arrowfillstyles;
+  std::list<ArrowStyle> arrowstrokestyles;
 
 };
 

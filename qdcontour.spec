@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 13.3.25
+Version: 13.3.26
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
@@ -48,7 +48,7 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Mon Mar 25 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.3.25-1.fmi
+* Mon Mar 26 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.3.26-1.fmi
 - arrowfill and arrowstroke can now be specified for speed ranges
 * Tue Oct  2 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.10.2-1.fmi
 - New parameter names for ice storage from newbase
