@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 13.3.26
+Version: 13.4.18
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
@@ -48,6 +48,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Apr 18 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.4.18-1.fmi
+- Meteorological arrow flags are now filled according to the stroke colour
 * Mon Mar 26 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.3.26-1.fmi
 - arrowfill and arrowstroke can now be specified for speed ranges
 * Tue Oct  2 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.10.2-1.fmi

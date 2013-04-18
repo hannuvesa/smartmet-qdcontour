@@ -3728,28 +3728,51 @@ void draw_wind_arrows_points( ImagineXr_or_NFmiImage &img,
 		}
 	  else
 		{
-		  NFmiPath thispath;
 		  if(globals.arrowfile == "meteorological")
-			thispath.Add(GramTools::metarrow(speed));
-		  else
-			thispath.Add(theArrow);
-		  
-		  if(speed>0 && speed!=kFloatMissing)
-			thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
-		  thispath.Scale(globals.arrowscale);
-		  thispath.Rotate(-dir+north+180);
-		  thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
-		  
-		  // And render it
-		  
-		  if(globals.arrowfile != "meteorological")
 			{
-			  ArrowStyle style = globals.getArrowFill(speed);
-			  thispath.Fill(img,style.color,style.rule);
-			}
+			  NFmiPath strokes;
+			  NFmiPath flags;
 
-		  ArrowStyle style = globals.getArrowStroke(speed);
-		  thispath.Stroke(img,style.color,style.rule);
+			  strokes.Add(GramTools::metarrowlines(speed));
+			  flags.Add(GramTools::metarrowflags(speed));
+
+			  if(speed>0 && speed!=kFloatMissing)
+				{
+				  strokes.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
+				  flags.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
+				}
+
+			  strokes.Scale(globals.arrowscale);
+			  strokes.Rotate(-dir+north+180);
+			  strokes.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
+
+			  flags.Scale(globals.arrowscale);
+			  flags.Rotate(-dir+north+180);
+			  flags.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
+			  
+			  ArrowStyle style = globals.getArrowStroke(speed);
+			  strokes.Stroke(img,style.color,style.rule);
+			  flags.Fill(img,style.color,style.rule);
+			}
+		  else
+			{
+			  NFmiPath arrowpath;
+			  arrowpath.Add(theArrow);
+			  
+			  if(speed>0 && speed!=kFloatMissing)
+				arrowpath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
+			  arrowpath.Scale(globals.arrowscale);
+			  arrowpath.Rotate(-dir+north+180);
+			  arrowpath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
+			  
+			  // And render it
+			  
+			  ArrowStyle fillstyle = globals.getArrowFill(speed);
+			  arrowpath.Fill(img,fillstyle.color,fillstyle.rule);
+			  
+			  ArrowStyle strokestyle = globals.getArrowStroke(speed);
+			  arrowpath.Stroke(img,strokestyle.color,strokestyle.rule);
+			}
 		}
 	}
 }
@@ -3858,25 +3881,51 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
 		  }
 		else
 		  {
-			NFmiPath thispath;
-			if(globals.arrowfile == "meteorological")
-			  thispath.Add(GramTools::metarrow(speed));
-			else
-			  thispath.Add(theArrow);
-			if(speed>0 && speed != kFloatMissing)
-			  thispath.Scale(static_cast<float>(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC));
-			thispath.Scale(globals.arrowscale);
-			thispath.Rotate(-dir+north+180);
-			thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
-			
-			// And render it
-			if(globals.arrowfile != "meteorological")
-			  {
-				ArrowStyle style = globals.getArrowFill(speed);
-				thispath.Fill(img,style.color,style.rule);
-			  }
-			ArrowStyle style = globals.getArrowStroke(speed);
-			thispath.Stroke(img,style.color,style.rule);
+		  if(globals.arrowfile == "meteorological")
+			{
+			  NFmiPath strokes;
+			  NFmiPath flags;
+
+			  strokes.Add(GramTools::metarrowlines(speed));
+			  flags.Add(GramTools::metarrowflags(speed));
+
+			  if(speed>0 && speed!=kFloatMissing)
+				{
+				  strokes.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
+				  flags.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
+				}
+
+			  strokes.Scale(globals.arrowscale);
+			  strokes.Rotate(-dir+north+180);
+			  strokes.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
+
+			  flags.Scale(globals.arrowscale);
+			  flags.Rotate(-dir+north+180);
+			  flags.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
+			  
+			  ArrowStyle style = globals.getArrowStroke(speed);
+			  strokes.Stroke(img,style.color,style.rule);
+			  flags.Fill(img,style.color,style.rule);
+			}
+		  else
+			{
+			  NFmiPath arrowpath;
+			  arrowpath.Add(theArrow);
+			  
+			  if(speed>0 && speed!=kFloatMissing)
+				arrowpath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
+			  arrowpath.Scale(globals.arrowscale);
+			  arrowpath.Rotate(-dir+north+180);
+			  arrowpath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
+			  
+			  // And render it
+			  
+			  ArrowStyle fillstyle = globals.getArrowFill(speed);
+			  arrowpath.Fill(img,fillstyle.color,fillstyle.rule);
+			  
+			  ArrowStyle strokestyle = globals.getArrowStroke(speed);
+			  arrowpath.Stroke(img,strokestyle.color,strokestyle.rule);
+			}
 		  }
 	  }
 }
@@ -3949,27 +3998,51 @@ void draw_wind_arrows_pixelgrid( ImagineXr_or_NFmiImage &img,
 		  }
 		else
 		  {
-			NFmiPath thispath;
-			
-			if(globals.arrowfile == "meteorological")
-			  thispath.Add(GramTools::metarrow(speed));
-			else
-			  thispath.Add(theArrow);
-			
-			if(speed>0 && speed!=kFloatMissing)
-			  thispath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
-			thispath.Scale(globals.arrowscale);
-			thispath.Rotate(-dir+north+180);
-			thispath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
-			
-			// And render it
-			if(globals.arrowfile != "meteorological")
-			  {
-				ArrowStyle style = globals.getArrowFill(speed);
-				thispath.Fill(img,style.color,style.rule);
-			  }
-			ArrowStyle style = globals.getArrowStroke(speed);
-			thispath.Stroke(img,style.color,style.rule);
+		  if(globals.arrowfile == "meteorological")
+			{
+			  NFmiPath strokes;
+			  NFmiPath flags;
+
+			  strokes.Add(GramTools::metarrowlines(speed));
+			  flags.Add(GramTools::metarrowflags(speed));
+
+			  if(speed>0 && speed!=kFloatMissing)
+				{
+				  strokes.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
+				  flags.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
+				}
+
+			  strokes.Scale(globals.arrowscale);
+			  strokes.Rotate(-dir+north+180);
+			  strokes.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
+
+			  flags.Scale(globals.arrowscale);
+			  flags.Rotate(-dir+north+180);
+			  flags.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
+			  
+			  ArrowStyle style = globals.getArrowStroke(speed);
+			  strokes.Stroke(img,style.color,style.rule);
+			  flags.Fill(img,style.color,style.rule);
+			}
+		  else
+			{
+			  NFmiPath arrowpath;
+			  arrowpath.Add(theArrow);
+			  
+			  if(speed>0 && speed!=kFloatMissing)
+				arrowpath.Scale(globals.windarrowscaleA*log10(globals.windarrowscaleB*speed+1)+globals.windarrowscaleC);
+			  arrowpath.Scale(globals.arrowscale);
+			  arrowpath.Rotate(-dir+north+180);
+			  arrowpath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
+			  
+			  // And render it
+			  
+			  ArrowStyle fillstyle = globals.getArrowFill(speed);
+			  arrowpath.Fill(img,fillstyle.color,fillstyle.rule);
+			  
+			  ArrowStyle strokestyle = globals.getArrowStroke(speed);
+			  arrowpath.Stroke(img,strokestyle.color,strokestyle.rule);
+			}
 		  }
 	  }
 }

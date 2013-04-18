@@ -18,8 +18,8 @@
 
 namespace GramTools
 {
-
-  Imagine::NFmiPath metarrow(float theSpeed);
+  Imagine::NFmiPath metarrowflags(float theSpeed);
+  Imagine::NFmiPath metarrowlines(float theSpeed);
 
 } // namespace GramTools
 
