@@ -277,6 +277,8 @@ struct Globals
   std::list<ArrowStyle> arrowfillstyles;
   std::list<ArrowStyle> arrowstrokestyles;
 
+  unsigned long timestampformat;
+
 };
 
 // For global use

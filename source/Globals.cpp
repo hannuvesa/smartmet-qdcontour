@@ -151,6 +151,7 @@ Globals::Globals()
   , graticulelat2()
   , graticuledx()
   , graticuledy()
+  , timestampformat(kYYYYMMDDHHMM)
 {
   symbollocator.minDistanceToDifferentParameter(8);
   symbollocator.minDistanceToDifferentValue(8);

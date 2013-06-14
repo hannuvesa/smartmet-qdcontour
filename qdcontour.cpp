@@ -704,6 +704,18 @@ void do_timestamp(istream & theInput)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Handle "timestampformat" command
+ */
+// ----------------------------------------------------------------------
+
+void do_timestampformat(istream & theInput)
+{
+  theInput >> globals.timestampformat;
+  check_errors(theInput,"timestampformat");
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Handle "timestampzone" command
  */
 // ----------------------------------------------------------------------
@@ -5105,7 +5117,7 @@ void do_draw_contours(istream & theInput)
 
 	  // The timestamp as a string
 
-	  NFmiString datatimestr = t.ToStr(kYYYYMMDDHHMM);
+	  NFmiString datatimestr = t.ToStr(globals.timestampformat);
 
 	  if(globals.verbose)
 		cout << "Time is " << datatimestr.CharPtr() << endl;
@@ -5122,7 +5134,7 @@ void do_draw_contours(istream & theInput)
 			{
 			  time_t secs = NFmiFileSystem::FileModificationTime(globals.queryfilenames[qi]);
 			  NFmiTime tstamp = TimeTools::ToUTC(secs);
-			  filename += "_" + tstamp.ToStr(kYYYYMMDDHHMM);
+			  filename += "_" + tstamp.ToStr(globals.timestampformat);
 			}
 		}
 
@@ -5412,6 +5424,7 @@ void process_cmd( const string &text ) {
       else if(cmd == "timestampimagecolor")		do_timestampimagecolor(in);
       else if(cmd == "timestampimagebackground")	do_timestampimagebackground(in);
       else if(cmd == "timestampimagemargin")	do_timestampimagemargin(in);
+	  else if(cmd == "timestampformat")			do_timestampformat(in);
       else if(cmd == "projection")				do_projection(in);
       else if(cmd == "erase")					do_erase(in);
       else if(cmd == "fillrule")				do_fillrule(in);
