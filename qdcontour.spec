@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 13.6.14
+Version: 13.6.20
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
@@ -15,7 +15,7 @@ BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: libsmartmet-imagine >= 13.3.21-1
 BuildRequires: libsmartmet-newbase >= 13.6.10-1
-BuildRequires: libsmartmet-tron >= 12.11.7-1
+BuildRequires: libsmartmet-tron >= 13.6.20-1
 BuildRequires: zlib-devel
 Requires: freetype
 Requires: libjpeg
@@ -48,6 +48,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Jun 20 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.6.20-1.fmi
+- Added loglinear interpolation
 * Fri Jun 14 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.6.14-1.fmi
 - Added timestampformat command for modifying the output filename
 * Thu Apr 18 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.4.18-1.fmi
