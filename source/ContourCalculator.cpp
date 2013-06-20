@@ -27,6 +27,11 @@ typedef Tron::Contourer<DataMatrixAdapter,
 						Tron::LinearInterpolation> MyLinearContourer;
 
 typedef Tron::Contourer<DataMatrixAdapter,
+						PathAdapter,
+						MyTraits,
+						Tron::LogLinearInterpolation> MyLogLinearContourer;
+
+typedef Tron::Contourer<DataMatrixAdapter,
 						PathAdapter,MyTraits,
 						Tron::NearestNeighbourInterpolation> MyNearestContourer;
 
@@ -164,7 +169,7 @@ void ContourCalculator::data(const NFmiDataMatrix<float> & theData)
 
 Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 											 float theLoLimit, float theHiLimit,
-											 Imagine::NFmiContourTree::NFmiContourInterpolation theInterpolation)
+											 ContourInterpolation theInterpolation)
 {
   if(itsPimple->itsData.get() == 0)
 	throw std::runtime_error("ContourCalculator:: No data set before calling contour");
@@ -182,8 +187,8 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
   
   switch(theInterpolation)
 	{
-	case Imagine::NFmiContourTree::kFmiContourLinear:
-	case Imagine::NFmiContourTree::kFmiContourMissingInterpolation:
+	case Linear:
+	case Missing:
 	  {
 		MyLinearContourer::fill(adapter,
 								*(itsPimple->itsData),
@@ -191,7 +196,15 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 								*(itsPimple->itsHints));
 		break;
 	  }
-	case Imagine::NFmiContourTree::kFmiContourNearest:
+	case LogLinear:
+	  {
+		MyLogLinearContourer::fill(adapter,
+								   *(itsPimple->itsData),
+								   theLoLimit,theHiLimit,
+								   *(itsPimple->itsHints));
+		break;
+	  }
+	case Nearest:
 	  {
 		MyNearestContourer::fill(adapter,
 								 *(itsPimple->itsData),
@@ -199,7 +212,7 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 								 *(itsPimple->itsHints));
 		break;
 	  }
-	case Imagine::NFmiContourTree::kFmiContourDiscrete:
+	case Discrete:
 	  {
 		MyDiscreteContourer::fill(adapter,
 								  *(itsPimple->itsData),
@@ -229,7 +242,7 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 
 Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 											 float theValue,
-											 Imagine::NFmiContourTree::NFmiContourInterpolation theInterpolation)
+											 ContourInterpolation theInterpolation)
 {
 
   if(itsPimple->itsData.get() == 0)
@@ -248,8 +261,8 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
   
   switch(theInterpolation)
 	{
-	case Imagine::NFmiContourTree::kFmiContourLinear:
-	case Imagine::NFmiContourTree::kFmiContourMissingInterpolation:
+	case Linear:
+	case Missing:
 	  {
 #if 0
 		MyLinearContourer::line(adapter,
@@ -262,11 +275,18 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 								theValue);
 		break;
 	  }
-	case Imagine::NFmiContourTree::kFmiContourNearest:
+	case LogLinear:
+	  {
+		MyLogLinearContourer::line(adapter,
+								   *(itsPimple->itsData),
+								   theValue);
+		break;
+	  }
+	case Nearest:
 	  {
 		throw std::runtime_error("Contour lines not supported for nearest neighbour interpolation");
 	  }
-	case Imagine::NFmiContourTree::kFmiContourDiscrete:
+	case Discrete:
 	  {
 		throw std::runtime_error("Contour lines not supported for discrete neighbour interpolation");
 		break;

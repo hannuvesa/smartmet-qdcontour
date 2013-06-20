@@ -26,6 +26,7 @@
 # include "NFmiColorTools.h"
 #endif
 
+#include "NFmiArea.h"
 #include "NFmiImage.h"
 #include "NFmiPoint.h"
 

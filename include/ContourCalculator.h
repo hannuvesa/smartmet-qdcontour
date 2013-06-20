@@ -15,12 +15,11 @@
  */
 // ======================================================================
 
-#ifndef CONTOURCALCULATOR_H
-#define CONTOURCALCULATOR_H
+#pragma once
 
+#include "ContourInterpolation.h"
+#include <boost/shared_ptr.hpp>
 #include <memory>
-
-#include "NFmiContourTree.h"
 
 template <typename T> class NFmiDataMatrix;
 
@@ -40,11 +39,11 @@ public:
 
   Imagine::NFmiPath contour(const LazyQueryData & theData,
 							float theLoLimit, float theHiLimit,
-							Imagine::NFmiContourTree::NFmiContourInterpolation theInterpolation);
+							ContourInterpolation theInterpolation);
 
   Imagine::NFmiPath contour(const LazyQueryData & theData,
 							float theValue,
-							Imagine::NFmiContourTree::NFmiContourInterpolation theInterpolation);
+							ContourInterpolation theInterpolation);
 
   void data(const NFmiDataMatrix<float> & theData);
   void clearCache();
@@ -59,7 +58,5 @@ private:
   boost::shared_ptr<ContourCalculatorPimple> itsPimple;
 
 }; // class ContourCalculator
-
-#endif // CONTOURCALCULATOR_H
 
 // ======================================================================

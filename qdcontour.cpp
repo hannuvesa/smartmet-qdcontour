@@ -14,6 +14,7 @@
 #include "Globals.h"
 #include "ColorTools.h"
 #include "ContourSpec.h"
+#include "ContourInterpolation.h"
 #include "GramTools.h"
 #include "LazyCoordinates.h"
 #include "LazyQueryData.h"
@@ -46,6 +47,7 @@
 #include "NFmiFileSystem.h"			// FileExists()
 #include "NFmiInterpolation.h"		// Interpolation functions
 #include "NFmiLatLonArea.h"			// Geographic projection
+#include "NFmiLevel.h"
 #include "NFmiSettings.h"			// Configuration
 #include "NFmiSmoother.h"			// for smoothing data
 #include "NFmiStereographicArea.h"	// Stereographic projection
@@ -4143,7 +4145,7 @@ void draw_wind_arrows( ImagineXr_or_NFmiImage &img,
 void draw_contour_fills( ImagineXr_or_NFmiImage &img,
 						const NFmiArea & theArea,
 						const ContourSpec & theSpec,
-						NFmiContourTree::NFmiContourInterpolation theInterpolation )
+						ContourInterpolation theInterpolation )
 {
   list<ContourRange>::const_iterator it;
   list<ContourRange>::const_iterator begin;
@@ -4190,7 +4192,7 @@ void draw_contour_fills( ImagineXr_or_NFmiImage &img,
 void draw_contour_patterns( ImagineXr_or_NFmiImage &img,
 						   const NFmiArea & theArea,
 						   const ContourSpec & theSpec,
-						   NFmiContourTree::NFmiContourInterpolation theInterpolation )
+						   ContourInterpolation theInterpolation )
 {
   list<ContourPattern>::const_iterator it;
   list<ContourPattern>::const_iterator begin;
@@ -4232,7 +4234,7 @@ void draw_contour_patterns( ImagineXr_or_NFmiImage &img,
 void draw_contour_strokes( ImagineXr_or_NFmiImage &img,
 						  const NFmiArea & theArea,
 						  const ContourSpec & theSpec,
-						  NFmiContourTree::NFmiContourInterpolation theInterpolation )
+						  ContourInterpolation theInterpolation )
 {
   list<ContourValue>::const_iterator it;
   list<ContourValue>::const_iterator begin;
@@ -4270,10 +4272,10 @@ void draw_contour_strokes( ImagineXr_or_NFmiImage &img,
  */
 // ----------------------------------------------------------------------
 
-void save_contour_labels( ImagineXr_or_NFmiImage &img,
+void save_contour_labels(ImagineXr_or_NFmiImage &img,
 						 const NFmiArea & theArea,
 						 const ContourSpec & theSpec,
-						 NFmiContourTree::NFmiContourInterpolation theInterpolation )
+						 ContourInterpolation theInterpolation )
 {
   // The ID under which the coordinates will be stored
 
@@ -5228,9 +5230,8 @@ void do_draw_contours(istream & theInput)
 		  // Establish the contour method
 
 		  string interpname = piter->contourInterpolation();
-		  NFmiContourTree::NFmiContourInterpolation interp
-			= NFmiContourTree::ContourInterpolationValue(interpname);
-		  if(interp==NFmiContourTree::kFmiContourMissingInterpolation)
+		  ContourInterpolation interp = ContourInterpolationValue(interpname);
+		  if(interp==Missing)
 			throw runtime_error("Unknown contour interpolation method " + interpname);
 
 		  // Get the values.
