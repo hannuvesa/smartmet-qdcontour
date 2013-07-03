@@ -1,21 +1,21 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 13.6.20
+Version: 13.7.3
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
 Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot-%(%{__id_u} -n)
-BuildRequires: boost-devel >= 1.52
+BuildRequires: boost-devel >= 1.54
 BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: libsmartmet-imagine >= 13.3.21-1
-BuildRequires: libsmartmet-newbase >= 13.6.10-1
-BuildRequires: libsmartmet-tron >= 13.6.20-1
+BuildRequires: libsmartmet-imagine >= 13.7.3-1
+BuildRequires: libsmartmet-newbase >= 13.7.3-1
+BuildRequires: libsmartmet-tron >= 13.7.3-1
 BuildRequires: zlib-devel
 Requires: freetype
 Requires: libjpeg
@@ -48,6 +48,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jul  3 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.7.3-1.fmi
+- Update to boost 1.54
 * Thu Jun 20 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.6.20-1.fmi
 - Added loglinear interpolation
 * Fri Jun 14 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.6.14-1.fmi
