@@ -154,7 +154,7 @@ if WINDOWS:
     env.Append( LIBS= [ WINDOWS_PREBUILT_PATH+"/lpng1231/lpng1231/libpng.lib", 
                         WINDOWS_PREBUILT_PATH+"/zlib123/zlib.lib" ] )
 else:
-    env.Append( LIBS= [ "pthread", "png", "jpeg", "z", "bz2" ] )
+    env.Append( LIBS= [ "pthread", "png", "jpeg", "z", "bz2", "rt"] )
 
 
 # Debug settings
