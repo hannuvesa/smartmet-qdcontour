@@ -83,7 +83,7 @@ else:
 	    #"-Wold-style-cast",       Boost 1.35 has old style casts
     ] )
 
-BOOST_POSTFIX=""
+BOOST_POSTFIX = ARGUMENTS.get("boostpostfix","")
 BOOST_PREFIX=""
 
 if WINDOWS:
@@ -103,7 +103,6 @@ if WINDOWS:
                 LIBPATH= [ "../newbase","../imagine", "../tron" ] )
 
 elif LINUX:
-    BOOST_POSTFIX= ""    # Boost 1.36
 
     # Newbase, Imagine & Tron from system install
     #
