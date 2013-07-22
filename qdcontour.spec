@@ -8,7 +8,7 @@ Group: Development/Tools
 URL: http://www.weatherproof.fi
 Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot-%(%{__id_u} -n)
-BuildRequires: boost-devel >= 1.54
+BuildRequires: boost-devel >= 1.53
 BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
@@ -56,7 +56,7 @@ rm -rf $RPM_BUILD_ROOT
 - Added timestampformat command for modifying the output filename
 * Thu Apr 18 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.4.18-1.fmi
 - Meteorological arrow flags are now filled according to the stroke colour
-* Mon Mar 26 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.3.26-1.fmi
+* Tue Mar 26 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.3.26-1.fmi
 - arrowfill and arrowstroke can now be specified for speed ranges
 * Tue Oct  2 2012 mheiskan <mika.heiskanen@fmi.fi> - 12.10.2-1.fmi
 - New parameter names for ice storage from newbase
