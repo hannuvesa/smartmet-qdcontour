@@ -16,6 +16,8 @@
 
 #include "Tron.h"
 
+#include "NFmiGrid.h"
+
 #include <memory>
 #include <stdexcept>
 
@@ -183,6 +185,8 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 
   itsPimple->require_hints();
 
+  const bool worlddata = theData.IsWorldData();
+
   PathAdapter adapter;
   
   switch(theInterpolation)
@@ -193,6 +197,7 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 		MyLinearContourer::fill(adapter,
 								*(itsPimple->itsData),
 								theLoLimit,theHiLimit,
+								worlddata,
 								*(itsPimple->itsHints));
 		break;
 	  }
@@ -201,6 +206,7 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 		MyLogLinearContourer::fill(adapter,
 								   *(itsPimple->itsData),
 								   theLoLimit,theHiLimit,
+								   worlddata,
 								   *(itsPimple->itsHints));
 		break;
 	  }
@@ -209,6 +215,7 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 		MyNearestContourer::fill(adapter,
 								 *(itsPimple->itsData),
 								 theLoLimit,theHiLimit,
+								 worlddata,
 								 *(itsPimple->itsHints));
 		break;
 	  }
@@ -217,6 +224,7 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 		MyDiscreteContourer::fill(adapter,
 								  *(itsPimple->itsData),
 								  theLoLimit,theHiLimit,
+								  worlddata,
 								  *(itsPimple->itsHints));
 		break;
 	  }
@@ -255,6 +263,8 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 	  return itsPimple->itsLineCache.find(theValue, kFloatMissing, theData);
 	}
 
+  const bool worlddata = theData.IsWorldData();
+
   itsPimple->require_hints();
 
   PathAdapter adapter;
@@ -268,18 +278,21 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 		MyLinearContourer::line(adapter,
 								*(itsPimple->itsData),
 								theValue,
+								worlddata,
 								*(itsPimple->itsHints));
 #endif
 		MyLinearContourer::line(adapter,
 								*(itsPimple->itsData),
-								theValue);
+								theValue,
+								worlddata);
 		break;
 	  }
 	case LogLinear:
 	  {
 		MyLogLinearContourer::line(adapter,
 								   *(itsPimple->itsData),
-								   theValue);
+								   theValue,
+								   worlddata);
 		break;
 	  }
 	case Nearest:

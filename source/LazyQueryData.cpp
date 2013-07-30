@@ -444,5 +444,26 @@ void LazyQueryData::Values(NFmiDataMatrix<float> & theValues,
   itsInfo->Values(theValues,theTime);
 }
 
+// ----------------------------------------------------------------------
+/*!
+ * \brief Test whether the data is world data
+ */
+// ----------------------------------------------------------------------
+
+bool LazyQueryData::IsWorldData() const
+{
+  requireInfo();
+
+  double lon1 = itsInfo->Area()->BottomLeftLatLon().X();
+  double lon2 = itsInfo->Area()->TopRightLatLon().X();
+  int xnumber = itsInfo->Grid()->XNumber();
+
+  // Predicted span if there was one more grid point
+  double span = (lon2-lon1)*xnumber/(xnumber-1);
+
+  // Sufficiently accurately the entire world?
+  return (std::abs(span-360) < 0.001);
+}
+
 // ======================================================================
 

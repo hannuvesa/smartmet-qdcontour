@@ -94,6 +94,8 @@ public:
   void Values(NFmiDataMatrix<float> & theValues);
   void Values(NFmiDataMatrix<float> & theValues, const NFmiMetTime & theTime);
 
+  bool IsWorldData() const;
+
 private:
 
   LazyQueryData(const LazyQueryData & theQD);

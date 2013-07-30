@@ -2942,7 +2942,7 @@ void draw_graticule( ImagineXr_or_NFmiImage &img,
 		path.LineTo(lon,lat);
 	}
 
-  MeridianTools::Relocate(path,theArea);
+  // MeridianTools::Relocate(path,theArea);
   path.Project(&theArea);
   
   NFmiColorTools::Color color = ColorTools::checkcolor(globals.graticulecolor);
@@ -3305,8 +3305,9 @@ void draw_label_markers(
 	{
 	  // The point in question
 
-	  NFmiPoint xy = MeridianTools::Relocate(iter->first,theArea);
-	  xy = theArea.ToXY(xy);
+	  // NFmiPoint xy = MeridianTools::Relocate(iter->first,theArea);
+	  // xy = theArea.ToXY(xy);
+	  NFmiPoint xy = theArea.ToXY(iter->first);
 
 	  // Skip rendering if LabelMissing is "" and value is missing
 	  if(theSpec.labelMissing().empty())
@@ -3376,8 +3377,9 @@ void draw_label_texts( ImagineXr_or_NFmiImage &img,
 		double x,y;
 		if(iter->second.X() == kFloatMissing)
 		  {
-			NFmiPoint xy = MeridianTools::Relocate(iter->first,theArea);
-			xy = theArea.ToXY(xy);
+			// NFmiPoint xy = MeridianTools::Relocate(iter->first,theArea);
+			// xy = theArea.ToXY(xy);
+			NFmiPoint xy = theArea.ToXY(iter->first);
 			x = xy.X();
 			y = xy.Y();
 		  }
@@ -3698,7 +3700,8 @@ void draw_wind_arrows_points( ImagineXr_or_NFmiImage &img,
 	{
 	  
 	  // The start point
-	  NFmiPoint latlon = MeridianTools::Relocate(*iter,theArea);
+	  // NFmiPoint latlon = MeridianTools::Relocate(*iter,theArea);
+	  NFmiPoint latlon = *iter;
 	  NFmiPoint xy0 = theArea.ToXY(latlon);
 	  
 	  // Skip rendering if the start point is masked
@@ -3844,7 +3847,7 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
 												   worldpts->At(i+1,j,bad));
 		
 		NFmiPoint latlon = theArea.WorldXYToLatLon(xy);
-		latlon = MeridianTools::Relocate(latlon,theArea);
+		// latlon = MeridianTools::Relocate(latlon,theArea);
 		NFmiPoint xy0 = theArea.ToXY(latlon);
 		
 		// Skip rendering if the start point is masked
@@ -4173,7 +4176,7 @@ void draw_contour_fills( ImagineXr_or_NFmiImage &img,
 	  if(path.Empty() && it->lolimit() != kFloatMissing && it->hilimit() != kFloatMissing)
 		continue;
 
-	  MeridianTools::Relocate(path,theArea);
+	  // MeridianTools::Relocate(path,theArea);
 	  path.Project(&theArea);
 	  invert_if_missing(path,it->lolimit(),it->hilimit());
 
@@ -4217,7 +4220,7 @@ void draw_contour_patterns( ImagineXr_or_NFmiImage &img,
 	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
 	  const ImagineXr_or_NFmiImage & pattern = globals.getImage(it->pattern());
 
-	  MeridianTools::Relocate(path,theArea);
+	  // MeridianTools::Relocate(path,theArea);
 	  path.Project(&theArea);
 	  invert_if_missing(path,it->lolimit(),it->hilimit());
 	  
@@ -4254,7 +4257,7 @@ void draw_contour_strokes( ImagineXr_or_NFmiImage &img,
 		cout << "Using cached " << it->value() << endl;
 
 	  NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
-	  MeridianTools::Relocate(path,theArea);
+	  // MeridianTools::Relocate(path,theArea);
 	  path.Project(&theArea);
 	  path.SimplifyLines(10);
 	  float width = it->linewidth();
@@ -4298,7 +4301,7 @@ void save_contour_labels(ImagineXr_or_NFmiImage &img,
 								   it->value(),
 								   theInterpolation);
 
-	  MeridianTools::Relocate(path,theArea);
+	  // MeridianTools::Relocate(path,theArea);
 	  path.Project(&theArea);
 
 	  for(NFmiPathData::const_iterator pit = path.Elements().begin();
@@ -4445,7 +4448,7 @@ void save_contour_symbols( ImagineXr_or_NFmiImage &img,
 			if(inside)
 			  {
 				NFmiPoint latlon = theArea.WorldXYToLatLon(thePoints(i,j));
-				latlon = MeridianTools::Relocate(latlon,theArea);
+				// latlon = MeridianTools::Relocate(latlon,theArea);
 				NFmiPoint xy = theArea.ToXY(latlon);
 
 				globals.imagelocator.add(z,
@@ -4682,7 +4685,7 @@ void save_contour_fonts( ImagineXr_or_NFmiImage &img,
 		if(okvalues.find(theValues[i][j]) != okvalues.end())
 		  {
 			NFmiPoint latlon = theArea.WorldXYToLatLon(thePoints(i,j));
-			latlon = MeridianTools::Relocate(latlon,theArea);
+			// latlon = MeridianTools::Relocate(latlon,theArea);
 			NFmiPoint xy = theArea.ToXY(latlon);
 
 			globals.symbollocator.add(theValues[i][j],
@@ -4874,7 +4877,7 @@ void draw_pressure_markers( ImagineXr_or_NFmiImage &img,
 		{
 		  NFmiPoint wxy(it->first*1000,it->second*1000);
 		  NFmiPoint latlon = theArea.WorldXYToLatLon(wxy);
-		  latlon = MeridianTools::Relocate(latlon,theArea);
+		  /// latlon = MeridianTools::Relocate(latlon,theArea);
 		  NFmiPoint xy = theArea.ToXY(latlon);
 
 		  switch(eit->first)
