@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 13.7.3
+Version: 13.8.2
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
@@ -13,9 +13,9 @@ BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: libsmartmet-imagine >= 13.7.3-1
-BuildRequires: libsmartmet-newbase >= 13.7.3-1
-BuildRequires: libsmartmet-tron >= 13.7.3-1
+BuildRequires: libsmartmet-imagine >= 13.8.2
+BuildRequires: libsmartmet-newbase >= 13.8.2
+BuildRequires: libsmartmet-tron >= 13.7.30
 BuildRequires: zlib-devel
 Requires: freetype
 Requires: libjpeg
@@ -48,6 +48,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Aug  2 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.8.2-1.fmi
+- Enabled Pacific views of data
 * Wed Jul  3 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.7.3-1.fmi
 - Update to boost 1.54
 * Thu Jun 20 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.6.20-1.fmi
