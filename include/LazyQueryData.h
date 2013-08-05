@@ -101,9 +101,6 @@ private:
   LazyQueryData(const LazyQueryData & theQD);
   LazyQueryData & operator=(const LazyQueryData & theQD);
 
-  void requireInfo() const;
-  void requireData();
-
   std::string itsInputName;
   std::string itsDataFile;
   boost::shared_ptr<NFmiFastQueryInfo> itsInfo;

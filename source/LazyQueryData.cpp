@@ -41,36 +41,6 @@ LazyQueryData::LazyQueryData()
 
 // ----------------------------------------------------------------------
 /*!
- * \brief Require info has been read
- */
-// ----------------------------------------------------------------------
-
-void LazyQueryData::requireInfo() const
-{
-  if(itsInfo.get()!=0) return;
-  throw runtime_error("Trying to querydata before reading any");
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Require data has been read
- */
-// ----------------------------------------------------------------------
-
-void LazyQueryData::requireData()
-{
-  if(itsInfo.get()==0)
-	throw runtime_error("Trying to access data before reading anything");
-  if(itsData.get()!=0)
-	return;
-
-  // Now we must read the data so that the query info remains valid.
-
-  throw runtime_error("Error: requireData() is no longer needed, see Read()");
-}
-
-// ----------------------------------------------------------------------
-/*!
  * \brief Return the parameter name
  *
  * \return The parameter name
@@ -79,7 +49,6 @@ void LazyQueryData::requireData()
 
 std::string LazyQueryData::GetParamName() const
 {
-  requireInfo();
   return (itsInfo->Param().GetParamName().CharPtr());
 }
 
@@ -93,7 +62,6 @@ std::string LazyQueryData::GetParamName() const
 
 unsigned long LazyQueryData::GetParamIdent() const
 {
-  requireInfo();
   return (itsInfo->Param().GetParamIdent());
 }
 
@@ -107,7 +75,6 @@ unsigned long LazyQueryData::GetParamIdent() const
 
 float LazyQueryData::GetLevelNumber() const
 {
-  requireInfo();
   return (itsInfo->Level()->LevelValue());
 }
 
@@ -138,7 +105,6 @@ void LazyQueryData::Read(const std::string & theDataFile)
 
 void LazyQueryData::ResetTime()
 {
-  requireInfo();
   itsInfo->ResetTime();
 }
 
@@ -150,7 +116,6 @@ void LazyQueryData::ResetTime()
 
 void LazyQueryData::ResetLevel()
 {
-  requireInfo();
   itsInfo->ResetLevel();
 }
 
@@ -162,7 +127,6 @@ void LazyQueryData::ResetLevel()
 
 bool LazyQueryData::FirstLevel()
 {
-  requireInfo();
   return itsInfo->FirstLevel();
 }
 
@@ -174,7 +138,6 @@ bool LazyQueryData::FirstLevel()
 
 bool LazyQueryData::FirstTime()
 {
-  requireInfo();
   return itsInfo->FirstTime();
 }
 
@@ -186,7 +149,6 @@ bool LazyQueryData::FirstTime()
 
 bool LazyQueryData::LastTime()
 {
-  requireInfo();
   return itsInfo->LastTime();
 }
 
@@ -198,7 +160,6 @@ bool LazyQueryData::LastTime()
 
 bool LazyQueryData::NextLevel()
 {
-  requireInfo();
   return itsInfo->NextLevel();
 }
 
@@ -210,7 +171,6 @@ bool LazyQueryData::NextLevel()
 
 const NFmiLevel * LazyQueryData::Level() const
 {
-  requireInfo();
   return itsInfo->Level();
 }
 
@@ -222,7 +182,6 @@ const NFmiLevel * LazyQueryData::Level() const
 
 bool LazyQueryData::NextTime()
 {
-  requireInfo();
   return itsInfo->NextTime();
 }
 
@@ -234,7 +193,6 @@ bool LazyQueryData::NextTime()
 
 bool LazyQueryData::PreviousTime()
 {
-  requireInfo();
   return itsInfo->PreviousTime();
 }
 
@@ -246,7 +204,6 @@ bool LazyQueryData::PreviousTime()
 
 bool LazyQueryData::Param(FmiParameterName theParam)
 {
-  requireInfo();
   return itsInfo->Param(theParam);
 }
 
@@ -258,7 +215,6 @@ bool LazyQueryData::Param(FmiParameterName theParam)
 
 const NFmiMetTime & LazyQueryData::ValidTime() const
 {
-  requireInfo();
   return itsInfo->ValidTime();
 }
 
@@ -270,7 +226,6 @@ const NFmiMetTime & LazyQueryData::ValidTime() const
 
 const NFmiMetTime & LazyQueryData::OriginTime() const
 {
-  requireInfo();
   return itsInfo->OriginTime();
 }
 
@@ -282,7 +237,6 @@ const NFmiMetTime & LazyQueryData::OriginTime() const
 
 bool LazyQueryData::IsParamUsable() const
 {
-  requireInfo();
   return itsInfo->IsParamUsable();
 }
 
@@ -295,7 +249,6 @@ bool LazyQueryData::IsParamUsable() const
 boost::shared_ptr<LazyQueryData::Coordinates>
 LazyQueryData::Locations() const
 {
-  requireInfo();
   if(itsLocations.get() == 0)
 	{
 	  itsLocations.reset(new Coordinates);
@@ -313,8 +266,6 @@ LazyQueryData::Locations() const
 boost::shared_ptr<LazyQueryData::Coordinates>
 LazyQueryData::LocationsWorldXY(const NFmiArea & theArea) const
 {
-  requireInfo();
-
   ostringstream os;
   os << theArea;
 
@@ -336,8 +287,6 @@ LazyQueryData::LocationsWorldXY(const NFmiArea & theArea) const
 boost::shared_ptr<LazyQueryData::Coordinates>
 LazyQueryData::LocationsXY(const NFmiArea & theArea) const
 {
-  requireInfo();
-
   ostringstream os;
   os << theArea;
 
@@ -360,7 +309,6 @@ bool LazyQueryData::BiLinearInterpolation(double x, double y, float & theValue,
 										  float topLeftValue, float topRightValue,
 										  float bottomLeftValue, float bottomRightValue)
 {
-  requireInfo();
   theValue = static_cast<float>(NFmiInterpolation::BiLinear(x - floor(x),
 										 y - floor(y),
 										 topLeftValue,
@@ -378,7 +326,6 @@ bool LazyQueryData::BiLinearInterpolation(double x, double y, float & theValue,
 
 NFmiPoint LazyQueryData::LatLonToGrid(const NFmiPoint & theLatLonPoint)
 {
-  requireInfo();
   return itsInfo->Grid()->LatLonToGrid(theLatLonPoint);
 }
 
@@ -391,7 +338,6 @@ NFmiPoint LazyQueryData::LatLonToGrid(const NFmiPoint & theLatLonPoint)
 
 const NFmiGrid * LazyQueryData::Grid(void) const
 {
-  requireInfo();
   return itsInfo->Grid();
 }
 
@@ -403,7 +349,6 @@ const NFmiGrid * LazyQueryData::Grid(void) const
 
 const NFmiArea * LazyQueryData::Area(void) const
 {
-  requireInfo();
   return itsInfo->Area();
 }
 
@@ -415,7 +360,6 @@ const NFmiArea * LazyQueryData::Area(void) const
 
 float LazyQueryData::InterpolatedValue(const NFmiPoint & theLatLonPoint)
 {
-  requireData();
   return itsInfo->InterpolatedValue(theLatLonPoint);
 }
 
@@ -427,7 +371,6 @@ float LazyQueryData::InterpolatedValue(const NFmiPoint & theLatLonPoint)
 
 void LazyQueryData::Values(NFmiDataMatrix<float> & theValues)
 {
-  requireData();
   itsInfo->Values(theValues);
 }
 
@@ -440,7 +383,6 @@ void LazyQueryData::Values(NFmiDataMatrix<float> & theValues)
 void LazyQueryData::Values(NFmiDataMatrix<float> & theValues,
 						   const NFmiMetTime & theTime)
 {
-  requireData();
   itsInfo->Values(theValues,theTime);
 }
 
@@ -452,8 +394,6 @@ void LazyQueryData::Values(NFmiDataMatrix<float> & theValues,
 
 bool LazyQueryData::IsWorldData() const
 {
-  requireInfo();
-
   double lon1 = itsInfo->Area()->BottomLeftLatLon().X();
   double lon2 = itsInfo->Area()->TopRightLatLon().X();
   int xnumber = itsInfo->Grid()->XNumber();
