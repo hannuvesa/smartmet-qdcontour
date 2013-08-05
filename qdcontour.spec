@@ -2,7 +2,7 @@
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
 Version: 13.8.2
-Release: 1%{?dist}.fmi
+Release: 2%{?dist}.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -13,8 +13,8 @@ BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: libsmartmet-imagine >= 13.8.2
-BuildRequires: libsmartmet-newbase >= 13.8.2
+BuildRequires: libsmartmet-imagine >= 13.8.2-2
+BuildRequires: libsmartmet-newbase >= 13.8.2-2
 BuildRequires: libsmartmet-tron >= 13.7.30
 BuildRequires: zlib-devel
 Requires: freetype
@@ -48,6 +48,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Aug  2 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.8.2-2.fmi
+- Bug fix to forcing Atlantic views of Pacific data
 * Fri Aug  2 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.8.2-1.fmi
 - Enabled Pacific views of data
 * Wed Jul  3 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.7.3-1.fmi
