@@ -3739,7 +3739,8 @@ void get_speed_direction(float speed_src, float speed_dst,
 				if(dx[i][j] != kFloatMissing && dy[i][j] != kFloatMissing)
 				  {
 					speed[i][j] = sqrt(dx[i][j]*dx[i][j]+dy[i][j]*dy[i][j]);
-					direction[i][j] = FmiDeg(atan2(dx[i][j],dy[i][j]));
+					if(dx[i][j] != 0 || dy[i][j] != 0)
+					  direction[i][j] = FmiDeg(atan2(dx[i][j],dy[i][j]));
 				  }
 			  }
 		}
@@ -3794,7 +3795,8 @@ void get_speed_direction(const NFmiPoint & latlon,
 	  if(dx != kFloatMissing && dy != kFloatMissing)
 		{
 		  speed = sqrt(dx*dx+dy*dy);
-		  direction = FmiDeg(atan2f(dx,dy));
+		  if(dx != 0 || dy != 0)
+			direction = FmiDeg(atan2f(dx,dy));
 		}
 	}
 }
