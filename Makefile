@@ -3,8 +3,6 @@
 #
 SCONS_FLAGS=-j4
 
-BOOST_SUFFIX := $(shell rpm -qs boost-thread | grep -q "not installed" || echo "-mt")
-
 HTML = qdcontour
 PROG = qdcontour
 
@@ -60,7 +58,7 @@ INSTALL_DATA = install -m 664
 
 # The rules
 
-SCONS_FLAGS += objdir=$(objdir) prefix=$(PREFIX) libdir=$(libdir) boostpostfix=$(BOOST_SUFFIX)
+SCONS_FLAGS += objdir=$(objdir) prefix=$(PREFIX) libdir=$(libdir)
 
 all release $(PROG):
 	scons $(SCONS_FLAGS) $(PROG)

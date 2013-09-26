@@ -183,6 +183,10 @@ struct Globals
 
   std::string directionparam;		// direction parameter for arrows
   std::string speedparam;			// speed parameter for arrows
+
+  std::string speedxcomponent;		// X-component for speed
+  std::string speedycomponent;		// Y-component for speed
+
   float arrowscale;					// scale factor for arrows
 
   std::string arrowfillcolor;

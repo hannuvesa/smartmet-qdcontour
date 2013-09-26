@@ -5,12 +5,6 @@
  */
 // ======================================================================
 
-#ifdef __GNUC__
- #if __GNUC__ < 3
-  #define PERKELEEN_296
- #endif
-#endif
-
 #include "Globals.h"
 #include "ColorTools.h"
 #include "ContourSpec.h"
@@ -71,11 +65,6 @@ using namespace boost;
 using namespace Imagine;
 
 const float pi = 3.141592658979323f;
-
-
-// ----------------------------------------------------------------------
-// Global instance of enum converter for speed
-// ----------------------------------------------------------------------
 
 
 // ----------------------------------------------------------------------
@@ -928,12 +917,16 @@ void do_strokerule(istream & theInput)
 
 void do_directionparam(istream & theInput)
 {
+  globals.speedxcomponent = "";
+  globals.speedycomponent = "";
+
   theInput >> globals.directionparam;
 
   check_errors(theInput,"directionparam");
 
   if(toparam(globals.directionparam) == kFmiBadParameter)
 	throw runtime_error("Unrecognized directionparam '"+globals.directionparam+"'");
+
 }
 
 // ----------------------------------------------------------------------
@@ -944,12 +937,37 @@ void do_directionparam(istream & theInput)
 
 void do_speedparam(istream & theInput)
 {
+  globals.speedxcomponent = "";
+  globals.speedycomponent = "";
+
   theInput >> globals.speedparam;
 
   check_errors(theInput,"speedparam");
 
   if(toparam(globals.speedparam) == kFmiBadParameter)
 	throw runtime_error("Unrecognized speedparam '"+globals.speedparam+"'");
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "speedcomponents" command
+ */
+// ----------------------------------------------------------------------
+
+void do_speedcomponents(istream & theInput)
+{
+  globals.speedparam = "";
+  globals.directionparam = "";
+
+  theInput >> globals.speedxcomponent >> globals.speedycomponent;
+
+  check_errors(theInput,"speedcomponents");
+
+  if(toparam(globals.speedxcomponent) == kFmiBadParameter)
+	throw runtime_error("Unrecognized speedcomponent '"+globals.speedxcomponent+"'");
+
+  if(toparam(globals.speedycomponent) == kFmiBadParameter)
+	throw runtime_error("Unrecognized speedcomponent '"+globals.speedycomponent+"'");
 }
 
 // ----------------------------------------------------------------------
@@ -3678,6 +3696,113 @@ void draw_roundarrow(NFmiImage & img,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Establish speed and direction in a grid
+ */
+// ----------------------------------------------------------------------
+
+void get_speed_direction(float speed_src, float speed_dst,
+						 float direction_src, float direction_dst,
+						 NFmiDataMatrix<float> & speed, NFmiDataMatrix<float> & direction)
+{
+  if(!globals.directionparam.empty())
+	{
+	  if(globals.queryinfo->Param(toparam(globals.speedparam)))
+		{
+		  globals.queryinfo->Values(speed);
+		  speed.Replace(speed_src,speed_dst);
+		  globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),speed);
+		}
+
+	  if(globals.queryinfo->Param(toparam(globals.directionparam)))
+		{
+		  globals.queryinfo->Values(direction);
+		  direction.Replace(direction_src,direction_dst);
+		  globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),direction);
+		}
+	}
+  else
+	{
+	  NFmiDataMatrix<float> dx;
+	  NFmiDataMatrix<float> dy;
+	  if(globals.queryinfo->Param(toparam(globals.speedxcomponent)))
+		globals.queryinfo->Values(dx);
+	  if(globals.queryinfo->Param(toparam(globals.speedycomponent)))
+		globals.queryinfo->Values(dy);
+
+	  if(dx.NX() != 0 && dx.NY() != 0 && dy.NX() != 0 && dy.NY() != 0)
+		{
+		  speed.Resize(dx.NX(), dx.NY(), kFloatMissing);
+		  direction.Resize(dx.NX(), dy.NY(), kFloatMissing);
+		  for(size_t j=0; j<dx.NY(); j++)
+			for(size_t i=0; i<dx.NX(); i++)
+			  {
+				if(dx[i][j] != kFloatMissing && dy[i][j] != kFloatMissing)
+				  {
+					speed[i][j] = sqrt(dx[i][j]*dx[i][j]+dy[i][j]*dy[i][j]);
+					if(dx[i][j] != 0 || dy[i][j] != 0)
+					  direction[i][j] = FmiDeg(atan2(dx[i][j],dy[i][j]));
+				  }
+			  }
+		}
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Establish speed & direction at the given point
+ */
+// ----------------------------------------------------------------------
+
+void get_speed_direction(const NFmiPoint & latlon,
+						 float speed_src, float speed_dst,
+						 float direction_src, float direction_dst,
+						 float & speed, float & direction)
+{
+  speed = direction = kFloatMissing;
+
+  if(!globals.directionparam.empty())
+	{
+	  if(globals.queryinfo->Param(toparam(globals.directionparam)))
+		{
+		  direction = globals.queryinfo->InterpolatedValue(latlon);
+		  if(direction == direction_src)
+			direction = direction_dst;
+
+		  direction = globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),
+													 direction);
+		}
+		  
+	  if(globals.queryinfo->Param(toparam(globals.speedparam)))
+		{
+		  speed = globals.queryinfo->InterpolatedValue(latlon);
+		  if(speed == speed_src)
+			speed = speed_dst;
+		  speed = globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),speed);
+		}
+	  globals.queryinfo->Param(toparam(globals.directionparam));
+	}
+
+  else
+	{
+	  float dx = kFloatMissing;
+	  float dy = kFloatMissing;
+
+	  if(globals.queryinfo->Param(toparam(globals.speedxcomponent)))
+		dx = globals.queryinfo->InterpolatedValue(latlon);
+	  if(globals.queryinfo->Param(toparam(globals.speedycomponent)))
+		dy = globals.queryinfo->InterpolatedValue(latlon);
+
+	  if(dx != kFloatMissing && dy != kFloatMissing)
+		{
+		  speed = sqrt(dx*dx+dy*dy);
+		  if(dx != 0 || dy != 0)
+			direction = FmiDeg(atan2f(dx,dy));
+		}
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Draw the listed wind arrow points
  */
 // ----------------------------------------------------------------------
@@ -3709,29 +3834,16 @@ void draw_wind_arrows_points( ImagineXr_or_NFmiImage &img,
 	  if(IsMasked(xy0,globals.mask))
 		continue;
 	  
-	  float dir = globals.queryinfo->InterpolatedValue(*iter);
+	  float dir, speed;
 
-	  if(dir == direction_src)
-		dir = direction_dst;
+	  get_speed_direction(*iter,
+						  speed_src, speed_dst,
+						  direction_src, direction_dst,
+						  speed, dir);
 
-	  dir = globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),
-										   dir);
-
-
-	  if(dir==kFloatMissing)	// ignore missing
+	  // Ignore missing values
+	  if(dir == kFloatMissing || speed == kFloatMissing)
 		continue;
-	  
-	  float speed = -1;
-	  
-	  if(globals.queryinfo->Param(toparam(globals.speedparam)))
-		{
-		  speed = globals.queryinfo->InterpolatedValue(*iter);
-		  if(speed == speed_src)
-			speed = speed_dst;
-
-		  speed = globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),speed);
-		}
-	  globals.queryinfo->Param(toparam(globals.directionparam));
 	  
 	  // Direction calculations
 	  
@@ -3813,22 +3925,20 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
   if(globals.windarrowdx<=0 || globals.windarrowdy<=0)
 	return;
 
-  bool speedok = false;
-  NFmiDataMatrix<float> speedvalues;
-  if(globals.queryinfo->Param(toparam(globals.speedparam)))
+  NFmiDataMatrix<float> speedvalues, dirvalues;
+
+  get_speed_direction(speed_src,speed_dst,
+					  direction_src,direction_dst,
+					  speedvalues, dirvalues);
+
+
+  if(dirvalues.NX() == 0 || dirvalues.NY() == 0)
 	{
-	  speedok = true;
-	  globals.queryinfo->Values(speedvalues);
-	  speedvalues.Replace(speed_src,speed_dst);
-	  globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),speedvalues);
+	  return;
 	}
 
-  NFmiDataMatrix<float> dirvalues;
-  globals.queryinfo->Param(toparam(globals.directionparam));
-  globals.queryinfo->Values(dirvalues);
-  dirvalues.Replace(direction_src,direction_dst);
-  globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),dirvalues);
-  
+  bool speedok = (speedvalues.NX() != 0 && speedvalues.NY() != 0);
+ 
   boost::shared_ptr<NFmiDataMatrix<NFmiPoint> > worldpts = globals.queryinfo->LocationsWorldXY(theArea);
   for(float y=0; y<=worldpts->NY()-1; y+=globals.windarrowdy)
 	for(float x=0; x<=worldpts->NX()-1; x+=globals.windarrowdx)
@@ -3983,26 +4093,20 @@ void draw_wind_arrows_pixelgrid( ImagineXr_or_NFmiImage &img,
 
 		NFmiPoint latlon = theArea.ToLatLon(xy0);
 
-		// Calculate the speed values
-		float dir = globals.queryinfo->InterpolatedValue(latlon);
+		// Calculate the speed & direction values
 
-		if(dir == direction_src)
-		  dir = direction_dst;
+		float dir, speed;
 
-		dir = globals.unitsconverter.convert(toparam(globals.directionparam),dir);
-		if(dir==kFloatMissing)
+		get_speed_direction(latlon,
+							speed_src, speed_dst,
+							direction_src, direction_dst,
+							speed, dir);
+
+		// Ignore missing values
+
+		if(dir == kFloatMissing || speed == kFloatMissing)
 		  continue;
-		
-		float speed = -1;
-		if(globals.queryinfo->Param(toparam(globals.speedparam)))
-		  {
-			speed = globals.queryinfo->InterpolatedValue(latlon);
-			if(speed == speed_src)
-			  speed = speed_dst;
-			speed = globals.unitsconverter.convert(toparam(globals.speedparam),speed);
-		  }
-		globals.queryinfo->Param(toparam(globals.directionparam));
-		
+
 		// Direction calculations
 		
 		const float north = paper_north(theArea,latlon);
@@ -5435,6 +5539,7 @@ void process_cmd( const string &text ) {
       else if(cmd == "strokerule")				do_strokerule(in);
       else if(cmd == "directionparam")			do_directionparam(in);
       else if(cmd == "speedparam")				do_speedparam(in);
+	  else if(cmd == "speedcomponents")			do_speedcomponents(in);
       else if(cmd == "arrowscale")				do_arrowscale(in);
       else if(cmd == "windarrowscale")			do_windarrowscale(in);
       else if(cmd == "arrowfill")				do_arrowfill(in);

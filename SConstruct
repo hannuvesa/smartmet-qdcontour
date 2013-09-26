@@ -83,7 +83,7 @@ else:
 	    #"-Wold-style-cast",       Boost 1.35 has old style casts
     ] )
 
-BOOST_POSTFIX = ARGUMENTS.get("boostpostfix","")
+BOOST_POSTFIX = "-mt"
 BOOST_PREFIX=""
 
 if WINDOWS:
