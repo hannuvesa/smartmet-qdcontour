@@ -3700,7 +3700,8 @@ void draw_roundarrow(NFmiImage & img,
  */
 // ----------------------------------------------------------------------
 
-void get_speed_direction(float speed_src, float speed_dst,
+void get_speed_direction(const NFmiArea & area,
+						 float speed_src, float speed_dst,
 						 float direction_src, float direction_dst,
 						 NFmiDataMatrix<float> & speed, NFmiDataMatrix<float> & direction)
 {
@@ -3724,10 +3725,13 @@ void get_speed_direction(float speed_src, float speed_dst,
 	{
 	  NFmiDataMatrix<float> dx;
 	  NFmiDataMatrix<float> dy;
+
 	  if(globals.queryinfo->Param(toparam(globals.speedxcomponent)))
 		globals.queryinfo->Values(dx);
 	  if(globals.queryinfo->Param(toparam(globals.speedycomponent)))
 		globals.queryinfo->Values(dy);
+
+	  boost::shared_ptr<NFmiDataMatrix<NFmiPoint>> latlon = globals.queryinfo->Locations();
 
 	  if(dx.NX() != 0 && dx.NY() != 0 && dy.NX() != 0 && dy.NY() != 0)
 		{
@@ -3740,7 +3744,10 @@ void get_speed_direction(float speed_src, float speed_dst,
 				  {
 					speed[i][j] = sqrt(dx[i][j]*dx[i][j]+dy[i][j]*dy[i][j]);
 					if(dx[i][j] != 0 || dy[i][j] != 0)
-					  direction[i][j] = FmiDeg(atan2(dx[i][j],dy[i][j]));
+					  {
+						double north = paper_north(area,(*latlon)[i][j]);
+						direction[i][j] = fmod(180 + north + FmiDeg(atan2(dx[i][j],dy[i][j])),360.0);
+					  }
 				  }
 			  }
 		}
@@ -3753,7 +3760,8 @@ void get_speed_direction(float speed_src, float speed_dst,
  */
 // ----------------------------------------------------------------------
 
-void get_speed_direction(const NFmiPoint & latlon,
+void get_speed_direction(const NFmiArea & area,
+						 const NFmiPoint & latlon,
 						 float speed_src, float speed_dst,
 						 float direction_src, float direction_dst,
 						 float & speed, float & direction)
@@ -3796,7 +3804,10 @@ void get_speed_direction(const NFmiPoint & latlon,
 		{
 		  speed = sqrt(dx*dx+dy*dy);
 		  if(dx != 0 || dy != 0)
-			direction = FmiDeg(atan2f(dx,dy));
+			{
+			  double north = paper_north(area,latlon);
+			  direction = fmod(180 + north + FmiDeg(atan2f(dx,dy)),360.0);
+			}
 		}
 	}
 }
@@ -3836,7 +3847,8 @@ void draw_wind_arrows_points( ImagineXr_or_NFmiImage &img,
 	  
 	  float dir, speed;
 
-	  get_speed_direction(*iter,
+	  get_speed_direction(theArea,
+						  *iter,
 						  speed_src, speed_dst,
 						  direction_src, direction_dst,
 						  speed, dir);
@@ -3927,7 +3939,8 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
 
   NFmiDataMatrix<float> speedvalues, dirvalues;
 
-  get_speed_direction(speed_src,speed_dst,
+  get_speed_direction(theArea,
+					  speed_src,speed_dst,
 					  direction_src,direction_dst,
 					  speedvalues, dirvalues);
 
@@ -4097,7 +4110,8 @@ void draw_wind_arrows_pixelgrid( ImagineXr_or_NFmiImage &img,
 
 		float dir, speed;
 
-		get_speed_direction(latlon,
+		get_speed_direction(theArea,
+							latlon,
 							speed_src, speed_dst,
 							direction_src, direction_dst,
 							speed, dir);
@@ -4183,9 +4197,21 @@ void draw_wind_arrows( ImagineXr_or_NFmiImage &img,
 	  (globals.windarrowsxydx>0 && globals.windarrowsxydy>0)) &&
 	 (globals.arrowfile!=""))
 	{
-	  FmiParameterName param = toparam(globals.directionparam);
+	  FmiParameterName param;
+	  std::string name;
+	  if(!globals.directionparam.empty())
+		{
+		  param = toparam(globals.directionparam);
+		  name = globals.directionparam;
+		}
+	  else
+		{
+		  param = toparam(globals.speedxcomponent);
+		  name = globals.speedxcomponent;
+		}
+
 	  if(param==kFmiBadParameter)
-		throw runtime_error("Unknown parameter "+globals.directionparam);
+		throw runtime_error("Unknown parameter "+name);
 
 	  // Find the proper queryinfo to be used
 
@@ -4199,7 +4225,7 @@ void draw_wind_arrows( ImagineXr_or_NFmiImage &img,
 		}
 	  
 	  if(!ok)
-		throw runtime_error("Parameter is not usable: " + globals.directionparam);
+		throw runtime_error("Parameter is not usable: " + name);
 
 	  // Read the arrow definition
 

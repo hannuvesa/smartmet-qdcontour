@@ -1,20 +1,20 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 13.8.2
-Release: 2%{?dist}.fmi
+Version: 13.9.27
+Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
 Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot-%(%{__id_u} -n)
-BuildRequires: boost-devel >= 1.53
+BuildRequires: boost-devel
 BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: libsmartmet-imagine >= 13.8.2-2
-BuildRequires: libsmartmet-newbase >= 13.8.2-2
+BuildRequires: libsmartmet-imagine >= 13.9.5
+BuildRequires: libsmartmet-newbase >= 13.9.26
 BuildRequires: libsmartmet-tron >= 13.7.30
 BuildRequires: zlib-devel
 Requires: freetype
@@ -48,6 +48,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Sep 27 2013 Mika Heiskanen <mika.heiskanen@fmi.fi> - 13.9.27-1.fmi
+- Added windcomponents command for drawing arrows from X/Y or U/V components
 * Fri Aug  2 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.8.2-2.fmi
 - Bug fix to forcing Atlantic views of Pacific data
 * Fri Aug  2 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.8.2-1.fmi
