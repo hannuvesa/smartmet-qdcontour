@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 13.9.27
+Version: 13.11.27
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
@@ -13,8 +13,8 @@ BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: libsmartmet-imagine >= 13.9.5
-BuildRequires: libsmartmet-newbase >= 13.9.26
+BuildRequires: libsmartmet-imagine >= 13.11.27
+BuildRequires: libsmartmet-newbase >= 13.11.27
 BuildRequires: libsmartmet-tron >= 13.7.30
 BuildRequires: zlib-devel
 Requires: freetype
@@ -48,6 +48,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Nov 27 2013 Mika Heiskanen <mika.heiskanen@fmi.fi> - 13.11.27-1.fmi
+- Recompiled to get support for the gnomonic projection
 * Fri Sep 27 2013 Mika Heiskanen <mika.heiskanen@fmi.fi> - 13.9.27-1.fmi
 - Added windcomponents command for drawing arrows from X/Y or U/V components
 * Fri Aug  2 2013 mheiskan <mika.heiskanen@fmi.fi> - 13.8.2-2.fmi
