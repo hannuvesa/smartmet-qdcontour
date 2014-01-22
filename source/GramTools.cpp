@@ -32,6 +32,10 @@ namespace GramTools
   // ----------------------------------------------------------------------
   /*!
    * \brief Return meteorological arrow flags for the given wind speed
+   *
+   * Note: the speed is converted to knots and then rounded so that
+   *       if the user prints the values rounded to integers next
+   *       to the arrow, the value and the arrow will match
    */
   // ----------------------------------------------------------------------
 
@@ -50,14 +54,14 @@ namespace GramTools
 	path.LineTo(spot_size,spot_size);
 
 	// The actual speed in knots
-	const float speed = theSpeed / 0.5144444444f;
+	const int speed = static_cast<int>(round(theSpeed / 0.5144444444f));
 
 	// Handle bad cases
 	if(speed<50)
 	  return path;
   
 	// The respective number of flags
-	const int flags = static_cast<int>(floor(speed/50));
+	const int flags = speed/50;
 	
 	// The full length of the stem
 	const float full_stem_length = stem_length + (flags == 0.0 ? 0.0 : flags * flag_length + barb_interval);
@@ -83,6 +87,10 @@ namespace GramTools
   // ----------------------------------------------------------------------
   /*!
    * \brief Return meteorological arrow lines for the given wind speed
+   *
+   * Note: the speed is converted to knots and then rounded so that
+   *       if the user prints the values rounded to integers next
+   *       to the arrow, the value and the arrow will match
    */
   // ----------------------------------------------------------------------
 
@@ -95,20 +103,20 @@ namespace GramTools
 	  return path;
 
 	// The actual speed in knots
-	const float speed = theSpeed / 0.5144444444f;
+	const int speed = static_cast<int>(round(theSpeed / 0.5144444444f));
 
 	// Handle bad cases
-	if(speed<5.0)
+	if(speed<5)
 	  return path;
 
 	// The respective number of flags
-	const int flags = static_cast<int>(floor(speed/50));
+	const int flags = speed/50;
 	
 	// The number of long barbs
-	const int long_barbs = static_cast<int>(floor((speed-flags*50.0)/10.0));
+	const int long_barbs = (speed-flags*50)/10;
 	
 	// The number of short barbs
-	const int short_barbs = static_cast<int>(floor((speed-flags*50.0-long_barbs*10.0)/5.0));
+	const int short_barbs = (speed-flags*50-long_barbs*10)/5;
 	
 	// The full length of the stem
 	const float full_stem_length = stem_length + (flags == 0.0 ? 0.0 : flags * flag_length + barb_interval);
