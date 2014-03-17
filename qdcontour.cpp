@@ -4275,9 +4275,10 @@ void draw_wind_arrows( ImagineXr_or_NFmiImage &img,
  */
 // ----------------------------------------------------------------------
 
-void draw_contour_fills( ImagineXr_or_NFmiImage &img,
+void draw_contour_fills(ImagineXr_or_NFmiImage &img,
 						const NFmiArea & theArea,
 						const ContourSpec & theSpec,
+						const NFmiMetTime & theTime,
 						ContourInterpolation theInterpolation )
 {
   list<ContourRange>::const_iterator it;
@@ -4295,6 +4296,7 @@ void draw_contour_fills( ImagineXr_or_NFmiImage &img,
 		globals.calculator.contour(*globals.queryinfo,
 								   it->lolimit(),
 								   it->hilimit(),
+								   theTime,
 								   theInterpolation);
 	  
 	  if(globals.verbose && globals.calculator.wasCached())
@@ -4322,9 +4324,10 @@ void draw_contour_fills( ImagineXr_or_NFmiImage &img,
  */
 // ----------------------------------------------------------------------
 
-void draw_contour_patterns( ImagineXr_or_NFmiImage &img,
+void draw_contour_patterns(ImagineXr_or_NFmiImage &img,
 						   const NFmiArea & theArea,
 						   const ContourSpec & theSpec,
+						   const NFmiMetTime & theTime,
 						   ContourInterpolation theInterpolation )
 {
   list<ContourPattern>::const_iterator it;
@@ -4340,6 +4343,7 @@ void draw_contour_patterns( ImagineXr_or_NFmiImage &img,
 		globals.calculator.contour(*globals.queryinfo,
 								   it->lolimit(),
 								   it->hilimit(),
+								   theTime,
 								   theInterpolation);
 
 	  if(globals.verbose && globals.calculator.wasCached())
@@ -4364,9 +4368,10 @@ void draw_contour_patterns( ImagineXr_or_NFmiImage &img,
  */
 // ----------------------------------------------------------------------
 
-void draw_contour_strokes( ImagineXr_or_NFmiImage &img,
+void draw_contour_strokes(ImagineXr_or_NFmiImage &img,
 						  const NFmiArea & theArea,
 						  const ContourSpec & theSpec,
+						  const NFmiMetTime & theTime,
 						  ContourInterpolation theInterpolation )
 {
   list<ContourValue>::const_iterator it;
@@ -4381,6 +4386,7 @@ void draw_contour_strokes( ImagineXr_or_NFmiImage &img,
 	  NFmiPath path =
 		globals.calculator.contour(*globals.queryinfo,
 								   it->value(),
+								   theTime,
 								   theInterpolation);
 
 	  if(globals.verbose && globals.calculator.wasCached())
@@ -4408,6 +4414,7 @@ void draw_contour_strokes( ImagineXr_or_NFmiImage &img,
 void save_contour_labels(ImagineXr_or_NFmiImage &img,
 						 const NFmiArea & theArea,
 						 const ContourSpec & theSpec,
+						 const NFmiMetTime & theTime,
 						 ContourInterpolation theInterpolation )
 {
   // The ID under which the coordinates will be stored
@@ -4429,6 +4436,7 @@ void save_contour_labels(ImagineXr_or_NFmiImage &img,
 	  NFmiPath path =
 		globals.calculator.contour(*globals.queryinfo,
 								   it->value(),
+								   theTime,
 								   theInterpolation);
 
 	  // MeridianTools::Relocate(path,theArea);
@@ -5428,15 +5436,15 @@ void do_draw_contours(istream & theInput)
 
 		  // Fill the contours
 
-		  draw_contour_fills(*xr,*area,*piter,interp);
+		  draw_contour_fills(*xr,*area,*piter,t,interp);
 
 		  // Pattern fill the contours
 
-		  draw_contour_patterns(*xr,*area,*piter,interp);
+		  draw_contour_patterns(*xr,*area,*piter,t,interp);
 
 		  // Stroke the contours
 
-		  draw_contour_strokes(*xr,*area,*piter,interp);
+		  draw_contour_strokes(*xr,*area,*piter,t,interp);
 
 		  // Save contour symbol coordinates
 
@@ -5448,7 +5456,7 @@ void do_draw_contours(istream & theInput)
 
 		  // Save contour label coordinates
 
-		  save_contour_labels(*xr,*area,*piter,interp);
+		  save_contour_labels(*xr,*area,*piter,t,interp);
 
 		  // Draw optional overlay
 

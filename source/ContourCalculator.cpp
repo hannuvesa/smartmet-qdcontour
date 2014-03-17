@@ -17,6 +17,7 @@
 #include "Tron.h"
 
 #include "NFmiGrid.h"
+#include "NFmiMetTime.h"
 
 #include <memory>
 #include <stdexcept>
@@ -171,16 +172,17 @@ void ContourCalculator::data(const NFmiDataMatrix<float> & theData)
 
 Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 											 float theLoLimit, float theHiLimit,
+											 const NFmiMetTime & theTime,
 											 ContourInterpolation theInterpolation)
 {
   if(itsPimple->itsData.get() == 0)
 	throw std::runtime_error("ContourCalculator:: No data set before calling contour");
 
   if(itsPimple->isCacheOn &&
-	 itsPimple->itsAreaCache.contains(theLoLimit, theHiLimit, theData))
+	 itsPimple->itsAreaCache.contains(theLoLimit, theHiLimit, theTime, theData))
 	{
 	  itsPimple->itWasCached = true;
-	  return itsPimple->itsAreaCache.find(theLoLimit, theHiLimit, theData);
+	  return itsPimple->itsAreaCache.find(theLoLimit, theHiLimit, theTime, theData);
 	}
 
   itsPimple->require_hints();
@@ -234,7 +236,7 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
   path.InvGrid(theData.Grid());
 
   if(itsPimple->isCacheOn)
-	itsPimple->itsAreaCache.insert(path, theLoLimit, theHiLimit, theData);
+	itsPimple->itsAreaCache.insert(path, theLoLimit, theHiLimit, theTime, theData);
 
   itsPimple->itWasCached = false;
   return path;
@@ -250,6 +252,7 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 
 Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 											 float theValue,
+											 const NFmiMetTime & theTime,
 											 ContourInterpolation theInterpolation)
 {
 
@@ -257,10 +260,10 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 	throw std::runtime_error("ContourCalculator:: No data set before calling contour");
 
   if(itsPimple->isCacheOn &&
-	 itsPimple->itsLineCache.contains(theValue, kFloatMissing, theData))
+	 itsPimple->itsLineCache.contains(theValue, kFloatMissing, theTime, theData))
 	{
 	  itsPimple->itWasCached = true;
-	  return itsPimple->itsLineCache.find(theValue, kFloatMissing, theData);
+	  return itsPimple->itsLineCache.find(theValue, kFloatMissing, theTime, theData);
 	}
 
   const bool worlddata = theData.IsWorldData();
@@ -310,7 +313,7 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
   path.InvGrid(theData.Grid());
 
   if(itsPimple->isCacheOn)
-	itsPimple->itsLineCache.insert(path, theValue, kFloatMissing, theData);
+	itsPimple->itsLineCache.insert(path, theValue, kFloatMissing, theTime, theData);
 
   itsPimple->itWasCached = false;
   return path;

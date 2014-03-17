@@ -26,12 +26,12 @@
  * ContourCache cache;
  *
  * NFmiPath path;
- * if(cache.contains(lolimit, hilimit, querydata))
- *    path = cache.find(lolimit, hilimit, querydata);
+ * if(cache.contains(lolimit, hilimit, querydata, time))
+ *    path = cache.find(lolimit, hilimit, querydata, time);
  * else
  * {
  *    path = ... some means of calculating it;
- *    cache.insert(path, lolimit, hilimit, querydata);
+ *    cache.insert(path, lolimit, hilimit, querydata, time);
  * }
  * path.Project(area);
  * path.Fill(image, color, rule);
@@ -48,6 +48,7 @@
 #include <string>
 
 class LazyQueryData;
+class NFmiMetTime;
 
 class ContourCache
 {
@@ -73,15 +74,18 @@ public:
 
   bool contains(float theLoLimit,
 				float theHiLimit,
+				const NFmiMetTime & theTime,
 				const LazyQueryData & theData) const;
 
   const Imagine::NFmiPath & find(float theLoLimit,
 								 float theHiLimit,
+								 const NFmiMetTime & theTime,
 								 const LazyQueryData & theData) const;
 
   void insert(const Imagine::NFmiPath & thePath,
 			  float theLoLimit,
 			  float theHiLimit,
+			  const NFmiMetTime & theTime,
 			  const LazyQueryData & theData);
 
 }; // class ContourCache

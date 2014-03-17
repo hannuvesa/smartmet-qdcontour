@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 14.1.22
+Version: 14.3.17
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
@@ -14,8 +14,8 @@ BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: libsmartmet-imagine >= 13.11.27
-BuildRequires: libsmartmet-newbase >= 13.11.27
-BuildRequires: libsmartmet-tron >= 13.7.30
+BuildRequires: libsmartmet-newbase >= 14.3.14
+BuildRequires: libsmartmet-tron >= 14.2.21
 BuildRequires: zlib-devel
 Requires: freetype
 Requires: libjpeg
@@ -48,6 +48,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Mar 17 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.3.17-1.fmi
+- Fixed contour cache to use interpolated time instead of valid time in cache key
 * Wed Jan 22 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.1.22-1.fmi
 - Meteorological arrows are now rendered by rounding to nearest integer knots
 * Wed Nov 27 2013 Mika Heiskanen <mika.heiskanen@fmi.fi> - 13.11.27-1.fmi
