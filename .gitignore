@@ -9,4 +9,5 @@ obj
 test/results/
 test/results_diff/
 *~
+.#*
 
