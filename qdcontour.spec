@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 14.3.17
+Version: 14.3.31
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
@@ -48,6 +48,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Mar 31 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.3.31-1.fmi
+- Render label markers also at labelsxy positions
 * Mon Mar 17 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.3.17-1.fmi
 - Fixed contour cache to use interpolated time instead of valid time in cache key
 * Wed Jan 22 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.1.22-1.fmi

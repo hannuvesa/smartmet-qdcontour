@@ -60,6 +60,7 @@ test_pdf:
 	-@$(MAKE) test _CHECK=_check_pdf
 
 test:
+	-@$(MAKE) --quiet $(_CHECK) TEST=labels_markers_pixelgrid_normal
 	-@$(MAKE) --quiet $(_CHECK) TEST=timestampformat
 	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_grid_coloured
 	-@$(MAKE) --quiet $(_CHECK) TEST=meteorological_arrows_coloured
