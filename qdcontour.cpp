@@ -3302,7 +3302,8 @@ void draw_label_markers(
 
   // Establish that something is to be done
 
-  if(theSpec.labelPoints().empty())
+  if(theSpec.labelPoints().empty() &&
+	 theSpec.pixelLabels().empty())
 	return;
 
   // Establish the marker specs
@@ -3315,38 +3316,73 @@ void draw_label_markers(
 
   // Draw individual points
 
-  unsigned int pointnumber = 0;
-  list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
-  for(iter=theSpec.labelPoints().begin();
-	  iter!=theSpec.labelPoints().end();
-	  ++iter)
-	{
-	  // The point in question
+  {
+	unsigned int pointnumber = 0;
+	list<pair<NFmiPoint,NFmiPoint> >::const_iterator iter;
+	for(iter=theSpec.labelPoints().begin();
+		iter!=theSpec.labelPoints().end();
+		++iter)
+	  {
+		// The point in question
+		
+		// NFmiPoint xy = MeridianTools::Relocate(iter->first,theArea);
+		// xy = theArea.ToXY(xy);
+		NFmiPoint xy = theArea.ToXY(iter->first);
+		
+		// Skip rendering if LabelMissing is "" and value is missing
+		if(theSpec.labelMissing().empty())
+		  {
+			float value = theSpec.labelValues()[pointnumber++];
+			if(value == kFloatMissing)
+			  continue;
+		  }
+		
+		// Skip rendering if the start point is masked
+		
+		if(IsMasked(xy, globals.mask))
+		  continue;
+		
+		img.Composite(marker,
+					  markerrule,
+					  kFmiAlignCenter,
+					  static_cast<int>(round(xy.X())),
+					  static_cast<int>(round(xy.Y())),
+					  markeralpha);
+	  }
+  }
 
-	  // NFmiPoint xy = MeridianTools::Relocate(iter->first,theArea);
-	  // xy = theArea.ToXY(xy);
-	  NFmiPoint xy = theArea.ToXY(iter->first);
+  {
+	list<pair<NFmiPoint,float> >::const_iterator iter;
 
-	  // Skip rendering if LabelMissing is "" and value is missing
-	  if(theSpec.labelMissing().empty())
-		{
-		  float value = theSpec.labelValues()[pointnumber++];
-		  if(value == kFloatMissing)
-			continue;
-		}
+	for(iter=theSpec.pixelLabels().begin();
+		iter!=theSpec.pixelLabels().end();
+		++iter)
+	  {
 
-	  // Skip rendering if the start point is masked
+		// The point in question
+		
+		double x = iter->first.X();
+		double y = iter->first.Y();
 
-	  if(IsMasked(xy, globals.mask))
-		continue;
+		// Skip rendering if the start point is masked
+		
+		if(IsMasked(NFmiPoint(x,y), globals.mask))
+		  continue;
 
-	  img.Composite(marker,
-					markerrule,
-					kFmiAlignCenter,
-					static_cast<int>(round(xy.X())),
-					static_cast<int>(round(xy.Y())),
-					markeralpha);
-	}
+		float value = iter->second;
+		
+		// Skip rendering if LabelMissing is "" and value is missing
+		if(theSpec.labelMissing().empty() && value==kFloatMissing)
+		  continue;
+		
+		img.Composite(marker,
+					  markerrule,
+					  kFmiAlignCenter,
+					  static_cast<int>(x),
+					  static_cast<int>(y),
+					  markeralpha);
+	  }
+  }
 }
 
 // ----------------------------------------------------------------------
