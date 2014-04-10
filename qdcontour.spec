@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 14.3.31
+Version: 14.4.10
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
@@ -48,6 +48,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Apr 10 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.4.10-1.fmi
+- Recompiled to be able to draw new pollen parameters
 * Mon Mar 31 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.3.31-1.fmi
 - Render label markers also at labelsxy positions
 * Mon Mar 17 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.3.17-1.fmi
