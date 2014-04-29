@@ -3711,7 +3711,7 @@ NFmiPath roundarrow_triangle(const NFmiPoint & xy,
  */
 // ----------------------------------------------------------------------
 
-void draw_roundarrow(NFmiImage & img,
+void draw_roundarrow(ImagineXr_or_NFmiImage & img,
 					 const NFmiPoint & xy,
 					 float speed,
 					 float angle)
@@ -3723,11 +3723,11 @@ void draw_roundarrow(NFmiImage & img,
   NFmiPath circle = roundarrow_circle(xy,sz);
   NFmiPath triangle = roundarrow_triangle(xy,angle,sz);
 
-  triangle.Fill(img,fillcolor.trianglecolor);
-  triangle.Stroke(img,strokecolor.trianglecolor);
+  triangle.Fill(img,fillcolor.trianglecolor,NFmiColorTools::kFmiColorOver);
+  triangle.Stroke(img,strokecolor.trianglecolor,NFmiColorTools::kFmiColorOver);
 
-  circle.Fill(img,fillcolor.circlecolor);
-  circle.Stroke(img,strokecolor.circlecolor);
+  circle.Fill(img,fillcolor.circlecolor,NFmiColorTools::kFmiColorOver);
+  circle.Stroke(img,strokecolor.circlecolor,NFmiColorTools::kFmiColorOver);
 }
 
 // ----------------------------------------------------------------------
@@ -4781,7 +4781,17 @@ void draw_contour_fonts( ImagineXr_or_NFmiImage &img )
 		  const int symbol = fit->symbol();
 
 		  string text = "";
+#ifdef IMAGINE_WITH_CAIRO
+		  if(symbol < 128)
+			text += symbol;
+		  else
+			{
+			  text += (0xc0 | (symbol >> 6));
+			  text += (0x80 | (symbol & 0x3f));
+			}
+#else
 		  text += symbol;
+#endif
 		  
 		  const std::string & fontspec = fit->font();
 
