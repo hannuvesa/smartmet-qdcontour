@@ -45,7 +45,11 @@ ContourSpec::ContourSpec(const std::string & theParam,
   , itsLabelMarker("")
   , itsLabelMarkerRule("Copy")
   , itsLabelMarkerAlphaFactor(1.0)
+#ifdef IMAGINE_WITH_CAIRO
+  , itsLabelFont("Courier:13")
+#else
   , itsLabelFont("misc/6x13B.pcf.gz:6x13")
+#endif
   , itsLabelColor(Imagine::NFmiColorTools::Black)
   , itsLabelRule("OnOpaque")
   , itsLabelAlignment("Center")
@@ -63,7 +67,11 @@ ContourSpec::ContourSpec(const std::string & theParam,
   , itsLabelCaptionDX(0)
   , itsLabelCaptionDY(0)
   , itsLabelCaptionAlignment("West")
+#ifdef IMAGINE_WITH_CAIRO
+  , itsContourLabelFont("Courier:8")
+#else
   , itsContourLabelFont("misc/5x8.pcf.gz:5x8")
+#endif
   , itsContourLabelColor(Imagine::NFmiColorTools::Black)
   , itsContourLabelBackgroundColor(Imagine::NFmiColorTools::MakeColor(180,180,180,32))
   , itsContourLabelBackgroundXMargin(2)

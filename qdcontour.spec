@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
-Summary: qdcontour
+Summary: ‰{BINNAME}
 Name: smartmet-%{BINNAME}
-Version: 14.4.28
+Version: 14.4.29
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
@@ -13,7 +13,7 @@ BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: libsmartmet-imagine >= 13.11.27
+BuildRequires: libsmartmet-imagine2 >= 14.4.29
 BuildRequires: libsmartmet-newbase >= 14.3.14
 BuildRequires: libsmartmet-tron >= 14.2.21
 BuildRequires: zlib-devel
@@ -25,7 +25,7 @@ Requires: xorg-x11-fonts-misc
 Provides: qdcontour
 
 %description
-FMI qdcontour
+FMI qdcontour2
 
 %prep
 rm -rf $RPM_BUILD_ROOT
@@ -48,6 +48,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Apr 29 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.4.29-1.fmi
+- Created a version based on imagine2
 * Mon Apr 28 2014 Tuomo Lauri <tuomo.lauri@fmi.fi> - 14.4.28-1.fmi
 - Recompile due to additions to SYKE flood parameters
 * Thu Apr 10 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.4.10-1.fmi

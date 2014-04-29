@@ -117,7 +117,11 @@ Globals::Globals()
   , timestampimagex(0)
   , timestampimagey(0)
   , timestampimageformat("hourdateyear")
+#ifdef IMAGINE_WITH_CAIRO
+  , timestampimagefont("Courier:13")
+#else
   , timestampimagefont("misc/6x13B.pcf.gz:6x13")
+#endif
   , timestampimagecolor( Imagine::NFmiColorTools::Black )
   , timestampimagebackground( Imagine::NFmiColorTools::MakeColor(185,185,185,185) )
   , timestampimagexmargin(2)

@@ -99,8 +99,8 @@ if WINDOWS:
 
     # Newbase etc. from nearby
     #
-    env.Append( CPPPATH= [ "../newbase/include","../imagine/include", "../tron/include" ],
-                LIBPATH= [ "../newbase","../imagine", "../tron" ] )
+    env.Append( CPPPATH= [ "../newbase/include","../imagine2/include", "../tron/include" ],
+                LIBPATH= [ "../newbase","../imagine2", "../tron" ] )
 
 elif LINUX:
 
@@ -108,14 +108,14 @@ elif LINUX:
     #
     env.Append( CPPPATH= [ PREFIX+"/include/smartmet/",
                            PREFIX+"/include/smartmet/newbase",
-                           PREFIX+"/include/smartmet/imagine",
+                           PREFIX+"/include/smartmet/imagine2",
                            PREFIX+"/include/smartmet/tron" ] )
 
 elif OSX:
     # Newbase, Imagine & Tron from local CVS
     #
-    env.Append( CPPPATH= [ "../newbase/include", "../imagine/include", "../tron/include" ],
-                LIBPATH= [ "../newbase", "../imagine", "../tron" ] )
+    env.Append( CPPPATH= [ "../newbase/include", "../imagine2/include", "../tron/include" ],
+                LIBPATH= [ "../newbase", "../imagine2", "../tron" ] )
 
     # Boost from Fink
     #
@@ -123,7 +123,7 @@ elif OSX:
                 LIBPATH= [ "/sw/lib" ] )
 
 env.Append( LIBS= [ "smartmet_newbase"+out_postfix, 
-                    "smartmet_imagine"+out_postfix,
+                    "smartmet_imagine2"+out_postfix,
                     "smartmet_tron"+out_postfix ] )
 
 env.Append( LIBS= [ BOOST_PREFIX+"boost_regex"+BOOST_POSTFIX, 
@@ -143,7 +143,7 @@ if WINDOWS:
                 )
 else:
     env.ParseConfig("freetype-config --cflags --libs") 
-    # env.ParseConfig("pkg-config --cflags --libs cairomm-1.0")
+    env.ParseConfig("pkg-config --cflags --libs cairomm-1.0")
 
 print( env["CPPPATH"] )
 
@@ -239,9 +239,9 @@ out= env.Program( "qdcontour", objs )
 #
 if WINDOWS:
     Depends( out, "../newbase/smartmet_newbase"+out_postfix+".lib" )
-    Depends( out, "../imagine/smartmet_imagine"+out_postfix+".lib" )
+    Depends( out, "../imagine2/smartmet_imagine2"+out_postfix+".lib" )
     Depends( out, "../tron/smartmet_tron"+out_postfix+".lib" )
 elif LINUX:
     Depends( out, LIBDIR+"/libsmartmet_newbase.a" )
-    Depends( out, LIBDIR+"/libsmartmet_imagine.a" )
+    Depends( out, LIBDIR+"/libsmartmet_imagine2.a" )
     Depends( out, LIBDIR+"/libsmartmet_tron.a" )
