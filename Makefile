@@ -77,8 +77,8 @@ install:
 	mkdir -p $(bindir)
 	@list='$(PROG)'; \
 	for prog in $$list; do \
-	  echo $(INSTALL_PROG) $$prog $(bindir)/$$(prog)2; \
-	  $(INSTALL_PROG) $$prog $(bindir)/$$(prog)2; \
+	  echo $(INSTALL_PROG) $$prog $(bindir)/$${prog}2; \
+	  $(INSTALL_PROG) $$prog $(bindir)/$${prog}2; \
 	done
 
 test:   $(PROG)

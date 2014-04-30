@@ -389,7 +389,11 @@ void write_image( const ImagineXr &xr ) {
     if(globals.verbose)
 	   cout << "Writing '" << filename << "'" << endl;
 
-    if ((format=="pdf") || (format=="png" && (!globals.reducecolors))) {
+    if ((format=="pdf") ||
+		(format=="svg") ||
+		(format=="eps") ||
+		(format=="ps") ||
+		(format=="png" && (!globals.reducecolors))) {
         // Cairo native writing (faster)
         //
         xr.Write();
@@ -1434,7 +1438,10 @@ void do_format(istream & theInput)
   check_errors(theInput,"format");
 
   if(globals.format != "png" &&
-	 globals.format != "pdf" &&    // AKa 15-Aug-2008
+	 globals.format != "pdf" &&
+	 globals.format != "svg" &&
+	 globals.format != "ps" &&
+	 globals.format != "eps" &&
 	 globals.format != "jpg" &&
 	 globals.format != "jpeg" &&
 	 globals.format != "pnm" &&
