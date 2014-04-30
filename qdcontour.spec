@@ -1,6 +1,6 @@
 %define BINNAME qdcontour
-Summary: ‰{BINNAME}
-Name: smartmet-%{BINNAME}
+Summary: ‰{BINNAME}2
+Name: smartmet-%{BINNAME}2
 Version: 14.4.30
 Release: 1%{?dist}.fmi
 License: FMI
@@ -30,7 +30,7 @@ FMI qdcontour2
 %prep
 rm -rf $RPM_BUILD_ROOT
 
-%setup -q -n %{BINNAME}
+%setup -q -n qdcontour
  
 %build
 make %{_smp_mflags}

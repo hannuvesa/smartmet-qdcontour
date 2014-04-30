@@ -95,10 +95,10 @@ rpm: clean
 	if [ -e $(BIN).spec ]; \
 	then \
 	  mkdir -p $(rpmsourcedir) ; \
-	  tar $(rpmexcludevcs) -C ../ -cf $(rpmsourcedir)/smartmet-$(BIN).tar $(BIN) ; \
-	  gzip -f $(rpmsourcedir)/smartmet-$(BIN).tar ; \
-	  rpmbuild -ta $(rpmsourcedir)/smartmet-$(BIN).tar.gz ; \
-	  rm -f $(rpmsourcedir)/smartmet-$(BIN).tar.gz ; \
+	  tar $(rpmexcludevcs) -C ../ -cf $(rpmsourcedir)/smartmet-$(BIN)2.tar $(BIN) ; \
+	  gzip -f $(rpmsourcedir)/smartmet-$(BIN)2.tar ; \
+	  rpmbuild -ta $(rpmsourcedir)/smartmet-$(BIN)2.tar.gz ; \
+	  rm -f $(rpmsourcedir)/smartmet-$(BIN)2.tar.gz ; \
 	else \
 	  echo $(rpmerr); \
 	fi;
