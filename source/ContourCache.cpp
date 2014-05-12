@@ -8,7 +8,7 @@
 #include "ContourCache.h"
 #include "LazyQueryData.h"
 
-#include "NFmiMetTime.h"
+#include "NFmiTime.h"
 
 #include <sstream>
 
@@ -30,7 +30,7 @@ namespace
 
   std::string cache_key(float theLoLimit,
 						float theHiLimit,
-						const NFmiMetTime & theTime,
+						const NFmiTime & theTime,
 						const LazyQueryData & theData)
   {
 	ostringstream os;
@@ -99,7 +99,7 @@ ContourCache::size_type ContourCache::size() const
 
 bool ContourCache::contains(float theLoLimit,
 							float theHiLimit,
-							const NFmiMetTime & theTime,
+							const NFmiTime & theTime,
 							const LazyQueryData & theData) const
 {
   string key = cache_key(theLoLimit, theHiLimit, theTime, theData);
@@ -123,7 +123,7 @@ bool ContourCache::contains(float theLoLimit,
 
 const Imagine::NFmiPath & ContourCache::find(float theLoLimit,
 											 float theHiLimit,
-											 const NFmiMetTime & theTime,
+											 const NFmiTime & theTime,
 											 const LazyQueryData & theData) const
 {
   string key = cache_key(theLoLimit, theHiLimit, theTime, theData);
@@ -150,7 +150,7 @@ const Imagine::NFmiPath & ContourCache::find(float theLoLimit,
 void ContourCache::insert(const Imagine::NFmiPath & thePath,
 						  float theLoLimit,
 						  float theHiLimit,
-						  const NFmiMetTime & theTime,
+						  const NFmiTime & theTime,
 						  const LazyQueryData & theData)
 {
   string key = cache_key(theLoLimit, theHiLimit, theTime, theData);

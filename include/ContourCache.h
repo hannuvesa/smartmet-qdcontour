@@ -48,7 +48,7 @@
 #include <string>
 
 class LazyQueryData;
-class NFmiMetTime;
+class NFmiTime;
 
 class ContourCache
 {
@@ -74,18 +74,18 @@ public:
 
   bool contains(float theLoLimit,
 				float theHiLimit,
-				const NFmiMetTime & theTime,
+				const NFmiTime & theTime,
 				const LazyQueryData & theData) const;
 
   const Imagine::NFmiPath & find(float theLoLimit,
 								 float theHiLimit,
-								 const NFmiMetTime & theTime,
+								 const NFmiTime & theTime,
 								 const LazyQueryData & theData) const;
 
   void insert(const Imagine::NFmiPath & thePath,
 			  float theLoLimit,
 			  float theHiLimit,
-			  const NFmiMetTime & theTime,
+			  const NFmiTime & theTime,
 			  const LazyQueryData & theData);
 
 }; // class ContourCache
