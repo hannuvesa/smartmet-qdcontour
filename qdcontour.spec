@@ -2,7 +2,7 @@
 Summary: ‰{BINNAME}2
 Name: smartmet-%{BINNAME}2
 Version: 14.5.12
-Release: 2%{?dist}.fmi
+Release: 3%{?dist}.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -50,6 +50,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon May 12 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.5.12-3.fmi
+- Fixed rendering of Harmonie rr15min images
 * Mon May 12 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.5.12-2.fmi
 - Fixed arrowlinewidth to work for windarrowsxy command
 * Mon May 12 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.5.12-1.fmi

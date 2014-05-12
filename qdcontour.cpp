@@ -4338,7 +4338,7 @@ void draw_wind_arrows( ImagineXr_or_NFmiImage &img,
 void draw_contour_fills(ImagineXr_or_NFmiImage &img,
 						const NFmiArea & theArea,
 						const ContourSpec & theSpec,
-						const NFmiMetTime & theTime,
+						const NFmiTime & theTime,
 						ContourInterpolation theInterpolation )
 {
   list<ContourRange>::const_iterator it;
@@ -4387,7 +4387,7 @@ void draw_contour_fills(ImagineXr_or_NFmiImage &img,
 void draw_contour_patterns(ImagineXr_or_NFmiImage &img,
 						   const NFmiArea & theArea,
 						   const ContourSpec & theSpec,
-						   const NFmiMetTime & theTime,
+						   const NFmiTime & theTime,
 						   ContourInterpolation theInterpolation )
 {
   list<ContourPattern>::const_iterator it;
@@ -4431,7 +4431,7 @@ void draw_contour_patterns(ImagineXr_or_NFmiImage &img,
 void draw_contour_strokes(ImagineXr_or_NFmiImage &img,
 						  const NFmiArea & theArea,
 						  const ContourSpec & theSpec,
-						  const NFmiMetTime & theTime,
+						  const NFmiTime & theTime,
 						  ContourInterpolation theInterpolation )
 {
   list<ContourValue>::const_iterator it;
