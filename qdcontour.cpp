@@ -4323,7 +4323,7 @@ void draw_contour_fills(ImagineXr_or_NFmiImage &img,
   
   begin = theSpec.contourFills().begin();
   end   = theSpec.contourFills().end();
-  
+
   for(it=begin ; it!=end; ++it)
 	{
 	  // Contour the actual data

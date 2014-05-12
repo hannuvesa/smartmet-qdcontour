@@ -25,7 +25,7 @@ template <typename T> class NFmiDataMatrix;
 
 class ContourCalculatorPimple;
 class LazyQueryData;
-class NFmiMetTime;
+class NFmiTime;
 
 namespace Imagine
 {
@@ -40,12 +40,12 @@ public:
 
   Imagine::NFmiPath contour(const LazyQueryData & theData,
 							float theLoLimit, float theHiLimit,
-							const NFmiMetTime & theTime,
+							const NFmiTime & theTime,
 							ContourInterpolation theInterpolation);
 
   Imagine::NFmiPath contour(const LazyQueryData & theData,
 							float theValue,
-							const NFmiMetTime & theTime,
+							const NFmiTime & theTime,
 							ContourInterpolation theInterpolation);
 
   void data(const NFmiDataMatrix<float> & theData);

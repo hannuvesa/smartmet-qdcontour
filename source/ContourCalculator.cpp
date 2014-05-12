@@ -172,7 +172,7 @@ void ContourCalculator::data(const NFmiDataMatrix<float> & theData)
 
 Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 											 float theLoLimit, float theHiLimit,
-											 const NFmiMetTime & theTime,
+											 const NFmiTime & theTime,
 											 ContourInterpolation theInterpolation)
 {
   if(itsPimple->itsData.get() == 0)
@@ -252,7 +252,7 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 
 Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData & theData,
 											 float theValue,
-											 const NFmiMetTime & theTime,
+											 const NFmiTime & theTime,
 											 ContourInterpolation theInterpolation)
 {
 
