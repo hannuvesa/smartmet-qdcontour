@@ -17,10 +17,12 @@ BuildRequires: libsmartmet-imagine2 >= 14.4.30
 BuildRequires: libsmartmet-newbase >= 14.3.14
 BuildRequires: libsmartmet-tron >= 14.2.21
 BuildRequires: zlib-devel
+BuildRequires: cairomm-devel
 Requires: freetype
 Requires: libjpeg
 Requires: libpng
 Requires: zlib
+Requires: cairomm
 Requires: xorg-x11-fonts-misc
 Provides: qdcontour2
 
