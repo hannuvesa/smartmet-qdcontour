@@ -445,7 +445,8 @@ ArrowStyle Globals::getArrowStroke(float speed) const
 		return c;
 	}
   return ArrowStyle(ColorTools::parsecolor(arrowstrokecolor),
-					ColorTools::checkrule(arrowstrokerule));
+					ColorTools::checkrule(arrowstrokerule),
+					arrowlinewidth);
 }
 
 RoundArrowColor Globals::getRoundArrowFillColor(float speed) const

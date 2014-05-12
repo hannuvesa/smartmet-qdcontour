@@ -2,7 +2,7 @@
 Summary: ‰{BINNAME}2
 Name: smartmet-%{BINNAME}2
 Version: 14.5.12
-Release: 1%{?dist}.fmi
+Release: 2%{?dist}.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -48,6 +48,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon May 12 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.5.12-2.fmi
+- Fixed arrowlinewidth to work for windarrowsxy command
 * Mon May 12 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.5.12-1.fmi
 - Added arrowlinewidth command
 * Wed Apr 30 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.4.30-1.fmi
