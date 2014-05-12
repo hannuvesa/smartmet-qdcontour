@@ -64,6 +64,7 @@ test:
 	-@$(MAKE) --quiet $(_CHECK) TEST=timestampformat
 	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_grid_coloured
 	-@$(MAKE) --quiet $(_CHECK) TEST=meteorological_arrows_coloured
+	-@$(MAKE) --quiet $(_CHECK) TEST=meteorological_arrows_wide
 	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_tipcolors
 	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_normal
 	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_colors

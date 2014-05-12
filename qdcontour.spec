@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: ‰{BINNAME}2
 Name: smartmet-%{BINNAME}2
-Version: 14.4.30
+Version: 14.5.12
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
@@ -48,6 +48,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon May 12 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.5.12-1.fmi
+- Added arrowlinewidth command
 * Wed Apr 30 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.4.30-1.fmi
 - Added support for ps, eps and svg formats
 * Tue Apr 29 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.4.29-1.fmi

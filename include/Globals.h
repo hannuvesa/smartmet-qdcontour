@@ -28,6 +28,7 @@
 
 #include "NFmiArea.h"
 #include "NFmiImage.h"
+#include "NFmiPath.h"
 #include "NFmiPoint.h"
 
 #include <boost/shared_ptr.hpp>
@@ -40,19 +41,20 @@
 class LazyQueryData;
 class NFmiTime;
 
-//using Imagine::NFmiImage;
-
 struct ArrowStyle
 {
   float lolimit;
   float hilimit;
+  double width;
   Imagine::NFmiColorTools::Color color;
   Imagine::NFmiColorTools::NFmiBlendRule rule;
 
   ArrowStyle(Imagine::NFmiColorTools::Color c = Imagine::NFmiColorTools::NoColor,
-			 Imagine::NFmiColorTools::NFmiBlendRule r = Imagine::NFmiColorTools::kFmiColorOver)
+			 Imagine::NFmiColorTools::NFmiBlendRule r = Imagine::NFmiColorTools::kFmiColorOver,
+			 double theWidth = CAIRO_NORMAL_LINE_WIDTH)
 	: lolimit(kFloatMissing)
 	, hilimit(kFloatMissing)
+	, width(theWidth)
 	, color(c)
 	, rule(r)
   {
@@ -179,7 +181,8 @@ struct Globals
   std::string fillrule;				// normal filling rule
   std::string strokerule;			// normal stroking rule
 
-  float contourlinewidth;			// width of contour lines
+  double contourlinewidth;			// width of contour lines
+  double arrowlinewidth;			// width of wind arrow lines
 
   std::string directionparam;		// direction parameter for arrows
   std::string speedparam;			// speed parameter for arrows

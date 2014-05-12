@@ -1076,9 +1076,26 @@ void do_arrowstroke(istream & theInput)
 	  style.hilimit = (token2 == "-" ? kFloatMissing : boost::lexical_cast<float>(token2));
 	  style.color = ColorTools::parsecolor(scolor);
 	  style.rule = ColorTools::checkrule(srule);
+	  style.width = globals.arrowlinewidth;
 
 	  globals.arrowstrokestyles.push_back(style);
 	}
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle "arrowlinewidth" command
+ */
+// ----------------------------------------------------------------------
+
+void do_arrowlinewidth(istream & theInput)
+{
+  double width;
+
+  theInput >> width;
+  check_errors(theInput,"arrowlinewidth");
+
+  globals.arrowlinewidth = width;
 }
 
 // ----------------------------------------------------------------------
@@ -3935,7 +3952,7 @@ void draw_wind_arrows_points( ImagineXr_or_NFmiImage &img,
 			  flags.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 			  
 			  ArrowStyle style = globals.getArrowStroke(speed);
-			  strokes.Stroke(img,style.color,style.rule);
+			  strokes.Stroke(img,style.width,style.color,style.rule);
 			  flags.Fill(img,style.color,style.rule);
 			}
 		  else
@@ -3955,7 +3972,7 @@ void draw_wind_arrows_points( ImagineXr_or_NFmiImage &img,
 			  arrowpath.Fill(img,fillstyle.color,fillstyle.rule);
 			  
 			  ArrowStyle strokestyle = globals.getArrowStroke(speed);
-			  arrowpath.Stroke(img,strokestyle.color,strokestyle.rule);
+			  arrowpath.Stroke(img,strokestyle.width,strokestyle.color,strokestyle.rule);
 			}
 		}
 	}
@@ -4087,7 +4104,7 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
 			  flags.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 			  
 			  ArrowStyle style = globals.getArrowStroke(speed);
-			  strokes.Stroke(img,style.color,style.rule);
+			  strokes.Stroke(img,style.width,style.color,style.rule);
 			  flags.Fill(img,style.color,style.rule);
 			}
 		  else
@@ -4107,7 +4124,7 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
 			  arrowpath.Fill(img,fillstyle.color,fillstyle.rule);
 			  
 			  ArrowStyle strokestyle = globals.getArrowStroke(speed);
-			  arrowpath.Stroke(img,strokestyle.color,strokestyle.rule);
+			  arrowpath.Stroke(img,strokestyle.width,strokestyle.color,strokestyle.rule);
 			}
 		  }
 	  }
@@ -4199,7 +4216,7 @@ void draw_wind_arrows_pixelgrid( ImagineXr_or_NFmiImage &img,
 			  flags.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 			  
 			  ArrowStyle style = globals.getArrowStroke(speed);
-			  strokes.Stroke(img,style.color,style.rule);
+			  strokes.Stroke(img,style.width,style.color,style.rule);
 			  flags.Fill(img,style.color,style.rule);
 			}
 		  else
@@ -4219,7 +4236,7 @@ void draw_wind_arrows_pixelgrid( ImagineXr_or_NFmiImage &img,
 			  arrowpath.Fill(img,fillstyle.color,fillstyle.rule);
 			  
 			  ArrowStyle strokestyle = globals.getArrowStroke(speed);
-			  arrowpath.Stroke(img,strokestyle.color,strokestyle.rule);
+			  arrowpath.Stroke(img,strokestyle.width,strokestyle.color,strokestyle.rule);
 			}
 		  }
 	  }
@@ -5631,6 +5648,7 @@ void process_cmd( const string &text ) {
       else if(cmd == "windarrowscale")			do_windarrowscale(in);
       else if(cmd == "arrowfill")				do_arrowfill(in);
       else if(cmd == "arrowstroke")				do_arrowstroke(in);
+      else if(cmd == "arrowlinewidth")		    do_arrowlinewidth(in);
       else if(cmd == "arrowpath")				do_arrowpath(in);
 	  else if(cmd == "roundarrowfill")          do_roundarrowfill(in);
 	  else if(cmd == "roundarrowstroke")        do_roundarrowstroke(in);
