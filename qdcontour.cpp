@@ -4314,7 +4314,7 @@ void draw_wind_arrows( ImagineXr_or_NFmiImage &img,
 void draw_contour_fills(ImagineXr_or_NFmiImage &img,
 						const NFmiArea & theArea,
 						const ContourSpec & theSpec,
-						const NFmiMetTime & theTime,
+						const NFmiTime & theTime,
 						ContourInterpolation theInterpolation )
 {
   list<ContourRange>::const_iterator it;
@@ -4363,7 +4363,7 @@ void draw_contour_fills(ImagineXr_or_NFmiImage &img,
 void draw_contour_patterns(ImagineXr_or_NFmiImage &img,
 						   const NFmiArea & theArea,
 						   const ContourSpec & theSpec,
-						   const NFmiMetTime & theTime,
+						   const NFmiTime & theTime,
 						   ContourInterpolation theInterpolation )
 {
   list<ContourPattern>::const_iterator it;
@@ -4407,7 +4407,7 @@ void draw_contour_patterns(ImagineXr_or_NFmiImage &img,
 void draw_contour_strokes(ImagineXr_or_NFmiImage &img,
 						  const NFmiArea & theArea,
 						  const ContourSpec & theSpec,
-						  const NFmiMetTime & theTime,
+						  const NFmiTime & theTime,
 						  ContourInterpolation theInterpolation )
 {
   list<ContourValue>::const_iterator it;
@@ -4450,7 +4450,7 @@ void draw_contour_strokes(ImagineXr_or_NFmiImage &img,
 void save_contour_labels(ImagineXr_or_NFmiImage &img,
 						 const NFmiArea & theArea,
 						 const ContourSpec & theSpec,
-						 const NFmiMetTime & theTime,
+						 const NFmiTime & theTime,
 						 ContourInterpolation theInterpolation )
 {
   // The ID under which the coordinates will be stored
@@ -5341,21 +5341,26 @@ void do_draw_contours(istream & theInput)
 #ifdef IMAGINE_WITH_CAIRO
       ImagineXr *xr= new ImagineXr( imgwidth,imgheight, filename, globals.format );
 
-	    if (globals.background.empty()) {
-	       xr->Erase( erasecolor );
-	    } else {
-	       const ImagineXr &xr2= globals.getImage(globals.background);
-
-           if ( (xr2.Width() != xr->Width()) || (xr2.Height() != xr->Height()) )
-                throw runtime_error("Background image size does not match area size");
-
-	       xr->Composite( xr2 );
+	  if (globals.background.empty())
+		{
+		  xr->Erase( erasecolor );
+	    }
+	  else
+		{
+		  const ImagineXr &xr2= globals.getImage(globals.background);
+		  
+		  if ( (xr2.Width() != xr->Width()) || (xr2.Height() != xr->Height()) )
+			throw runtime_error("Background image size does not match area size");
+		  
+		  xr->Composite( xr2 );
         }
 #else
-		boost::shared_ptr< Imagine::NFmiImage > image;
-	  if(globals.background.empty()) {
-		image.reset(new Imagine::NFmiImage(imgwidth,imgheight,erasecolor));
-	  } else
+	  boost::shared_ptr< Imagine::NFmiImage > image;
+	  if(globals.background.empty())
+		{
+		  image.reset(new Imagine::NFmiImage(imgwidth,imgheight,erasecolor));
+		}
+	  else
 		{
 		  image.reset(new Imagine::NFmiImage(globals.getImage(globals.background)));
 		  if(imgwidth != image->Width() ||
@@ -5366,7 +5371,7 @@ void do_draw_contours(istream & theInput)
 		}
 	  if(image.get()==0)
 		throw runtime_error("Failed to allocate a new image for rendering");
-
+	  
 	  globals.setImageModes(*image);
 	  #define xr image     /* HACK */
 #endif
