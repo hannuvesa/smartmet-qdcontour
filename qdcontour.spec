@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 14.9.25
+Version: 14.9.26
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
@@ -48,6 +48,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Sep 26 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.9.26-1.fmi
+- Fixed the orientation of wind barbs on the southern hemisphere
 * Thu Sep 25 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.9.25-1.fmi
 - Improved color reduction algorithm preserves original colors better
 * Mon May 12 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.5.12-1.fmi
