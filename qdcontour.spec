@@ -1,8 +1,8 @@
 %define BINNAME qdcontour
 Summary: ‰{BINNAME}2
 Name: smartmet-%{BINNAME}2
-Version: 14.5.12
-Release: 3%{?dist}.fmi
+Version: 14.9.25
+Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -50,6 +50,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Sep 25 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.9.25-1.fmi
+- Improved color reduction algorithm preserves original colors better
 * Mon May 12 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.5.12-3.fmi
 - Fixed rendering of Harmonie rr15min images
 * Mon May 12 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.5.12-2.fmi
