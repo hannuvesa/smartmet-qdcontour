@@ -162,6 +162,35 @@ namespace GramTools
 
   }
 
+  // ----------------------------------------------------------------------
+  /*!
+   * \brief Return meteorological arrow flags for the given wind speed
+   */
+  // ----------------------------------------------------------------------
+
+  Imagine::NFmiPath metarrowflags(float theSpeed, const NFmiPoint & theLatLon)
+  {
+	Imagine::NFmiPath path = metarrowflags(theSpeed);
+	if(theLatLon.Y() < 0)
+	  path.Scale(-1,1);
+	return path;
+  }
+
+  // ----------------------------------------------------------------------
+  /*!
+   * \brief Return meteorological arrow lines for the given wind speed
+   */
+  // ----------------------------------------------------------------------
+
+  Imagine::NFmiPath metarrowlines(float theSpeed, const NFmiPoint & theLatLon)
+  {
+	Imagine::NFmiPath path = metarrowlines(theSpeed);
+	if(theLatLon.Y() < 0)
+	  path.Scale(-1,1);
+	return path;
+  }
+
+
 } // namespace GramTools
 
 // ======================================================================

@@ -3934,8 +3934,8 @@ void draw_wind_arrows_points( ImagineXr_or_NFmiImage &img,
 			  NFmiPath strokes;
 			  NFmiPath flags;
 
-			  strokes.Add(GramTools::metarrowlines(speed));
-			  flags.Add(GramTools::metarrowflags(speed));
+			  strokes.Add(GramTools::metarrowlines(speed,latlon));
+			  flags.Add(GramTools::metarrowflags(speed,latlon));
 
 			  if(speed>0 && speed!=kFloatMissing)
 				{
@@ -4086,8 +4086,8 @@ void draw_wind_arrows_grid( ImagineXr_or_NFmiImage &img,
 			  NFmiPath strokes;
 			  NFmiPath flags;
 
-			  strokes.Add(GramTools::metarrowlines(speed));
-			  flags.Add(GramTools::metarrowflags(speed));
+			  strokes.Add(GramTools::metarrowlines(speed,latlon));
+			  flags.Add(GramTools::metarrowflags(speed,latlon));
 
 			  if(speed>0 && speed!=kFloatMissing)
 				{
@@ -4198,8 +4198,8 @@ void draw_wind_arrows_pixelgrid( ImagineXr_or_NFmiImage &img,
 			  NFmiPath strokes;
 			  NFmiPath flags;
 
-			  strokes.Add(GramTools::metarrowlines(speed));
-			  flags.Add(GramTools::metarrowflags(speed));
+			  strokes.Add(GramTools::metarrowlines(speed,latlon));
+			  flags.Add(GramTools::metarrowflags(speed,latlon));
 
 			  if(speed>0 && speed!=kFloatMissing)
 				{

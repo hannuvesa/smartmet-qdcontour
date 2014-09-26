@@ -62,6 +62,7 @@ test_pdf:
 test:
 	-@$(MAKE) --quiet $(_CHECK) TEST=windarrowsxy_normal
 	-@$(MAKE) --quiet $(_CHECK) TEST=windarrowsxy_wide
+	-@$(MAKE) --quiet $(_CHECK) TEST=meteorological_arrows_world
 	-@$(MAKE) --quiet $(_CHECK) TEST=labels_markers_pixelgrid_normal
 	-@$(MAKE) --quiet $(_CHECK) TEST=timestampformat
 	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_grid_coloured
