@@ -18,6 +18,9 @@
 
 namespace GramTools
 {
+  Imagine::NFmiPath metarrowflags(float theSpeed, const NFmiPoint & theLatLon);
+  Imagine::NFmiPath metarrowlines(float theSpeed, const NFmiPoint & theLatLon);
+
   Imagine::NFmiPath metarrowflags(float theSpeed);
   Imagine::NFmiPath metarrowlines(float theSpeed);
 
