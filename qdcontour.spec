@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
-Summary: ‰{BINNAME}2
+Summary: %{BINNAME}2
 Name: smartmet-%{BINNAME}2
-Version: 14.9.26
+Version: 15.2.16
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
@@ -50,6 +50,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Feb 16 2015 Mika Heiskanen <mika.heiskanen@fmi.fi> - 15.2.16-1.fmi
+- Fixed contoursymbol command to handle missing values correctly
 * Fri Sep 26 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.9.26-1.fmi
 - Fixed the orientation of wind barbs on the southern hemisphere
 * Thu Sep 25 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.9.25-1.fmi

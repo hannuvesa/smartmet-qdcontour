@@ -4634,12 +4634,14 @@ void save_contour_symbols( ImagineXr_or_NFmiImage &img,
 		  {
 			const float z = theValues[i][j];
 			bool inside = false;
-			if(lo!=kFloatMissing && z<lo)
+			if(z == kFloatMissing)
+			  inside = (lo==kFloatMissing && hi==kFloatMissing);
+			else if(lo!=kFloatMissing && z<lo)
 			  inside = false;
 			else if(hi!=kFloatMissing && z>=hi)
 			  inside = false;
 			else if(lo==kFloatMissing && hi==kFloatMissing)
-			  inside = (z == kFloatMissing);
+			  inside = false;
 			else
 			  inside = true;
 
@@ -4706,12 +4708,14 @@ void draw_contour_symbols( ImagineXr_or_NFmiImage &img )
 			  const float lo = fit->lolimit();
 			  const float hi = fit->hilimit();
 			  bool inside = false;
-			  if(lo!=kFloatMissing && z<lo)
+			  if(z == kFloatMissing)
+				inside = (lo==kFloatMissing && hi==kFloatMissing);
+			  else if(lo!=kFloatMissing && z<lo)
 				inside = false;
 			  else if(hi!=kFloatMissing && z>=hi)
 				inside = false;
 			  else if(lo==kFloatMissing && hi==kFloatMissing)
-				inside = (z == kFloatMissing);
+				inside = false;
 			  else
 				inside = true;			  
 			  if(inside)
