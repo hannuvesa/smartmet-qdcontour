@@ -14,6 +14,7 @@
 
 #include "PathAdapter.h"
 
+#include "Builder.h"
 #include "Tron.h"
 
 #include "NFmiGrid.h"

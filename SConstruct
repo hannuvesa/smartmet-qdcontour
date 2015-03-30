@@ -83,7 +83,7 @@ else:
 	    #"-Wold-style-cast",       Boost 1.35 has old style casts
     ] )
 
-BOOST_POSTFIX = "-mt"
+BOOST_POSTFIX = ""
 BOOST_PREFIX=""
 
 if WINDOWS:
@@ -242,6 +242,6 @@ if WINDOWS:
     Depends( out, "../imagine/smartmet_imagine"+out_postfix+".lib" )
     Depends( out, "../tron/smartmet_tron"+out_postfix+".lib" )
 elif LINUX:
-    Depends( out, LIBDIR+"/libsmartmet_newbase.a" )
-    Depends( out, LIBDIR+"/libsmartmet_imagine.a" )
+    Depends( out, LIBDIR+"/libsmartmet_newbase.so" )
+    Depends( out, LIBDIR+"/libsmartmet_imagine.so" )
     Depends( out, LIBDIR+"/libsmartmet_tron.a" )

@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: qdcontour
 Name: smartmet-%{BINNAME}
-Version: 15.2.16
+Version: 15.3.30
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
@@ -13,10 +13,12 @@ BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: libsmartmet-imagine >= 13.11.27
-BuildRequires: libsmartmet-newbase >= 14.3.14
+BuildRequires: libsmartmet-imagine-devel >= 13.11.27
+BuildRequires: libsmartmet-newbase-devel >= 14.3.14
 BuildRequires: libsmartmet-tron >= 14.2.21
 BuildRequires: zlib-devel
+Requires: libsmartmet-imagine >= 13.11.27
+Requires: libsmartmet-newbase >= 14.3.14
 Requires: freetype
 Requires: libjpeg
 Requires: libpng
@@ -48,6 +50,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Mar 30 2015 Mika Heiskanen <mika.heiskanen@fmi.fi> - 15.3.30-1.fmi
+- Switched to dynamic linkage of smartmet libraries
 * Mon Feb 16 2015 Mika Heiskanen <mika.heiskanen@fmi.fi> - 15.2.16-1.fmi
 - Fixed contoursymbol command to handle missing values correctly
 * Fri Sep 26 2014 Mika Heiskanen <mika.heiskanen@fmi.fi> - 14.9.26-1.fmi
