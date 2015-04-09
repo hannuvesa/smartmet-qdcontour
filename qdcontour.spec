@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: %{BINNAME}2
 Name: smartmet-%{BINNAME}2
-Version: 15.3.30
+Version: 15.4.9
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
@@ -13,13 +13,13 @@ BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: libsmartmet-imagine2-devel >= 14.4.30
-BuildRequires: libsmartmet-newbase-devel >= 14.3.14
-BuildRequires: libsmartmet-tron >= 14.2.21
+BuildRequires: libsmartmet-imagine2-devel >= 15.4.9
+BuildRequires: libsmartmet-newbase-devel >= 15.4.9
+BuildRequires: libsmartmet-tron >= 15.3.30
 BuildRequires: zlib-devel
 BuildRequires: cairomm-devel
-Requires: libsmartmet-imagine2 >= 14.4.30
-Requires: libsmartmet-newbase >= 14.3.14
+Requires: libsmartmet-imagine2 >= 15.4.9
+Requires: libsmartmet-newbase >= 15.4.9
 Requires: freetype
 Requires: libjpeg
 Requires: libpng
@@ -52,6 +52,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Apr  9 2015 Mika Heiskanen <mika.heiskanen@fmi.fi> - 15.4.9-1.fmi
+- newbase API changed
 * Mon Mar 30 2015 Mika Heiskanen <mika.heiskanen@fmi.fi> - 15.3.30-1.fmi
 - Switched to using dynamic linkage of newbase libraries
 * Mon Feb 16 2015 Mika Heiskanen <mika.heiskanen@fmi.fi> - 15.2.16-1.fmi
