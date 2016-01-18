@@ -18,14 +18,14 @@
 
 namespace GramTools
 {
-  Imagine::NFmiPath metarrowflags(float theSpeed, const NFmiPoint & theLatLon);
-  Imagine::NFmiPath metarrowlines(float theSpeed, const NFmiPoint & theLatLon);
+Imagine::NFmiPath metarrowflags(float theSpeed, const NFmiPoint &theLatLon);
+Imagine::NFmiPath metarrowlines(float theSpeed, const NFmiPoint &theLatLon);
 
-  Imagine::NFmiPath metarrowflags(float theSpeed);
-  Imagine::NFmiPath metarrowlines(float theSpeed);
+Imagine::NFmiPath metarrowflags(float theSpeed);
+Imagine::NFmiPath metarrowlines(float theSpeed);
 
-} // namespace GramTools
+}  // namespace GramTools
 
-#endif // GRAMTOOLS_H
+#endif  // GRAMTOOLS_H
 
 // ======================================================================

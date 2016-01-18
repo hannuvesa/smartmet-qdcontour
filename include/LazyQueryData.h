@@ -31,7 +31,7 @@ class NFmiArea;
 class NFmiFastQueryInfo;
 class NFmiGrid;
 class NFmiLevel;
-//class NFmiMetTime;
+// class NFmiMetTime;
 class NFmiPoint;
 class NFmiQueryData;
 
@@ -39,19 +39,18 @@ class NFmiQueryData;
 
 class LazyQueryData
 {
-public:
+ public:
   ~LazyQueryData();
   LazyQueryData();
 
-  const std::string & Filename() const { return itsDataFile; }
-
+  const std::string &Filename() const { return itsDataFile; }
   std::string GetParamName() const;
   unsigned long GetParamIdent() const;
   float GetLevelNumber() const;
 
   // These do not require the data values
 
-  void Read(const std::string & theDataFile);
+  void Read(const std::string &theDataFile);
 
   void ResetTime();
   void ResetLevel();
@@ -61,45 +60,48 @@ public:
   bool NextLevel();
   bool NextTime();
   bool PreviousTime();
-  const NFmiLevel * Level() const;
+  const NFmiLevel *Level() const;
 
   bool Param(FmiParameterName theParam);
 
   // LastTime();
-  const NFmiMetTime & ValidTime() const;
-  const NFmiMetTime & OriginTime() const;
+  const NFmiMetTime &ValidTime() const;
+  const NFmiMetTime &OriginTime() const;
 
   bool IsParamUsable() const;
 
   typedef NFmiDataMatrix<NFmiPoint> Coordinates;
 
   boost::shared_ptr<Coordinates> Locations() const;
-  boost::shared_ptr<Coordinates> LocationsWorldXY(const NFmiArea & theArea) const;
-  boost::shared_ptr<Coordinates> LocationsXY(const NFmiArea & theArea) const;
+  boost::shared_ptr<Coordinates> LocationsWorldXY(const NFmiArea &theArea) const;
+  boost::shared_ptr<Coordinates> LocationsXY(const NFmiArea &theArea) const;
 
-  bool BiLinearInterpolation(double x, double y, float & theValue,
-							 float topLeftValue, float topRightValue,
-							 float bottomLeftValue, float bottomRightValue);
-  
+  bool BiLinearInterpolation(double x,
+                             double y,
+                             float &theValue,
+                             float topLeftValue,
+                             float topRightValue,
+                             float bottomLeftValue,
+                             float bottomRightValue);
+
   // Grid()
 
-  NFmiPoint LatLonToGrid(const NFmiPoint & theLatLonPoint);
-  const NFmiGrid * Grid(void) const;
-  const NFmiArea * Area(void) const;
+  NFmiPoint LatLonToGrid(const NFmiPoint &theLatLonPoint);
+  const NFmiGrid *Grid(void) const;
+  const NFmiArea *Area(void) const;
 
   // These require the data values
 
-  float InterpolatedValue(const NFmiPoint & theLatLonPoint);
+  float InterpolatedValue(const NFmiPoint &theLatLonPoint);
 
-  void Values(NFmiDataMatrix<float> & theValues);
-  void Values(NFmiDataMatrix<float> & theValues, const NFmiMetTime & theTime);
+  void Values(NFmiDataMatrix<float> &theValues);
+  void Values(NFmiDataMatrix<float> &theValues, const NFmiMetTime &theTime);
 
   bool IsWorldData() const;
 
-private:
-
-  LazyQueryData(const LazyQueryData & theQD);
-  LazyQueryData & operator=(const LazyQueryData & theQD);
+ private:
+  LazyQueryData(const LazyQueryData &theQD);
+  LazyQueryData &operator=(const LazyQueryData &theQD);
 
   std::string itsInputName;
   std::string itsDataFile;
@@ -111,9 +113,8 @@ private:
   mutable boost::shared_ptr<Coordinates> itsLocationsXY;
   mutable std::string itsLocationsArea;
 
-}; // class LazyQueryData
+};  // class LazyQueryData
 
-#endif // LAZYQUERYDATA_H
+#endif  // LAZYQUERYDATA_H
 
 // ======================================================================
-

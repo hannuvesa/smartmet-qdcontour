@@ -52,20 +52,18 @@ class NFmiTime;
 
 class ContourCache
 {
-private:
+ private:
+  typedef std::map<std::string, Imagine::NFmiPath> storage_type;
+  storage_type itsData;
 
-typedef std::map<std::string, Imagine::NFmiPath> storage_type;
-storage_type itsData;
-
-public:
-
+ public:
   typedef storage_type::size_type size_type;
 
 #ifdef NO_COMPILER_GENERATED
   ~ContourCache();
   ContourCache();
-  ContourCache(const ContourCache & theCache);
-  ContourCache & operator=(const ContourCache & theCache);
+  ContourCache(const ContourCache &theCache);
+  ContourCache &operator=(const ContourCache &theCache);
 #endif
 
   bool empty() const;
@@ -73,23 +71,23 @@ public:
   size_type size() const;
 
   bool contains(float theLoLimit,
-				float theHiLimit,
-				const NFmiTime & theTime,
-				const LazyQueryData & theData) const;
+                float theHiLimit,
+                const NFmiTime &theTime,
+                const LazyQueryData &theData) const;
 
-  const Imagine::NFmiPath & find(float theLoLimit,
-								 float theHiLimit,
-								 const NFmiTime & theTime,
-								 const LazyQueryData & theData) const;
+  const Imagine::NFmiPath &find(float theLoLimit,
+                                float theHiLimit,
+                                const NFmiTime &theTime,
+                                const LazyQueryData &theData) const;
 
-  void insert(const Imagine::NFmiPath & thePath,
-			  float theLoLimit,
-			  float theHiLimit,
-			  const NFmiTime & theTime,
-			  const LazyQueryData & theData);
+  void insert(const Imagine::NFmiPath &thePath,
+              float theLoLimit,
+              float theHiLimit,
+              const NFmiTime &theTime,
+              const LazyQueryData &theData);
 
-}; // class ContourCache
+};  // class ContourCache
 
-#endif // CONTOURCACHE_H
+#endif  // CONTOURCACHE_H
 
 // ======================================================================

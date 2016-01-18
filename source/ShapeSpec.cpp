@@ -14,19 +14,19 @@
  */
 // ----------------------------------------------------------------------
 
-ShapeSpec::ShapeSpec(const std::string & theShapeFile,
-					 Imagine::NFmiColorTools::Color theFill,
-					 Imagine::NFmiColorTools::Color theStroke,
-					 const std::string & theFillRule,
-					 const std::string & theStrokeRule)
-  : itsShapeFileName(theShapeFile)
-  , itsFillRule(theFillRule)
-  , itsStrokeRule(theStrokeRule)
-  , itsFillColor(theFill)
-  , itsStrokeColor(theStroke)
-  , itsMarker("")
-  , itsMarkerRule("Over")
-  , itsMarkerAlpha(1.0)
+ShapeSpec::ShapeSpec(const std::string &theShapeFile,
+                     Imagine::NFmiColorTools::Color theFill,
+                     Imagine::NFmiColorTools::Color theStroke,
+                     const std::string &theFillRule,
+                     const std::string &theStrokeRule)
+    : itsShapeFileName(theShapeFile),
+      itsFillRule(theFillRule),
+      itsStrokeRule(theStrokeRule),
+      itsFillColor(theFill),
+      itsStrokeColor(theStroke),
+      itsMarker(""),
+      itsMarkerRule("Over"),
+      itsMarkerAlpha(1.0)
 {
 }
 
@@ -38,11 +38,7 @@ ShapeSpec::ShapeSpec(const std::string & theShapeFile,
  */
 // ----------------------------------------------------------------------
 
-const std::string & ShapeSpec::filename(void) const
-{
-  return itsShapeFileName;
-}
-
+const std::string &ShapeSpec::filename(void) const { return itsShapeFileName; }
 // ----------------------------------------------------------------------
 /*!
  * \brief Return the fill rule for the shape
@@ -51,11 +47,7 @@ const std::string & ShapeSpec::filename(void) const
  */
 // ----------------------------------------------------------------------
 
-const std::string & ShapeSpec::fillrule(void) const
-{
- return itsFillRule;
-}
-
+const std::string &ShapeSpec::fillrule(void) const { return itsFillRule; }
 // ----------------------------------------------------------------------
 /*!
  * \brief Return the stroke rule for the shape
@@ -64,11 +56,7 @@ const std::string & ShapeSpec::fillrule(void) const
  */
 // ----------------------------------------------------------------------
 
-const std::string & ShapeSpec::strokerule(void) const
-{
- return itsStrokeRule;
-}
-
+const std::string &ShapeSpec::strokerule(void) const { return itsStrokeRule; }
 // ----------------------------------------------------------------------
 /*!
  * \brief Return the fill color for the shape
@@ -77,11 +65,7 @@ const std::string & ShapeSpec::strokerule(void) const
  */
 // ----------------------------------------------------------------------
 
-Imagine::NFmiColorTools::Color ShapeSpec::fillcolor(void) const
-{
-  return itsFillColor;
-}
-
+Imagine::NFmiColorTools::Color ShapeSpec::fillcolor(void) const { return itsFillColor; }
 // ----------------------------------------------------------------------
 /*!
  * \brief Return the stroke color for the shape
@@ -90,11 +74,7 @@ Imagine::NFmiColorTools::Color ShapeSpec::fillcolor(void) const
  */
 // ----------------------------------------------------------------------
 
-Imagine::NFmiColorTools::Color ShapeSpec::strokecolor(void) const
-{
-  return itsStrokeColor;
-}
-  
+Imagine::NFmiColorTools::Color ShapeSpec::strokecolor(void) const { return itsStrokeColor; }
 // ----------------------------------------------------------------------
 /*!
  * \brief Set the fill rule for the shape
@@ -103,11 +83,7 @@ Imagine::NFmiColorTools::Color ShapeSpec::strokecolor(void) const
  */
 // ----------------------------------------------------------------------
 
-void ShapeSpec::fillrule(const std::string & theRule)
-{
- itsFillRule = theRule;
-}
-
+void ShapeSpec::fillrule(const std::string &theRule) { itsFillRule = theRule; }
 // ----------------------------------------------------------------------
 /*!
  * \brief Set the stroke rule for the shape
@@ -116,11 +92,7 @@ void ShapeSpec::fillrule(const std::string & theRule)
  */
 // ----------------------------------------------------------------------
 
-void ShapeSpec::strokerule(const std::string & theRule)
-{
-  itsStrokeRule = theRule;
-}
-
+void ShapeSpec::strokerule(const std::string &theRule) { itsStrokeRule = theRule; }
 // ----------------------------------------------------------------------
 /*!
  * \brief Set the fill color for the shape
@@ -129,11 +101,7 @@ void ShapeSpec::strokerule(const std::string & theRule)
  */
 // ----------------------------------------------------------------------
 
-void ShapeSpec::fillcolor(Imagine::NFmiColorTools::Color theColor)
-{
-  itsFillColor = theColor;
-}
-
+void ShapeSpec::fillcolor(Imagine::NFmiColorTools::Color theColor) { itsFillColor = theColor; }
 // ----------------------------------------------------------------------
 /*!
  * \brief Set the stroke color for the shape
@@ -142,11 +110,7 @@ void ShapeSpec::fillcolor(Imagine::NFmiColorTools::Color theColor)
  */
 // ----------------------------------------------------------------------
 
-void ShapeSpec::strokecolor(Imagine::NFmiColorTools::Color theColor)
-{
-  itsStrokeColor = theColor;
-}
-  
+void ShapeSpec::strokecolor(Imagine::NFmiColorTools::Color theColor) { itsStrokeColor = theColor; }
 // ----------------------------------------------------------------------
 /*!
  * \brief Set the marker for the shape
@@ -157,15 +121,13 @@ void ShapeSpec::strokecolor(Imagine::NFmiColorTools::Color theColor)
  */
 // ----------------------------------------------------------------------
 
-void ShapeSpec::marker(const std::string & theMarker,
-					   const std::string & theRule,
-					   float theAlpha)
+void ShapeSpec::marker(const std::string &theMarker, const std::string &theRule, float theAlpha)
 {
   itsMarker = theMarker;
   itsMarkerRule = theRule;
   itsMarkerAlpha = theAlpha;
 }
-  
+
 // ----------------------------------------------------------------------
 /*!
  * \brief Return the marker image filename
@@ -174,11 +136,7 @@ void ShapeSpec::marker(const std::string & theMarker,
  */
 // ----------------------------------------------------------------------
 
-const std::string & ShapeSpec::marker(void) const
-{
-  return itsMarker;
-}
-
+const std::string &ShapeSpec::marker(void) const { return itsMarker; }
 // ----------------------------------------------------------------------
 /*!
  * \brief Return the marker image blending rule
@@ -187,11 +145,7 @@ const std::string & ShapeSpec::marker(void) const
  */
 // ----------------------------------------------------------------------
 
-const std::string & ShapeSpec::markerrule(void) const
-{
-  return itsMarkerRule;
-}
-
+const std::string &ShapeSpec::markerrule(void) const { return itsMarkerRule; }
 // ----------------------------------------------------------------------
 /*!
  * \brief Return the marker image alpha blending factor
@@ -200,10 +154,5 @@ const std::string & ShapeSpec::markerrule(void) const
  */
 // ----------------------------------------------------------------------
 
-float ShapeSpec::markeralpha(void) const
-{
-  return itsMarkerAlpha;
-}
-
+float ShapeSpec::markeralpha(void) const { return itsMarkerAlpha; }
 // ======================================================================
-

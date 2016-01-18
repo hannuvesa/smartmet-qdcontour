@@ -23,22 +23,14 @@ using namespace std;
  */
 // ----------------------------------------------------------------------
 
-LazyQueryData::~LazyQueryData()
-{
-}
-
+LazyQueryData::~LazyQueryData() {}
 // ----------------------------------------------------------------------
 /*!
  * \brief Constructor
  */
 // ----------------------------------------------------------------------
 
-LazyQueryData::LazyQueryData()
-  : itsInfo()
-  , itsData()
-{
-}
-
+LazyQueryData::LazyQueryData() : itsInfo(), itsData() {}
 // ----------------------------------------------------------------------
 /*!
  * \brief Return the parameter name
@@ -60,11 +52,7 @@ std::string LazyQueryData::GetParamName() const
  */
 // ----------------------------------------------------------------------
 
-unsigned long LazyQueryData::GetParamIdent() const
-{
-  return (itsInfo->Param().GetParamIdent());
-}
-
+unsigned long LazyQueryData::GetParamIdent() const { return (itsInfo->Param().GetParamIdent()); }
 // ----------------------------------------------------------------------
 /*!
  * \brief Return the level number
@@ -73,11 +61,7 @@ unsigned long LazyQueryData::GetParamIdent() const
  */
 // ----------------------------------------------------------------------
 
-float LazyQueryData::GetLevelNumber() const
-{
-  return (itsInfo->Level()->LevelValue());
-}
-
+float LazyQueryData::GetLevelNumber() const { return (itsInfo->Level()->LevelValue()); }
 // ----------------------------------------------------------------------
 /*!
  * \brief Lazy-read the given query data file
@@ -88,7 +72,7 @@ float LazyQueryData::GetLevelNumber() const
  */
 // ----------------------------------------------------------------------
 
-void LazyQueryData::Read(const std::string & theDataFile)
+void LazyQueryData::Read(const std::string &theDataFile)
 {
   itsInputName = theDataFile;
   itsDataFile = theDataFile;
@@ -103,157 +87,104 @@ void LazyQueryData::Read(const std::string & theDataFile)
  */
 // ----------------------------------------------------------------------
 
-void LazyQueryData::ResetTime()
-{
-  itsInfo->ResetTime();
-}
-
+void LazyQueryData::ResetTime() { itsInfo->ResetTime(); }
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-void LazyQueryData::ResetLevel()
-{
-  itsInfo->ResetLevel();
-}
-
+void LazyQueryData::ResetLevel() { itsInfo->ResetLevel(); }
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-bool LazyQueryData::FirstLevel()
-{
-  return itsInfo->FirstLevel();
-}
-
+bool LazyQueryData::FirstLevel() { return itsInfo->FirstLevel(); }
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-bool LazyQueryData::FirstTime()
-{
-  return itsInfo->FirstTime();
-}
-
+bool LazyQueryData::FirstTime() { return itsInfo->FirstTime(); }
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-bool LazyQueryData::LastTime()
-{
-  return itsInfo->LastTime();
-}
-
+bool LazyQueryData::LastTime() { return itsInfo->LastTime(); }
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-bool LazyQueryData::NextLevel()
-{
-  return itsInfo->NextLevel();
-}
-
+bool LazyQueryData::NextLevel() { return itsInfo->NextLevel(); }
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-const NFmiLevel * LazyQueryData::Level() const
-{
-  return itsInfo->Level();
-}
-
+const NFmiLevel *LazyQueryData::Level() const { return itsInfo->Level(); }
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-bool LazyQueryData::NextTime()
-{
-  return itsInfo->NextTime();
-}
-
+bool LazyQueryData::NextTime() { return itsInfo->NextTime(); }
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-bool LazyQueryData::PreviousTime()
-{
-  return itsInfo->PreviousTime();
-}
-
+bool LazyQueryData::PreviousTime() { return itsInfo->PreviousTime(); }
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-bool LazyQueryData::Param(FmiParameterName theParam)
-{
-  return itsInfo->Param(theParam);
-}
-
+bool LazyQueryData::Param(FmiParameterName theParam) { return itsInfo->Param(theParam); }
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-const NFmiMetTime & LazyQueryData::ValidTime() const
-{
-  return itsInfo->ValidTime();
-}
-
+const NFmiMetTime &LazyQueryData::ValidTime() const { return itsInfo->ValidTime(); }
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-const NFmiMetTime & LazyQueryData::OriginTime() const
-{
-  return itsInfo->OriginTime();
-}
-
+const NFmiMetTime &LazyQueryData::OriginTime() const { return itsInfo->OriginTime(); }
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-bool LazyQueryData::IsParamUsable() const
-{
-  return itsInfo->IsParamUsable();
-}
-
+bool LazyQueryData::IsParamUsable() const { return itsInfo->IsParamUsable(); }
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-boost::shared_ptr<LazyQueryData::Coordinates>
-LazyQueryData::Locations() const
+boost::shared_ptr<LazyQueryData::Coordinates> LazyQueryData::Locations() const
 {
-  if(itsLocations.get() == 0)
-	{
-	  itsLocations.reset(new Coordinates);
-	  itsInfo->Locations(*itsLocations);
-	}
+  if (itsLocations.get() == 0)
+  {
+    itsLocations.reset(new Coordinates);
+    itsInfo->Locations(*itsLocations);
+  }
   return itsLocations;
 }
 
@@ -263,18 +194,18 @@ LazyQueryData::Locations() const
  */
 // ----------------------------------------------------------------------
 
-boost::shared_ptr<LazyQueryData::Coordinates>
-LazyQueryData::LocationsWorldXY(const NFmiArea & theArea) const
+boost::shared_ptr<LazyQueryData::Coordinates> LazyQueryData::LocationsWorldXY(
+    const NFmiArea &theArea) const
 {
   ostringstream os;
   os << theArea;
 
-  if(itsLocationsWorldXY.get() == 0 || os.str() != itsLocationsArea)
-	{
-	  itsLocationsArea = os.str();
-	  itsLocationsWorldXY.reset(new Coordinates);
-	  itsInfo->LocationsWorldXY(*itsLocationsWorldXY, theArea);
-	}
+  if (itsLocationsWorldXY.get() == 0 || os.str() != itsLocationsArea)
+  {
+    itsLocationsArea = os.str();
+    itsLocationsWorldXY.reset(new Coordinates);
+    itsInfo->LocationsWorldXY(*itsLocationsWorldXY, theArea);
+  }
   return itsLocationsWorldXY;
 }
 
@@ -284,18 +215,18 @@ LazyQueryData::LocationsWorldXY(const NFmiArea & theArea) const
  */
 // ----------------------------------------------------------------------
 
-boost::shared_ptr<LazyQueryData::Coordinates>
-LazyQueryData::LocationsXY(const NFmiArea & theArea) const
+boost::shared_ptr<LazyQueryData::Coordinates> LazyQueryData::LocationsXY(
+    const NFmiArea &theArea) const
 {
   ostringstream os;
   os << theArea;
 
-  if(itsLocationsXY.get() == 0 || os.str() != itsLocationsArea)
-	{
-	  itsLocationsArea = os.str();
-	  itsLocationsXY.reset(new Coordinates);
-	  itsInfo->LocationsXY(*itsLocationsXY, theArea);
-	}
+  if (itsLocationsXY.get() == 0 || os.str() != itsLocationsArea)
+  {
+    itsLocationsArea = os.str();
+    itsLocationsXY.reset(new Coordinates);
+    itsInfo->LocationsXY(*itsLocationsXY, theArea);
+  }
   return itsLocationsXY;
 }
 
@@ -305,60 +236,51 @@ LazyQueryData::LocationsXY(const NFmiArea & theArea) const
  */
 // ----------------------------------------------------------------------
 
-bool LazyQueryData::BiLinearInterpolation(double x, double y, float & theValue,
-										  float topLeftValue, float topRightValue,
-										  float bottomLeftValue, float bottomRightValue)
+bool LazyQueryData::BiLinearInterpolation(double x,
+                                          double y,
+                                          float &theValue,
+                                          float topLeftValue,
+                                          float topRightValue,
+                                          float bottomLeftValue,
+                                          float bottomRightValue)
 {
-  theValue = static_cast<float>(NFmiInterpolation::BiLinear(x - floor(x),
-										 y - floor(y),
-										 topLeftValue,
-										 topRightValue,
-										 bottomLeftValue,
-										 bottomRightValue));
+  theValue = static_cast<float>(NFmiInterpolation::BiLinear(
+      x - floor(x), y - floor(y), topLeftValue, topRightValue, bottomLeftValue, bottomRightValue));
   return (theValue != kFloatMissing);
 }
-  
+
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-NFmiPoint LazyQueryData::LatLonToGrid(const NFmiPoint & theLatLonPoint)
+NFmiPoint LazyQueryData::LatLonToGrid(const NFmiPoint &theLatLonPoint)
 {
   return itsInfo->Grid()->LatLonToGrid(theLatLonPoint);
 }
 
-
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-const NFmiGrid * LazyQueryData::Grid(void) const
-{
-  return itsInfo->Grid();
-}
-
+const NFmiGrid *LazyQueryData::Grid(void) const { return itsInfo->Grid(); }
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-const NFmiArea * LazyQueryData::Area(void) const
-{
-  return itsInfo->Area();
-}
-
+const NFmiArea *LazyQueryData::Area(void) const { return itsInfo->Area(); }
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-float LazyQueryData::InterpolatedValue(const NFmiPoint & theLatLonPoint)
+float LazyQueryData::InterpolatedValue(const NFmiPoint &theLatLonPoint)
 {
   return itsInfo->InterpolatedValue(theLatLonPoint);
 }
@@ -369,21 +291,16 @@ float LazyQueryData::InterpolatedValue(const NFmiPoint & theLatLonPoint)
  */
 // ----------------------------------------------------------------------
 
-void LazyQueryData::Values(NFmiDataMatrix<float> & theValues)
-{
-  itsInfo->Values(theValues);
-}
-
+void LazyQueryData::Values(NFmiDataMatrix<float> &theValues) { itsInfo->Values(theValues); }
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-void LazyQueryData::Values(NFmiDataMatrix<float> & theValues,
-						   const NFmiMetTime & theTime)
+void LazyQueryData::Values(NFmiDataMatrix<float> &theValues, const NFmiMetTime &theTime)
 {
-  itsInfo->Values(theValues,theTime);
+  itsInfo->Values(theValues, theTime);
 }
 
 // ----------------------------------------------------------------------
@@ -399,11 +316,10 @@ bool LazyQueryData::IsWorldData() const
   int xnumber = itsInfo->Grid()->XNumber();
 
   // Predicted span if there was one more grid point
-  double span = (lon2-lon1)*xnumber/(xnumber-1);
+  double span = (lon2 - lon1) * xnumber / (xnumber - 1);
 
   // Sufficiently accurately the entire world?
-  return (std::abs(span-360) < 0.001);
+  return (std::abs(span - 360) < 0.001);
 }
 
 // ======================================================================
-

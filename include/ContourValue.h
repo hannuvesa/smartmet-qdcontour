@@ -18,25 +18,24 @@
 
 class ContourValue
 {
-public:
-  
+ public:
 #ifdef COMPILER_GENERATED
   ~ContourValue();
-  ContourValue(const ContourValue & theValue);
-  ContourValue & operator=(const ContourValue & theValue);
+  ContourValue(const ContourValue &theValue);
+  ContourValue &operator=(const ContourValue &theValue);
 #endif
 
   ContourValue(float theValue,
-			   float theLineWidth,
-			   int theColor,
-			   const std::string & theRule="Atop");
-  
+               float theLineWidth,
+               int theColor,
+               const std::string &theRule = "Atop");
+
   float linewidth() const;
   float value() const;
   int color() const;
-  const std::string & rule() const;
-private:
+  const std::string &rule() const;
 
+ private:
   ContourValue(void);
 
   float itsValue;
@@ -45,7 +44,6 @@ private:
   std::string itsRule;
 };
 
-
-#endif // CONTOURVALUE_H
+#endif  // CONTOURVALUE_H
 
 // ======================================================================

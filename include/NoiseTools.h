@@ -12,16 +12,16 @@
 
 namespace NoiseTools
 {
-  // weighted median filter
-  void despeckle(NFmiDataMatrix<float> & theValues,
-				 float theLoLimit,
-				 float theHiLimit,
-				 int theRadius,
-				 float theWeight,
-				 int theIterations);
+// weighted median filter
+void despeckle(NFmiDataMatrix<float> &theValues,
+               float theLoLimit,
+               float theHiLimit,
+               int theRadius,
+               float theWeight,
+               int theIterations);
 
-} // namespace NoiseTools
+}  // namespace NoiseTools
 
-#endif // NOISETOOLS_H
+#endif  // NOISETOOLS_H
 
 // ======================================================================

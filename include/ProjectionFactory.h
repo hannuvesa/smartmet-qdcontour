@@ -20,17 +20,17 @@ class NFmiStereographicArea;
 
 namespace ProjectionFactory
 {
-  NFmiStereographicArea createStereographic(double theCentralLongitude,
-											double theCentralLatitude,
-											double theTrueLatitude,
-											const NFmiPoint & theCenter,
-											float theScale,
-											const NFmiPoint & theBottomLeft,
-											const NFmiPoint & theTopRight,
-											int & theWidth,
-											int & theHeight);
+NFmiStereographicArea createStereographic(double theCentralLongitude,
+                                          double theCentralLatitude,
+                                          double theTrueLatitude,
+                                          const NFmiPoint &theCenter,
+                                          float theScale,
+                                          const NFmiPoint &theBottomLeft,
+                                          const NFmiPoint &theTopRight,
+                                          int &theWidth,
+                                          int &theHeight);
 
-} // namespace ProjectionFactory
+}  // namespace ProjectionFactory
 
 #endif
 

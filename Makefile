@@ -73,6 +73,9 @@ clean:
 	-rm -f $(PROG) *~ source/*~ include/*~
 	-rm -rf $(objdir)
 
+format:
+	clang-format -i -style=file include/*.h source/*.cpp *.cpp
+
 install:
 	mkdir -p $(bindir)
 	@list='$(PROG)'; \

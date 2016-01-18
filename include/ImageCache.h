@@ -19,17 +19,15 @@
 
 class ImageCache
 {
-public:
-  const ImagineXr_or_NFmiImage & getImage(const std::string & theFile) const;
+ public:
+  const ImagineXr_or_NFmiImage &getImage(const std::string &theFile) const;
   void clear() const;
 
-private:
+ private:
   typedef std::map<std::string, ImagineXr_or_NFmiImage> storage_type;
   mutable storage_type itsCache;
-
 };
 
-#endif // IMAGECACHE_H
+#endif  // IMAGECACHE_H
 
 // ======================================================================
-

@@ -18,36 +18,33 @@
 
 class ContourRange
 {
-public:
-
+ public:
 #ifdef COMPILER_GENERATED
   ~ContourRange();
-  ContourRange(const ContourRange & theValue);
-  ContourRange & operator=(const ContourRange & theValue);
+  ContourRange(const ContourRange &theValue);
+  ContourRange &operator=(const ContourRange &theValue);
 #endif
-  
+
   ContourRange(float theLoLimit,
-			   float theHiLimit,
-			   int theColor,
-			   const std::string & theRule="Atop");
+               float theHiLimit,
+               int theColor,
+               const std::string &theRule = "Atop");
 
   float lolimit(void) const;
   float hilimit(void) const;
   int color(void) const;
-  const std::string & rule(void) const;
-  
-private:
+  const std::string &rule(void) const;
 
+ private:
   ContourRange(void);
 
   float itsLoLimit;
   float itsHiLimit;
-  int   itsColor;
+  int itsColor;
   std::string itsRule;
 
-}; // class ContourRange
+};  // class ContourRange
 
-#endif // CONTOURRANGE_H
+#endif  // CONTOURRANGE_H
 
 // ======================================================================
-

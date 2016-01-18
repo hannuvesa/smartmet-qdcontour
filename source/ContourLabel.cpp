@@ -17,11 +17,7 @@ using namespace std;
  */
 // ----------------------------------------------------------------------
 
-ContourLabel::ContourLabel(float theValue)
-  : itsValue(theValue)
-{
-}
-
+ContourLabel::ContourLabel(float theValue) : itsValue(theValue) {}
 // ----------------------------------------------------------------------
 /*!
  * \brief Return the value on the contour line
@@ -30,9 +26,5 @@ ContourLabel::ContourLabel(float theValue)
  */
 // ----------------------------------------------------------------------
 
-float ContourLabel::value() const
-{
-  return itsValue;
-}
-
+float ContourLabel::value() const { return itsValue; }
 // ======================================================================

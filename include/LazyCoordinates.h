@@ -29,30 +29,28 @@
 
 class LazyCoordinates
 {
-public:
-
+ public:
   typedef NFmiPoint element_type;
   typedef NFmiDataMatrix<element_type> data_type;
   typedef data_type::size_type size_type;
 
-  LazyCoordinates(const NFmiArea & theArea);
-  const element_type & operator()(size_type i, size_type j) const;
-  const element_type & operator()(int i, int j, const element_type & theDefault) const;
-  const data_type & operator*() const;
-  data_type & operator*();
+  LazyCoordinates(const NFmiArea &theArea);
+  const element_type &operator()(size_type i, size_type j) const;
+  const element_type &operator()(int i, int j, const element_type &theDefault) const;
+  const data_type &operator*() const;
+  data_type &operator*();
 
   size_type NX() const;
   size_type NY() const;
 
-private:
-
-  const NFmiArea & itsArea;
+ private:
+  const NFmiArea &itsArea;
   mutable bool itsInitialized;
   mutable data_type itsData;
 
   void init() const;
 
-}; // class LazyCoordinates
+};  // class LazyCoordinates
 
 // ----------------------------------------------------------------------
 /*!
@@ -60,9 +58,8 @@ private:
  */
 // ----------------------------------------------------------------------
 
-inline
-const LazyCoordinates::element_type &
-LazyCoordinates::operator()(size_type i, size_type j) const
+inline const LazyCoordinates::element_type &LazyCoordinates::operator()(size_type i,
+                                                                        size_type j) const
 {
   init();
   return itsData[i][j];
@@ -74,18 +71,15 @@ LazyCoordinates::operator()(size_type i, size_type j) const
  */
 // ----------------------------------------------------------------------
 
-inline
-const LazyCoordinates::element_type &
-LazyCoordinates::operator()(int i, int j, const element_type & theDefault) const
+inline const LazyCoordinates::element_type &LazyCoordinates::operator()(
+    int i, int j, const element_type &theDefault) const
 {
   init();
-  if(i>=0 &&
-	 j>=0 &&
-	 static_cast<size_type>(i) < itsData.NX() &&
-	 static_cast<size_type>(j) < itsData.NY())
-	{
-	  return itsData[i][j];
-	}
+  if (i >= 0 && j >= 0 && static_cast<size_type>(i) < itsData.NX() &&
+      static_cast<size_type>(j) < itsData.NY())
+  {
+    return itsData[i][j];
+  }
   static element_type dummy = theDefault;
   return dummy;
 }
@@ -96,8 +90,7 @@ LazyCoordinates::operator()(int i, int j, const element_type & theDefault) const
  */
 // ----------------------------------------------------------------------
 
-inline
-const LazyCoordinates::data_type & LazyCoordinates::operator*() const
+inline const LazyCoordinates::data_type &LazyCoordinates::operator*() const
 {
   init();
   return itsData;
@@ -109,8 +102,7 @@ const LazyCoordinates::data_type & LazyCoordinates::operator*() const
  */
 // ----------------------------------------------------------------------
 
-inline
-LazyCoordinates::data_type & LazyCoordinates::operator*()
+inline LazyCoordinates::data_type &LazyCoordinates::operator*()
 {
   init();
   return itsData;
@@ -122,8 +114,7 @@ LazyCoordinates::data_type & LazyCoordinates::operator*()
  */
 // ----------------------------------------------------------------------
 
-inline
-LazyCoordinates::size_type LazyCoordinates::NX() const
+inline LazyCoordinates::size_type LazyCoordinates::NX() const
 {
   init();
   return itsData.NX();
@@ -135,8 +126,7 @@ LazyCoordinates::size_type LazyCoordinates::NX() const
  */
 // ----------------------------------------------------------------------
 
-inline
-LazyCoordinates::size_type LazyCoordinates::NY() const
+inline LazyCoordinates::size_type LazyCoordinates::NY() const
 {
   init();
   return itsData.NY();
@@ -148,17 +138,14 @@ LazyCoordinates::size_type LazyCoordinates::NY() const
  */
 // ----------------------------------------------------------------------
 
-inline
-void LazyCoordinates::init() const
+inline void LazyCoordinates::init() const
 {
-  if(itsInitialized)
-	return;
+  if (itsInitialized) return;
 
   itsData = *globals.queryinfo->LocationsWorldXY(itsArea);
   itsInitialized = true;
-  
 }
 
-#endif // LAZYCOORDINATES_H
+#endif  // LAZYCOORDINATES_H
 
 // ======================================================================

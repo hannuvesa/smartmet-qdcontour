@@ -18,28 +18,26 @@
 
 class ContourPattern
 {
-public:
-
+ public:
 #ifdef COMPILER_GENERATED
-  ContourPattern(const ContourPattern & theValue);
-  ContourPattern & operator=(const ContourPattern & theValue);
+  ContourPattern(const ContourPattern &theValue);
+  ContourPattern &operator=(const ContourPattern &theValue);
 #endif
-  
-  virtual ~ContourPattern() { }
+
+  virtual ~ContourPattern() {}
   ContourPattern(float theLoLimit,
-				 float theHiLimit,
-				 const std::string & thePattern,
-				 const std::string & theRule,
-				 float theFactor=1.0);
+                 float theHiLimit,
+                 const std::string &thePattern,
+                 const std::string &theRule,
+                 float theFactor = 1.0);
 
   float lolimit(void) const;
   float hilimit(void) const;
-  const std::string & pattern(void) const;
-  const std::string & rule(void) const;
+  const std::string &pattern(void) const;
+  const std::string &rule(void) const;
   float factor(void) const;
-  
-private:
 
+ private:
   ContourPattern(void);
 
   float itsLoLimit;
@@ -48,9 +46,8 @@ private:
   std::string itsRule;
   float itsFactor;
 
-}; // class ContourPattern
+};  // class ContourPattern
 
-#endif // CONTOURPATTERN_H
+#endif  // CONTOURPATTERN_H
 
 // ======================================================================
-

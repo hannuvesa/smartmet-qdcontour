@@ -31,7 +31,7 @@
  *     -# loop over extrema types
  *      -# select label closest to a label from an earlier timestep
  *      -# loop over all remaining candidates, removing too close ones
- * 
+ *
  * The algorithm for choosing the label positions for the first
  * timestep \b when a bounding box has been specified is the same,
  * but the candidate coordinates are sorted based on their distances
@@ -56,43 +56,39 @@ const int badparameter = 0;
 
 namespace
 {
-  // ----------------------------------------------------------------------
-  /*!
-   * \brief Distance between two points
-   */
-  // ----------------------------------------------------------------------
+// ----------------------------------------------------------------------
+/*!
+ * \brief Distance between two points
+ */
+// ----------------------------------------------------------------------
 
-  double distance(double theX1, double theY1, double theX2, double theY2)
+double distance(double theX1, double theY1, double theX2, double theY2)
+{
+  return sqrt((theX2 - theX1) * (theX2 - theX1) + (theY2 - theY1) * (theY2 - theY1));
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Minimum distance of point from collection of points
+ */
+// ----------------------------------------------------------------------
+
+template <typename T>
+double mindistance(double theX, double theY, const T &theCoords)
+{
+  double best = -1;
+  for (typename T::const_iterator it = theCoords.begin(); it != theCoords.end(); ++it)
   {
-	return sqrt((theX2-theX1)*(theX2-theX1) +
-				(theY2-theY1)*(theY2-theY1));
+    double dist = distance(theX, theY, it->first, it->second);
+    if (best < 0)
+      best = dist;
+    else
+      best = min(best, dist);
   }
+  return best;
+}
 
-  // ----------------------------------------------------------------------
-  /*!
-   * \brief Minimum distance of point from collection of points
-   */
-  // ----------------------------------------------------------------------
-
-  template <typename T>
-  double mindistance(double theX, double theY, const T & theCoords)
-  {
-	double best = -1;
-	for(typename T::const_iterator it = theCoords.begin();
-		it != theCoords.end();
-		++it)
-	  {
-		double dist = distance(theX,theY,it->first,it->second);
-		if(best < 0)
-		  best = dist;
-		else
-		  best = min(best,dist);
-	  }
-	return best;
-  }
-
-} // namespace anonymous
-
+}  // namespace anonymous
 
 // ----------------------------------------------------------------------
 /*!
@@ -100,10 +96,7 @@ namespace
  */
 // ----------------------------------------------------------------------
 
-ExtremaLocator::~ExtremaLocator()
-{
-}
-
+ExtremaLocator::~ExtremaLocator() {}
 // ----------------------------------------------------------------------
 /*!
  * \brief Default constructor
@@ -111,10 +104,10 @@ ExtremaLocator::~ExtremaLocator()
 // ----------------------------------------------------------------------
 
 ExtremaLocator::ExtremaLocator()
-  : itsMinDistanceToSame(500)
-  , itsMinDistanceToDifferent(500)
-  , itsPreviousCoordinates()
-  , itsCurrentCoordinates()
+    : itsMinDistanceToSame(500),
+      itsMinDistanceToDifferent(500),
+      itsPreviousCoordinates(),
+      itsCurrentCoordinates()
 {
 }
 
@@ -153,8 +146,10 @@ void ExtremaLocator::clear()
 
 void ExtremaLocator::minDistanceToSame(float theDistance)
 {
-  if(!empty() && itsMinDistanceToSame != theDistance)
-	throw runtime_error("ExtremaLocator: Cannot change minimum distances once coordinates have been added");
+  if (!empty() && itsMinDistanceToSame != theDistance)
+    throw runtime_error(
+        "ExtremaLocator: Cannot change minimum distances once "
+        "coordinates have been added");
 
   itsMinDistanceToSame = theDistance;
 }
@@ -169,8 +164,10 @@ void ExtremaLocator::minDistanceToSame(float theDistance)
 
 void ExtremaLocator::minDistanceToDifferent(float theDistance)
 {
-  if(!empty() && itsMinDistanceToDifferent != theDistance)
-	throw runtime_error("ExtremaLocator: Cannot change minimum distances once coordinates have been added");
+  if (!empty() && itsMinDistanceToDifferent != theDistance)
+    throw runtime_error(
+        "ExtremaLocator: Cannot change minimum distances once "
+        "coordinates have been added");
 
   itsMinDistanceToDifferent = theDistance;
 }
@@ -189,7 +186,7 @@ void ExtremaLocator::minDistanceToDifferent(float theDistance)
 void ExtremaLocator::nextTime()
 {
   itsPreviousCoordinates.clear();
-  swap(itsPreviousCoordinates,itsCurrentCoordinates);
+  swap(itsPreviousCoordinates, itsCurrentCoordinates);
 }
 
 // ----------------------------------------------------------------------
@@ -207,10 +204,9 @@ void ExtremaLocator::add(Extremum theType, double theX, double theY)
   // Default constructed values are a desired side-effect in here
   // This is much simpler than using find + insert with checking
 
-  Coordinates & c = itsCurrentCoordinates[theType];
+  Coordinates &c = itsCurrentCoordinates[theType];
 
-  c.push_back(Coordinates::value_type(theX,theY));
-
+  c.push_back(Coordinates::value_type(theX, theY));
 }
 
 // ----------------------------------------------------------------------
@@ -219,55 +215,49 @@ void ExtremaLocator::add(Extremum theType, double theX, double theY)
  */
 // ----------------------------------------------------------------------
 
-const ExtremaLocator::ExtremaCoordinates & ExtremaLocator::chooseCoordinates()
+const ExtremaLocator::ExtremaCoordinates &ExtremaLocator::chooseCoordinates()
 {
   // Make a duplicate for the final choices
 
   ExtremaCoordinates candidates;
   ExtremaCoordinates choices;
-  swap(itsCurrentCoordinates,candidates);
+  swap(itsCurrentCoordinates, candidates);
 
-  while(!candidates.empty())
-	{
-	  for(ExtremaCoordinates::iterator cit = candidates.begin();
-		  cit != candidates.end();
-		  ++cit)
-		{
-		  // removeCandidates may have cleared some contour from
-		  // possible coordinates
+  while (!candidates.empty())
+  {
+    for (ExtremaCoordinates::iterator cit = candidates.begin(); cit != candidates.end(); ++cit)
+    {
+      // removeCandidates may have cleared some contour from
+      // possible coordinates
 
-		  if(cit->second.empty())
-			continue;
+      if (cit->second.empty()) continue;
 
-		  // find the best label coordinate
+      // find the best label coordinate
 
-		  const Extremum value = cit->first;
+      const Extremum value = cit->first;
 
-		  Coordinates::const_iterator best = chooseOne(cit->second,value);
-		  if(best == cit->second.end())
-			throw runtime_error("Internal error in ExtremaLocator::chooseLabels()");
+      Coordinates::const_iterator best = chooseOne(cit->second, value);
+      if (best == cit->second.end())
+        throw runtime_error("Internal error in ExtremaLocator::chooseLabels()");
 
-		  // add the best label coordinate
+      // add the best label coordinate
 
-		  Coordinates & coords = choices[value];
-		  coords.push_back(*best);
+      Coordinates &coords = choices[value];
+      coords.push_back(*best);
 
-		  // and erase all candidates too close to the accepted coordinate
+      // and erase all candidates too close to the accepted coordinate
 
-		  removeCandidates(candidates,*best,value);
+      removeCandidates(candidates, *best, value);
+    }
 
-		}
+    // Now we erase any possible empty containers left behind
 
-	  // Now we erase any possible empty containers left behind
+    removeEmpties(candidates);
+  }
 
-	  removeEmpties(candidates);
-
-	}
-
-  swap(itsCurrentCoordinates,choices);
+  swap(itsCurrentCoordinates, choices);
 
   return itsCurrentCoordinates;
-
 }
 
 // ----------------------------------------------------------------------
@@ -279,15 +269,13 @@ const ExtremaLocator::ExtremaCoordinates & ExtremaLocator::chooseCoordinates()
  */
 // ----------------------------------------------------------------------
 
-ExtremaLocator::Coordinates::const_iterator
-ExtremaLocator::chooseOne(const Coordinates & theCandidates,
-						  Extremum theType)
+ExtremaLocator::Coordinates::const_iterator ExtremaLocator::chooseOne(
+    const Coordinates &theCandidates, Extremum theType)
 {
   ExtremaCoordinates::const_iterator pit = itsPreviousCoordinates.find(theType);
-  if(pit == itsPreviousCoordinates.end())
-	return chooseClosestToBorder(theCandidates,theType);
+  if (pit == itsPreviousCoordinates.end()) return chooseClosestToBorder(theCandidates, theType);
 
-  return chooseClosestToPrevious(theCandidates,pit->second,theType);
+  return chooseClosestToPrevious(theCandidates, pit->second, theType);
 }
 
 // ----------------------------------------------------------------------
@@ -300,25 +288,21 @@ ExtremaLocator::chooseOne(const Coordinates & theCandidates,
  */
 // ----------------------------------------------------------------------
 
-ExtremaLocator::Coordinates::const_iterator
-ExtremaLocator::chooseClosestToPrevious(const Coordinates & theCandidates,
-										const Coordinates & thePreviousChoises,
-										Extremum theType)
+ExtremaLocator::Coordinates::const_iterator ExtremaLocator::chooseClosestToPrevious(
+    const Coordinates &theCandidates, const Coordinates &thePreviousChoises, Extremum theType)
 {
   double bestdist = -1;
   Coordinates::const_iterator best = theCandidates.end();
 
-  for(Coordinates::const_iterator it = theCandidates.begin();
-	  it != theCandidates.end();
-	  ++it)
-	{
-	  double mindist = mindistance(it->first,it->second,thePreviousChoises);
-	  if(bestdist < 0 || mindist < bestdist)
-		{
-		  bestdist = mindist;
-		  best = it;
-		}
-	}
+  for (Coordinates::const_iterator it = theCandidates.begin(); it != theCandidates.end(); ++it)
+  {
+    double mindist = mindistance(it->first, it->second, thePreviousChoises);
+    if (bestdist < 0 || mindist < bestdist)
+    {
+      bestdist = mindist;
+      best = it;
+    }
+  }
   return best;
 }
 
@@ -331,12 +315,10 @@ ExtremaLocator::chooseClosestToPrevious(const Coordinates & theCandidates,
  */
 // ----------------------------------------------------------------------
 
-ExtremaLocator::Coordinates::const_iterator
-ExtremaLocator::chooseClosestToBorder(const Coordinates & theCandidates,
-									  Extremum theType)
+ExtremaLocator::Coordinates::const_iterator ExtremaLocator::chooseClosestToBorder(
+    const Coordinates &theCandidates, Extremum theType)
 {
-  if(theCandidates.empty())
-	return theCandidates.end();
+  if (theCandidates.empty()) return theCandidates.end();
 
   return theCandidates.begin();
 }
@@ -356,39 +338,32 @@ ExtremaLocator::chooseClosestToBorder(const Coordinates & theCandidates,
  */
 // ----------------------------------------------------------------------
 
-void ExtremaLocator::removeCandidates(ExtremaCoordinates & theCandidates,
-									  const XY & thePoint,
-									  Extremum theType)
+void ExtremaLocator::removeCandidates(ExtremaCoordinates &theCandidates,
+                                      const XY &thePoint,
+                                      Extremum theType)
 {
-  for(ExtremaCoordinates::iterator pit = theCandidates.begin();
-	  pit != theCandidates.end();
-	  )
-	{
-	  const Extremum etype = pit->first;
+  for (ExtremaCoordinates::iterator pit = theCandidates.begin(); pit != theCandidates.end();)
+  {
+    const Extremum etype = pit->first;
 
-	  for(Coordinates::iterator it = pit->second.begin();
-		  it != pit->second.end();
-		  )
-		{
-		  const double dist = distance(thePoint.first,
-									   thePoint.second,
-									   it->first,
-									   it->second);
+    for (Coordinates::iterator it = pit->second.begin(); it != pit->second.end();)
+    {
+      const double dist = distance(thePoint.first, thePoint.second, it->first, it->second);
 
-		  bool erase = false;
+      bool erase = false;
 
-		  if(etype != theType)
-			erase = (dist < itsMinDistanceToDifferent);
-		  else
-			erase = (dist < itsMinDistanceToSame);
-		  
-		  if(erase)
-			it = pit->second.erase(it);
-		  else
-			++it;
-		}
-	  ++pit;
-	}
+      if (etype != theType)
+        erase = (dist < itsMinDistanceToDifferent);
+      else
+        erase = (dist < itsMinDistanceToSame);
+
+      if (erase)
+        it = pit->second.erase(it);
+      else
+        ++it;
+    }
+    ++pit;
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -401,17 +376,15 @@ void ExtremaLocator::removeCandidates(ExtremaCoordinates & theCandidates,
  */
 // ----------------------------------------------------------------------
 
-void ExtremaLocator::removeEmpties(ExtremaCoordinates & theCandidates)
+void ExtremaLocator::removeEmpties(ExtremaCoordinates &theCandidates)
 {
-  for(ExtremaCoordinates::iterator pit = theCandidates.begin();
-	  pit != theCandidates.end();
-	  )
-	{
-	  if(pit->second.empty())
-		theCandidates.erase(pit++);
-	  else
-		++pit;
-	}
+  for (ExtremaCoordinates::iterator pit = theCandidates.begin(); pit != theCandidates.end();)
+  {
+    if (pit->second.empty())
+      theCandidates.erase(pit++);
+    else
+      ++pit;
+  }
 }
 
 // ======================================================================

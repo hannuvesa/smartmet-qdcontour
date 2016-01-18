@@ -16,37 +16,32 @@ using namespace std;
 
 namespace
 {
-  // ----------------------------------------------------------------------
-  /*!
-   * \brief Return a cache-key for the given contour settings
-   *
-   * \param theLoLimit The lower limit of the contour
-   * \param theHiLimit The upper limit of the contour
-   * \param theTime The actual data time which may be interpolated
-   * \param theData The query data
-   * \return The key for the data in the cache
-   */
-  // ----------------------------------------------------------------------
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return a cache-key for the given contour settings
+ *
+ * \param theLoLimit The lower limit of the contour
+ * \param theHiLimit The upper limit of the contour
+ * \param theTime The actual data time which may be interpolated
+ * \param theData The query data
+ * \return The key for the data in the cache
+ */
+// ----------------------------------------------------------------------
 
-  std::string cache_key(float theLoLimit,
-						float theHiLimit,
-						const NFmiTime & theTime,
-						const LazyQueryData & theData)
-  {
-	ostringstream os;
+std::string cache_key(float theLoLimit,
+                      float theHiLimit,
+                      const NFmiTime &theTime,
+                      const LazyQueryData &theData)
+{
+  ostringstream os;
 
-	os << theLoLimit << '_'
-	   << theHiLimit << '_'
-	   << theData.Filename() << '_'
-	   << theTime.ToStr(kYYYYMMDDHHMM).CharPtr() << '_'
-	   << theData.OriginTime().ToStr(kYYYYMMDDHHMM).CharPtr() << '_'
-	   << theData.GetParamName() << '_'
-	   << theData.GetParamIdent() << '_'
-	   << theData.GetLevelNumber();
+  os << theLoLimit << '_' << theHiLimit << '_' << theData.Filename() << '_'
+     << theTime.ToStr(kYYYYMMDDHHMM).CharPtr() << '_'
+     << theData.OriginTime().ToStr(kYYYYMMDDHHMM).CharPtr() << '_' << theData.GetParamName() << '_'
+     << theData.GetParamIdent() << '_' << theData.GetLevelNumber();
 
-	return os.str();
-
-  }
+  return os.str();
+}
 }
 
 // ----------------------------------------------------------------------
@@ -57,22 +52,14 @@ namespace
  */
 // ----------------------------------------------------------------------
 
-bool ContourCache::empty() const
-{
-  return itsData.empty();
-}
-
+bool ContourCache::empty() const { return itsData.empty(); }
 // ----------------------------------------------------------------------
 /*!
  * \brief Empty the cache
  */
 // ----------------------------------------------------------------------
 
-void ContourCache::clear()
-{
-  itsData.clear();
-}
-
+void ContourCache::clear() { itsData.clear(); }
 // ----------------------------------------------------------------------
 /*!
  * \brief Return the number of cached contours
@@ -81,11 +68,7 @@ void ContourCache::clear()
  */
 // ----------------------------------------------------------------------
 
-ContourCache::size_type ContourCache::size() const
-{
-  return itsData.size();
-}
-
+ContourCache::size_type ContourCache::size() const { return itsData.size(); }
 // ----------------------------------------------------------------------
 /*!
  * \brief Test if given contour is cached
@@ -98,9 +81,9 @@ ContourCache::size_type ContourCache::size() const
 // ----------------------------------------------------------------------
 
 bool ContourCache::contains(float theLoLimit,
-							float theHiLimit,
-							const NFmiTime & theTime,
-							const LazyQueryData & theData) const
+                            float theHiLimit,
+                            const NFmiTime &theTime,
+                            const LazyQueryData &theData) const
 {
   string key = cache_key(theLoLimit, theHiLimit, theTime, theData);
   storage_type::const_iterator it = itsData.find(key);
@@ -121,15 +104,14 @@ bool ContourCache::contains(float theLoLimit,
  */
 // ----------------------------------------------------------------------
 
-const Imagine::NFmiPath & ContourCache::find(float theLoLimit,
-											 float theHiLimit,
-											 const NFmiTime & theTime,
-											 const LazyQueryData & theData) const
+const Imagine::NFmiPath &ContourCache::find(float theLoLimit,
+                                            float theHiLimit,
+                                            const NFmiTime &theTime,
+                                            const LazyQueryData &theData) const
 {
   string key = cache_key(theLoLimit, theHiLimit, theTime, theData);
   storage_type::const_iterator it = itsData.find(key);
-  if(it != itsData.end())
-	return it->second;
+  if (it != itsData.end()) return it->second;
   throw runtime_error("Contour was not in the cache - use contains first!");
 }
 
@@ -147,20 +129,19 @@ const Imagine::NFmiPath & ContourCache::find(float theLoLimit,
  */
 // ----------------------------------------------------------------------
 
-void ContourCache::insert(const Imagine::NFmiPath & thePath,
-						  float theLoLimit,
-						  float theHiLimit,
-						  const NFmiTime & theTime,
-						  const LazyQueryData & theData)
+void ContourCache::insert(const Imagine::NFmiPath &thePath,
+                          float theLoLimit,
+                          float theHiLimit,
+                          const NFmiTime &theTime,
+                          const LazyQueryData &theData)
 {
   string key = cache_key(theLoLimit, theHiLimit, theTime, theData);
 
   typedef pair<storage_type::const_iterator, bool> restype;
 
-  restype result = itsData.insert(storage_type::value_type(key,thePath));
-  
-  if(!result.second)
-	throw runtime_error("Contour was already in the cache!");
+  restype result = itsData.insert(storage_type::value_type(key, thePath));
+
+  if (!result.second) throw runtime_error("Contour was already in the cache!");
 }
 
 // ======================================================================

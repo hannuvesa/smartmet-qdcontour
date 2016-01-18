@@ -20,14 +20,12 @@ class NFmiTime;
 
 namespace TimeTools
 {
-  NFmiTime ConvertZone(const NFmiTime & theTime,
-					   const std::string & theZone);
+NFmiTime ConvertZone(const NFmiTime &theTime, const std::string &theZone);
 
-  NFmiTime ToUTC(::time_t theTime);
+NFmiTime ToUTC(::time_t theTime);
 
+}  // namespace TimeTools
 
-} // namespace TimeTools
-
-#endif // TIMETOOLS_H
+#endif  // TIMETOOLS_H
 
 // ======================================================================

@@ -13,13 +13,12 @@
 
 class ExtremaLocator
 {
-public:
-
+ public:
   enum Extremum
-	{
-	  Minimum,
-	  Maximum
-	};
+  {
+    Minimum,
+    Maximum
+  };
 
   ~ExtremaLocator();
   ExtremaLocator();
@@ -34,18 +33,17 @@ public:
 
   void add(Extremum theType, double theX, double theY);
 
-  typedef std::pair<double,double> XY;
+  typedef std::pair<double, double> XY;
   typedef std::list<XY> Coordinates;
-  typedef std::map<Extremum,Coordinates> ExtremaCoordinates;
+  typedef std::map<Extremum, Coordinates> ExtremaCoordinates;
 
-  const ExtremaCoordinates & chooseCoordinates();
+  const ExtremaCoordinates &chooseCoordinates();
 
-private:
-
+ private:
   // Intentionally disabled:
 
-  ExtremaLocator(const ExtremaLocator & theLocator);
-  ExtremaLocator & operator=(const ExtremaLocator & theLocator);
+  ExtremaLocator(const ExtremaLocator &theLocator);
+  ExtremaLocator &operator=(const ExtremaLocator &theLocator);
 
   float itsMinDistanceToSame;
   float itsMinDistanceToDifferent;
@@ -55,26 +53,21 @@ private:
 
   // Private methods:
 
-  Coordinates::const_iterator
-  chooseOne(const Coordinates & theCandidates,Extremum theType);
+  Coordinates::const_iterator chooseOne(const Coordinates &theCandidates, Extremum theType);
 
-  Coordinates::const_iterator
-  chooseClosestToPrevious(const Coordinates & theCandidates,
-						  const Coordinates & thePreviousChoices,
-						  Extremum theType);
+  Coordinates::const_iterator chooseClosestToPrevious(const Coordinates &theCandidates,
+                                                      const Coordinates &thePreviousChoices,
+                                                      Extremum theType);
 
-  Coordinates::const_iterator
-  chooseClosestToBorder(const Coordinates & theCandidates,
-						Extremum theType);
+  Coordinates::const_iterator chooseClosestToBorder(const Coordinates &theCandidates,
+                                                    Extremum theType);
 
-  void removeCandidates(ExtremaCoordinates & theCandidates,
-						const XY & thePoint,
-						Extremum theType);
+  void removeCandidates(ExtremaCoordinates &theCandidates, const XY &thePoint, Extremum theType);
 
-  void removeEmpties(ExtremaCoordinates & theCandidates);
+  void removeEmpties(ExtremaCoordinates &theCandidates);
 
-}; // class ExtremaLocator
+};  // class ExtremaLocator
 
-#endif // EXTREMALOCATOR_H
+#endif  // EXTREMALOCATOR_H
 
 // ======================================================================

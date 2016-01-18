@@ -37,7 +37,7 @@
  *        -# remove candidates too close to the chosen one
  *      -# loop over all candidates for the same contour
  *        -# remove candidates too close to the chosen one
- * 
+ *
  * The algorithm for choosing the label positions for the first
  * timestep \b when a bounding box has been specified is the same,
  * but the candidate coordinates are sorted based on their distances
@@ -63,43 +63,39 @@ const int badparameter = 0;
 
 namespace
 {
-  // ----------------------------------------------------------------------
-  /*!
-   * \brief Distance between two points
-   */
-  // ----------------------------------------------------------------------
+// ----------------------------------------------------------------------
+/*!
+ * \brief Distance between two points
+ */
+// ----------------------------------------------------------------------
 
-  double distance(double theX1, double theY1, double theX2, double theY2)
+double distance(double theX1, double theY1, double theX2, double theY2)
+{
+  return sqrt((theX2 - theX1) * (theX2 - theX1) + (theY2 - theY1) * (theY2 - theY1));
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Minimum distance of point from collection of points
+ */
+// ----------------------------------------------------------------------
+
+template <typename T>
+double mindistance(double theX, double theY, const T &theCoords)
+{
+  double best = -1;
+  for (typename T::const_iterator it = theCoords.begin(); it != theCoords.end(); ++it)
   {
-	return sqrt((theX2-theX1)*(theX2-theX1) +
-				(theY2-theY1)*(theY2-theY1));
+    double dist = distance(theX, theY, it->second.first, it->second.second);
+    if (best < 0)
+      best = dist;
+    else
+      best = min(best, dist);
   }
+  return best;
+}
 
-  // ----------------------------------------------------------------------
-  /*!
-   * \brief Minimum distance of point from collection of points
-   */
-  // ----------------------------------------------------------------------
-
-  template <typename T>
-  double mindistance(double theX, double theY, const T & theCoords)
-  {
-	double best = -1;
-	for(typename T::const_iterator it = theCoords.begin();
-		it != theCoords.end();
-		++it)
-	  {
-		double dist = distance(theX,theY,it->second.first,it->second.second);
-		if(best < 0)
-		  best = dist;
-		else
-		  best = min(best,dist);
-	  }
-	return best;
-  }
-
-} // namespace anonymous
-
+}  // namespace anonymous
 
 // ----------------------------------------------------------------------
 /*!
@@ -107,10 +103,7 @@ namespace
  */
 // ----------------------------------------------------------------------
 
-LabelLocator::~LabelLocator()
-{
-}
-
+LabelLocator::~LabelLocator() {}
 // ----------------------------------------------------------------------
 /*!
  * \brief Default constructor
@@ -118,17 +111,17 @@ LabelLocator::~LabelLocator()
 // ----------------------------------------------------------------------
 
 LabelLocator::LabelLocator()
-  : itHasBBox(false)
-  , itsBBoxX1(0)
-  , itsBBoxY1(0)
-  , itsBBoxX2(0)
-  , itsBBoxY2(0)
-  , itsMinDistanceToSameValue(175)
-  , itsMinDistanceToDifferentValue(30)
-  , itsMinDistanceToDifferentParameter(30)
-  , itsActiveParameter(0)
-  , itsPreviousCoordinates()
-  , itsCurrentCoordinates()
+    : itHasBBox(false),
+      itsBBoxX1(0),
+      itsBBoxY1(0),
+      itsBBoxX2(0),
+      itsBBoxY2(0),
+      itsMinDistanceToSameValue(175),
+      itsMinDistanceToDifferentValue(30),
+      itsMinDistanceToDifferentParameter(30),
+      itsActiveParameter(0),
+      itsPreviousCoordinates(),
+      itsCurrentCoordinates()
 {
 }
 
@@ -176,18 +169,17 @@ void LabelLocator::clear()
 
 void LabelLocator::boundingBox(int theX1, int theY1, int theX2, int theY2)
 {
-  if(theX2 <= theX1 || theY2 <= theY1)
-	throw runtime_error("Empty bounding box not allowed in LabelLocator");
+  if (theX2 <= theX1 || theY2 <= theY1)
+    throw runtime_error("Empty bounding box not allowed in LabelLocator");
 
-  if(!empty())
-	{
-	  if(!itHasBBox ||
-		 itsBBoxX1 != theX1 ||
-		 itsBBoxY1 != theY1 ||
-		 itsBBoxX2 != theX2 ||
-		 itsBBoxY2 != theY2)
-		throw runtime_error("LabelLocator: Cannot change bounding box once coordinates have been added");
-	}
+  if (!empty())
+  {
+    if (!itHasBBox || itsBBoxX1 != theX1 || itsBBoxY1 != theY1 || itsBBoxX2 != theX2 ||
+        itsBBoxY2 != theY2)
+      throw runtime_error(
+          "LabelLocator: Cannot change bounding box once "
+          "coordinates have been added");
+  }
 
   itHasBBox = true;
   itsBBoxX1 = theX1;
@@ -206,8 +198,10 @@ void LabelLocator::boundingBox(int theX1, int theY1, int theX2, int theY2)
 
 void LabelLocator::minDistanceToSameValue(float theDistance)
 {
-  if(!empty() && itsMinDistanceToSameValue != theDistance)
-	throw runtime_error("LabelLocator: Cannot change minimum distances once coordinates have been added");
+  if (!empty() && itsMinDistanceToSameValue != theDistance)
+    throw runtime_error(
+        "LabelLocator: Cannot change minimum distances once "
+        "coordinates have been added");
 
   itsMinDistanceToSameValue = theDistance;
 }
@@ -222,8 +216,10 @@ void LabelLocator::minDistanceToSameValue(float theDistance)
 
 void LabelLocator::minDistanceToDifferentValue(float theDistance)
 {
-  if(!empty() && itsMinDistanceToDifferentValue != theDistance)
-	throw runtime_error("LabelLocator: Cannot change minimum distances once coordinates have been added");
+  if (!empty() && itsMinDistanceToDifferentValue != theDistance)
+    throw runtime_error(
+        "LabelLocator: Cannot change minimum distances once "
+        "coordinates have been added");
 
   itsMinDistanceToDifferentValue = theDistance;
 }
@@ -238,8 +234,10 @@ void LabelLocator::minDistanceToDifferentValue(float theDistance)
 
 void LabelLocator::minDistanceToDifferentParameter(float theDistance)
 {
-  if(!empty() && itsMinDistanceToDifferentParameter != theDistance)
-	throw runtime_error("LabelLocator: Cannot change minimum distances once coordinates have been added");
+  if (!empty() && itsMinDistanceToDifferentParameter != theDistance)
+    throw runtime_error(
+        "LabelLocator: Cannot change minimum distances once "
+        "coordinates have been added");
 
   itsMinDistanceToDifferentParameter = theDistance;
 }
@@ -259,8 +257,8 @@ void LabelLocator::minDistanceToDifferentParameter(float theDistance)
 
 void LabelLocator::parameter(int theParameter)
 {
-  if(theParameter == badparameter)
-	throw runtime_error("Cannot activate parameter number 0, must be nonnegative");
+  if (theParameter == badparameter)
+    throw runtime_error("Cannot activate parameter number 0, must be nonnegative");
 
   itsActiveParameter = theParameter;
 }
@@ -279,7 +277,7 @@ void LabelLocator::parameter(int theParameter)
 void LabelLocator::nextTime()
 {
   itsPreviousCoordinates.clear();
-  swap(itsPreviousCoordinates,itsCurrentCoordinates);
+  swap(itsPreviousCoordinates, itsCurrentCoordinates);
 }
 
 // ----------------------------------------------------------------------
@@ -297,13 +295,9 @@ void LabelLocator::nextTime()
 
 bool LabelLocator::inside(int theX, int theY) const
 {
-  if(!itHasBBox)
-	return true;
+  if (!itHasBBox) return true;
 
-  return (theX >= itsBBoxX1 &&
-		  theX < itsBBoxX2 &&
-		  theY >= itsBBoxY1 &&
-		  theY < itsBBoxY2);
+  return (theX >= itsBBoxX1 && theX < itsBBoxX2 && theY >= itsBBoxY1 && theY < itsBBoxY2);
 }
 
 // ----------------------------------------------------------------------
@@ -320,39 +314,36 @@ void LabelLocator::add(float theContour, int theX, int theY)
 {
   // Ignore the point if it is not within the bounding box
 
-  if(!inside(theX,theY))
-	return;
+  if (!inside(theX, theY)) return;
 
   // Cannot add any coordinates for non-existent parameter
 
-  if(itsActiveParameter == badparameter)
-	throw runtime_error("LabelLocator: Cannot add label location before setting the parameter");
-
+  if (itsActiveParameter == badparameter)
+    throw runtime_error("LabelLocator: Cannot add label location before setting the parameter");
 
   // Default constructed values are a desired side-effect in here
   // This is much simpler than using find + insert with checking
 
-  ContourCoordinates & cc = itsCurrentCoordinates[itsActiveParameter];
-  Coordinates & c = cc[theContour];
+  ContourCoordinates &cc = itsCurrentCoordinates[itsActiveParameter];
+  Coordinates &c = cc[theContour];
 
   // Now calculate the distance value used for sorting
 
   ParamCoordinates::const_iterator it = itsPreviousCoordinates.find(itsActiveParameter);
 
   float dist;
-  if(it == itsPreviousCoordinates.end())
-	dist = distanceToBorder(static_cast<float>(theX), static_cast<float>(theY));
+  if (it == itsPreviousCoordinates.end())
+    dist = distanceToBorder(static_cast<float>(theX), static_cast<float>(theY));
   else
-	{
-	  ContourCoordinates::const_iterator jt = it->second.find(theContour);
-	  if(jt == it->second.end())
-		dist = distanceToBorder(static_cast<float>(theX), static_cast<float>(theY));
-	  else
-		dist = static_cast<float>(mindistance(static_cast<float>(theX), theY,jt->second));
-	}
+  {
+    ContourCoordinates::const_iterator jt = it->second.find(theContour);
+    if (jt == it->second.end())
+      dist = distanceToBorder(static_cast<float>(theX), static_cast<float>(theY));
+    else
+      dist = static_cast<float>(mindistance(static_cast<float>(theX), theY, jt->second));
+  }
 
-  c.insert(Coordinates::value_type(dist,XY(theX,theY)));
-
+  c.insert(Coordinates::value_type(dist, XY(theX, theY)));
 }
 
 // ----------------------------------------------------------------------
@@ -367,14 +358,14 @@ void LabelLocator::add(float theContour, int theX, int theY)
 
 float LabelLocator::distanceToBorder(float theX, float theY) const
 {
-  if(!itHasBBox)
-	return 0;
+  if (!itHasBBox) return 0;
 
-  double xdist = min(abs(theX-static_cast<float>(itsBBoxX1)),abs(theX-static_cast<float>(itsBBoxX2)));
-  double ydist = min(abs(theY-static_cast<float>(itsBBoxY1)),abs(theY-static_cast<float>(itsBBoxY2)));
-  return static_cast<float>(min(xdist,ydist));
+  double xdist =
+      min(abs(theX - static_cast<float>(itsBBoxX1)), abs(theX - static_cast<float>(itsBBoxX2)));
+  double ydist =
+      min(abs(theY - static_cast<float>(itsBBoxY1)), abs(theY - static_cast<float>(itsBBoxY2)));
+  return static_cast<float>(min(xdist, ydist));
 }
-
 
 // ----------------------------------------------------------------------
 /*!
@@ -382,36 +373,33 @@ float LabelLocator::distanceToBorder(float theX, float theY) const
  */
 // ----------------------------------------------------------------------
 
-const LabelLocator::ParamCoordinates & LabelLocator::chooseLabels()
+const LabelLocator::ParamCoordinates &LabelLocator::chooseLabels()
 {
   // Make a duplicate for the final choices
 
   ParamCoordinates candidates;
   ParamCoordinates choices;
-  swap(itsCurrentCoordinates,candidates);
+  swap(itsCurrentCoordinates, candidates);
 
-  while(!candidates.empty())
-	{
-	  const int param = candidates.begin()->first;
-	  ContourCoordinates & contours = candidates.begin()->second;
+  while (!candidates.empty())
+  {
+    const int param = candidates.begin()->first;
+    ContourCoordinates &contours = candidates.begin()->second;
 
-	  for(ContourCoordinates::iterator cit = contours.begin();
-		  cit != contours.end();
-		  ++cit)
-		{
-		  // removeCandidates may have cleared some contour from
-		  // possible coordinates
+    for (ContourCoordinates::iterator cit = contours.begin(); cit != contours.end(); ++cit)
+    {
+      // removeCandidates may have cleared some contour from
+      // possible coordinates
 
-		  if(cit->second.empty())
-			continue;
+      if (cit->second.empty()) continue;
 
-		  // the candidate is the first label coordinate, since we've
-		  // sorted them so
+      // the candidate is the first label coordinate, since we've
+      // sorted them so
 
-		  if(cit->second.empty())
-			throw runtime_error("Internal error in LabelLocator::chooseLabels()");
-		  const float value = cit->first;
-		  const Coordinates::value_type best = *(cit->second.begin());
+      if (cit->second.empty())
+        throw runtime_error("Internal error in LabelLocator::chooseLabels()");
+      const float value = cit->first;
+      const Coordinates::value_type best = *(cit->second.begin());
 
 #if 0
 		  cout << "Chose: " << best.first << " at "
@@ -421,28 +409,25 @@ const LabelLocator::ParamCoordinates & LabelLocator::chooseLabels()
 			   << endl;
 #endif
 
-		  // add the best label coordinate
+      // add the best label coordinate
 
-		  ContourCoordinates & contours = choices[param];
-		  Coordinates & coords = contours[value];
-		  coords.insert(best);
+      ContourCoordinates &contours = choices[param];
+      Coordinates &coords = contours[value];
+      coords.insert(best);
 
-		  // and erase all candidates too close to the accepted coordinate
+      // and erase all candidates too close to the accepted coordinate
 
-		  removeCandidates(candidates,best.second,param,value);
+      removeCandidates(candidates, best.second, param, value);
+    }
 
-		}
+    // Now we erase any possible empty containers left behind
 
-	  // Now we erase any possible empty containers left behind
+    removeEmpties(candidates);
+  }
 
-	  removeEmpties(candidates);
-
-	}
-
-  swap(itsCurrentCoordinates,choices);
+  swap(itsCurrentCoordinates, choices);
 
   return itsCurrentCoordinates;
-
 }
 
 // ----------------------------------------------------------------------
@@ -460,50 +445,40 @@ const LabelLocator::ParamCoordinates & LabelLocator::chooseLabels()
  */
 // ----------------------------------------------------------------------
 
-void LabelLocator::removeCandidates(ParamCoordinates & theCandidates,
-									const XY & thePoint,
-									int theParam,
-									float theContour)
+void LabelLocator::removeCandidates(ParamCoordinates &theCandidates,
+                                    const XY &thePoint,
+                                    int theParam,
+                                    float theContour)
 {
-  for(ParamCoordinates::iterator pit = theCandidates.begin();
-	  pit != theCandidates.end();
-	  )
-	{
-	  const int param = pit->first;
-	  for(ContourCoordinates::iterator cit = pit->second.begin();
-		  cit != pit->second.end();
-		  )
-		{
-		  const float contour = cit->first;
-		  for(Coordinates::iterator it = cit->second.begin();
-			  it != cit->second.end();
-			  )
-			{
-			  const double dist = distance(thePoint.first,
-										   thePoint.second,
-										   it->second.first,
-										   it->second.second);
+  for (ParamCoordinates::iterator pit = theCandidates.begin(); pit != theCandidates.end();)
+  {
+    const int param = pit->first;
+    for (ContourCoordinates::iterator cit = pit->second.begin(); cit != pit->second.end();)
+    {
+      const float contour = cit->first;
+      for (Coordinates::iterator it = cit->second.begin(); it != cit->second.end();)
+      {
+        const double dist =
+            distance(thePoint.first, thePoint.second, it->second.first, it->second.second);
 
-			  bool erase = false;
+        bool erase = false;
 
-			  if(param != theParam)
-				erase = (dist < itsMinDistanceToDifferentParameter);
-			  else if(contour != theContour)
-				erase = (dist < itsMinDistanceToDifferentValue);
-			  else
-				erase = (dist < itsMinDistanceToSameValue);
+        if (param != theParam)
+          erase = (dist < itsMinDistanceToDifferentParameter);
+        else if (contour != theContour)
+          erase = (dist < itsMinDistanceToDifferentValue);
+        else
+          erase = (dist < itsMinDistanceToSameValue);
 
-			  if(erase)
-				cit->second.erase(it++);
-			  else
-				++it;
-
-			}
-		  ++cit;
-		}
-	  ++pit;
-	}
-	  
+        if (erase)
+          cit->second.erase(it++);
+        else
+          ++it;
+      }
+      ++cit;
+    }
+    ++pit;
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -516,26 +491,22 @@ void LabelLocator::removeCandidates(ParamCoordinates & theCandidates,
  */
 // ----------------------------------------------------------------------
 
-void LabelLocator::removeEmpties(ParamCoordinates & theCandidates)
+void LabelLocator::removeEmpties(ParamCoordinates &theCandidates)
 {
-  for(ParamCoordinates::iterator pit = theCandidates.begin();
-	  pit != theCandidates.end();
-	  )
-	{
-	  for(ContourCoordinates::iterator cit = pit->second.begin();
-		  cit != pit->second.end();
-		  )
-		{
-		  if(cit->second.empty())
-			pit->second.erase(cit++);
-		  else
-			++cit;
-		}
-	  if(pit->second.empty())
-		theCandidates.erase(pit++);
-	  else
-		++pit;
-	}
+  for (ParamCoordinates::iterator pit = theCandidates.begin(); pit != theCandidates.end();)
+  {
+    for (ContourCoordinates::iterator cit = pit->second.begin(); cit != pit->second.end();)
+    {
+      if (cit->second.empty())
+        pit->second.erase(cit++);
+      else
+        ++cit;
+    }
+    if (pit->second.empty())
+      theCandidates.erase(pit++);
+    else
+      ++pit;
+  }
 }
 
 // ======================================================================

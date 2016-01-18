@@ -13,17 +13,15 @@
 
 class ArrowCache
 {
-public:
-
-  const std::string & find(const std::string & theName);
+ public:
+  const std::string &find(const std::string &theName);
   bool empty() const;
   void clear();
 
-private:
-
-  typedef std::map<std::string,std::string> cache_type;
+ private:
+  typedef std::map<std::string, std::string> cache_type;
   cache_type itsCache;
 
-}; // class ArrowCache
+};  // class ArrowCache
 
 #endif

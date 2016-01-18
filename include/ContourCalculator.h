@@ -21,7 +21,8 @@
 #include <boost/shared_ptr.hpp>
 #include <memory>
 
-template <typename T> class NFmiDataMatrix;
+template <typename T>
+class NFmiDataMatrix;
 
 class ContourCalculatorPimple;
 class LazyQueryData;
@@ -29,37 +30,37 @@ class NFmiTime;
 
 namespace Imagine
 {
-  class NFmiPath;
+class NFmiPath;
 }
 
 class ContourCalculator
 {
-public:
+ public:
   ~ContourCalculator();
   ContourCalculator();
 
-  Imagine::NFmiPath contour(const LazyQueryData & theData,
-							float theLoLimit, float theHiLimit,
-							const NFmiTime & theTime,
-							ContourInterpolation theInterpolation);
+  Imagine::NFmiPath contour(const LazyQueryData &theData,
+                            float theLoLimit,
+                            float theHiLimit,
+                            const NFmiTime &theTime,
+                            ContourInterpolation theInterpolation);
 
-  Imagine::NFmiPath contour(const LazyQueryData & theData,
-							float theValue,
-							const NFmiTime & theTime,
-							ContourInterpolation theInterpolation);
+  Imagine::NFmiPath contour(const LazyQueryData &theData,
+                            float theValue,
+                            const NFmiTime &theTime,
+                            ContourInterpolation theInterpolation);
 
-  void data(const NFmiDataMatrix<float> & theData);
+  void data(const NFmiDataMatrix<float> &theData);
   void clearCache();
   void cache(bool);
   bool wasCached(void) const;
-  
-private:
 
-  ContourCalculator(const ContourCalculator & theCalc);
-  ContourCalculator & operator=(const ContourCalculator & theCalc);
+ private:
+  ContourCalculator(const ContourCalculator &theCalc);
+  ContourCalculator &operator=(const ContourCalculator &theCalc);
 
   boost::shared_ptr<ContourCalculatorPimple> itsPimple;
 
-}; // class ContourCalculator
+};  // class ContourCalculator
 
 // ======================================================================

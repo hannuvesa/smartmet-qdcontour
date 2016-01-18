@@ -13,8 +13,7 @@
 
 class LabelLocator
 {
-public:
-
+ public:
   ~LabelLocator();
   LabelLocator();
 
@@ -31,19 +30,18 @@ public:
 
   void add(float theContour, int theX, int theY);
 
-  typedef std::pair<int,int> XY;
-  typedef std::multimap<float,XY> Coordinates;
-  typedef std::map<float,Coordinates> ContourCoordinates;
-  typedef std::map<int,ContourCoordinates> ParamCoordinates;
+  typedef std::pair<int, int> XY;
+  typedef std::multimap<float, XY> Coordinates;
+  typedef std::map<float, Coordinates> ContourCoordinates;
+  typedef std::map<int, ContourCoordinates> ParamCoordinates;
 
-  const ParamCoordinates & chooseLabels();
+  const ParamCoordinates &chooseLabels();
 
-private:
-
+ private:
   // Intentionally disabled:
 
-  LabelLocator(const LabelLocator & theLocator);
-  LabelLocator & operator=(const LabelLocator & theLocator);
+  LabelLocator(const LabelLocator &theLocator);
+  LabelLocator &operator=(const LabelLocator &theLocator);
 
   bool itHasBBox;
   int itsBBoxX1;
@@ -65,15 +63,15 @@ private:
 
   float distanceToBorder(float theX, float theY) const;
 
-  void removeCandidates(ParamCoordinates & theCandidates,
-						const XY & thePoint,
-						int theParam,
-						float theContour);
+  void removeCandidates(ParamCoordinates &theCandidates,
+                        const XY &thePoint,
+                        int theParam,
+                        float theContour);
 
-  void removeEmpties(ParamCoordinates & theCandidates);
+  void removeEmpties(ParamCoordinates &theCandidates);
 
-}; // class LabelLocator
+};  // class LabelLocator
 
-#endif // LABELLOCATOR_H
+#endif  // LABELLOCATOR_H
 
 // ======================================================================

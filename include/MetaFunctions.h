@@ -20,14 +20,12 @@
 
 namespace MetaFunctions
 {
-  bool isMeta(const std::string & theFunction);
-  int id(const std::string & theFunction);
-  NFmiDataMatrix<float> values(const std::string & theFunction,
-							   LazyQueryData & theQI);
+bool isMeta(const std::string &theFunction);
+int id(const std::string &theFunction);
+NFmiDataMatrix<float> values(const std::string &theFunction, LazyQueryData &theQI);
 
-} // namespace MetaFunctions
+}  // namespace MetaFunctions
 
-#endif // METAFUNCTIONS_H
+#endif  // METAFUNCTIONS_H
 
 // ======================================================================
-

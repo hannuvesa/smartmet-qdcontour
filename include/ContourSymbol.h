@@ -22,23 +22,17 @@
 
 class ContourSymbol : public ContourPattern
 {
-public:
+ public:
   ContourSymbol(float theLoLimit,
-				float theHiLimit,
-				const std::string & thePattern,
-				const std::string & theRule,
-				float theFactor=1.0)
-	: ContourPattern(theLoLimit,
-					 theHiLimit,
-					 thePattern,
-					 theRule,
-					 theFactor)
+                float theHiLimit,
+                const std::string &thePattern,
+                const std::string &theRule,
+                float theFactor = 1.0)
+      : ContourPattern(theLoLimit, theHiLimit, thePattern, theRule, theFactor)
   {
   }
-
 };
 
-#endif // CONTOURSYMBOL_H
+#endif  // CONTOURSYMBOL_H
 
 // ======================================================================
-

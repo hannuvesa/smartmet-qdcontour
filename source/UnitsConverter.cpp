@@ -18,15 +18,15 @@ using namespace std;
 // ----------------------------------------------------------------------
 
 enum ConversionType
-  {
-	NoConversion = 0,
-	CelsiusToFahrenheit,
-	FahrenheitToCelsius,
-	MetersPerSecondToKnots,
-	MetersToFeet,
-	KiloMetersToFeet,
-	KiloMetersToFlightLevel
-  };
+{
+  NoConversion = 0,
+  CelsiusToFahrenheit,
+  FahrenheitToCelsius,
+  MetersPerSecondToKnots,
+  MetersToFeet,
+  KiloMetersToFeet,
+  KiloMetersToFlightLevel
+};
 
 // ----------------------------------------------------------------------
 /*!
@@ -36,10 +36,10 @@ enum ConversionType
 
 inline float celsius_to_fahrenheit(float theValue)
 {
-  if(theValue == kFloatMissing)
-	return kFloatMissing;
+  if (theValue == kFloatMissing)
+    return kFloatMissing;
   else
-	return (1.8f*theValue+32);
+    return (1.8f * theValue + 32);
 }
 
 // ----------------------------------------------------------------------
@@ -50,10 +50,10 @@ inline float celsius_to_fahrenheit(float theValue)
 
 inline float fahrenheit_to_celsius(float theValue)
 {
-  if(theValue == kFloatMissing)
-	return kFloatMissing;
+  if (theValue == kFloatMissing)
+    return kFloatMissing;
   else
-	return (theValue-32)/1.8f;
+    return (theValue - 32) / 1.8f;
 }
 
 // ----------------------------------------------------------------------
@@ -66,10 +66,10 @@ inline float fahrenheit_to_celsius(float theValue)
 
 inline float meterspersecond_to_knots(float theValue)
 {
-  if(theValue == kFloatMissing)
-	return kFloatMissing;
+  if (theValue == kFloatMissing)
+    return kFloatMissing;
   else
-	return theValue / 0.51444444444444444444444444f;
+    return theValue / 0.51444444444444444444444444f;
 }
 
 // ----------------------------------------------------------------------
@@ -82,10 +82,10 @@ inline float meterspersecond_to_knots(float theValue)
 
 inline float meters_to_feet(float theValue)
 {
-  if(theValue == kFloatMissing)
-	return kFloatMissing;
+  if (theValue == kFloatMissing)
+    return kFloatMissing;
   else
-	return theValue / 0.3048f;
+    return theValue / 0.3048f;
 }
 
 // ----------------------------------------------------------------------
@@ -98,10 +98,10 @@ inline float meters_to_feet(float theValue)
 
 inline float kilometers_to_feet(float theValue)
 {
-  if(theValue == kFloatMissing)
-	return kFloatMissing;
+  if (theValue == kFloatMissing)
+    return kFloatMissing;
   else
-	return 1000.0f * theValue / 0.3048f;
+    return 1000.0f * theValue / 0.3048f;
 }
 
 // ----------------------------------------------------------------------
@@ -114,10 +114,10 @@ inline float kilometers_to_feet(float theValue)
 
 inline float kilometers_to_flightlevel(float theValue)
 {
-  if(theValue == kFloatMissing)
-	return kFloatMissing;
+  if (theValue == kFloatMissing)
+    return kFloatMissing;
   else
-	return 10.0f * theValue / 0.3048f;
+    return 10.0f * theValue / 0.3048f;
 }
 
 // ----------------------------------------------------------------------
@@ -126,11 +126,11 @@ inline float kilometers_to_flightlevel(float theValue)
  */
 // ----------------------------------------------------------------------
 
-void celsius_to_fahrenheit(NFmiDataMatrix<float> & theValues)
+void celsius_to_fahrenheit(NFmiDataMatrix<float> &theValues)
 {
-  for(NFmiDataMatrix<float>::size_type j = 0; j<theValues.NY(); j++)
-	for(NFmiDataMatrix<float>::size_type i = 0; i<theValues.NX(); i++)
-	  theValues[i][j] = celsius_to_fahrenheit(theValues[i][j]);
+  for (NFmiDataMatrix<float>::size_type j = 0; j < theValues.NY(); j++)
+    for (NFmiDataMatrix<float>::size_type i = 0; i < theValues.NX(); i++)
+      theValues[i][j] = celsius_to_fahrenheit(theValues[i][j]);
 }
 
 // ----------------------------------------------------------------------
@@ -139,11 +139,11 @@ void celsius_to_fahrenheit(NFmiDataMatrix<float> & theValues)
  */
 // ----------------------------------------------------------------------
 
-void fahrenheit_to_celsius(NFmiDataMatrix<float> & theValues)
+void fahrenheit_to_celsius(NFmiDataMatrix<float> &theValues)
 {
-  for(NFmiDataMatrix<float>::size_type j = 0; j<theValues.NY(); j++)
-	for(NFmiDataMatrix<float>::size_type i = 0; i<theValues.NX(); i++)
-	  theValues[i][j] = fahrenheit_to_celsius(theValues[i][j]);
+  for (NFmiDataMatrix<float>::size_type j = 0; j < theValues.NY(); j++)
+    for (NFmiDataMatrix<float>::size_type i = 0; i < theValues.NX(); i++)
+      theValues[i][j] = fahrenheit_to_celsius(theValues[i][j]);
 }
 
 // ----------------------------------------------------------------------
@@ -152,11 +152,11 @@ void fahrenheit_to_celsius(NFmiDataMatrix<float> & theValues)
  */
 // ----------------------------------------------------------------------
 
-void meterspersecond_to_knots(NFmiDataMatrix<float> & theValues)
+void meterspersecond_to_knots(NFmiDataMatrix<float> &theValues)
 {
-  for(NFmiDataMatrix<float>::size_type j = 0; j<theValues.NY(); j++)
-	for(NFmiDataMatrix<float>::size_type i = 0; i<theValues.NX(); i++)
-	  theValues[i][j] = meterspersecond_to_knots(theValues[i][j]);
+  for (NFmiDataMatrix<float>::size_type j = 0; j < theValues.NY(); j++)
+    for (NFmiDataMatrix<float>::size_type i = 0; i < theValues.NX(); i++)
+      theValues[i][j] = meterspersecond_to_knots(theValues[i][j]);
 }
 
 // ----------------------------------------------------------------------
@@ -165,11 +165,11 @@ void meterspersecond_to_knots(NFmiDataMatrix<float> & theValues)
  */
 // ----------------------------------------------------------------------
 
-void meters_to_feet(NFmiDataMatrix<float> & theValues)
+void meters_to_feet(NFmiDataMatrix<float> &theValues)
 {
-  for(NFmiDataMatrix<float>::size_type j = 0; j<theValues.NY(); j++)
-	for(NFmiDataMatrix<float>::size_type i = 0; i<theValues.NX(); i++)
-	  theValues[i][j] = meters_to_feet(theValues[i][j]);
+  for (NFmiDataMatrix<float>::size_type j = 0; j < theValues.NY(); j++)
+    for (NFmiDataMatrix<float>::size_type i = 0; i < theValues.NX(); i++)
+      theValues[i][j] = meters_to_feet(theValues[i][j]);
 }
 
 // ----------------------------------------------------------------------
@@ -178,11 +178,11 @@ void meters_to_feet(NFmiDataMatrix<float> & theValues)
  */
 // ----------------------------------------------------------------------
 
-void kilometers_to_feet(NFmiDataMatrix<float> & theValues)
+void kilometers_to_feet(NFmiDataMatrix<float> &theValues)
 {
-  for(NFmiDataMatrix<float>::size_type j = 0; j<theValues.NY(); j++)
-	for(NFmiDataMatrix<float>::size_type i = 0; i<theValues.NX(); i++)
-	  theValues[i][j] = kilometers_to_feet(theValues[i][j]);
+  for (NFmiDataMatrix<float>::size_type j = 0; j < theValues.NY(); j++)
+    for (NFmiDataMatrix<float>::size_type i = 0; i < theValues.NX(); i++)
+      theValues[i][j] = kilometers_to_feet(theValues[i][j]);
 }
 
 // ----------------------------------------------------------------------
@@ -191,11 +191,11 @@ void kilometers_to_feet(NFmiDataMatrix<float> & theValues)
  */
 // ----------------------------------------------------------------------
 
-void kilometers_to_flightlevel(NFmiDataMatrix<float> & theValues)
+void kilometers_to_flightlevel(NFmiDataMatrix<float> &theValues)
 {
-  for(NFmiDataMatrix<float>::size_type j = 0; j<theValues.NY(); j++)
-	for(NFmiDataMatrix<float>::size_type i = 0; i<theValues.NX(); i++)
-	  theValues[i][j] = kilometers_to_flightlevel(theValues[i][j]);
+  for (NFmiDataMatrix<float>::size_type j = 0; j < theValues.NY(); j++)
+    for (NFmiDataMatrix<float>::size_type i = 0; i < theValues.NX(); i++)
+      theValues[i][j] = kilometers_to_flightlevel(theValues[i][j]);
 }
 
 // ----------------------------------------------------------------------
@@ -204,45 +204,36 @@ void kilometers_to_flightlevel(NFmiDataMatrix<float> & theValues)
  */
 // ----------------------------------------------------------------------
 
-UnitsConverter::UnitsConverter()
-  : itsConversions(kFmiLastParameter,NoConversion)
-{
-}
-
+UnitsConverter::UnitsConverter() : itsConversions(kFmiLastParameter, NoConversion) {}
 // ----------------------------------------------------------------------
 /*!
  * \brief Clear all conversions
  */
 // ----------------------------------------------------------------------
 
-void UnitsConverter::clear()
-{
-  fill(itsConversions.begin(),itsConversions.end(),NoConversion);
-}
-
+void UnitsConverter::clear() { fill(itsConversions.begin(), itsConversions.end(), NoConversion); }
 // ----------------------------------------------------------------------
 /*!
  * \brief Set a new conversion
  */
 // ----------------------------------------------------------------------
 
-void UnitsConverter::setConversion(FmiParameterName theParam,
-								   const std::string & theConversion)
+void UnitsConverter::setConversion(FmiParameterName theParam, const std::string &theConversion)
 {
-  if(theConversion == "celsius_to_fahrenheit")
-	itsConversions[theParam] = CelsiusToFahrenheit;
-  else if(theConversion == "fahrenheit_to_celsius")
-	itsConversions[theParam] = FahrenheitToCelsius;
-  else if(theConversion == "meterspersecond_to_knots")
-	itsConversions[theParam] = MetersPerSecondToKnots;
-  else if(theConversion == "meters_to_feet")
-	itsConversions[theParam] = MetersToFeet;
-  else if(theConversion == "kilometers_to_feet")
-	itsConversions[theParam] = KiloMetersToFeet;
-  else if(theConversion == "kilometers_to_flightlevel")
-	itsConversions[theParam] = KiloMetersToFlightLevel;
+  if (theConversion == "celsius_to_fahrenheit")
+    itsConversions[theParam] = CelsiusToFahrenheit;
+  else if (theConversion == "fahrenheit_to_celsius")
+    itsConversions[theParam] = FahrenheitToCelsius;
+  else if (theConversion == "meterspersecond_to_knots")
+    itsConversions[theParam] = MetersPerSecondToKnots;
+  else if (theConversion == "meters_to_feet")
+    itsConversions[theParam] = MetersToFeet;
+  else if (theConversion == "kilometers_to_feet")
+    itsConversions[theParam] = KiloMetersToFeet;
+  else if (theConversion == "kilometers_to_flightlevel")
+    itsConversions[theParam] = KiloMetersToFlightLevel;
   else
-	throw runtime_error("Unknown unit conversion '"+theConversion+"'");
+    throw runtime_error("Unknown unit conversion '" + theConversion + "'");
 }
 
 // ----------------------------------------------------------------------
@@ -251,26 +242,25 @@ void UnitsConverter::setConversion(FmiParameterName theParam,
  */
 // ----------------------------------------------------------------------
 
-float UnitsConverter::convert(FmiParameterName theParam,
-							  float theValue) const
+float UnitsConverter::convert(FmiParameterName theParam, float theValue) const
 {
-  switch(itsConversions[theParam])
-	{
-	case CelsiusToFahrenheit:
-	  return celsius_to_fahrenheit(theValue);
-	case FahrenheitToCelsius:
-	  return fahrenheit_to_celsius(theValue);
-	case MetersPerSecondToKnots:
-	  return meterspersecond_to_knots(theValue);
-	case MetersToFeet:
-	  return meters_to_feet(theValue);
-	case KiloMetersToFeet:
-	  return kilometers_to_feet(theValue);
-	case KiloMetersToFlightLevel:
-	  return kilometers_to_flightlevel(theValue);
-	default:
-	  return theValue;
-	}
+  switch (itsConversions[theParam])
+  {
+    case CelsiusToFahrenheit:
+      return celsius_to_fahrenheit(theValue);
+    case FahrenheitToCelsius:
+      return fahrenheit_to_celsius(theValue);
+    case MetersPerSecondToKnots:
+      return meterspersecond_to_knots(theValue);
+    case MetersToFeet:
+      return meters_to_feet(theValue);
+    case KiloMetersToFeet:
+      return kilometers_to_feet(theValue);
+    case KiloMetersToFlightLevel:
+      return kilometers_to_flightlevel(theValue);
+    default:
+      return theValue;
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -279,30 +269,29 @@ float UnitsConverter::convert(FmiParameterName theParam,
  */
 // ----------------------------------------------------------------------
 
-void UnitsConverter::convert(FmiParameterName theParam,
-							 NFmiDataMatrix<float> & theValues) const
+void UnitsConverter::convert(FmiParameterName theParam, NFmiDataMatrix<float> &theValues) const
 {
-  switch(itsConversions[theParam])
-	{
-	case NoConversion:
-	  return;
-	case CelsiusToFahrenheit:
-	  celsius_to_fahrenheit(theValues);
-	  break;
-	case FahrenheitToCelsius:
-	  fahrenheit_to_celsius(theValues);
-	  break;
-	case MetersPerSecondToKnots:
-	  meterspersecond_to_knots(theValues);
-	  break;
-	case MetersToFeet:
-	  meters_to_feet(theValues);
-	  break;
-	case KiloMetersToFeet:
-	  kilometers_to_feet(theValues);
-	  break;
-	case KiloMetersToFlightLevel:
-	  kilometers_to_flightlevel(theValues);
-	  break;
-	}
+  switch (itsConversions[theParam])
+  {
+    case NoConversion:
+      return;
+    case CelsiusToFahrenheit:
+      celsius_to_fahrenheit(theValues);
+      break;
+    case FahrenheitToCelsius:
+      fahrenheit_to_celsius(theValues);
+      break;
+    case MetersPerSecondToKnots:
+      meterspersecond_to_knots(theValues);
+      break;
+    case MetersToFeet:
+      meters_to_feet(theValues);
+      break;
+    case KiloMetersToFeet:
+      kilometers_to_feet(theValues);
+      break;
+    case KiloMetersToFlightLevel:
+      kilometers_to_flightlevel(theValues);
+      break;
+  }
 }

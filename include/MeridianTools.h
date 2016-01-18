@@ -12,14 +12,12 @@
 
 namespace MeridianTools
 {
-  NFmiPoint Relocate(const NFmiPoint & thePoint,
-					 const NFmiArea & theArea);
+NFmiPoint Relocate(const NFmiPoint &thePoint, const NFmiArea &theArea);
 
-  void Relocate(Imagine::NFmiPath & thePath,
-				const NFmiArea & theArea);
+void Relocate(Imagine::NFmiPath &thePath, const NFmiArea &theArea);
 
-} // MeridianTools
+}  // MeridianTools
 
-#endif // MERIDIANTOOLS_H
+#endif  // MERIDIANTOOLS_H
 
 // ======================================================================

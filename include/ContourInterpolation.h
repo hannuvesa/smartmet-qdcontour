@@ -5,12 +5,12 @@
 #include <string>
 
 enum ContourInterpolation
-  {
-	Missing,
-	Nearest,
-	Linear,
-	Discrete,
-	LogLinear
-  };
+{
+  Missing,
+  Nearest,
+  Linear,
+  Discrete,
+  LogLinear
+};
 
-ContourInterpolation ContourInterpolationValue(const std::string & theName);
+ContourInterpolation ContourInterpolationValue(const std::string &theName);

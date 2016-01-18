@@ -18,36 +18,29 @@
 
 class ContourFont
 {
-public:
-
+ public:
 #ifdef COMPILER_GENERATED
-  ContourFont(const ContourFont & theValue);
-  ContourFont & operator=(const ContourFont & theValue);
+  ContourFont(const ContourFont &theValue);
+  ContourFont &operator=(const ContourFont &theValue);
 #endif
-  
-  virtual ~ContourFont() { }
-  ContourFont(float theValue,
-			  int theColor,
-			  int theSymbol,
-			  const std::string & theFont);
+
+  virtual ~ContourFont() {}
+  ContourFont(float theValue, int theColor, int theSymbol, const std::string &theFont);
 
   float value() const;
   int color() const;
   int symbol() const;
-  const std::string & font() const;
-  
-private:
+  const std::string &font() const;
 
+ private:
   ContourFont(void);
 
   float itsValue;
   int itsColor;
   int itsSymbol;
   std::string itsFont;
-
 };
 
-#endif // CONTOURFONT_H
+#endif  // CONTOURFONT_H
 
 // ======================================================================
-

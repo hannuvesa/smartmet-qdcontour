@@ -16,23 +16,20 @@
 
 class UnitsConverter
 {
-public:
-
+ public:
   UnitsConverter();
 
   void clear();
-  
-  void setConversion(FmiParameterName theParam,
-					 const std::string & theConversion);
+
+  void setConversion(FmiParameterName theParam, const std::string &theConversion);
 
   float convert(FmiParameterName theParam, float theValue) const;
-  void convert(FmiParameterName theParam, NFmiDataMatrix<float> & theValue) const;
+  void convert(FmiParameterName theParam, NFmiDataMatrix<float> &theValue) const;
 
-private:
-
+ private:
   typedef std::vector<int> storage_type;
   storage_type itsConversions;
 
-}; // class UnitsConverter
+};  // class UnitsConverter
 
-#endif // UNITSCONVERTER_H
+#endif  // UNITSCONVERTER_H

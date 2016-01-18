@@ -21,13 +21,10 @@ using namespace std;
 // ----------------------------------------------------------------------
 
 ContourValue::ContourValue(float theValue,
-						   float theLineWidth,
-						   int theColor,
-						   const std::string & theRule)
-  : itsValue(theValue)
-  , itsLineWidth(theLineWidth)
-  , itsColor(theColor)
-  , itsRule(theRule)
+                           float theLineWidth,
+                           int theColor,
+                           const std::string &theRule)
+    : itsValue(theValue), itsLineWidth(theLineWidth), itsColor(theColor), itsRule(theRule)
 {
 }
 
@@ -39,11 +36,7 @@ ContourValue::ContourValue(float theValue,
  */
 // ----------------------------------------------------------------------
 
-float ContourValue::value() const
-{
-  return itsValue;
-}
-
+float ContourValue::value() const { return itsValue; }
 // ----------------------------------------------------------------------
 /*!
  * \brief Return the line width
@@ -52,11 +45,7 @@ float ContourValue::value() const
  */
 // ----------------------------------------------------------------------
 
-float ContourValue::linewidth() const
-{
-  return itsLineWidth;
-}
-
+float ContourValue::linewidth() const { return itsLineWidth; }
 // ----------------------------------------------------------------------
 /*!
  * \brief Return the color of the contour line
@@ -65,11 +54,7 @@ float ContourValue::linewidth() const
  */
 // ----------------------------------------------------------------------
 
-int ContourValue::color() const
-{
-  return itsColor;
-}
-
+int ContourValue::color() const { return itsColor; }
 // ----------------------------------------------------------------------
 /*!
  * \brief Return the blending rule for the color
@@ -78,9 +63,5 @@ int ContourValue::color() const
  */
 // ----------------------------------------------------------------------
 
-const std::string & ContourValue::rule() const
-{
-  return itsRule;
-}
-
+const std::string &ContourValue::rule() const { return itsRule; }
 // ======================================================================

@@ -18,24 +18,21 @@
 
 class ContourLabel
 {
-public:
-  
+ public:
 #ifdef COMPILER_GENERATED
   ~ContourLabel();
-  ContourLabel(const ContourLabel & theValue);
-  ContourLabel & operator=(const ContourLabel & theValue);
+  ContourLabel(const ContourLabel &theValue);
+  ContourLabel &operator=(const ContourLabel &theValue);
 #endif
 
   ContourLabel(float theValue);
   float value() const;
 
-private:
-
+ private:
   ContourLabel(void);
   float itsValue;
-
 };
 
-#endif // CONTOURLABEL_H
+#endif  // CONTOURLABEL_H
 
 // ======================================================================
