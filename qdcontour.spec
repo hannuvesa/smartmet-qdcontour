@@ -1,7 +1,7 @@
 %define BINNAME qdcontour
 Summary: %{BINNAME}2
 Name: smartmet-%{BINNAME}2
-Version: 15.4.15
+Version: 16.1.17
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
@@ -52,6 +52,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Jan 18 2016 Mika Heiskanen <mika.heiskanen@fmi.fi> - 16.1.17-1.fmi
+- newbase API changed
 * Wed Apr 15 2015 Mika Heiskanen <mika.heiskanen@fmi.fi> - 15.4.15-1.fmi
 - newbase API changed
 * Thu Apr  9 2015 Mika Heiskanen <mika.heiskanen@fmi.fi> - 15.4.9-1.fmi
