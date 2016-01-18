@@ -15,7 +15,7 @@ BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: libsmartmet-imagine2-devel >= 15.4.9
 BuildRequires: libsmartmet-newbase-devel >= 15.4.9
-BuildRequires: libsmartmet-tron >= 15.3.30
+BuildRequires: libsmartmet-tron = 15.3.30
 BuildRequires: zlib-devel
 BuildRequires: cairomm-devel
 Requires: libsmartmet-imagine2 >= 15.4.9
