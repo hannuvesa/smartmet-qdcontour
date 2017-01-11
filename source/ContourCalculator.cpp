@@ -12,35 +12,166 @@
 
 #include "NFmiDataMatrix.h"
 
-#include "PathAdapter.h"
-
-#include "Builder.h"
-#include "Tron.h"
+#include <tron/FmiBuilder.h>
+#include <tron/Tron.h>
 
 #include "NFmiGrid.h"
 #include "NFmiMetTime.h"
 
+#include <boost/make_shared.hpp>
+
 #include <memory>
 #include <stdexcept>
 
-typedef Tron::Traits<float, float, Tron::FmiMissing> MyTraits;
+typedef Tron::Traits<double, double, Tron::FmiMissing> MyTraits;
 
-typedef Tron::Contourer<DataMatrixAdapter, PathAdapter, MyTraits, Tron::LinearInterpolation>
+typedef Tron::Contourer<DataMatrixAdapter, Tron::FmiBuilder, MyTraits, Tron::LinearInterpolation>
     MyLinearContourer;
 
-typedef Tron::Contourer<DataMatrixAdapter, PathAdapter, MyTraits, Tron::LogLinearInterpolation>
+typedef Tron::Contourer<DataMatrixAdapter, Tron::FmiBuilder, MyTraits, Tron::LogLinearInterpolation>
     MyLogLinearContourer;
 
 typedef Tron::Contourer<DataMatrixAdapter,
-                        PathAdapter,
+                        Tron::FmiBuilder,
                         MyTraits,
                         Tron::NearestNeighbourInterpolation> MyNearestContourer;
 
-typedef Tron::Contourer<DataMatrixAdapter, PathAdapter, MyTraits, Tron::DiscreteInterpolation>
+typedef Tron::Contourer<DataMatrixAdapter, Tron::FmiBuilder, MyTraits, Tron::DiscreteInterpolation>
     MyDiscreteContourer;
 
-// typedef MyLinearContourer::hints_type MyHints;
 typedef Tron::Hints<DataMatrixAdapter, MyTraits> MyHints;
+
+using namespace geos::geom;
+
+// Forward declaration needed
+
+void add_path(Imagine::NFmiPath &path, const Geometry *geom);
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle LinearRing
+ */
+// ----------------------------------------------------------------------
+
+void add_linearring(Imagine::NFmiPath &path, const LinearRing *geom)
+{
+  if (geom == NULL || geom->isEmpty()) return;
+
+  for (unsigned long i = 0, n = geom->getNumPoints(); i < n - 1; ++i)
+  {
+    const Coordinate &coord = geom->getCoordinateN(boost::numeric_cast<int>(i));
+    if (i == 0)
+      path.MoveTo(coord.x, coord.y);
+    else
+      path.LineTo(coord.x, coord.y);
+  }
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle LineString
+ */
+// ----------------------------------------------------------------------
+
+void add_linestring(Imagine::NFmiPath &path, const LineString *geom)
+{
+  if (geom == NULL || geom->isEmpty()) return;
+
+  unsigned long n = geom->getNumPoints();
+
+  for (unsigned long i = 0; i < n; ++i)
+  {
+    const Coordinate &coord = geom->getCoordinateN(boost::numeric_cast<int>(i));
+    if (i == 0)
+      path.MoveTo(coord.x, coord.y);
+    else
+      path.LineTo(coord.x, coord.y);
+  }
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle Polygon
+ */
+// ----------------------------------------------------------------------
+
+void add_polygon(Imagine::NFmiPath &path, const Polygon *geom)
+{
+  if (geom == NULL || geom->isEmpty()) return;
+
+  add_linestring(path, geom->getExteriorRing());
+
+  for (size_t i = 0, n = geom->getNumInteriorRing(); i < n; ++i)
+    add_linestring(path, geom->getInteriorRingN(i));
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle MultiLineString
+ */
+// ----------------------------------------------------------------------
+
+void add_multilinestring(Imagine::NFmiPath &path, const MultiLineString *geom)
+{
+  if (geom == NULL || geom->isEmpty()) return;
+
+  for (size_t i = 0, n = geom->getNumGeometries(); i < n; ++i)
+    add_linestring(path, dynamic_cast<const LineString *>(geom->getGeometryN(i)));
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle MultiPolygon
+ */
+// ----------------------------------------------------------------------
+
+void add_multipolygon(Imagine::NFmiPath &path, const MultiPolygon *geom)
+{
+  if (geom == NULL || geom->isEmpty()) return;
+
+  for (size_t i = 0, n = geom->getNumGeometries(); i < n; ++i)
+    add_polygon(path, dynamic_cast<const Polygon *>(geom->getGeometryN(i)));
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Handle GeometryCollection
+ */
+// ----------------------------------------------------------------------
+
+void add_geometrycollection(Imagine::NFmiPath &path, const GeometryCollection *geom)
+{
+  if (geom == NULL || geom->isEmpty()) return;
+
+  for (size_t i = 0, n = geom->getNumGeometries(); i < n; ++i)
+    add_path(path, geom->getGeometryN(i));
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Convert a GEOS geometry to legacy NFmiPath
+ */
+// ----------------------------------------------------------------------
+
+void add_path(Imagine::NFmiPath &path, const Geometry *geom)
+{
+  if (const LinearRing *lr = dynamic_cast<const LinearRing *>(geom))
+    add_linearring(path, lr);
+  else if (const LineString *ls = dynamic_cast<const LineString *>(geom))
+    add_linestring(path, ls);
+  else if (const Polygon *p = dynamic_cast<const Polygon *>(geom))
+    add_polygon(path, p);
+  else if (const MultiLineString *ml = dynamic_cast<const MultiLineString *>(geom))
+    add_multilinestring(path, ml);
+  else if (const MultiPolygon *mpg = dynamic_cast<const MultiPolygon *>(geom))
+    add_multipolygon(path, mpg);
+  else if (const GeometryCollection *g = dynamic_cast<const GeometryCollection *>(geom))
+    add_geometrycollection(path, g);
+  else
+    throw std::runtime_error("Bad shit");
+
+  // We ignore points, multipoints and unknown types
+}
 
 // ----------------------------------------------------------------------
 /*!
@@ -171,14 +302,18 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData &theData,
 
   const bool worlddata = theData.IsWorldData();
 
-  PathAdapter adapter;
+  // Build the contours
+
+  boost::shared_ptr<GeometryFactory> geomFactory = boost::make_shared<GeometryFactory>();
+
+  Tron::FmiBuilder builder(geomFactory);
 
   switch (theInterpolation)
   {
     case Linear:
     case Missing:
     {
-      MyLinearContourer::fill(adapter,
+      MyLinearContourer::fill(builder,
                               *(itsPimple->itsData),
                               theLoLimit,
                               theHiLimit,
@@ -188,7 +323,7 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData &theData,
     }
     case LogLinear:
     {
-      MyLogLinearContourer::fill(adapter,
+      MyLogLinearContourer::fill(builder,
                                  *(itsPimple->itsData),
                                  theLoLimit,
                                  theHiLimit,
@@ -198,7 +333,7 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData &theData,
     }
     case Nearest:
     {
-      MyNearestContourer::fill(adapter,
+      MyNearestContourer::fill(builder,
                                *(itsPimple->itsData),
                                theLoLimit,
                                theHiLimit,
@@ -208,7 +343,7 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData &theData,
     }
     case Discrete:
     {
-      MyDiscreteContourer::fill(adapter,
+      MyDiscreteContourer::fill(builder,
                                 *(itsPimple->itsData),
                                 theLoLimit,
                                 theHiLimit,
@@ -218,7 +353,11 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData &theData,
     }
   }
 
-  Imagine::NFmiPath path = adapter.path();
+  boost::shared_ptr<Geometry> geom = builder.result();
+
+  Imagine::NFmiPath path;
+  add_path(path, geom.get());
+
   path.InvGrid(theData.Grid());
 
   if (itsPimple->isCacheOn)
@@ -255,7 +394,9 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData &theData,
 
   itsPimple->require_hints();
 
-  PathAdapter adapter;
+  boost::shared_ptr<GeometryFactory> geomFactory = boost::make_shared<GeometryFactory>();
+
+  Tron::FmiBuilder builder(geomFactory);
 
   switch (theInterpolation)
   {
@@ -263,18 +404,18 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData &theData,
     case Missing:
     {
 #if 0
-		MyLinearContourer::line(adapter,
+		MyLinearContourer::line(builder,
 								*(itsPimple->itsData),
 								theValue,
 								worlddata,
 								*(itsPimple->itsHints));
 #endif
-      MyLinearContourer::line(adapter, *(itsPimple->itsData), theValue, worlddata);
+      MyLinearContourer::line(builder, *(itsPimple->itsData), theValue, worlddata);
       break;
     }
     case LogLinear:
     {
-      MyLogLinearContourer::line(adapter, *(itsPimple->itsData), theValue, worlddata);
+      MyLogLinearContourer::line(builder, *(itsPimple->itsData), theValue, worlddata);
       break;
     }
     case Nearest:
@@ -288,7 +429,11 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData &theData,
     }
   }
 
-  Imagine::NFmiPath path = adapter.path();
+  boost::shared_ptr<Geometry> geom = builder.result();
+
+  Imagine::NFmiPath path;
+  add_path(path, geom.get());
+
   path.InvGrid(theData.Grid());
 
   if (itsPimple->isCacheOn)

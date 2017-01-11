@@ -21,6 +21,8 @@ clean:
 #
 _CHECK=_check
 
+# Difficult test since the filename changes: timestampformat
+
 # Misc tests that have issues:
 #
 labelmarker labels_grid_masked missing_values shape_combined shape_fill shape_mark shape_mark_alpha_factor shape_stroke \
@@ -60,9 +62,9 @@ test_pdf:
 	-@$(MAKE) test _CHECK=_check_pdf
 
 test:
+#	-@$(MAKE) --quiet $(_CHECK) TEST=timestampformat
 	-@$(MAKE) --quiet $(_CHECK) TEST=meteorological_arrows_world
 	-@$(MAKE) --quiet $(_CHECK) TEST=labels_markers_pixelgrid_normal
-	-@$(MAKE) --quiet $(_CHECK) TEST=timestampformat
 	-@$(MAKE) --quiet $(_CHECK) TEST=windarrow_grid_coloured
 	-@$(MAKE) --quiet $(_CHECK) TEST=meteorological_arrows_coloured
 	-@$(MAKE) --quiet $(_CHECK) TEST=roundarrow_grid_tipcolors
