@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}2
 Summary: %{BINNAME}2
 Name: %{RPMNAME}
-Version: 17.1.11
+Version: 17.1.18
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
@@ -15,12 +15,12 @@ BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: smartmet-library-imagine2-devel >= 17.1.4
-BuildRequires: smartmet-library-newbase-devel >= 17.1.10
-BuildRequires: smartmet-library-tron >= 17.1.4
+BuildRequires: smartmet-library-newbase-devel >= 17.1.17
+BuildRequires: smartmet-library-tron >= 17.1.18
 BuildRequires: zlib-devel
 BuildRequires: cairomm-devel
 Requires: smartmet-library-imagine2 >= 17.1.4
-Requires: smartmet-library-newbase >= 17.1.10
+Requires: smartmet-library-newbase >= 17.1.17
 Requires: freetype
 Requires: libjpeg
 Requires: libpng
@@ -53,6 +53,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jan 18 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.1.18-1.fmi
+- Upgraded to latest Tron with bug fixes for self touching contour lines
+
 * Wed Jan 11 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.1.11-1.fmi
 - Switched to FMI open source naming conventions
 - Upgraded to latest Tron-library
