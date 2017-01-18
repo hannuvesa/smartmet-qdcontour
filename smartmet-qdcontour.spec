@@ -3,7 +3,7 @@
 Summary: qdcontour
 Name: %{RPMNAME}
 Version: 17.1.18
-Release: 2%{?dist}.fmi
+Release: 3%{?dist}.fmi
 License: MIT
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -51,6 +51,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jan 18 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.1.18-3.fmi
+- Analyze data before contouring isolines to skip unnecessary parts of the data
+
 * Wed Jan 18 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.1.18-2.fmi
 - Fixed loglinear contouring to build valid geometries
 
