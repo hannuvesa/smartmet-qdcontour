@@ -403,19 +403,14 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData &theData,
     case Linear:
     case Missing:
     {
-#if 0
-		MyLinearContourer::line(builder,
-								*(itsPimple->itsData),
-								theValue,
-								worlddata,
-								*(itsPimple->itsHints));
-#endif
-      MyLinearContourer::line(builder, *(itsPimple->itsData), theValue, worlddata);
+      MyLinearContourer::line(
+          builder, *(itsPimple->itsData), theValue, worlddata, *(itsPimple->itsHints));
       break;
     }
     case LogLinear:
     {
-      MyLogLinearContourer::line(builder, *(itsPimple->itsData), theValue, worlddata);
+      MyLogLinearContourer::line(
+          builder, *(itsPimple->itsData), theValue, worlddata, *(itsPimple->itsHints));
       break;
     }
     case Nearest:
