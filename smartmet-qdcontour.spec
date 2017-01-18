@@ -3,7 +3,7 @@
 Summary: %{BINNAME}2
 Name: %{RPMNAME}
 Version: 17.1.18
-Release: 1%{?dist}.fmi
+Release: 2%{?dist}.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -53,6 +53,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jan 18 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.1.18-2.fmi
+- Fixed loglinear contouring to build valid geometries
+
 * Wed Jan 18 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.1.18-1.fmi
 - Upgraded to latest Tron with bug fixes for self touching contour lines
 
