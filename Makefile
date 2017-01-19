@@ -1,7 +1,7 @@
 MODULE = qdcontour
 SPEC = smartmet-qdcontour
 
-MAINFLAGS = -MMD -Wall -W -Wno-unused-parameter
+MAINFLAGS = -MD -Wall -W -Wno-unused-parameter
 
 ifeq (6, $(RHEL_VERSION))
   MAINFLAGS += -std=c++0x
@@ -150,7 +150,7 @@ release: objdir $(MAINPROGS)
 profile: objdir $(MAINPROGS)
 
 .SECONDEXPANSION:
-$(MAINPROGS): % : $(OBJFILES) %.o 
+$(MAINPROGS): % : $(OBJFILES) $(MAINOBJFILES)
 	$(CC) $(LDFLAGS) -o $@ obj/$@.o $(OBJFILES) $(LIBS)
 
 clean:
