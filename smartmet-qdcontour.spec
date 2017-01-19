@@ -2,8 +2,8 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 17.1.18
-Release: 3%{?dist}.fmi
+Version: 17.1.19
+Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -16,7 +16,7 @@ BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: smartmet-library-imagine-devel >= 17.1.4
 BuildRequires: smartmet-library-newbase-devel >= 17.1.17
-BuildRequires: smartmet-library-tron >= 17.1.18
+BuildRequires: smartmet-library-tron >= 17.1.19
 BuildRequires: zlib-devel
 Requires: smartmet-library-imagine >= 17.1.4
 Requires: smartmet-library-newbase >= 17.1.17
@@ -51,6 +51,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Jan 19 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.1.19-1.fmi
+- Recompiled with more robust contouring from Tron
+
 * Wed Jan 18 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.1.18-3.fmi
 - Analyze data before contouring isolines to skip unnecessary parts of the data
 

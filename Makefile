@@ -150,7 +150,7 @@ release: objdir $(MAINPROGS)
 profile: objdir $(MAINPROGS)
 
 .SECONDEXPANSION:
-$(MAINPROGS): % : $(OBJS) %.o 
+$(MAINPROGS): % : $(OBJFILES) %.o 
 	$(CC) $(LDFLAGS) -o $@ obj/$@.o $(OBJFILES) $(LIBS)
 
 clean:
@@ -188,7 +188,7 @@ rpm: clean
 
 .SUFFIXES: $(SUFFIXES) .cpp
 
-.cpp.o:
-	$(CC) $(CFLAGS) $(INCLUDES) -c -o $(objdir)/$@ $<
+obj/%.o : %.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 
 -include obj/*.d
