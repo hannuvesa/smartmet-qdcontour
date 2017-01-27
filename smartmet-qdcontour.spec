@@ -2,8 +2,8 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 17.1.19
-Release: 2%{?dist}.fmi
+Version: 17.1.27
+Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -51,6 +51,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Jan 27 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.1.27-1.fmi
+- Recompiled due to NFmiQueryData object size change
+
 * Thu Jan 19 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.1.19-2.fmi
 - Tron now builds as long isolines as possible
 
