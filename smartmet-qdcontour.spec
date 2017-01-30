@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}2
 Summary: %{BINNAME}2
 Name: %{RPMNAME}
-Version: 17.1.27
+Version: 17.1.30
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
@@ -15,12 +15,12 @@ BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: smartmet-library-imagine2-devel >= 17.1.4
-BuildRequires: smartmet-library-newbase-devel >= 17.1.17
-BuildRequires: smartmet-library-tron >= 17.1.19-2
+BuildRequires: smartmet-library-newbase-devel >= 17.1.26
+BuildRequires: smartmet-library-tron >= 17.1.30
 BuildRequires: zlib-devel
 BuildRequires: cairomm-devel
 Requires: smartmet-library-imagine2 >= 17.1.4
-Requires: smartmet-library-newbase >= 17.1.17
+Requires: smartmet-library-newbase >= 17.1.26
 Requires: freetype
 Requires: libjpeg
 Requires: libpng
@@ -53,6 +53,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Jan 30 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.1.30-1.fmi
+- Tron now handles self-touching isolines correctly
+
 * Fri Jan 27 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.1.27-1.fmi
 - Recompiled due to NFmiQueryData object size change
 
