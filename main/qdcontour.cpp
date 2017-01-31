@@ -4095,6 +4095,8 @@ void draw_contour_fills(ImagineXr_or_NFmiImage &img,
   {
     // Contour the actual data
 
+    if (globals.verbose) cout << "Calculating " << it->lolimit() << " - " << it->hilimit() << endl;
+
     NFmiPath path = globals.calculator.contour(
         *globals.queryinfo, it->lolimit(), it->hilimit(), theTime, theInterpolation);
 
