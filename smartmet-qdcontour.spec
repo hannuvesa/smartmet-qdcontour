@@ -16,7 +16,7 @@ BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: smartmet-library-imagine-devel >= 17.1.4
 BuildRequires: smartmet-library-newbase-devel >= 17.1.26
-BuildRequires: smartmet-library-tron >= 17.1.30
+BuildRequires: smartmet-library-tron >= 17.1.31
 BuildRequires: zlib-devel
 Requires: smartmet-library-imagine >= 17.1.4
 Requires: smartmet-library-newbase >= 17.1.26
