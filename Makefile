@@ -97,8 +97,6 @@ endif
 
 rpmsourcedir=/tmp/$(shell whoami)/rpmbuild
 
-rpmexcludevcs := $(shell tar --help | grep -m 1 -o -- '--exclude-vcs')
-
 # Special modes
 
 ifneq (,$(findstring debug,$(MAKECMDGOALS)))
@@ -180,9 +178,8 @@ rpm: clean
 	@if [ -a $(SPEC).spec ]; \
 	then \
 	  mkdir -p $(rpmsourcedir) ; \
-	  tar $(rpmexcludevcs) -C ../ -cf $(rpmsourcedir)/$(SPEC)2.tar $(MODULE) ; \
-	  gzip -f $(rpmsourcedir)/$(SPEC)2.tar ; \
-	  TAR_OPTIONS=--wildcards rpmbuild -ta $(rpmsourcedir)/$(SPEC)2.tar.gz ; \
+	  tar -czvf $(rpmsourcedir)/$(SPEC)2.tar.gz --transform "s,^,$(SPEC)2/," * ; \
+	  rpmbuild -ta $(rpmsourcedir)/$(SPEC)2.tar.gz ; \
 	  rm -f $(rpmsourcedir)/$(SPEC)2.tar.gz ; \
 	else \
 	  echo $(SPEC).spec missing; \

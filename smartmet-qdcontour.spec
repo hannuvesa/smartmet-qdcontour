@@ -35,7 +35,7 @@ FMI qdcontour2
 %prep
 rm -rf $RPM_BUILD_ROOT
 
-%setup -q -n qdcontour
+%setup -q -n %{RPMNAME}
  
 %build
 make %{_smp_mflags}
