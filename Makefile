@@ -93,10 +93,6 @@ else
   bindir = $(BINDIR)
 endif
 
-# rpm variables
-
-rpmsourcedir=/tmp/$(shell whoami)/rpmbuild
-
 # Special modes
 
 ifneq (,$(findstring debug,$(MAKECMDGOALS)))
@@ -177,10 +173,9 @@ objdir:
 rpm: clean
 	@if [ -a $(SPEC).spec ]; \
 	then \
-	  mkdir -p $(rpmsourcedir) ; \
-	  tar -czvf $(rpmsourcedir)/$(SPEC)2.tar.gz --transform "s,^,$(SPEC)2/," * ; \
-	  rpmbuild -ta $(rpmsourcedir)/$(SPEC)2.tar.gz ; \
-	  rm -f $(rpmsourcedir)/$(SPEC)2.tar.gz ; \
+	  tar -czvf $(SPEC)2.tar.gz --transform "s,^,$(SPEC)2/," * ; \
+	  rpmbuild -ta $(SPEC)2.tar.gz ; \
+	  rm -f $(SPEC)2.tar.gz ; \
 	else \
 	  echo $(SPEC).spec missing; \
 	fi;
