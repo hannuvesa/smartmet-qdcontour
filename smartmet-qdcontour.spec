@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}2
 Summary: %{BINNAME}2
 Name: %{RPMNAME}
-Version: 17.2.7
+Version: 17.2.13
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
@@ -14,13 +14,13 @@ BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: smartmet-library-imagine2-devel >= 17.1.4
-BuildRequires: smartmet-library-newbase-devel >= 17.2.2
+BuildRequires: smartmet-library-imagine2-devel >= 17.2.10
+BuildRequires: smartmet-library-newbase-devel >= 17.2.13
 BuildRequires: smartmet-library-tron >= 17.2.7
 BuildRequires: zlib-devel
 BuildRequires: cairomm-devel
-Requires: smartmet-library-imagine2 >= 17.1.4
-Requires: smartmet-library-newbase >= 17.2.2
+Requires: smartmet-library-imagine2 >= 17.2.10
+Requires: smartmet-library-newbase >= 17.2.13
 Requires: freetype
 Requires: libjpeg
 Requires: libpng
@@ -53,6 +53,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Feb 13 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.2.13-1.fmi
+- Repackaged due to newbase API changes
+
 * Tue Feb  7 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.2.7-1.fmi
 - Tron fixes to isoline contouring
 
