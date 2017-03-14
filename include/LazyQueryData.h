@@ -21,8 +21,8 @@
 #ifndef LAZYQUERYDATA_H
 #define LAZYQUERYDATA_H
 
-#include "NFmiDataMatrix.h"
-#include "NFmiParameterName.h"
+#include <newbase/NFmiDataMatrix.h>
+#include <newbase/NFmiParameterName.h>
 #include <boost/shared_ptr.hpp>
 #include <memory>
 #include <string>
@@ -35,7 +35,7 @@ class NFmiLevel;
 class NFmiPoint;
 class NFmiQueryData;
 
-#include "NFmiMetTime.h"
+#include <newbase/NFmiMetTime.h>
 
 class LazyQueryData
 {

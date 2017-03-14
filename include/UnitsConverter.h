@@ -8,8 +8,8 @@
 #ifndef UNITSCONVERTER_H
 #define UNITSCONVERTER_H
 
-#include "NFmiParameterName.h"
-#include "NFmiDataMatrix.h"
+#include <newbase/NFmiParameterName.h>
+#include <newbase/NFmiDataMatrix.h>
 
 #include <string>
 #include <vector>

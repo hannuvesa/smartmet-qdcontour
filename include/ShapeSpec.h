@@ -17,7 +17,7 @@
 // <imagine/NFmixxx.h> won't be good for Windows compilation off cvs checkout
 // dir.
 //
-#include "NFmiColorTools.h"
+#include <imagine/NFmiColorTools.h>
 
 class ShapeSpec
 {

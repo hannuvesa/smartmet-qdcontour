@@ -8,7 +8,7 @@
 #ifndef NOISETOOLS_H
 #define NOISETOOLS_H
 
-#include "NFmiDataMatrix.h"
+#include <newbase/NFmiDataMatrix.h>
 
 namespace NoiseTools
 {

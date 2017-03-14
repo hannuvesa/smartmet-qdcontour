@@ -6,8 +6,8 @@
 // ======================================================================
 
 #include "ProjectionFactory.h"
-#include "NFmiPoint.h"
-#include "NFmiStereographicArea.h"
+#include <newbase/NFmiPoint.h>
+#include <newbase/NFmiStereographicArea.h>
 #include <stdexcept>
 
 using namespace std;

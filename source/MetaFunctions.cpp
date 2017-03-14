@@ -6,12 +6,12 @@
 // ======================================================================
 
 #include "MetaFunctions.h"
-#include "NFmiArea.h"
-#include "NFmiGrid.h"
-#include "NFmiLocation.h"
-#include "NFmiMetMath.h"
-#include "NFmiMetTime.h"
-#include "NFmiPoint.h"
+#include <newbase/NFmiArea.h>
+#include <newbase/NFmiGrid.h>
+#include <newbase/NFmiLocation.h>
+#include <newbase/NFmiMetMath.h>
+#include <newbase/NFmiMetTime.h>
+#include <newbase/NFmiPoint.h>
 
 #include <boost/shared_ptr.hpp>
 

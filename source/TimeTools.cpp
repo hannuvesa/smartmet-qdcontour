@@ -6,7 +6,7 @@
 // ======================================================================
 
 #include "TimeTools.h"
-#include "NFmiMetTime.h"
+#include <newbase/NFmiMetTime.h>
 #include <stdexcept>
 
 namespace TimeTools

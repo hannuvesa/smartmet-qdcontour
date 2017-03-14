@@ -12,8 +12,8 @@
 #include "ContourSymbol.h"
 #include "ContourValue.h"
 
-#include "NFmiDataMatrix.h"
-#include "NFmiPoint.h"
+#include <newbase/NFmiDataMatrix.h>
+#include <newbase/NFmiPoint.h>
 
 #include <list>
 #include <string>

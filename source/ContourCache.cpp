@@ -8,7 +8,7 @@
 #include "ContourCache.h"
 #include "LazyQueryData.h"
 
-#include "NFmiTime.h"
+#include <newbase/NFmiTime.h>
 
 #include <sstream>
 

@@ -12,7 +12,7 @@
 // <newbase/NFmixxx.h> won't be good for Windows compilation off cvs checkout
 // dir.
 //
-#include "NFmiStringTools.h"
+#include <newbase/NFmiStringTools.h>
 
 using namespace std;
 

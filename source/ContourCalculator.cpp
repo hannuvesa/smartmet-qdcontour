@@ -10,13 +10,13 @@
 #include "LazyQueryData.h"
 #include "DataMatrixAdapter.h"
 
-#include "NFmiDataMatrix.h"
+#include <newbase/NFmiDataMatrix.h>
 
 #include <tron/FmiBuilder.h>
 #include <tron/Tron.h>
 
-#include "NFmiGrid.h"
-#include "NFmiMetTime.h"
+#include <newbase/NFmiGrid.h>
+#include <newbase/NFmiMetTime.h>
 
 #include <boost/make_shared.hpp>
 

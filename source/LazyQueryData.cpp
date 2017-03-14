@@ -6,11 +6,11 @@
 // ======================================================================
 
 #include "LazyQueryData.h"
-#include "NFmiFastQueryInfo.h"
-#include "NFmiFileSystem.h"
-#include "NFmiInterpolation.h"
-#include "NFmiGrid.h"
-#include "NFmiQueryData.h"
+#include <newbase/NFmiFastQueryInfo.h>
+#include <newbase/NFmiFileSystem.h>
+#include <newbase/NFmiInterpolation.h>
+#include <newbase/NFmiGrid.h>
+#include <newbase/NFmiQueryData.h>
 #include <fstream>
 #include <stdexcept>
 #include <sstream>

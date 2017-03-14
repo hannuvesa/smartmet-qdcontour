@@ -18,35 +18,35 @@
 #include "TimeTools.h"
 #include "ExtremaLocator.h"
 
-#include "NFmiColorTools.h"
+#include <imagine/NFmiColorTools.h>
 
 #ifdef IMAGINE_WITH_CAIRO
 #include "ImagineXr.h"
 typedef ImagineXr ImagineXr_or_NFmiImage;
 #else
-#include "NFmiFreeType.h"
-#include "NFmiImage.h"
-#include "NFmiFace.h"
+#include <imagine/NFmiFreeType.h>
+#include <imagine/NFmiImage.h>
+#include <imagine/NFmiFace.h>
 typedef Imagine::NFmiImage ImagineXr_or_NFmiImage;
 #endif
 
-#include "NFmiGeoShape.h"  // for esri data
+#include <imagine/NFmiGeoShape.h>  // for esri data
 
 // Newbase headers
 //
-#include "NFmiCmdLine.h"  // command line options
-#include "NFmiDataMatrix.h"
-#include "NFmiDataModifierClasses.h"
-#include "NFmiEnumConverter.h"  // FmiParameterName<-->string
-#include "NFmiFileSystem.h"     // FileExists()
-#include "NFmiInterpolation.h"  // Interpolation functions
-#include "NFmiLatLonArea.h"     // Geographic projection
-#include "NFmiLevel.h"
-#include "NFmiSettings.h"           // Configuration
-#include "NFmiSmoother.h"           // for smoothing data
-#include "NFmiStereographicArea.h"  // Stereographic projection
-#include "NFmiStringTools.h"
-#include "NFmiPreProcessor.h"
+#include <newbase/NFmiCmdLine.h>  // command line options
+#include <newbase/NFmiDataMatrix.h>
+#include <newbase/NFmiDataModifierClasses.h>
+#include <newbase/NFmiEnumConverter.h>  // FmiParameterName<-->string
+#include <newbase/NFmiFileSystem.h>     // FileExists()
+#include <newbase/NFmiInterpolation.h>  // Interpolation functions
+#include <newbase/NFmiLatLonArea.h>     // Geographic projection
+#include <newbase/NFmiLevel.h>
+#include <newbase/NFmiSettings.h>           // Configuration
+#include <newbase/NFmiSmoother.h>           // for smoothing data
+#include <newbase/NFmiStereographicArea.h>  // Stereographic projection
+#include <newbase/NFmiStringTools.h>
+#include <newbase/NFmiPreProcessor.h>
 
 #include <boost/foreach.hpp>
 #include <boost/shared_ptr.hpp>

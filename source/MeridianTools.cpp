@@ -10,7 +10,7 @@
 
 // Imagine headers
 //
-#include "NFmiEdgeTree.h"
+#include <imagine/NFmiEdgeTree.h>
 
 using namespace Imagine;
 
